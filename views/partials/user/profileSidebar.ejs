@@ -1,0 +1,44 @@
+<aside class="sidebar d-none d-md-flex">
+    <div class="logo">Zyrox</div>
+    <a href="/" class="go-back"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+    <a href="/profile" class="<%= activePage === 'profile' ? 'active' : '' %>">
+        <i class="fa-regular fa-user"></i> Profile
+    </a>
+    <a href="/address" class="<%= activePage === 'address' ? 'active' : '' %>">
+        <i class="fa-solid fa-location-dot"></i> Address
+    </a>
+    <a href="/myOrders" class="<%= activePage === 'orders' ? 'active' : '' %>">
+        <i class="fa-solid fa-box"></i> My Orders
+    </a>
+    <a href="/wishlist" class="<%= activePage === 'wishlist' ? 'active' : '' %>">
+        <i class="fa-regular fa-heart"></i> Wishlist
+    </a>
+    <a href="/wallet" class="<%= activePage === 'wallet' ? 'active' : '' %>">
+        <i class="fa-regular fa-credit-card"></i> Wallet
+    </a>
+</aside>
+
+<!-- Mobile Dropdown Navigation (visible on mobile only) -->
+<div class="col-12 mobile-nav d-md-none mb-3">
+    <div class="dropdown">
+        <button class="btn w-100 dropdown-toggle text-white" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false"
+            style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 12px;">
+            <i class="fa-solid fa-bars me-2"></i> Menu
+        </button>
+        <ul class="dropdown-menu w-100" style="background: #1e2f34; border: 1px solid rgba(255, 255, 255, 0.1);">
+            <li><a class="dropdown-item text-white" href="/profile"><i class="fa-regular fa-user me-2"></i>
+                    Profile</a>
+            </li>
+            <li><a class="dropdown-item text-white" href="/address"><i class="fa-solid fa-location-dot me-2"></i>
+                    Address</a></li>
+            <li><a class="dropdown-item text-white" href="/myOrders"><i class="fa-solid fa-box me-2"></i> My
+                    Orders</a>
+            </li>
+            <li><a class="dropdown-item text-white" href="/wishlist"><i class="fa-regular fa-heart me-2"></i>
+                    Wishlist</a></li>
+            <li><a class="dropdown-item text-white" href="/wallet"><i class="fa-regular fa-credit-card me-2"></i>
+                    Wallet</a></li>
+        </ul>
+    </div>
+</div>

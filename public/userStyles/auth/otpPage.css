@@ -1,0 +1,234 @@
+:root {
+    --bg-deep: #1a2332;
+    --white-card: #ffffff;
+    --input-border: #d1d5db;
+    --input-border-active: #72e4b4;
+    --brand-green-otp: #72e4b4;
+    --brand-green-hover: #5ed1a1;
+    --error-red: #d93025;
+    --text-dark: #111827;
+    --text-gray: #4b5563;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-deep);
+    color: var(--text-dark);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+
+.otp-card {
+    background-color: var(--white-card);
+    width: 100%;
+    max-width: 400px;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.otp-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-dark);
+}
+
+.otp-subtitle {
+    font-size: 14px;
+    color: var(--text-gray);
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.otp-input-container {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.otp-input {
+    width: 45px;
+    height: 55px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-dark);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.otp-input:focus {
+    border-color: var(--input-border-active);
+    box-shadow: 0 0 0 2px rgba(114, 228, 180, 0.2);
+}
+
+.error-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--error-red);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.timer-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dark);
+    text-align: right;
+    margin-bottom: 25px;
+}
+
+#verifyButton {
+    background-color: var(--brand-green-otp);
+    color: var(--text-dark);
+    font-weight: 600;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    width: 100%;
+    font-size: 15px;
+    transition: background-color 0.2s;
+    box-shadow: 0 4px 10px rgba(114, 228, 180, 0.3);
+    margin-bottom: 20px;
+}
+
+.btn-verify:hover {
+    background-color: var(--brand-green-hover);
+}
+
+.resend-text {
+    font-size: 13px;
+    color: var(--text-gray);
+    margin-bottom: 10px;
+}
+
+.resend-link {
+    color: var(--brand-green-hover);
+    text-decoration: none;
+    border: none;
+    font-weight: 600;
+    background: none;
+    cursor: pointer;
+}
+
+.change-email {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 13px;
+    color: #4b5563;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.change-email:hover {
+    color: var(--text-dark);
+}
+
+.error-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.resend-link.disabled {
+    color: var(--text-gray);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* ========== RESPONSIVE ========== */
+
+/* Tablets (≤768px) */
+@media (max-width: 768px) {
+    body {
+        align-items: flex-start;
+        padding: 40px 16px;
+    }
+
+    .otp-card {
+        max-width: 100%;
+        padding: 36px 24px;
+    }
+}
+
+/* Mobile (≤480px) */
+@media (max-width: 480px) {
+    body {
+        padding: 24px 12px;
+    }
+
+    .otp-card {
+        padding: 30px 18px;
+        border-radius: 10px;
+    }
+
+    .otp-title {
+        font-size: 21px;
+    }
+
+    .otp-subtitle {
+        font-size: 13px;
+        margin-bottom: 24px;
+    }
+
+    .otp-input {
+        width: 40px;
+        height: 48px;
+        font-size: 18px;
+    }
+
+    .otp-input-container {
+        gap: 6px;
+    }
+
+    #verifyButton {
+        padding: 11px;
+        font-size: 14px;
+    }
+
+    .timer-text {
+        font-size: 12px;
+    }
+}
+
+/* Small Mobile (≤360px) */
+@media (max-width: 360px) {
+    body {
+        padding: 16px 10px;
+    }
+
+    .otp-card {
+        padding: 24px 14px;
+    }
+
+    .otp-input {
+        width: 36px;
+        height: 44px;
+        font-size: 16px;
+        border-radius: 6px;
+    }
+
+    .otp-input-container {
+        gap: 4px;
+    }
+
+    .otp-title {
+        font-size: 19px;
+    }
+
+    .otp-subtitle {
+        font-size: 12px;
+    }
+}

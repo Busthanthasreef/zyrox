@@ -1,0 +1,164 @@
+body {
+    background-color: #f8f9fa;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.error-container {
+    background: white;
+    border: 2px solid #333;
+    border-radius: 12px;
+    padding: 60px 40px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.search-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 30px;
+    position: relative;
+}
+
+.search-circle-outer {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #bfe3f5 0%, #d4ecf8 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-circle-inner {
+    width: 70px;
+    height: 70px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.search-glass {
+    width: 24px;
+    height: 24px;
+    background: #0d6efd;
+    border-radius: 50%;
+}
+
+h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #212529;
+    margin-bottom: 15px;
+}
+
+.error-message {
+    color: #6c757d;
+    font-size: 15px;
+    margin-bottom: 35px;
+    line-height: 1.5;
+}
+
+.btn-dashboard {
+    background-color: #f0f5ff;
+    color: #333;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-dashboard:hover {
+    background-color: #e0ebff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.home-icon {
+    width: 18px;
+    height: 18px;
+    fill: #0d6efd;
+}
+
+.footer-text {
+    color: #6c757d;
+    font-size: 13px;
+    margin-top: 40px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+    .error-container {
+        padding: 40px 24px;
+        border-radius: 10px;
+    }
+
+    .search-icon,
+    .search-circle-outer {
+        width: 95px;
+        height: 95px;
+    }
+
+    .search-circle-inner {
+        width: 56px;
+        height: 56px;
+    }
+
+    h1 {
+        font-size: 26px;
+    }
+
+    .error-message {
+        font-size: 14px;
+    }
+
+    .btn-dashboard {
+        padding: 10px 24px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 360px) {
+    .error-container {
+        padding: 30px 18px;
+    }
+
+    .search-icon,
+    .search-circle-outer {
+        width: 80px;
+        height: 80px;
+    }
+
+    .search-circle-inner {
+        width: 48px;
+        height: 48px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .error-message {
+        font-size: 13px;
+        margin-bottom: 24px;
+    }
+
+    .footer-text {
+        margin-top: 28px;
+        font-size: 12px;
+    }
+}

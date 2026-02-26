@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/userStyles/auth/otpPage.css">
+</head>
+
+<body data-otp-swal="<%= otpSwal %>" data-otp-success="<%= otpSuccess %>" data-otp-error="<%= otpError %>"
+    data-purpose="<%= purpose %>" data-email="<%= Email %>">
+
+    <div class="otp-card">
+
+        <h1 class="otp-title">
+            <%= purpose==="signup" ? "Verify Your Email" : "Verify OTP" %>
+        </h1>
+
+        <p class="otp-subtitle">
+            We sent a 6-digit verification code to<br>
+            <%= Email %>
+        </p>
+
+        <!-- OTP FORM -->
+        <form
+            action="<%= purpose === 'signup' ? '/verify-otp' : purpose === 'reset' ? '/verify-reset-otp' : '/verify-edit-email-otp' %>"
+            method="post" autocomplete="off">
+
+            <!-- <input type="hidden" name="Email" value="<%= Email %>"> -->
+
+            <div class="otp-input-container">
+                <input name="A" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input name="B" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input name="C" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input name="D" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input name="E" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input name="F" class="otp-input" maxlength="1" inputmode="numeric" autocomplete="off">
+            </div>
+
+            <div class="timer-text">
+                <p id="otpText">
+                    OTP expires in <span id="otpTimer">03:00</span>
+                </p>
+            </div>
+
+            <button type="submit" id="verifyButton" class="btn-verify">
+                Verify
+            </button>
+
+        </form>
+
+        <!-- RESEND -->
+        <div class="resend-text">
+            <form
+                action="<%= purpose === 'signup' ? '/resend-otp' : purpose === 'reset' ? '/resend-reset-otp' : '/resend-edit-email-otp' %>"
+                method="post">
+                <p>Didn't receive the code?
+                    <button class="resend-link" type="submit" id="resendButton" class="disabled" disabled readonly>
+                        Resend
+                    </button>
+                </p>
+            </form>
+        </div>
+
+        <a href="<%= purpose === 'signup' ? '/signup' :purpose==='reset' ? '/forgot-password' :'/edit-email' %>"
+            class="change-email">
+            Change email
+        </a>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const data = document.body.dataset;
+            const otpSwal = data.otpSwal === 'true';
+            const otpSuccess = data.otpSuccess;
+            const otpError = data.otpError;
+            const purpose = data.purpose;
+            const userEmail = data.email;
+
+            // --- FEEDBACK HANDLING (Swals) ---
+
+            // 1. Success with Redirection
+            if (otpSwal && otpSuccess) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Verified!',
+                    text: otpSuccess,
+                    showConfirmButton: false,
+                    timer: 1500,
+                    background: '#1f2937',
+                    color: '#fff',
+                    iconColor: '#00ff88'
+                }).then(() => {
+                    if (purpose === "signup") {
+                        window.location.href = '/';
+                    } else if (purpose === "reset") {
+                        window.location.href = '/new-password';
+                    }
+                    else {
+                        window.location.href = "/edit-email"
+                    }
+                });
+            }
+            // 2. Normal Success Toast (e.g. Resend)
+            else if (otpSuccess) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: otpSuccess,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    background: '#1f2937',
+                    color: '#fff'
+                });
+            }
+            // 3. Error Modal
+            else if (otpError) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: otpError,
+                    background: '#1f2937',
+                    color: '#fff',
+                    confirmButtonColor: '#00ff88'
+                });
+            }
+
+            // --- TIMER LOGIC ---
+
+            const otpTimer = document.getElementById("otpTimer");
+            const otpText = document.getElementById("otpText");
+            const verifyButton = document.getElementById("verifyButton");
+            const resendButton = document.getElementById("resendButton");
+
+            const timerKey = `otpExpiry_${userEmail}_${purpose}`;
+            let expiryTime = localStorage.getItem(timerKey);
+            let seconds;
+
+            const currentTime = Math.floor(Date.now() / 1000);
+
+            if (expiryTime && parseInt(expiryTime) > currentTime) {
+                seconds = parseInt(expiryTime) - currentTime;
+            } else {
+                seconds = 180; // 3 minutes
+                expiryTime = currentTime + seconds;
+                localStorage.setItem(timerKey, expiryTime);
+            }
+
+            function updateTimerDisplay() {
+                let minutes = Math.floor(seconds / 60);
+                let secs = seconds % 60;
+                otpTimer.textContent =
+                    (minutes < 10 ? "0" + minutes : minutes) + ":" +
+                    (secs < 10 ? "0" + secs : secs);
+
+                if (seconds <= 30) {
+                    otpTimer.style.color = "red";
+                }
+            }
+
+            function handleExpiry() {
+                otpText.textContent = "OTP Expired";
+                otpText.style.color = "red";
+                otpTimer.textContent = "00:00";
+
+                verifyButton.disabled = true;
+                verifyButton.textContent = "Expired";
+                verifyButton.style.backgroundColor = "gray";
+
+                resendButton.disabled = false;
+                resendButton.classList.remove("disabled");
+                resendButton.style.color = "#00ff88";
+            }
+
+            function startTimer() {
+                updateTimerDisplay();
+                if (seconds <= 0) {
+                    handleExpiry();
+                    return;
+                }
+
+                const timerInterval = setInterval(() => {
+                    if (seconds > 0) {
+                        seconds--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        handleExpiry();
+                    }
+                }, 1000);
+            }
+
+            startTimer();
+
+            // Clear timer logic
+            document.querySelector('.resend-text form').addEventListener('submit', () => {
+                localStorage.removeItem(timerKey);
+            });
+
+            document.querySelector('.change-email').addEventListener('click', () => {
+                localStorage.removeItem(timerKey);
+            });
+
+            // --- INPUT HANDLING ---
+
+            const inputs = document.querySelectorAll(".otp-input");
+            inputs.forEach((input, index) => {
+                input.addEventListener("input", (e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                    if (e.target.value && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+
+                input.addEventListener("keydown", (e) => {
+                    if (e.key === "Backspace" && !e.target.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        document.querySelector("form").submit();
+                    }
+                });
+            });
+
+            if (inputs.length > 0) inputs[0].focus();
+        });
+    </script>
+</body>
+
+</html>

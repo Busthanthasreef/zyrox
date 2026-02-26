@@ -1,0 +1,263 @@
+:root {
+    --bg-dark: #0f2027;
+    --bg-sidebar: rgba(255, 255, 255, 0.05);
+    --bg-card: rgba(255, 255, 255, 0.1);
+    --bg-field: rgba(255, 255, 255, 0.08);
+    --bg-field-in: rgba(255, 255, 255, 0.1);
+    --accent-green: #00ff88;
+    --accent-red: #ff4b5c;
+    --text-primary: #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.7);
+    --text-label: rgba(255, 255, 255, 0.9);
+    --border: rgba(255, 255, 255, 0.1);
+    --radius: 14px;
+}
+
+body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    font-family: 'Segoe UI', 'Outfit', sans-serif;
+    color: var(--text-primary);
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden;
+}
+
+.main-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+    width: 270px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    background: var(--bg-sidebar);
+    backdrop-filter: blur(15px);
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.sidebar .logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 28px;
+    padding-left: 15px;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    color: #fff;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.sidebar a:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar a.active {
+    background: var(--accent-green);
+    color: #000;
+    font-weight: 600;
+}
+
+.sidebar a.go-back {
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+/* ── MAIN CONTENT ── */
+.main-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    overflow-y: auto;
+    height: 100vh;
+}
+
+.profile-card,
+.edit-card,
+.card {
+    background: var(--bg-card);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    max-width: 950px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+/* ── HEADERS ── */
+h3,
+h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: #fff;
+}
+
+/* ── FORMS & INPUTS ── */
+.info-box,
+.mobile-box,
+.form-group {
+    background: var(--bg-field);
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+}
+
+.form-label,
+label {
+    font-weight: 600;
+    color: var(--text-label);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.form-control {
+    background: var(--bg-field-in) !important;
+    border: 1px solid var(--border) !important;
+    color: #fff !important;
+    border-radius: 8px;
+    padding: 10px 15px;
+}
+
+.form-control:focus {
+    border-color: var(--accent-green) !important;
+    box-shadow: none !important;
+}
+
+.form-control.is-invalid {
+    border-color: var(--accent-red) !important;
+    background: rgba(255, 75, 92, 0.05) !important;
+}
+
+.text-danger.small {
+    color: var(--accent-red) !important;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 5px;
+}
+
+/* ── BUTTONS ── */
+.btn-custom,
+.btn-save,
+.btn-submit {
+    border-radius: 30px;
+    padding: 10px 25px;
+    font-weight: 600;
+    transition: 0.3s;
+    border: none;
+}
+
+.btn-custom.edit-btn,
+.btn-save,
+.btn-submit {
+    background: var(--accent-green);
+    color: #000;
+}
+
+.btn-custom.logout-btn {
+    background: var(--accent-red);
+    color: #fff;
+}
+
+.btn-custom.change-pass-btn,
+.btn-cancel,
+.btn-back {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.btn-custom:hover,
+.btn-save:hover,
+.btn-submit:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+/* ── UTILS ── */
+.profile-img {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--accent-green);
+}
+
+/* ── MOBILE ── */
+@media (max-width: 768px) {
+    .sidebar {
+        display: none !important;
+    }
+
+    .main-wrapper {
+        padding: 20px 15px;
+    }
+
+    .profile-card,
+    .edit-card,
+    .card {
+        padding: 25px 20px;
+    }
+}
+
+/* ── PAGINATION SHARED ── */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 30px;
+}
+
+.pagination-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: var(--bg-field);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s;
+    border: 1px solid var(--border);
+}
+
+.pagination-link:hover {
+    background: var(--bg-field-in);
+    color: var(--accent-green);
+    border-color: var(--accent-green);
+}
+
+.pagination-link.active {
+    background: var(--accent-green);
+    color: #000;
+    font-weight: 700;
+    border-color: var(--accent-green);
+}
+
+.pagination-link.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}

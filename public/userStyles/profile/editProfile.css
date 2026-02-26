@@ -1,0 +1,233 @@
+body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    font-family: 'Segoe UI', sans-serif;
+    min-height: 100vh;
+}
+
+.sidebar {
+    min-height: 100vh;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding-top: 30px;
+}
+
+
+.sidebar a {
+    display: block;
+    padding: 12px 20px;
+    margin: 10px 15px;
+    border-radius: 12px;
+    color: #fff;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.btn-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background: #00ff88;
+    color: #000;
+}
+
+.edit-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 40px;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 600px;
+}
+
+.profile-img-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.profile-img {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #00ff88;
+}
+
+.img-actions {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+.btn-circle {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+}
+
+.change-img-btn {
+    background: #00ff88;
+    color: #000;
+}
+
+.remove-img-btn {
+    background: #ff4b5c;
+    color: #fff;
+}
+
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    box-shadow: none;
+    border-color: #00ff88;
+}
+
+.form-label {
+    color: #ddd;
+}
+
+.btn-save {
+    background: #00ff88;
+    color: #000;
+    border-radius: 30px;
+    padding: 8px 25px;
+    border: none;
+    font-weight: 500;
+}
+
+.btn-cancel {
+    background: #ff4b5c;
+    color: #fff;
+    border-radius: 30px;
+    padding: 8px 25px;
+    text-decoration: none;
+}
+
+.edit-btn-inline {
+    background: #4361ee;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.3s ease;
+    height: 42px;
+}
+
+.edit-btn-inline:hover {
+    background: #3a56d4;
+    transform: scale(1.02);
+}
+
+.email-ipt {
+    flex: 1;
+}
+
+.mobile-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        display: none !important;
+    }
+
+    .mobile-nav {
+        display: block !important;
+        margin-bottom: 20px;
+    }
+
+    .edit-card {
+        padding: 24px 20px;
+        max-width: 100%;
+    }
+}
+
+/* Mobile phones (≤480px) */
+@media (max-width: 480px) {
+    .edit-card {
+        padding: 20px 16px;
+        border-radius: 14px;
+    }
+
+    .profile-img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .btn-save,
+    .btn-cancel {
+        padding: 8px 18px;
+        font-size: 14px;
+    }
+
+    .d-flex.justify-content-end.mt-4 {
+        justify-content: stretch !important;
+    }
+
+    .d-flex.justify-content-end.mt-4 .btn-cancel,
+    .d-flex.justify-content-end.mt-4 .btn-save {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+/* Small Mobile (≤360px) */
+@media (max-width: 360px) {
+    .edit-card {
+        padding: 16px 12px;
+    }
+
+    .profile-img {
+        width: 85px;
+        height: 85px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    .form-control {
+        font-size: 13px;
+    }
+
+    .form-label {
+        font-size: 13px;
+    }
+}

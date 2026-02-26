@@ -1,0 +1,199 @@
+body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.sidebar {
+    min-height: 100vh;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    padding-top: 30px;
+}
+
+.sidebar a {
+    display: block;
+    padding: 12px 20px;
+    margin: 10px 15px;
+    border-radius: 12px;
+    color: #fff;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+.pass{
+    background-color: black;
+    color:white;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background: #00ff88;
+    color: #000;
+}
+
+.profile-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 30px;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.profile-img {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #00ff88;
+}
+
+.info-box {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.mobile-box {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.mobile-box .form-control,
+.mobile-box .form-control:disabled {
+    height: 40px;
+    width: 100%;
+    max-width: 300px;
+    background-color: #5c727a !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    opacity: 1;
+}
+
+.tick {
+    color: #00ff59;
+}
+
+.mobile-box ::placeholder {
+    color: #ffffff;
+    font-size: large;
+}
+
+.btn-custom {
+    border-radius: 30px;
+    padding: 8px 20px;
+}
+
+.logout-btn {
+    background: #ff4b5c;
+    color: #fff;
+}
+
+.logout-btn:hover {
+    background: #ff1e38;
+}
+
+.edit-btn {
+    background: #00ff88;
+    color: #000;
+}
+
+.edit-btn2 {
+    background: #000000;
+    color: #ffffff;
+}
+
+.edit-btn:hover {
+    background: #00cc6a;
+}
+
+.change-pass-btn {
+    background: #212529;
+    color: #fff;
+}
+
+.change-pass-btn:hover {
+    background: #000;
+}
+
+/* Mobile Nav (shows on mobile) */
+.mobile-nav {
+    display: none;
+}
+
+/* ========== RESPONSIVE ========== */
+
+/* Tablets: hide sidebar, show dropdown nav */
+@media (max-width: 768px) {
+    .sidebar {
+        display: none !important;
+    }
+
+    .mobile-nav {
+        display: block !important;
+        margin-bottom: 16px;
+    }
+
+    .profile-card {
+        padding: 24px 20px;
+        border-radius: 16px;
+    }
+
+    .profile-img {
+        width: 110px;
+        height: 110px;
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+    .profile-card {
+        padding: 20px 16px;
+        border-radius: 14px;
+    }
+
+    .profile-img {
+        width: 95px;
+        height: 95px;
+    }
+
+    /* Stack header buttons vertically */
+    .d-flex.justify-content-between.align-items-center.mb-1 {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+
+    .mobile-box .form-control,
+    .mobile-box .form-control:disabled {
+        max-width: 100%;
+    }
+
+    .btn-custom {
+        padding: 7px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Small Mobile */
+@media (max-width: 360px) {
+    .profile-card {
+        padding: 16px 12px;
+    }
+
+    .profile-img {
+        width: 85px;
+        height: 85px;
+    }
+
+    h3 {
+        font-size: 18px;
+    }
+
+    .info-box,
+    .mobile-box {
+        padding: 10px 12px;
+    }
+}

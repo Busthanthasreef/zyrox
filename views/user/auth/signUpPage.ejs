@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="/userStyles/auth/signUpPage.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+
+    <div class="signup-card">
+        <h1 class="h4 fw-bold mb-1">SIGN UP</h1>
+        <p class="text-secondary small mb-4">Enter your information to get started</p>
+
+        <form action="/signup" method="post">
+
+            <!-- Full Name -->
+            <div class="mb-3">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="Name" class="form-control" placeholder="Enter Full Name"
+                    value="<%= typeof Name !== 'undefined' ? Name : '' %>">
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" id="Email" name="Email" class="form-control" placeholder="Enter your Email Address"
+                    value="<%= typeof Email !== 'undefined' ? Email : '' %>">
+            </div>
+
+            <!-- Email Error -->
+            <p style="color:red; font-size: small;" id="emailError">
+                <%= typeof emailError !=='undefined' && emailError ? emailError : '' %>
+            </p>
+            <!-- Phone Number -->
+            <div class="mb-3">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" id="Phone" name="Phone" class="form-control" placeholder="Enter your Phone Number"
+                    value="<%= (typeof Phone !== 'undefined' && Phone !== '') ? (Phone.includes('+91') ? Phone : '+91' + Phone) : '+91' %>">
+            </div>
+            <p style="color:red; font-size: small;" id="phoneError">
+                <%= typeof phoneError !=='undefined' && phoneError ? phoneError : '' %>
+            </p>
+
+
+            <!-- Password -->
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="Password" name="Password" class="form-control"
+                        placeholder="Enter your password"
+                        value="<%= typeof Password !== 'undefined' ? Password : '' %>">
+                    <div class="password-toggle-icon" id="togglePassword">
+                        <i class="bi bi-eye-slash"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-3">
+                <label class="form-label">Confirm Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control"
+                        placeholder="Confirm password"
+                        value="<%= typeof confirmPassword !== 'undefined' ? confirmPassword : '' %>">
+                    <div class="password-toggle-icon" id="toggleConfirmPassword">
+                        <i class="bi bi-eye-slash"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password Error -->
+            <p style="color:red; font-size: small;" id="passError">
+                <%= typeof passError !=='undefined' && passError ? passError : '' %>
+            </p>
+
+            <button type="submit" class="btn btn-create w-100">Create Account</button>
+        </form>
+
+        <div class="divider">Or continue with</div>
+
+        <a href="/auth/google" class="btn-google" style="text-decoration: none;">
+            <svg class="google-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                <path fill="#EA4335"
+                    d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                <path fill="#4285F4"
+                    d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                <path fill="#FBBC05"
+                    d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                <path fill="#34A853"
+                    d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                <path fill="none" d="M0 0h48v48H0z" />
+            </svg>
+            Google
+        </a>
+
+        <div class="footer-divider mt-3">
+            Already have an account? <a href="/signin">Log in</a>
+        </div>
+
+    </div>
+
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const formElement = document.querySelector("form");
+
+            const togglePassword = document.getElementById("togglePassword");
+            const password = document.getElementById("Password");
+
+            if (togglePassword) {
+                togglePassword.addEventListener("click", function () {
+                    const type = password.getAttribute("type") === "password" ? "text" : "password";
+                    password.setAttribute("type", type);
+
+                    const icon = this.querySelector('i');
+                    if (type === 'text') {
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
+                    } else {
+                        icon.classList.remove('bi-eye');
+                        icon.classList.add('bi-eye-slash');
+                    }
+                });
+            }
+
+            const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
+            const confirmPassword = document.getElementById("confirmPassword");
+
+            if (toggleConfirmPassword) {
+                toggleConfirmPassword.addEventListener("click", function () {
+                    const type = confirmPassword.getAttribute("type") === "password" ? "text" : "password";
+                    confirmPassword.setAttribute("type", type);
+
+                    const icon = this.querySelector('i');
+                    if (type === 'text') {
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
+                    } else {
+                        icon.classList.remove('bi-eye');
+                        icon.classList.add('bi-eye-slash');
+                    }
+                });
+            }
+
+            formElement.addEventListener("submit", function (event) {
+
+                const emailValue = document.getElementById("Email").value.trim();
+                const phoneValue = document.getElementById("Phone").value.trim();
+                const passwordValue = document.getElementById("Password").value.trim();
+                const confirmPasswordValue = document.getElementById("confirmPassword").value.trim();
+
+                const emailRegex = /^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
+                const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+                const phoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
+
+                const emailError = document.getElementById("emailError");
+                const phoneError = document.getElementById("phoneError");
+                const passError = document.getElementById("passError");
+
+                emailError.textContent = "";
+                phoneError.textContent = "";
+                passError.textContent = "";
+
+                // Empty field validation
+                if (!emailValue || !phoneValue || !passwordValue || !confirmPasswordValue) {
+                    event.preventDefault();
+                    Swal.fire({
+                        icon: "warning",
+                        title: "All fields are required"
+                    });
+                    return;
+                }
+
+                // Email validation
+                if (!emailRegex.test(emailValue)) {
+                    event.preventDefault();
+                    emailError.textContent = "invalid email, please enter a valid email"
+                    return;
+                }
+
+                // Phone validation
+                if (!phoneRegex.test(phoneValue)) {
+                    event.preventDefault();
+                    phoneError.textContent = "Invalid phone number, it must be an Indian phone number"
+                    return;
+                }
+
+                // Password validation
+                if (!passwordRegex.test(passwordValue)) {
+                    event.preventDefault();
+                    passError.textContent = "Password must be at least 8 characters and must contain atleast one letter and one number"
+                    return;
+                }
+
+                // Confirm password match
+                if (passwordValue !== confirmPasswordValue) {
+                    passError.textContent = "Passwords do not match"
+                    return;
+                }
+
+                localStorage.removeItem("otp_timer_expiry");
+            });
+
+            // Show Swal Toast for Email Errors (like Duplicate Email)
+            <% if (typeof emailError !== 'undefined' && emailError && (emailError.toLowerCase().includes('exist') || emailError.toLowerCase().includes('in use'))) { %>
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: '<%= emailError %>',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    background: '#1a2a30',
+                    color: '#fff'
+                });
+            <% } %>
+        });
+    </script>
+
+</body>
+
+</html>

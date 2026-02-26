@@ -1,0 +1,77 @@
+<!-- ===================== SIDEBAR ===================== -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <i class="bi bi-bag-fill"></i>
+        <span>Zyrox</span>
+    </div>
+
+    <p class="sidebar-section-label">Management</p>
+
+    <nav class="sidebar-nav">
+        <a href="/admin/dashboard" class="nav-item <%= currentPage === 'dashboard' ? 'active' : '' %>">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+        <a href="/admin/orders" class="nav-item <%= currentPage === 'orders' ? 'active' : '' %>">
+            <i class="bi bi-receipt"></i> Orders
+        </a>
+        <a href="/admin/products" class="nav-item <%= currentPage === 'products' ? 'active' : '' %>">
+            <i class="bi bi-box-seam"></i> Products
+        </a>
+        <a href="/admin/categories" class="nav-item <%= currentPage === 'categories' ? 'active' : '' %>">
+            <i class="bi bi-tag"></i> Categories
+        </a>
+        <a href="/admin/coupons" class="nav-item <%= currentPage === 'coupons' ? 'active' : '' %>">
+            <i class="bi bi-ticket-perforated"></i> Coupons
+        </a>
+        <a href="/admin/offers" class="nav-item <%= currentPage === 'offers' ? 'active' : '' %>">
+            <i class="bi bi-stars"></i> Offers
+        </a>
+        <a href="/admin/users" class="nav-item <%= currentPage === 'users' ? 'active' : '' %>">
+            <i class="bi bi-people"></i> User Management
+        </a>
+        <a href="" class="nav-item text-danger" onclick="confirmLogout(); return false;">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    </nav>
+
+    <!-- Admin Info -->
+    <div class="sidebar-user">
+        <% const currentUser = typeof admin !== 'undefined' ? admin : (typeof user !== 'undefined' ? user : null); %>
+        <% if (currentUser) { %>
+            <div class="user-avatar">
+                <%= currentUser.Name ? currentUser.Name.charAt(0).toUpperCase() : 'A' %>
+            </div>
+            <div class="user-info">
+                <p class="user-name"><%= currentUser.Name || 'Admin' %></p>
+                <p class="user-email"><%= currentUser.Email || '' %></p>
+            </div>
+        <% } else { %>
+            <div class="user-avatar">A</div>
+            <div class="user-info">
+                <p class="user-name">Admin</p>
+                <p class="user-email">admin@zyrox.com</p>
+            </div>
+        <% } %>
+    </div>
+
+</aside>
+
+<script>
+    function confirmLogout() {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Logout?',
+            text: 'Are you sure you want to logout?',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, logout',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#dc3545',
+            background: '#1e293b',
+            color: '#f1f5f9',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "/admin/logout";
+            }
+        });
+    }
+</script>

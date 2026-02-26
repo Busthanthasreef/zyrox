@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Address – Zyrox</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/userStyles/profile/profileShared.css">
+  <link rel="stylesheet" href="/userStyles/address/addAddress.css">
+</head>
+
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <div class="main-container">
+    <!-- Sidebar Partial -->
+    <%- include('../../partials/user/profileSidebar', {activePage: 'address' }) %>
+
+      <!-- Main Content -->
+      <main class="main-wrapper">
+        <div id="profile-card-container" class="w-100 d-flex justify-content-center">
+    
+          <div class="card col-12 col-sm-10 col-md-8">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3><i class="fa-solid fa-plus me-2"></i> Add New Address</h3>
+              <a href="/address" class="btn btn-back">
+                <i class="bi bi-arrow-left"></i> Back
+              </a>
+            </div>
+
+            <form action="/address-add" method="POST" id="addAddressForm">
+
+              <!-- Address Type -->
+              <div class="form-group">
+                <label>Address Type</label>
+                <div class="radio-group">
+                  <label class="radio-option">
+                    <input type="radio" name="addressType" value="Home" <%=(typeof addressType !=='undefined' &&
+                      addressType==='Home' ) || typeof addressType==='undefined' ? 'checked' : '' %>> Home
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="addressType" value="Work" <%=(typeof addressType !=='undefined' &&
+                      addressType==='Work' ) ? 'checked' : '' %>> Work
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="addressType" value="Other" <%=(typeof addressType !=='undefined' &&
+                      addressType==='Other' ) ? 'checked' : '' %>> Other
+                  </label>
+                </div>
+              </div>
+
+              <!-- Name & Phone -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <input type="text" name="name" class="form-control <%= errors.name ? 'is-invalid' : '' %>"
+                    placeholder="Recipient Name" value="<%= typeof name !== 'undefined' ? name : '' %>" >
+                  <% if (errors.name) { %>
+                    <p class="text mt-1">
+                      <%= errors.name %>
+                    </p>
+                    <% } %>
+                </div>
+                <div class="form-group">
+                  <label>Phone Number</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-transparent text-light border-secondary">+91</span>
+                    <input type="text" name="phone" class="form-control <%= errors.phone ? 'is-invalid' : '' %>"
+                      placeholder="10 Digit Number" value="<%= typeof phone !== 'undefined' ? phone : '' %>"
+                      maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" >
+                  </div>
+                  <% if (errors.phone) { %>
+                    <p class="text mt-1">
+                      <%= errors.phone %>
+                    </p>
+                    <% } %>
+                </div>
+              </div>
+
+              <!-- House & Locality -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label>House Name / No.</label>
+                  <input type="text" name="houseName" class="form-control <%= errors.houseName ? 'is-invalid' : '' %>"
+                    placeholder="Building Name / No." value="<%= typeof houseName !== 'undefined' ? houseName : '' %>"
+                    >
+                  <% if (errors.houseName) { %>
+                    <p class="text-danger small mt-1">
+                      <%= errors.houseName %>
+                    </p>
+                    <% } %>
+                </div>
+                <div class="form-group">
+                  <label>Locality / Street</label>
+                  <input type="text" name="locality" class="form-control <%= errors.locality ? 'is-invalid' : '' %>"
+                    placeholder="Area / Street" value="<%= typeof locality !== 'undefined' ? locality : '' %>" >
+                  <% if (errors.locality) { %>
+                    <p class="text-danger small mt-1">
+                      <%= errors.locality %>
+                    </p>
+                    <% } %>
+                </div>
+              </div>
+
+              <!-- City, State, Pincode -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label>City</label>
+                  <input type="text" name="city" class="form-control <%= errors.city ? 'is-invalid' : '' %>"
+                    placeholder="City" value="<%= typeof city !== 'undefined' ? city : '' %>" >
+                  <% if (errors.city) { %>
+                    <p class="text-danger small mt-1">
+                      <%= errors.city %>
+                    </p>
+                    <% } %>
+                </div>
+                <div class="form-group">
+                  <label>State</label>
+                  <input type="text" name="state" class="form-control <%= errors.state ? 'is-invalid' : '' %>"
+                    placeholder="State" value="<%= typeof state !== 'undefined' ? state : '' %>" >
+                  <% if (errors.state) { %>
+                    <p class="text-danger small mt-1">
+                      <%= errors.state %>
+                    </p>
+                    <% } %>
+                </div>
+                <div class="form-group">
+                  <label>Pincode</label>
+                  <input type="text" name="pincode" class="form-control <%= errors.pincode ? 'is-invalid' : '' %>"
+                    placeholder="6 Digit Code" value="<%= typeof pincode !== 'undefined' ? pincode : '' %>" >
+                  <% if (errors.pincode) { %>
+                    <p class="text-danger small mt-1">
+                      <%= errors.pincode %>
+                    </p>
+                    <% } %>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Country</label>
+                <select name="country" class="form-control">
+                  <option value="India" <%=typeof country !=='undefined' && country==='India' ? 'selected' : '' %>>India
+                  </option>
+                  <option value="USA" <%=typeof country !=='undefined' && country==='USA' ? 'selected' : '' %>>USA
+                  </option>
+                  <option value="UK" <%=typeof country !=='undefined' && country==='UK' ? 'selected' : '' %>>UK</option>
+                </select>
+              </div>
+
+              <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox" name="isDefault" id="isDefault" <%=typeof isDefault
+                  !=='undefined' && isDefault==='on' ? 'checked' : '' %>>
+                <label class="form-check-label text-white-50" for="isDefault">
+                  Set as default address
+                </label>
+              </div>
+
+              <% if (typeof isDuplicate !=='undefined' && isDuplicate) { %>
+                <script>
+                  document.addEventListener("DOMContentLoaded", function () {
+                    Swal.fire({
+                      toast: true,
+                      position: 'top',
+                      icon: 'error',
+                      title: 'This address already exists!',
+                      showConfirmButton: false,
+                      timer: 3000,
+                      timerProgressBar: true
+                    });
+                  });
+                </script>
+                <% } %>
+
+
+
+                  <div class="d-flex justify-content-end gap-2">
+                    <a href="/address" class="btn btn-custom btn-cancel">Cancel</a>
+                    <button type="submit" class="btn btn-custom btn-save">Save Address</button>
+                  </div>
+            </form>
+
+          </div>
+        </div>
+      </main>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- AJAX Logic for Card Switching -->
+  <script src="/js/userProfile.js"></script>
+  <script>
+    document.addEventListener('submit', function (e) {
+      const form = e.target.closest('#addAddressForm');
+      if (!form) return;
+
+      const nameField = form.querySelector('[name="name"]');
+      const phoneField = form.querySelector('[name="phone"]');
+      const houseNameField = form.querySelector('[name="houseName"]');
+      const localityField = form.querySelector('[name="locality"]');
+      const cityField = form.querySelector('[name="city"]');
+      const stateField = form.querySelector('[name="state"]');
+      const pincodeField = form.querySelector('[name="pincode"]');
+
+      const name = nameField.value.trim();
+      const phone = phoneField.value.trim();
+      const houseName = houseNameField.value.trim();
+      const locality = localityField.value.trim();
+      const city = cityField.value.trim();
+      const state = stateField.value.trim();
+      const pincode = pincodeField.value.trim();
+
+      let isValid = true;
+      const errors = {};
+
+      // Regex matches backend
+      const nameRegex = /^[A-Za-z\s]{3,50}$/;
+      const phoneRegex = /^[6-9]\d{9}$/;
+      const pincodeRegex = /^\d{6}$/;
+
+      if (!nameRegex.test(name)) {
+        isValid = false;
+        errors.name = "Enter a valid name (3-50 letters only)";
+      }
+      if (phone && !phoneRegex.test(phone)) {
+        isValid = false;
+        errors.phone = "Enter a valid 10-digit Indian phone number starting with 6-9";
+      }
+      if (!houseName) {
+        isValid = false;
+        errors.houseName = "House Name/No is required";
+      }
+      if (!locality) {
+        isValid = false;
+        errors.locality = "Locality/Street is required";
+      }
+      if (!city) {
+        isValid = false;
+        errors.city = "City is required";
+      }
+      if (!state) {
+        isValid = false;
+        errors.state = "State is required";
+      }
+      if (!pincodeRegex.test(pincode)) {
+        isValid = false;
+        errors.pincode = "Enter a valid 6-digit pincode";
+      }
+
+      // Clear existing errors
+      form.querySelectorAll('.text-danger.small').forEach(el => el.remove());
+      form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+      if (!isValid) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        Object.keys(errors).forEach(key => {
+          const field = form.querySelector(`[name="${key}"]`);
+          if (field) {
+            field.classList.add('is-invalid');
+            const errorMsg = document.createElement('p');
+            errorMsg.className = 'text-danger small mt-1';
+            errorMsg.innerText = errors[key];
+            field.parentNode.appendChild(errorMsg);
+          }
+        });
+      }
+    }, true);
+  </script>
+</body>
+
+</html>

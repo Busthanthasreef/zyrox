@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — Zyrox</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/adminStyles/auth/adminLogin.css">
+</head>
+
+<body>
+
+    <div class="page-wrapper">
+
+        <!-- Background grid lines -->
+        <div class="bg-grid"></div>
+
+        <!-- Top label -->
+        <p class="page-label">Admin Login Page</p>
+
+        <div class="card">
+
+            <!-- Logo -->
+            <div class="logo-wrap">
+                <span class="logo-text">Zyrox</span>
+            </div>
+
+            <h1 class="card-title">Admin Portal</h1>
+            <p class="card-subtitle">Secure access for authorized personnel only</p>
+
+            <div class="form-box">
+                <h2 class="form-heading">Log In</h2>
+
+                <form action="/admin" method="POST" >
+                    <!-- Email -->
+                    <div class="field-group">
+                        <label for="email">Email</label>
+                        <input id="email" name="Email" placeholder="admin@company.com"
+                            value="<%= typeof formData !== 'undefined' ? formData.Email : '' %>"
+                            class="<%= typeof errors !== 'undefined' && errors.email ? 'input-error' : '' %>">
+                        <% if (typeof errors !=='undefined' && errors.email) { %>
+                            <p class="error-msg">
+                                <%= errors.email %>
+                            </p>
+                            <% } %>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="field-group">
+                        <label for="password">Password</label>
+                        <div class="password-wrap">
+                            <input  id="password" name="Password" placeholder="Enter your password"
+                                class="<%= typeof errors !== 'undefined' && errors.password ? 'input-error' : '' %>">
+                            <button type="button" class="eye-btn" onclick="togglePassword()">
+                                <svg id="eye-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                            </button>
+                        </div>
+                        <% if (typeof errors !=='undefined' && errors.password) { %>
+                            <p class="error-msg">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="12" y1="8" x2="12" y2="12" />
+                                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                                </svg>
+                                <%= errors.password %>
+                            </p>
+                            <% } %>
+                    </div>
+
+                    <!-- General / credentials error -->
+                    <% if (typeof errors !=='undefined' && errors.general) { %>
+                        <div class="alert-error">
+                            <%= errors.general %>
+                        </div>
+                        <% } %>
+                            <button type="submit" class="btn-submit">
+                                Sign In to Dashboard
+                            </button>
+
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+            } else {
+                input.type = 'password';
+                icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
