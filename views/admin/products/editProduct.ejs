@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zyrox Admin — Edit Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+      <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-lt: #eff6ff;
+            --danger: #ef4444;
+            --success: #16a34a;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --muted: #64748b;
+            --radius: 10px;
+            --shadow: 0 1px 4px rgba(0,0,0,.07);
+            --shadow-md: 0 4px 20px rgba(0,0,0,.09);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+        }
+        /* ─── MAIN ─────────────────────────────────── */
+        .main-wrap {
+       
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            padding: 14px 26px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        .topbar-sep, .topbar-sub { font-size: 0.88rem; color: var(--muted); }
+
+        .page-body { padding: 24px 26px; }
+
+        /* ─── PANEL ─────────────────────────────────── */
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+        .panel-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* ─── FORM ──────────────────────────────────── */
+        .form-label {
+            font-size: 0.73rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--muted);
+            margin-bottom: 5px;
+        }
+        .form-control, .form-select {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            padding: 9px 12px;
+            background: var(--bg);
+            color: var(--text);
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+            background: #fff;
+            outline: none;
+        }
+        textarea.form-control { min-height: 90px; resize: vertical; }
+
+        /* ─── IMAGE UPLOAD ──────────────────────────── */
+        .img-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+        .img-box {
+            aspect-ratio: 1;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: var(--bg);
+            transition: border-color .15s, background .15s;
+        }
+        .img-box:hover { border-color: var(--primary); background: var(--primary-lt); }
+        .img-box input[type="file"] {
+            position: absolute; inset: 0;
+            opacity: 0; cursor: pointer;
+            width: 100%; height: 100%;
+        }
+        .img-box i { font-size: 1.3rem; color: var(--muted); pointer-events: none; }
+        .img-box span { font-size: 0.7rem; color: var(--muted); margin-top: 4px; pointer-events: none; }
+        .img-box img.preview {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; border-radius: 6px;
+        }
+        .img-remove {
+            position: absolute; top: 4px; right: 4px;
+            width: 20px; height: 20px;
+            background: rgba(0,0,0,.55); border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 3;
+        }
+        .img-remove i { font-size: 0.6rem; color: #fff; margin: 0; pointer-events: none; }
+        .img-box.has-img:hover .img-remove { display: flex; }
+
+        /* ─── COLOR TAGS ─────────────────────────────── */
+        .color-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+        .color-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px 4px 8px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: default;
+            border: 1px solid transparent;
+            color: #fff;
+        }
+        .color-tag .dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.5);
+            flex-shrink: 0;
+        }
+        .color-tag .remove-tag {
+            font-size: 0.7rem;
+            cursor: pointer;
+            opacity: .75;
+            margin-left: 2px;
+        }
+        .color-tag .remove-tag:hover { opacity: 1; }
+
+        .color-add-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .color-add-row input[type="color"] {
+            width: 36px; height: 36px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            padding: 2px;
+            background: var(--bg);
+        }
+        .color-add-row input[type="text"] {
+            flex: 1;
+        }
+
+        /* ─── VARIANT CARDS ──────────────────────────── */
+        .variant-stack { display: flex; flex-direction: column; gap: 12px; }
+
+        .variant-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: #fff;
+            overflow: hidden;
+        }
+        .variant-card.removing {
+            opacity: .45;
+            border-style: dashed;
+        }
+
+        .vc-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 11px 14px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            user-select: none;
+        }
+        .vc-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .color-dot {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+        }
+        .vc-acts { display: flex; align-items: center; gap: 6px; }
+
+        .btn-ico {
+            width: 28px; height: 28px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.78rem;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .btn-ico:hover { background: var(--primary-lt); color: var(--primary); border-color: #bfdbfe; }
+        .btn-ico.del:hover { background: #fef2f2; color: var(--danger); border-color: #fecaca; }
+
+        .chevron { transition: transform .2s; font-size: 0.75rem; color: var(--muted); }
+        .vc-head.collapsed .chevron { transform: rotate(-90deg); }
+
+        .vc-body { padding: 16px; }
+
+        /* Color input row inside variant */
+        .color-row { display: flex; align-items: center; gap: 8px; }
+        .color-preview-box {
+            width: 36px; height: 36px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .color-preview-box input[type="color"] {
+            position: absolute; inset: -4px;
+            width: calc(100% + 8px); height: calc(100% + 8px);
+            opacity: 0; cursor: pointer;
+        }
+
+        /* Status badge */
+        .status-row { display: flex; align-items: center; gap: 10px; }
+        .status-lbl { font-size: 0.82rem; font-weight: 600; }
+        .form-check-input:checked { background-color: var(--success); border-color: var(--success); }
+
+        /* Add variant button */
+        .btn-add-var {
+            width: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+            padding: 11px;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            background: transparent;
+            font-size: 0.855rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .btn-add-var:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-lt); }
+
+        /* ─── BOTTOM ACTIONS ─────────────────────────── */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 18px;
+            margin-top: 6px;
+            border-top: 1px solid var(--border);
+        }
+        .btn-discard {
+            padding: 9px 22px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text);
+            transition: all .15s;
+        }
+        .btn-discard:hover { background: var(--bg); }
+        .btn-save {
+            padding: 9px 26px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s;
+        }
+        .btn-save:hover { background: #1d4ed8; }
+
+        /* ─── RESPONSIVE ─────────────────────────────── */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-wrap { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+
+
+
+ <%- include('../../partials/admin/sidebar', { currentPage: 'products' ,currentUser:'admin'}) %>
+
+
+
+<!-- ===================== MAIN ===================== -->
+<div class="main-wrap">
+
+    <!-- Topbar -->
+    <div class="topbar">
+        <span class="topbar-title">Product Management</span>
+        <span class="topbar-sep"><i class="bi bi-chevron-right" style="font-size:.75rem"></i></span>
+        <span class="topbar-sub">Edit Product</span>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <form id="editProductForm" action="/admin/products-edit/?id=<%= product._id %>" method="POST" enctype="multipart/form-data">
+
+            <div class="row g-4">
+
+                <!-- ══ LEFT COLUMN ══════════════════════════════ -->
+                <div class="col-lg-6">
+
+                    <!-- Basic Info -->
+                    <div class="panel">
+                        <div class="panel-title"><i class="bi bi-info-circle me-2 text-primary"></i>Basic Information</div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" name="name" class="form-control"
+                                   placeholder="Enter product name"
+                                   value="<%= product.name %>" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control"
+                                      placeholder="Describe this product..."><%= product.description %></textarea>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label">Category</label>
+                                <select name="category" class="form-select">
+                                    <option value="">Select a category</option>
+                                    <% if (typeof categories !== 'undefined') { %>
+                                        <% categories.forEach(cat => { %>
+                                            <option value="<%= cat._id %>"
+                                                <%= product.category && product.category.toString() === cat._id.toString() ? 'selected' : '' %>>
+                                                <%= cat.name %>
+                                            </option>
+                                        <% }) %>
+                                    <% } %>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Status</label>
+                                <select name="status" class="form-select">
+                                    <option value="active"   <%= product.status === 'active'   ? 'selected' : '' %>>Active</option>
+                                    <option value="inactive" <%= product.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
+                                    <option value="draft"    <%= product.status === 'draft'    ? 'selected' : '' %>>Draft</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Images -->
+                    <div class="panel">
+                        <div class="panel-title"><i class="bi bi-images me-2 text-primary"></i>Product Images</div>
+                        <div class="img-grid" id="imgGrid">
+                            <%
+                                const imgs = (product.images && product.images.length) ? product.images : [null, null, null];
+                                imgs.slice(0, 3).forEach((img, idx) => {
+                            %>
+                            <div class="img-box <%= img ? 'has-img' : '' %>" id="imgBox<%= idx %>">
+                                <% if (img) { %>
+                                    <img class="preview" src="<%= img %>" alt="Product image">
+                                    <div class="img-remove" onclick="removeImage('<%= idx %>')">
+                                        <i class="bi bi-x"></i>
+                                    </div>
+                                <% } else { %>
+                                    <i class="bi bi-camera"></i>
+                                    <span>Add Image</span>
+                                <% } %>
+                                <input type="file" name="images" accept="image/*"
+                                       onchange="previewImage(this, '<%= idx %>')">
+                                <% if (img) { %>
+                                    <input type="hidden" name="existingImages[<%= idx %>]" value="<%= img %>">
+                                <% } %>
+                            </div>
+                            <% }) %>
+                        </div>
+                    </div>
+
+                    <!-- Available Colors
+                    <div class="panel">
+                        <div class="panel-title"><i class="bi bi-palette me-2 text-primary"></i>Available Colors</div>
+                        <div class="color-tags" id="colorTags">
+                            <% if (product.colors && product.colors.length) { %>
+                                <% product.colors.forEach((c, i) => { %>
+                                    <span class="color-tag" style="background:'<%= c.hex || '#94a3b8' %>';"
+                                          data-hex="<%= c.hex %>" data-name="<%= c.name %>">
+                                        <span class="dot"></span>
+                                        <%= c.name %>
+                                        <input type="hidden" name="colors[<%= i %>][hex]"  value="<%= c.hex %>">
+                                        <input type="hidden" name="colors[<%= i %>][name]" value="<%= c.name %>">
+                                        <i class="bi bi-x remove-tag" onclick="removeColor(this)"></i>
+                                    </span>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                        <div class="color-add-row">
+                            <input type="color" id="newColorPicker" value="#3b82f6">
+                            <input type="text" class="form-control" id="newColorName" placeholder="Color name (e.g. Black)">
+                            <button type="button" class="btn-save px-3 py-2" onclick="addColor()" style="border-radius:8px;font-size:.82rem;white-space:nowrap">
+                                <i class="bi bi-plus-lg me-1"></i> Add
+                            </button>
+                        </div>
+                    </div> -->
+                </div>
+
+                <!-- ══ RIGHT COLUMN ═════════════════════════════ -->
+                <div class="col-lg-6">
+
+                    <!-- Variants -->
+                    <div class="panel">
+                        <div class="panel-title d-flex align-items-center justify-content-between">
+                            <span><i class="bi bi-layers me-2 text-primary"></i>Variants</span>
+                            <span class="badge bg-primary rounded-pill" id="variantCount">
+                                <%= product.variants ? product.variants.length : 0 %>
+                            </span>
+                        </div>
+
+                        <div class="variant-stack" id="variantStack">
+
+                            <% if (product.variants && product.variants.length > 0) { %>
+                                <% product.variants.forEach((v, i) => { %>
+                                <div class="variant-card" id="varCard<%= i %>" data-index="<%= i %>">
+                                    <div class="vc-head" onclick="toggleVariant('<%= i %>')">
+                                        <div class="vc-title">
+                                            <span class="color-dot" style="background:'<%= v.color || '#94a3b8' %>';border-color:'<%= v.color || '#94a3b8' %>'"></span>
+                                            <span id="vcLabel<%= i %>">
+                                                <%= v.color || 'Variant' %> — ₹<%= v.price || 0 %> / Qty: <%= v.stock || 0 %>
+                                            </span>
+                                        </div>
+                                        <div class="vc-acts">
+                                            <div class="btn-ico del" title="Delete variant"
+                                                 onclick="removeVariant(event, '<%= i %>')">
+                                                <i class="bi bi-trash3"></i>
+                                            </div>
+                                            <i class="bi bi-chevron-down chevron" id="chevron<%= i %>"></i>
+                                        </div>
+                                    </div>
+                                    <div class="vc-body" id="vcBody<%= i %>">
+                                        <input type="hidden" name="variants[<%= i %>][_id]" value="<%= v._id %>">
+                                        <input type="hidden" name="variants[<%= i %>][deleted]" value="false" id="del<%= i %>">
+
+                                        <div class="row g-3 mb-3">
+                                            <!-- Color -->
+                                            <div class="col-12">
+                                                <label class="form-label">Color</label>
+                                                <div class="color-row">
+                                                    <div class="color-preview-box" id="cpBox<%= i %>"
+                                                         style="background:'<%= v.color || '#3b82f6' %>'">
+                                                        <input type="color" value="<%= v.color || '#3b82f6' %>"
+                                                               oninput="updateColorPreview('<%= i %>', this.value)"
+                                                               name="variants[<%= i %>][colorHex]">
+                                                    </div>
+                                                    <input type="text" class="form-control"
+                                                           name="variants[<%= i %>][color]"
+                                                           placeholder="Color name"
+                                                           value="<%= v.color || '' %>"
+                                                           oninput="updateVariantLabel('<%= i %>')">
+                                                </div>
+                                            </div>
+
+                                            <!-- Price -->
+                                            <div class="col-6">
+                                                <label class="form-label">Price (₹)</label>
+                                                <input type="number" class="form-control"
+                                                       name="variants[<%= i %>][price]"
+                                                       placeholder="0.00" min="0" step="0.01"
+                                                       value="<%= v.price || '' %>"
+                                                       oninput="updateVariantLabel('<%= i %>')">
+                                            </div>
+
+                                            <!-- Stock -->
+                                            <div class="col-6">
+                                                <label class="form-label">Stock</label>
+                                                <input type="number" class="form-control"
+                                                       name="variants[<%= i %>][stock]"
+                                                       placeholder="0" min="0"
+                                                       value="<%= v.stock || '' %>"
+                                                       oninput="updateVariantLabel('<%= i %>')">
+                                            </div>
+                                        </div>
+
+                                        <!-- Variant Images -->
+                                        <label class="form-label">Variant Images</label>
+                                        <div class="img-grid mb-3" id="vImgGrid<%= i %>">
+                                            <%
+                                                const vImgs = (v.images && v.images.length) ? v.images : [null, null, null];
+                                                vImgs.slice(0, 3).forEach((vi, j) => {
+                                            %>
+                                            <div class="img-box <%= vi ? 'has-img' : '' %>" id="vImgBox<%= i %>_<%= j %>">
+                                                <% if (vi) { %>
+                                                    <img class="preview" src="<%= vi %>" alt="">
+                                                    <div class="img-remove"
+                                                         onclick="removeVariantImage('<%= i %>', '<%= j %>')">
+                                                        <i class="bi bi-x"></i>
+                                                    </div>
+                                                    <input type="hidden" name="variants[<%= i %>][existingImages][<%= j %>]" value="<%= vi %>">
+                                                <% } else { %>
+                                                    <i class="bi bi-camera"></i>
+                                                    <span>Add Image</span>
+                                                <% } %>
+                                                <input type="file" name="variantImages[<%= i %>]" accept="image/*"
+                                                       onchange="previewVariantImage(this, '<%= i %>', '<%= j %>')">
+                                            </div>
+                                            <% }) %>
+                                        </div>
+
+                                        <!-- Status -->
+                                        <div class="status-row">
+                                            <label class="form-label mb-0">Active</label>
+                                            <div class="form-check form-switch ms-1">
+                                                <input class="form-check-input" type="checkbox"
+                                                       name="variants[<%= i %>][isActive]"
+                                                       id="vStatus<%= i %>"
+                                                       value="true"
+                                                       <%= (v.isActive !== false) ? 'checked' : '' %>>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% }) %>
+                            <% } %>
+
+                        </div><!-- /variant-stack -->
+
+                        <button type="button" class="btn-add-var mt-3" onclick="addVariant()">
+                            <i class="bi bi-plus-lg"></i> Add New Variant
+                        </button>
+                    </div>
+
+                </div>
+            </div><!-- /row -->
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="button" class="btn-discard" onclick="confirmDiscard()">Discard</button>
+                <button type="submit" class="btn-save">
+                    <i class="bi bi-check2 me-1"></i> Save Changes
+                </button>
+            </div>
+
+        </form>
+    </div><!-- /page-body -->
+</div><!-- /main-wrap -->
+
+<!-- ===================== SCRIPTS ===================== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    /* ── Track variant count ─────────────────────────── */
+    let variantIndex = document.querySelectorAll('.variant-card').length;
+
+    function updateCountBadge() {
+        const alive = document.querySelectorAll('.variant-card:not(.removing)').length;
+        document.getElementById('variantCount').textContent = alive;
+    }
+
+    /* ── Toggle variant collapse ─────────────────────── */
+    function toggleVariant(i) {
+        const body    = document.getElementById('vcBody' + i);
+        const chevron = document.getElementById('chevron' + i);
+        const head    = chevron.closest('.vc-head');
+        if (body.style.display === 'none') {
+            body.style.display = '';
+            head.classList.remove('collapsed');
+        } else {
+            body.style.display = 'none';
+            head.classList.add('collapsed');
+        }
+    }
+
+    /* ── Update live variant label ───────────────────── */
+    function updateVariantLabel(i) {
+        const colorEl = document.querySelector(`[name="variants[${i}][color]"]`);
+        const priceEl = document.querySelector(`[name="variants[${i}][price]"]`);
+        const stockEl = document.querySelector(`[name="variants[${i}][stock]"]`);
+        const label   = document.getElementById('vcLabel' + i);
+        if (!label) return;
+        const color = colorEl ? colorEl.value || 'Variant' : 'Variant';
+        const price = priceEl ? priceEl.value || '0'       : '0';
+        const stock = stockEl ? stockEl.value || '0'       : '0';
+        label.textContent = `${color} — ₹${price} / Qty: ${stock}`;
+    }
+
+    /* ── Color picker preview in variant ────────────── */
+    function updateColorPreview(i, hex) {
+        const box = document.getElementById('cpBox' + i);
+        const dot = document.querySelector(`#varCard${i} .color-dot`);
+        if (box) box.style.background = hex;
+        if (dot) { dot.style.background = hex; dot.style.borderColor = hex; }
+    }
+
+    /* ── Remove variant ──────────────────────────────── */
+    function removeVariant(e, i) {
+        e.stopPropagation();
+        Swal.fire({
+            title: 'Delete this variant?',
+            text: 'It will be removed when you save.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#ef4444',
+            background: '#fff',
+        }).then(r => {
+            if (r.isConfirmed) {
+                const card = document.getElementById('varCard' + i);
+                const delInput = document.getElementById('del' + i);
+                if (card)     card.classList.add('removing');
+                if (delInput) delInput.value = 'true';
+                updateCountBadge();
+            }
+        });
+    }
+
+    /* ── Add new variant dynamically ────────────────── */
+    function addVariant() {
+        const idx   = variantIndex++;
+        const stack = document.getElementById('variantStack');
+
+        const card = document.createElement('div');
+        card.className = 'variant-card';
+        card.id = 'varCard' + idx;
+        card.dataset.index = idx;
+
+        card.innerHTML = `
+        <div class="vc-head" onclick="toggleVariant(${idx})">
+            <div class="vc-title">
+                <span class="color-dot" id="dot${idx}" style="background:#94a3b8;border-color:#94a3b8"></span>
+                <span id="vcLabel${idx}">New Variant — ₹0 / Qty: 0</span>
+            </div>
+            <div class="vc-acts">
+                <div class="btn-ico del" title="Delete variant"
+                     onclick="removeVariant(event, ${idx})">
+                    <i class="bi bi-trash3"></i>
+                </div>
+                <i class="bi bi-chevron-down chevron" id="chevron${idx}"></i>
+            </div>
+        </div>
+        <div class="vc-body" id="vcBody${idx}">
+            <input type="hidden" name="variants[${idx}][_id]"     value="">
+            <input type="hidden" name="variants[${idx}][deleted]" value="false" id="del${idx}">
+
+            <div class="row g-3 mb-3">
+                <div class="col-12">
+                    <label class="form-label">Color</label>
+                    <div class="color-row">
+                        <div class="color-preview-box" id="cpBox${idx}" style="background:#3b82f6">
+                            <input type="color" value="#3b82f6"
+                                   oninput="updateColorPreview(${idx}, this.value)"
+                                   name="variants[${idx}][colorHex]">
+                        </div>
+                        <input type="text" class="form-control"
+                               name="variants[${idx}][color]"
+                               placeholder="Color name"
+                               oninput="updateVariantLabel(${idx})">
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Price (₹)</label>
+                    <input type="number" class="form-control"
+                           name="variants[${idx}][price]"
+                           placeholder="0.00" min="0" step="0.01"
+                           oninput="updateVariantLabel(${idx})">
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Stock</label>
+                    <input type="number" class="form-control"
+                           name="variants[${idx}][stock]"
+                           placeholder="0" min="0"
+                           oninput="updateVariantLabel(${idx})">
+                </div>
+            </div>
+
+            <label class="form-label">Variant Images</label>
+            <div class="img-grid mb-3">
+                ${[0,1,2].map(j => `
+                <div class="img-box" id="vImgBox${idx}_${j}">
+                    <i class="bi bi-camera"></i>
+                    <span>Add Image</span>
+                    <input type="file" name="variantImages[${idx}]" accept="image/*"
+                           onchange="previewVariantImage(this, ${idx}, ${j})">
+                </div>`).join('')}
+            </div>
+
+            <div class="status-row">
+                <label class="form-label mb-0">Active</label>
+                <div class="form-check form-switch ms-1">
+                    <input class="form-check-input" type="checkbox"
+                           name="variants[${idx}][isActive]"
+                           id="vStatus${idx}" value="true" checked>
+                </div>
+            </div>
+        </div>`;
+
+        stack.appendChild(card);
+        updateCountBadge();
+
+        // Smooth scroll to new card
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    /* ── Product image preview ───────────────────────── */
+    function previewImage(input, idx) {
+        if (!input.files || !input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const box = document.getElementById('imgBox' + idx);
+            box.classList.add('has-img');
+            // Remove placeholder icons
+            box.querySelectorAll('i, span').forEach(el => el.remove());
+            // Set or update preview img
+            let img = box.querySelector('img.preview');
+            if (!img) {
+                img = document.createElement('img');
+                img.className = 'preview';
+                box.insertBefore(img, box.querySelector('input[type="file"]'));
+                // Add remove button
+                const rem = document.createElement('div');
+                rem.className = 'img-remove';
+                rem.setAttribute('onclick', `removeImage(${idx})`);
+                rem.innerHTML = '<i class="bi bi-x"></i>';
+                box.appendChild(rem);
+            }
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function removeImage(idx) {
+        const box = document.getElementById('imgBox' + idx);
+        box.classList.remove('has-img');
+        box.innerHTML = `
+            <i class="bi bi-camera"></i>
+            <span>Add Image</span>
+            <input type="file" name="images" accept="image/*" onchange="previewImage(this, ${idx})">`;
+    }
+
+    /* ── Variant image preview ───────────────────────── */
+    function previewVariantImage(input, vi, ji) {
+        if (!input.files || !input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            const box = document.getElementById(`vImgBox${vi}_${ji}`);
+            if (!box) return;
+            box.classList.add('has-img');
+            box.querySelectorAll('i:not(.bi-x), span').forEach(el => el.remove());
+            let img = box.querySelector('img.preview');
+            if (!img) {
+                img = document.createElement('img');
+                img.className = 'preview';
+                box.insertBefore(img, box.querySelector('input[type="file"]'));
+                const rem = document.createElement('div');
+                rem.className = 'img-remove';
+                rem.setAttribute('onclick', `removeVariantImage(${vi}, ${ji})`);
+                rem.innerHTML = '<i class="bi bi-x"></i>';
+                box.appendChild(rem);
+            }
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    function removeVariantImage(vi, ji) {
+        const box = document.getElementById(`vImgBox${vi}_${ji}`);
+        if (!box) return;
+        box.classList.remove('has-img');
+        box.innerHTML = `
+            <i class="bi bi-camera"></i>
+            <span>Add Image</span>
+            <input type="file" name="variantImages[${vi}]" accept="image/*"
+                   onchange="previewVariantImage(this, ${vi}, ${ji})">`;
+    }
+
+    // /* ── Color tags ──────────────────────────────────── */
+    // function addColor() {
+    //     const hex    = document.getElementById('newColorPicker').value;
+    //     const name   = document.getElementById('newColorName').value.trim();
+    //     if (!name) {
+    //         Swal.fire({ icon: 'warning', title: 'Enter a color name', timer: 1500, showConfirmButton: false });
+    //         return;
+    //     }
+    //     const container = document.getElementById('colorTags');
+    //     const count     = container.querySelectorAll('.color-tag').length;
+    //     const tag = document.createElement('span');
+    //     tag.className = 'color-tag';
+    //     tag.style.background = hex;
+    //     tag.dataset.hex  = hex;
+    //     tag.dataset.name = name;
+    //     tag.innerHTML = `
+    //         <span class="dot"></span>
+    //         ${name}
+    //         <input type="hidden" name="colors[${count}][hex]"  value="${hex}">
+    //         <input type="hidden" name="colors[${count}][name]" value="${name}">
+    //         <i class="bi bi-x remove-tag" onclick="removeColor(this)"></i>`;
+    //     container.appendChild(tag);
+    //     document.getElementById('newColorName').value = '';
+    //     document.getElementById('newColorPicker').value = '#3b82f6';
+    // }
+
+    // function removeColor(el) {
+    //     el.closest('.color-tag').remove();
+    //     // Re-index remaining hidden inputs
+    //     document.querySelectorAll('#colorTags .color-tag').forEach((tag, i) => {
+    //         tag.querySelectorAll('input[type="hidden"]').forEach(inp => {
+    //             inp.name = inp.name.replace(/colors\[\d+\]/, `colors[${i}]`);
+    //         });
+    //     });
+    // }
+
+    /* ── Logout confirm ──────────────────────────────── */
+    function confirmLogout() {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Logout?',
+            text: 'Are you sure you want to logout?',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, logout',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#ef4444',
+            background: '#fff',
+            color: '#0f172a',
+        }).then(r => {
+            if (r.isConfirmed) window.location.href = '/admin/logout';
+        });
+    }
+
+    /* ── Discard confirm ─────────────────────────────── */
+    function confirmDiscard() {
+        Swal.fire({
+            icon: 'question',
+            title: 'Discard changes?',
+            text: 'All unsaved changes will be lost.',
+            showCancelButton: true,
+            confirmButtonText: 'Discard',
+            cancelButtonText: 'Keep editing',
+            confirmButtonColor: '#64748b',
+        }).then(r => {
+            if (r.isConfirmed) history.back();
+        });
+    }
+</script>
+</body>
+</html>

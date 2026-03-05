@@ -36,14 +36,13 @@
 
     <!-- Admin Info -->
     <div class="sidebar-user">
-        <% const currentUser = typeof admin !== 'undefined' ? admin : (typeof user !== 'undefined' ? user : null); %>
         <% if (currentUser) { %>
             <div class="user-avatar">
-                <%= currentUser.Name ? currentUser.Name.charAt(0).toUpperCase() : 'A' %>
+                <%= currentUser.Name ? currentUser.Name.charAt(0).toUpperCase():'' %>
             </div>
             <div class="user-info">
-                <p class="user-name"><%= currentUser.Name || 'Admin' %></p>
-                <p class="user-email"><%= currentUser.Email || '' %></p>
+                <p class="user-name"><%= currentUser.Name%></p>
+                <p class="user-email"><%= currentUser.Email%></p>
             </div>
         <% } else { %>
             <div class="user-avatar">A</div>
@@ -55,7 +54,7 @@
     </div>
 
 </aside>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     function confirmLogout() {
         Swal.fire({

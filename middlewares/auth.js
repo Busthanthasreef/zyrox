@@ -5,6 +5,9 @@ const isAdminAuthenticated = (req, res, next) => {
   }
   next();
 };
+
+
+
 // Check if admin is already logged in
 const isAdminGuest = (req, res, next) => {
   if (req.session.admin) {
@@ -16,6 +19,7 @@ const isAdminGuest = (req, res, next) => {
 
 
 
+
 // User authentication middleware
 const isUserAuthenticated = (req, res, next) => {
   if (!req.session.user) {
@@ -23,6 +27,9 @@ const isUserAuthenticated = (req, res, next) => {
   }
   next();
 };
+
+
+
 // Check if user is already logged in (for login/signup pages)
 const isUserGuest = (req, res, next) => {
   if (req.session.user) {

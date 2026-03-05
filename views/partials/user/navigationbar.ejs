@@ -1,0 +1,504 @@
+<style>
+    /* ========== NAVIGATION BAR ========== */
+    .navbar {
+        width: 100%;
+        padding: 15px 1%;
+        background: #000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: fixed;
+        top: 0;
+        z-index: 20;
+        border-bottom: 1px solid #ffffff71;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #00ff6a;
+        font-size: 20px;
+        transition: transform 0.3s ease;
+    }
+
+    /* Mobile animation - logo moves right */
+    .nav-left.mobile-active {
+        transform: translateX(130px);
+    }
+
+    .logo {
+        font-weight: 600;
+        color: #fff;
+    }
+
+    .nav-links {
+        list-style: none;
+        display: flex;
+
+        gap: 40px;
+    }
+
+    .nav-links a {
+        text-decoration: none;
+        color: #fff;
+        font-size: 15px;
+        transition: .3s;
+    }
+
+    .nav-links a:hover {
+        color: #00ff6a;
+    }
+
+    .search-box {
+        background: #1c1c1c;
+        padding: 5px 20px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        width: 300px;
+        gap: 10px;
+        margin-right: 20px;
+    }
+
+    .search-box input {
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #0fff7b;
+        width: 100%;
+    }
+
+    .search-box input::placeholder {
+        color: #666;
+        font-size: small;
+    }
+
+    .nav-icons {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        margin-right: 20px;
+    }
+
+    .icon {
+        position: relative;
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+    .icon:hover {
+        color: #00ff6a;
+    }
+
+    .badge {
+        position: absolute;
+        height: 20px;
+        width: 20px;
+        top: -11px;
+        right: -10px;
+        background: #f03232;
+        color: #ffffff;
+        font-size: 9px;
+        font-weight: 500;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 47%;
+    }
+
+    /* My Profile Button */
+    .profile-btn {
+        background: #1c1c1c;
+        border: 1px solid #2a2a2a;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s;
+        position: relative;
+    }
+
+    .profile-btn:hover {
+        background: #2a2a2a;
+        border-color: #00ff6a;
+    }
+
+    .profile-btn i.fa-user {
+        font-size: 16px;
+    }
+
+    .profile-btn i.fa-chevron-down {
+        font-size: 12px;
+        transition: transform 0.3s;
+    }
+
+    .profile-btn.active i.fa-chevron-down {
+        transform: rotate(180deg);
+    }
+
+    .prof {
+        cursor: pointer;
+        align-self: center;
+        padding-left: 21px;
+        padding-top: 6px;
+    }
+
+    /* Profile Dropdown */
+    .profile-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 10px;
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        min-width: 200px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+    }
+
+    .profile-dropdown.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .profile-dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s;
+        border-bottom: 1px solid #2a2a2a;
+    }
+
+    .profile-dropdown a:last-child {
+        border-bottom: none;
+    }
+
+    .profile-dropdown a:hover {
+        background: #2a2a2a;
+        color: #00ff6a;
+    }
+
+    .profile-dropdown a i {
+        font-size: 16px;
+        width: 20px;
+    }
+
+    /* Hamburger - Hidden by default */
+    .hamburger {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        cursor: pointer;
+        position: absolute;
+        right: 15px;
+    }
+
+    .hamburger span {
+        width: 25px;
+        height: 3px;
+        background: #fff;
+        transition: 0.4s;
+    }
+
+    .hamburger.active span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(6px, -6px);
+    }
+
+    /* ========== SIDEBAR ========== */
+    .sidebar {
+        position: fixed;
+        right: -100%;
+        top: 0;
+        width: 100%;
+        height: auto;
+        max-height: 100vh;
+        background: #000;
+        padding: 30px;
+        transition: .4s ease;
+        z-index: 2000;
+        border-left: 1px solid #1c1c1c;
+        overflow-y: auto;
+    }
+
+    .sidebar.active {
+        right: 0;
+    }
+
+    .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    .sidebar-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #00ff6a;
+        font-size: 22px;
+    }
+
+    .sidebar-logo i {
+        font-size: 24px;
+    }
+
+    .sidebar-logo .logo {
+        font-weight: 600;
+        color: #fff;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 24px;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+    .close-btn:hover {
+        color: #00ff6a;
+    }
+
+    .sidebar-links {
+        list-style: none;
+        padding: 0;
+    }
+
+    .sidebar-links li {
+        margin-bottom: 0;
+    }
+
+    .sidebar-links a {
+        display: block;
+        color: #fff;
+        text-decoration: none;
+        font-size: 16px;
+        padding: 15px 0;
+        transition: .3s;
+        border-bottom: 1px solid #1c1c1c;
+    }
+
+    .sidebar-links a:hover {
+        color: #00ff6a;
+        padding-left: 10px;
+    }
+
+    /* Overlay */
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        opacity: 0;
+        visibility: hidden;
+        transition: .3s;
+        z-index: 1500;
+    }
+
+    .overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+</style>
+
+
+<!-- Navigation -->
+<nav class="navbar">
+    <!-- Left -->
+    <div class="nav-left" id="navLogo">
+        <i class="fas fa-store"></i>
+        <div class="logo">Zyrox</div>
+    </div>
+
+    <!-- Center Links -->
+    <ul class="nav-links">
+
+        <li>
+            <a href="/" <%=currentPage==="home" ? 'style="color:#00ff6a"' : '' %>>
+                Home
+            </a>
+        </li>
+
+        <li>
+            <a href="/products" <%=currentPage==="products" ? 'style="color:#00ff6a"' : '' %>>
+                Products
+            </a>
+        </li>
+
+        <li>
+            <a href="/categories" <%=currentPage==="categories" ? 'style="color:#00ff6a"' : '' %>>
+                Categories
+            </a>
+        </li>
+
+        <li>
+            <a href="/aboutUs" <%=currentPage==="aboutUs" ? 'style="color:#00ff6a"' : '' %>>
+                About Us
+            </a>
+        </li>
+
+    </ul>
+    <!-- Search -->
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search mobiles by category or model">
+    </div>
+
+    <!-- Right Icons -->
+    <div class="nav-icons">
+        <div class="icon">
+            <a href="/wishlist"><i class="far fa-heart"></i></a>
+        </div>
+        
+        <div class="icon">
+            <a href="/cart"><i class="fas fa-shopping-cart"></i></a>
+            <%if(cartItemCount>0){%>
+                <span class="badge">
+                    <%=cartItemCount%>
+                </span>
+            <%}%>
+        </div>
+
+
+        <!-- My Profile Button with Dropdown -->
+        <div style="position: relative;">
+            <button class="profile-btn" id="profileBtn" onclick="toggleProfileDropdown()">
+
+                <% if (user) { %>
+                    <i class="far fa-user-circle"></i>
+                    <span>
+                        <%= user.Name.split(" ")[0]%>
+                    </span>
+                    <% } else { %>
+                         <span>
+                             ACCOUNT
+                         </span>
+                    <% } %>
+                    <i class=" fas fa-chevron-down"></i>
+            </button>
+
+            <div class="profile-dropdown" id="profileDropdown">
+
+                <% if (user) { %>
+
+                    <!-- Logged In Menu -->
+                    <p class="prof" onclick="closeProfileDropdown()">
+                        <i class="fas fa-user"></i>
+                        <%= user.Name.split(" ").slice(0, 2).join(" ") %>
+                        </p>
+                        <hr>
+                        <!-- Logged In Menu -->
+                        <a href=" /profile" onclick="closeProfileDropdown()">
+
+                            <i class="fas fa-user-circle"></i>
+                            My Profile
+
+                            </a>
+                            <a href="/address" onclick="closeProfileDropdown()">
+                                <i class="fas fa-map-marker-alt"></i>
+                                My Addresses
+                            </a>
+
+                            <a href="/wishlist" onclick="closeProfileDropdown()">
+                                <i class="fas fa-heart"></i>
+                                My Wishlist
+                            </a>
+
+                            <a href="/orders" onclick="closeProfileDropdown()">
+                                <i class="fas fa-box"></i>
+                                My Orders
+                            </a>
+
+                            <a href="/wallet" onclick="closeProfileDropdown()">
+                                <i class="fas fa-wallet"></i>
+                                My Wallet
+                            </a>
+
+                            <hr>
+
+                            <a onclick="confirmLogout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </a>
+
+                            <% } else { %>
+
+                                <!-- Not Logged In Menu -->
+                                <a href="/signIn" onclick="closeProfileDropdown()">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    Sign In
+                                </a>
+
+                                <a href="/signUp" onclick="closeProfileDropdown()">
+                                    <i class="fas fa-user-plus"></i>
+                                    Sign Up
+                                </a>
+
+                                <% } %>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Hamburger Menu (shows only on mobile < 768px) -->
+    <div class="hamburger" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</nav>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <i class="fas fa-store"></i>
+            <span class="logo">Zyrox</span>
+        </div>
+        <button class="close-btn" onclick="toggleSidebar()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <ul class="sidebar-links">
+        <li><a href="#" onclick="toggleSidebar()">Home</a></li>
+        <li><a href="#" onclick="toggleSidebar()">Products</a></li>
+        <li><a href="#" onclick="toggleSidebar()">Categories</a></li>
+        <li><a href="#" onclick="toggleSidebar()">About Us</a></li>
+
+    </ul>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>

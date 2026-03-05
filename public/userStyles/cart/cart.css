@@ -1,0 +1,42 @@
+.cart-bg {
+    background: #1f2a44;
+    min-height: 100vh;
+}
+
+.cart-card {
+    background: #111;
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid #2c3e50;
+}
+
+.cart-img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.qty-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #222;
+    padding: 5px 12px;
+    border-radius: 8px;
+}
+
+.qty-box button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+}
+
+.summary-box {
+    background: #111;
+    padding: 25px;
+    border-radius: 12px;
+    color: white;
+    border: 1px solid #2c3e50;
+}

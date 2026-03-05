@@ -10,6 +10,7 @@
         href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
     <link rel="stylesheet" href="/adminStyles/users/users.css">
 </head>
 
@@ -17,7 +18,7 @@
     <div class="d-flex" style="min-height:100vh;">
 
         <!-- SIDEBAR -->
-        <%- include('../../partials/admin/sidebar', { currentPage: 'users' }) %>
+        <%- include('../../partials/admin/sidebar', { currentPage: 'users',currentUser:admin }) %>
 
             <!-- MAIN -->
             <main class="main-content flex-grow-1">
@@ -28,9 +29,6 @@
                         <p class="page-label">User Management</p>
                         <h1 class="page-title">User Management</h1>
                     </div>
-                    <a href="/admin/users/add" class="btn-add-user">
-                        <i class="bi bi-person-plus-fill"></i> Add User
-                    </a>
                 </div>
 
                 <!-- Panel -->
@@ -41,7 +39,7 @@
                         <h2 class="panel-title">Users</h2>
                         <div class="topbar-controls d-flex align-items-center gap-2 flex-wrap">
 
-                            <!-- Unified Search + Filter form -->
+                          
                             <form method="GET" action="/admin/users" class="search-bar-group">
                                 <div class="search-input-wrap">
                                     <i class="bi bi-search search-icon-inner"></i>

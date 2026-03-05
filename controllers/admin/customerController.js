@@ -62,8 +62,8 @@ const userStatus = async (req, res) => {
     const isActive = status === "block" ? false : true;
     await userSchema.findByIdAndUpdate(id, { isActive });
 
-    const referer = req.get("Referrer") || "/admin/users";
-    res.redirect(referer);
+   
+    res.redirect("/admin/users");
 
   } catch (error) {
     console.error("User status update error:", error);
@@ -75,12 +75,13 @@ const userDetails = async (req, res) => {
   try {
     const userId = req.query.id;
     const user = await userSchema.findById(userId);
+    const admin = await userSchema.findOne({isAdmin:true});
 
     if (!user) {
       return res.redirect("/admin/users");
     }
 
-    res.render("admin/users/userDetails", { user });
+    res.render("admin/users/userDetails", { user,admin });
 
   } catch (error) {
     console.error("User details error:", error);

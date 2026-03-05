@@ -30,6 +30,7 @@ const loadSignUp = (req, res) => {
     emailError: signupErrors.Email || null,
     passError: signupErrors.Password || null,
     phoneError: signupErrors.Phone || null,
+
     Name: signupData.Name || "",
     Email: signupData.Email || "",
     Phone: signupData.Phone || "",
@@ -89,6 +90,7 @@ const userSignUp = async (req, res) => {
     const { OTP, hashedOtp } = await generateOtp();
 
     await otpSchema.deleteMany({ Email: trimmedEmail });
+    
     await otpSchema.create({
       Email: trimmedEmail,
       Code: hashedOtp,

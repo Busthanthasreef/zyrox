@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories — Zyrox Admin</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/adminStyles/category/categories.css">
+    <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
+</head>
+
+<body>
+
+    <div class="admin-layout">
+
+        <%- include('../../partials/admin/Sidebar', { currentPage: 'categories' , currentUser: admin }) %>
+
+            <div class="admin-content">
+
+                <!-- ── Page Header ── -->
+                <div class="page-header">
+                    <h2>
+                        <i class="bi bi-grid-3x3-gap-fill" style="color:var(--accent);font-size:20px;"></i>
+                        Categories
+                    </h2>
+                    <button class="btn-primary-custom" onclick="openAddModal()">
+                        <i class="bi bi-plus-lg"></i> Add Category
+                    </button>
+                </div>
+
+                <!-- ── Stat Cards ── -->
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <h4>Total Categories</h4>
+                        <h2>
+                            <%= totalCategories %>
+                        </h2>
+                        <i class="bi bi-collection stat-icon"></i>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Active</h4>
+                        <h2>
+                            <%= activeCategories %>
+                        </h2>
+                        <i class="bi bi-check-circle stat-icon"></i>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Inactive</h4>
+                        <h2>
+                            <%= inActiveCategories %>
+                        </h2>
+                        <i class="bi bi-x-circle stat-icon"></i>
+                    </div>
+                </div>
+
+                <!-- ── Table Container ── -->
+
+                <div class="table-container">
+
+                    <!-- Toolbar -->
+                    <div class="table-toolbar">
+                        <h3 class="table-toolbar-title">
+                            <i class="bi bi-list-ul"></i>
+                            All Categories
+                        </h3>
+
+                        <form method="GET" action="/admin/categories" class="filter-form">
+                            <div class="search-wrap">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="search" name="search" placeholder="Search categories…"
+                                    value="<%= search || '' %>" autocomplete="off">
+                            </div>
+
+                            <select name="status" class="filter-select" onchange="this.form.submit()">
+                                <option value="" <%=(!statusFilter || statusFilter==='' ) ? 'selected' : '' %>>All
+                                    Status</option>
+                                <option value="active" <%=statusFilter==='active' ? 'selected' : '' %>>Active</option>
+                                <option value="blocked" <%=statusFilter==='blocked' ? 'selected' : '' %>>Blocked
+                                </option>
+                            </select>
+
+                            <button type="submit" class="search-submit-btn">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-scroll">
+                        <table class="category-table">
+                            <thead>
+                                <tr>
+                                    <th>SI.No</th>
+                                    <th>Category ID</th>
+                                    <th>Category Name</th>
+                                    <th><i class="bi bi-box-seam"></i> Products</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <% if (categories && categories.length> 0) { %>
+
+                                    <% categories.forEach((cat, ind)=> { %>
+                                        <tr>
+                                            <!-- Pagination based serial number -->
+                                            <td>
+                                                <%= ((currentPage - 1) * limit) + ind + 1 %>
+                                            </td>
+
+                                            <td>
+                                                <span class="cat-id">
+                                                    CAT-00<%= ((currentPage - 1) * limit) + ind + 1 %>
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <span class="cat-name">
+                                                    <i class="bi bi-tag"></i>
+                                                    <%= cat.categoryName %>
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <span class="product-count">
+                                                    <i class="bi bi-box" style="color:var(--text-muted);"></i>
+                                                    <%= cat.productCount || 0 %>
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <span class="badge <%= cat.IsActive ? 'active' : 'inactive' %>">
+                                                    <i
+                                                        class="bi bi-<%= cat.IsActive ? 'check-circle-fill' : 'x-circle-fill' %>"></i>
+                                                    <%= cat.IsActive ? 'Active' : 'Inactive' %>
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <div class="action-cell">
+                                                    <button class="edit-btn"
+                                                        onclick="openEditModal('<%= cat._id %>', '<%= cat.categoryName %>', '<%= cat.IsActive %>')">
+                                                        <i class="bi bi-pencil-fill"></i>
+                                                    </button>
+
+                                                    <button class="delete-btn"
+                                                        onclick="deleteConfirmation('<%= cat._id %>')">
+                                                        <i class="bi bi-trash-fill"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+
+                                            <% } else { %>
+
+                                                <tr>
+                                                    <td colspan="6" style="text-align:center; padding:60px 0;">
+                                                        <i class="bi bi-inbox" style="font-size:36px; opacity:0.3;"></i>
+                                                        <p
+                                                            style="margin-top:12px; font-size:15px; font-weight:500; color:var(--text-secondary);">
+                                                            No categories found
+                                                        </p>
+                                                        <p style="font-size:13px; color:var(--text-muted);">
+                                                            Try changing search or filter options.
+                                                        </p>
+                                                    </td>
+                                                </tr>
+
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <% if (totalPages> 1) { %>
+
+                        <% const tp=totalPages; const cp=currentPage; const src=search || '' ; const stf=statusFilter
+                            || '' ; let startPage=Math.max(1, cp - 1); let endPage=Math.min(tp, startPage + 2); if
+                            (endPage - startPage < 2) startPage=Math.max(1, endPage - 2); %>
+
+                            <div class="pagination-footer">
+
+                                <p class="showing-text">
+                                    Showing
+                                    <strong>
+                                        <%= totalCategories> 0
+                                            ? ((cp - 1) * limit + 1) + '–' + Math.min(cp * limit, totalCategories)
+                                            : 0 %>
+                                    </strong>
+                                    of <strong>
+                                        <%= totalCategories %>
+                                    </strong> Categories
+                                </p>
+
+                                <nav>
+                                    <ul class="pagination-list">
+
+                                        <!-- Previous -->
+                                        <li>
+                                            <a href="?page=<%= Math.max(1, cp - 1) %>&search=<%= src %>&status=<%= stf %>"
+                                                class="page-btn <%= cp <= 1 ? 'disabled' : '' %>">
+                                                <i class="bi bi-chevron-left"></i> Previous
+                                            </a>
+                                        </li>
+
+                                        <!-- Page Numbers -->
+                                        <% for (let p=startPage; p <=endPage; p++) { %>
+                                            <li>
+                                                <a href="?page=<%= p %>&search=<%= src %>&status=<%= stf %>"
+                                                    class="page-btn <%= cp === p ? 'active' : '' %>">
+                                                    <%= p %>
+                                                </a>
+                                            </li>
+                                            <% } %>
+
+                                                <!-- Next -->
+                                                <li>
+                                                    <a href="?page=<%= cp + 1 %>&search=<%= src %>&status=<%= stf %>"
+                                                        class="page-btn <%= cp >= tp ? 'disabled' : '' %>">
+                                                        Next <i class="bi bi-chevron-right"></i>
+                                                    </a>
+                                                </li>
+
+                                    </ul>
+                                </nav>
+                            </div>
+
+                            <% } %>
+
+                </div>
+
+            </div><!-- /admin-content -->
+    </div><!-- /admin-layout -->
+
+
+    <!-- ═══════════════════════════════════════════
+     ADD CATEGORY MODAL
+════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="addCategoryModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="bi bi-plus-circle-fill"></i> Add Category</h3>
+                <button class="modal-close" onclick="closeAddModal()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <form action="/admin/categories-add" method="POST" id="addCategory">
+                <div class="modal-body">
+                    <div>
+                        <label>Category Name</label>
+                        <input type="text" name="categoryName" id="categoryName"
+                            placeholder="e.g. Xiaomi, Apple, Samsung">
+                    </div>
+
+                    <div class="toggle-box">
+                        <div>
+                            <strong>Status</strong>
+                            <span class="status-label is-inactive" id="addStatusLabel">Inactive</span>
+                            <p>Enable this category immediately</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="status" id="addStatusToggle" value="true">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeAddModal()">
+                        <i class="bi bi-x"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn-dark">
+                        <i class="bi bi-check2"></i> Save Category
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ═══════════════════════════════════════════
+     EDIT CATEGORY MODAL
+════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="editCategoryModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="bi bi-pencil-fill"></i> Edit Category</h3>
+                <button class="modal-close" onclick="closeEditModal()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <form id="editCategoryForm" method="POST">
+                <input type="hidden" name="_method" value="PUT">
+                <input type="hidden" name="categoryId" id="editCategoryId">
+
+                <div class="modal-body">
+                    <div>
+                        <label>Category Name</label>
+                        <input type="text" name="categoryName" id="editCategoryName" placeholder="Category name">
+                    </div>
+
+                    <div class="toggle-box">
+                        <div>
+                            <strong>
+                                <i class="bi bi-toggle-on" style="color:var(--accent);margin-right:5px;"></i>
+                                Status
+                            </strong>
+                            <span class="status-label is-inactive" id="editStatusLabel">Inactive</span>
+                            <p>Category is visible in store</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" name="status" id="editCategoryStatus" value="true">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" onclick="closeEditModal()">
+                        <i class="bi bi-x"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn-dark">
+                        <i class="bi bi-check2"></i> Update Category
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+
+        /* ── Delete ── */
+        async function deleteConfirmation(id) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'This category will be deleted.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, sure',
+                cancelButtonText: 'Cancel'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await axios.patch(`/admin/categories/delete/${id}`);
+                    Swal.fire({
+                        icon: 'success',
+                        title: response.data.message,
+                        position: 'center',
+                        showConfirmButton: false,
+                        timer: 1000
+                    });
+                    setTimeout(() => window.location.reload(), 1000);
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: error.message || 'Delete failed',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+            }
+        }
+
+        /* ── Add Category ── */
+        document.getElementById('addCategory').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const categoryName = document.getElementById('categoryName').value.trim();
+            const status = document.getElementById('addStatusToggle').checked;
+
+            try {
+                const response = await axios.post('/admin/categories-add', { categoryName, status });
+                Swal.fire({
+                    icon: 'success',
+                    title: response.data.message,
+                    position: 'center',
+                    showConfirmButton: false,
+                    timer: 1000
+                });
+                setTimeout(() => window.location.reload(), 1000);
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: error.response?.data?.message || 'Something went wrong',
+                    toast: true,
+                    position: 'top',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                document.getElementById('addCategory').reset();
+            }
+        });
+
+        /* ── Edit Category ── */
+        document.getElementById('editCategoryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editCategoryId').value;
+            const categoryName = document.getElementById('editCategoryName').value.trim();
+            const status = document.getElementById('editCategoryStatus').checked;
+
+            try {
+                const response = await axios.put(`/admin/categories/${id}`, { categoryName, status });
+                Swal.fire({
+                    icon: 'success',
+                    title: response.data.message,
+                    position: 'center',
+                    showConfirmButton: false,
+                    timer: 900
+                });
+                setTimeout(() => window.location.reload(), 900);
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: error.response?.data?.message || 'Update failed',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        });
+
+        /* ── Status Label Sync ── */
+        function syncStatusLabel(checkbox, labelEl) {
+            if (checkbox.checked) {
+                labelEl.textContent = 'Active';
+                labelEl.className = 'status-label is-active';
+            } else {
+                labelEl.textContent = 'Inactive';
+                labelEl.className = 'status-label is-inactive';
+            }
+        }
+
+        const addToggle = document.getElementById('addStatusToggle');
+        const addStatusLabel = document.getElementById('addStatusLabel');
+        addToggle.addEventListener('change', () => syncStatusLabel(addToggle, addStatusLabel));
+
+        const editToggle = document.getElementById('editCategoryStatus');
+        const editStatusLabel = document.getElementById('editStatusLabel');
+        editToggle.addEventListener('change', () => syncStatusLabel(editToggle, editStatusLabel));
+
+        /* ── Modal Controls ── */
+        function openAddModal() { document.getElementById('addCategoryModal').classList.add('show'); }
+        function closeAddModal() { document.getElementById('addCategoryModal').classList.remove('show'); }
+
+        function openEditModal(id, name, status) {
+            const modal = document.getElementById('editCategoryModal');
+            modal.classList.add('show');
+            document.getElementById('editCategoryId').value = id;
+            document.getElementById('editCategoryName').value = name;
+            editToggle.checked = (status === 'true' || status === true);
+            syncStatusLabel(editToggle, editStatusLabel);
+            document.getElementById('editCategoryForm').action = `/admin/categories/${id}`;
+        }
+
+        function closeEditModal() { document.getElementById('editCategoryModal').classList.remove('show'); }
+
+        /* ── Close on backdrop click or Escape ── */
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function (e) {
+                if (e.target === this) this.classList.remove('show');
+            });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.show')
+                    .forEach(m => m.classList.remove('show'));
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>

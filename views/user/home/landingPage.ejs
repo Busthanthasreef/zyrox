@@ -15,485 +15,339 @@
 </head>
 
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <!-- Left -->
-        <div class="nav-left" id="navLogo">
-            <i class="fas fa-store"></i>
-            <div class="logo">Zyrox</div>
-        </div>
+    <%-include('../../partials/user/navigationbar',{user,currentPage:"home"})%>
 
-        <!-- Center Links -->
-        <ul class="nav-links">
-            <li><a href="/">Home</a></li>
-            <li><a href="/products">Products</a></li>
-            <li><a href="/categories">Categories</a></li>
-            <li><a href="/aboutUs">About Us</a></li>
-        </ul>
-
-        <!-- Search -->
-        <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search mobiles by category or model">
-        </div>
-
-        <!-- Right Icons -->
-        <div class="nav-icons">
-            <div class="icon">
-                <i class="far fa-heart"></i>
-            </div>
-
-            <div class="icon">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="badge">
-                    <%=cartItemCount%>
-                </span>
-            </div>
-
-
-            <!-- My Profile Button with Dropdown -->
-            <div style="position: relative;">
-                <button class="profile-btn" id="profileBtn" onclick="toggleProfileDropdown()">
-
-                    <% if (user) { %>
-                    <i class="far fa-user-circle"></i>
-                    <span>
-                        <%= user.Name.split(" ")[0]%>
-                    </span>
-                    <% } else { %>
-                         <span>
-                             ACCOUNT
-                         </span>
-                    <% } %>
-                    <i class=" fas fa-chevron-down"></i>
-                </button>
-
-                <div class="profile-dropdown" id="profileDropdown">
-
-                    <% if (user) { %>
-
-                        <!-- Logged In Menu -->
-                        <p class="prof" onclick="closeProfileDropdown()">
-                            <i class="fas fa-user"></i>
-                            <%= user.Name.split(" ").slice(0, 2).join(" ") %>
-                        </p>
-                        <hr>
-                        <!-- Logged In Menu -->
-                        <a href=" /profile" onclick="closeProfileDropdown()">
-                               
-                                <i class="fas fa-user-circle"></i>
-                                    My Profile
-                        
-                                        </a>
-                                        <a href="/address" onclick="closeProfileDropdown()">
-                                            <i class="fas fa-map-marker-alt"></i>
-                                            My Addresses
-                                        </a>
-
-                                        <a href="/wishlist" onclick="closeProfileDropdown()">
-                                            <i class="fas fa-heart"></i>
-                                            My Wishlist
-                                        </a>
-
-                                        <a href="/orders" onclick="closeProfileDropdown()">
-                                            <i class="fas fa-box"></i>
-                                            My Orders
-                                        </a>
-
-                                        <a href="/wallet" onclick="closeProfileDropdown()">
-                                            <i class="fas fa-wallet"></i>
-                                            My Wallet
-                                        </a>
-
-                                        <hr>
-
-                                        <a onclick="confirmLogout()">
-                                            <i class="fas fa-sign-out-alt"></i>
-                                            Logout
-                                        </a>
-
-                                        <% } else { %>
-
-                                            <!-- Not Logged In Menu -->
-                                            <a href="/signIn" onclick="closeProfileDropdown()">
-                                                <i class="fas fa-sign-in-alt"></i>
-                                                Sign In
-                                            </a>
-
-                                            <a href="/signUp" onclick="closeProfileDropdown()">
-                                                <i class="fas fa-user-plus"></i>
-                                                Sign Up
-                                            </a>
-
-                                            <% } %>
-
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Discover the Latest Smartphones from Zyrox</h1>
+                    <p>Stay ahead with the newest smartphone releases from top brands like Apple, Samsung, and more.
+                        Explore
+                        cutting-edge features and unbeatable prices.</p>
+                    <button class="shop-now-btn">Shop Now</button>
                 </div>
 
-            </div>
-        </div>
+                <img src="https://images.unsplash.com/photo-1592286927505-c6d69682b5f1?w=400&h=500&fit=crop"
+                    alt="Smartphone" class="hero-image" style="opacity: 0.7;">
 
-        <!-- Hamburger Menu (shows only on mobile < 768px) -->
-        <div class="hamburger" onclick="toggleSidebar()">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    </nav>
-
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <i class="fas fa-store"></i>
-                <span class="logo">Zyrox</span>
-            </div>
-            <button class="close-btn" onclick="toggleSidebar()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <ul class="sidebar-links">
-            <li><a href="#" onclick="toggleSidebar()">Home</a></li>
-            <li><a href="#" onclick="toggleSidebar()">Products</a></li>
-            <li><a href="#" onclick="toggleSidebar()">Categories</a></li>
-            <li><a href="#" onclick="toggleSidebar()">About Us</a></li>
-
-        </ul>
-    </div>
-
-    <!-- Overlay -->
-    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1>Discover the Latest Smartphones from Zyrox</h1>
-                <p>Stay ahead with the newest smartphone releases from top brands like Apple, Samsung, and more. Explore
-                    cutting-edge features and unbeatable prices.</p>
-                <button class="shop-now-btn">Shop Now</button>
-            </div>
-
-            <img src="https://images.unsplash.com/photo-1592286927505-c6d69682b5f1?w=400&h=500&fit=crop"
-                alt="Smartphone" class="hero-image" style="opacity: 0.7;">
-
-            <div class="hero-offer">
-                <div class="hero-offer-title">Our Offer</div>
-                <div class="hero-offer-model">NOTE 20 Ultra</div>
-                <div class="hero-offer-discount">and get 10% Off</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Categories -->
-    <section class="categories">
-        <div class="section-header">
-            <h2 class="section-title">Shop by category</h2>
-            <a href="#" class="view-all-link">View all categories →</a>
-        </div>
-
-        <div class="categories-grid">
-            <div class="category-item">
-                <div class="category-icon"><i class="fab fa-apple"></i></div>
-                <div class="category-name">Apple</div>
-            </div>
-            <div class="category-item">
-                <div class="category-icon"><i class="fas fa-laptop"></i></div>
-                <div class="category-name">Samsung</div>
-            </div>
-            <div class="category-item">
-                <div class="category-icon"><i class="fas fa-basketball-ball" style="color: #ff9800;"></i></div>
-                <div class="category-name">Realme</div>
-            </div>
-            <div class="category-item">
-                <div class="category-icon"><i class="fas fa-mobile-alt" style="color: #9e9e9e;"></i></div>
-                <div class="category-name">Oppo</div>
-            </div>
-            <div class="category-item">
-                <div class="category-icon"><i class="fas fa-sun" style="color: #ffc107;"></i></div>
-                <div class="category-name">Xiaomi</div>
-            </div>
-            <div class="category-item">
-                <div class="category-icon"><i class="fas fa-moon" style="color: #2196f3;"></i></div>
-                <div class="category-name">Vivo</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Trending Products -->
-    <section class="products">
-        <div class="section-header">
-            <h2 class="section-title">Trending Products</h2>
-            <a href="#" class="view-all-link">View all →</a>
-        </div>
-
-        <div class="products-grid">
-            <div class="product-card">
-                <div class="product-badge">10% OFF</div>
-                <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                <img src="https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=300&h=300&fit=crop"
-                    alt="iPhone 14 Pro Max" class="product-image">
-                <div class="product-name">iPhone 14 Pro Max</div>
-                <div class="product-price">₹42,999.00</div>
-                <button class="buy-now-btn">Buy now</button>
-            </div>
-
-            <div class="product-card">
-                <div class="product-badge new">NEW</div>
-                <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                <img src="https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=300&h=300&fit=crop"
-                    alt="Galaxy S22 Ultra" class="product-image">
-                <div class="product-name">Galaxy S22 Ultra</div>
-                <div class="product-price">₹54,999.00</div>
-                <button class="buy-now-btn">Buy now</button>
-            </div>
-
-            <div class="product-card">
-                <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                <img src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=300&h=300&fit=crop"
-                    alt="Pixel 7 Pro" class="product-image">
-                <div class="product-name">Pixel 7 Pro</div>
-                <div class="product-price">₹36,555.00</div>
-                <button class="buy-now-btn">Buy now</button>
-            </div>
-
-            <div class="product-card">
-                <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                <img src="https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=300&h=300&fit=crop"
-                    alt="OnePlus 9 Pro" class="product-image">
-                <div class="product-name">OnePlus 9 Pro</div>
-                <div class="product-price">₹54,444.00</div>
-                <button class="buy-now-btn">Buy now</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Featured Mobiles -->
-    <section class="products">
-        <div class="section-header">
-            <h2 class="section-title">Featured Mobiles</h2>
-            <a href="#" class="view-all-link">View All Products →</a>
-        </div>
-
-        <div class="products-grid">
-            <div class="product-card">
-                <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop"
-                    alt="iPhone 13 Pro Max" class="product-image">
-                <div class="product-name">iPhone 13 Pro Max</div>
-                <div class="product-price">₹54,999.00</div>
-                <button class="buy-now-btn">Buy now</button>
-            </div>
-
-            <div class="product-card">
-                <div class="product-badge new">NEW</div>
-                <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                <img src="https://images.unsplash.com/photo-1603891219515-5b84156d0bc5?w=300&h=300&fit=crop"
-                    alt="Galaxy S23 Ultra" class="product-image">
-                <div class="product-name">Galaxy S23 Ultra</div>
-                <div class="product-price">₹68,999.00</div>
-                <button class="buy-now-btn">Buy now</button>
-            </div>
-
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-brand">
-                <div class="footer-logo">
-                    <i class="fas fa-mobile-alt"></i>
-                    Zyrox
+                <div class="hero-offer">
+                    <div class="hero-offer-title">Our Offer</div>
+                    <div class="hero-offer-model">NOTE 20 Ultra</div>
+                    <div class="hero-offer-discount">and get 10% Off</div>
                 </div>
-                <p class="footer-description">
-                    Discover the latest smartphones from top brands. We offer a wide range of mobile phones with
-                    cutting-edge technology and competitive prices. Your trusted partner for all your mobile needs.
-                </p>
-                <div class="social-links">
-                    <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+            </div>
+        </section>
+
+        <!-- Categories -->
+        <section class="categories">
+            <div class="section-header">
+                <h2 class="section-title">Shop by category</h2>
+                <a href="#" class="view-all-link">View all categories →</a>
+            </div>
+
+            <div class="categories-grid">
+                <div class="category-item">
+                    <div class="category-icon"><i class="fab fa-apple"></i></div>
+                    <div class="category-name">Apple</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-icon"><i class="fas fa-laptop"></i></div>
+                    <div class="category-name">Samsung</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-icon"><i class="fas fa-basketball-ball" style="color: #ff9800;"></i></div>
+                    <div class="category-name">Realme</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-icon"><i class="fas fa-mobile-alt" style="color: #9e9e9e;"></i></div>
+                    <div class="category-name">Oppo</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-icon"><i class="fas fa-sun" style="color: #ffc107;"></i></div>
+                    <div class="category-name">Xiaomi</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-icon"><i class="fas fa-moon" style="color: #2196f3;"></i></div>
+                    <div class="category-name">Vivo</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trending Products -->
+        <section class="products">
+            <div class="section-header">
+                <h2 class="section-title">Trending Products</h2>
+                <a href="#" class="view-all-link">View all →</a>
+            </div>
+
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-badge">10% OFF</div>
+                    <button class="wishlist-btn"><i class="far fa-heart"></i></button>
+                    <img src="https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=300&h=300&fit=crop"
+                        alt="iPhone 14 Pro Max" class="product-image">
+                    <div class="product-name">iPhone 14 Pro Max</div>
+                    <div class="product-price">₹42,999.00</div>
+                    <button class="buy-now-btn">Buy now</button>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-badge new">NEW</div>
+                    <button class="wishlist-btn"><i class="far fa-heart"></i></button>
+                    <img src="https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=300&h=300&fit=crop"
+                        alt="Galaxy S22 Ultra" class="product-image">
+                    <div class="product-name">Galaxy S22 Ultra</div>
+                    <div class="product-price">₹54,999.00</div>
+                    <button class="buy-now-btn">Buy now</button>
+                </div>
+
+                <div class="product-card">
+                    <button class="wishlist-btn"><i class="far fa-heart"></i></button>
+                    <img src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=300&h=300&fit=crop"
+                        alt="Pixel 7 Pro" class="product-image">
+                    <div class="product-name">Pixel 7 Pro</div>
+                    <div class="product-price">₹36,555.00</div>
+                    <button class="buy-now-btn">Buy now</button>
+                </div>
+
+                <div class="product-card">
+                    <button class="wishlist-btn"><i class="far fa-heart"></i></button>
+                    <img src="https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=300&h=300&fit=crop"
+                        alt="OnePlus 9 Pro" class="product-image">
+                    <div class="product-name">OnePlus 9 Pro</div>
+                    <div class="product-price">₹54,444.00</div>
+                    <button class="buy-now-btn">Buy now</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Mobiles -->
+        <section class="products">
+            <div class="section-header">
+                <h2 class="section-title">Featured Mobiles</h2>
+                <a href="#" class="view-all-link">View All Products →</a>
+            </div>
+
+            <div class="products-grid">
+                <div class="product-card">
+                    <button class="wishlist-btn"><i class="far fa-heart"></i></button>
+                    <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop"
+                        alt="iPhone 13 Pro Max" class="product-image">
+                    <div class="product-name">iPhone 13 Pro Max</div>
+                    <div class="product-price">₹54,999.00</div>
+                    <button class="buy-now-btn">Buy now</button>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-badge new">NEW</div>
+                    <button class="wishlist-btn"><i class="far fa-heart"></i></button>
+                    <img src="https://images.unsplash.com/photo-1603891219515-5b84156d0bc5?w=300&h=300&fit=crop"
+                        alt="Galaxy S23 Ultra" class="product-image">
+                    <div class="product-name">Galaxy S23 Ultra</div>
+                    <div class="product-price">₹68,999.00</div>
+                    <button class="buy-now-btn">Buy now</button>
+                </div>
+
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-mobile-alt"></i>
+                        Zyrox
+                    </div>
+                    <p class="footer-description">
+                        Discover the latest smartphones from top brands. We offer a wide range of mobile phones with
+                        cutting-edge technology and competitive prices. Your trusted partner for all your mobile needs.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Shop Now</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Apple</a></li>
+                        <li><a href="#">Samsung</a></li>
+                        <li><a href="#">Realme</a></li>
+                        <li><a href="#">Oppo</a></li>
+                        <li><a href="#">Xiaomi</a></li>
+                        <li><a href="#">Vivo</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Customer Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Track Order</a></li>
+                        <li><a href="#">Returns</a></li>
+                        <li><a href="#">Warranty</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Sitemap</a></li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="footer-column">
-                <h3>Shop Now</h3>
-                <ul class="footer-links">
-                    <li><a href="#">Apple</a></li>
-                    <li><a href="#">Samsung</a></li>
-                    <li><a href="#">Realme</a></li>
-                    <li><a href="#">Oppo</a></li>
-                    <li><a href="#">Xiaomi</a></li>
-                    <li><a href="#">Vivo</a></li>
-                </ul>
+            <div class="footer-bottom">
+                © 2025 Zyrox. All rights reserved.
             </div>
+        </footer>
 
-            <div class="footer-column">
-                <h3>Customer Support</h3>
-                <ul class="footer-links">
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Track Order</a></li>
-                    <li><a href="#">Returns</a></li>
-                    <li><a href="#">Warranty</a></li>
-                    <li><a href="#">Shipping Info</a></li>
-                    <li><a href="#">Contact Us</a></li>
-                </ul>
-            </div>
+        <!-- JavaScript -->
+        <script>
 
-            <div class="footer-column">
-                <h3>Company</h3>
-                <ul class="footer-links">
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">Careers</a></li>
-                    <li><a href="#">Press</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Sitemap</a></li>
-                </ul>
-            </div>
-        </div>
+            function confirmLogout() {
 
-        <div class="footer-bottom">
-            © 2025 Zyrox. All rights reserved.
-        </div>
-    </footer>
+                swal.fire({
+                    icon: 'warning',
+                    text: "are you sure you want to logout?",
+                    showCancelButton: true,
+                    confirmButtonText: "yes,iam sure",
+                    cancelButtonText: "NO"
+                }).then((isconfirm) => {
+                    if (isconfirm.isConfirmed) {
+                        window.location.href = "/logout"
+                    }
+                })
 
-    <!-- JavaScript -->
-    <script>
+            }
 
-        function confirmLogout() {
 
-            swal.fire({
-                icon: 'warning',
-                text: "are you sure you want to logout?",
-                showCancelButton: true,
-                confirmButtonText: "yes,iam sure",
-                cancelButtonText: "NO"
-            }).then((isconfirm) => {
-                if (isconfirm.isConfirmed) {
-                    window.location.href = "/logout"
+
+
+
+
+            // Toggle Sidebar
+            function toggleSidebar() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                const hamburger = document.querySelector('.hamburger');
+                const navLogo = document.getElementById('navLogo');
+
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                hamburger.classList.toggle('active');
+
+                // Animate logo in mobile
+                if (window.innerWidth < 768) {
+                    navLogo.classList.toggle('mobile-active');
                 }
-            })
-
-        }
-
-
-
-
-
-
-        // Toggle Sidebar
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            const hamburger = document.querySelector('.hamburger');
-            const navLogo = document.getElementById('navLogo');
-
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-            hamburger.classList.toggle('active');
-
-            // Animate logo in mobile
-            if (window.innerWidth < 768) {
-                navLogo.classList.toggle('mobile-active');
             }
-        }
 
-        // Toggle Profile Dropdown
-        function toggleProfileDropdown() {
-            const dropdown = document.getElementById('profileDropdown');
-            const btn = document.getElementById('profileBtn');
+            // Toggle Profile Dropdown
+            function toggleProfileDropdown() {
+                const dropdown = document.getElementById('profileDropdown');
+                const btn = document.getElementById('profileBtn');
 
-            dropdown.classList.toggle('show');
-            btn.classList.toggle('active');
-        }
-
-        // Close Profile Dropdown
-        function closeProfileDropdown() {
-            const dropdown = document.getElementById('profileDropdown');
-            const btn = document.getElementById('profileBtn');
-
-            dropdown.classList.remove('show');
-            btn.classList.remove('active');
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function (event) {
-            const dropdown = document.getElementById('profileDropdown');
-            const btn = document.getElementById('profileBtn');
-
-            if (!btn.contains(event.target) && !dropdown.contains(event.target)) {
-                closeProfileDropdown();
+                dropdown.classList.toggle('show');
+                btn.classList.toggle('active');
             }
-        });
 
-        // Prevent body scroll when sidebar is open
-        const sidebar = document.getElementById('sidebar');
-        const observer = new MutationObserver(function (mutations) {
-            mutations.forEach(function (mutation) {
-                if (sidebar.classList.contains('active')) {
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = 'auto';
+            // Close Profile Dropdown
+            function closeProfileDropdown() {
+                const dropdown = document.getElementById('profileDropdown');
+                const btn = document.getElementById('profileBtn');
+
+                dropdown.classList.remove('show');
+                btn.classList.remove('active');
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (event) {
+                const dropdown = document.getElementById('profileDropdown');
+                const btn = document.getElementById('profileBtn');
+
+                if (!btn.contains(event.target) && !dropdown.contains(event.target)) {
+                    closeProfileDropdown();
                 }
             });
-        });
 
-        observer.observe(sidebar, {
-            attributes: true,
-            attributeFilter: ['class']
-        });
-    </script>
+            // Prevent body scroll when sidebar is open
+            const sidebar = document.getElementById('sidebar');
+            const observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (sidebar.classList.contains('active')) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <% if (typeof logoutSuccess !=='undefined' && logoutSuccess) { %>
-        <script>
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You will be logged out of your account.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#d33",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Yes, Logout",
-                cancelButtonText: "Cancel"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "/logout";
-
-                } else {
-                    window.location.href = "/"
-                }
-            })
+            observer.observe(sidebar, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
         </script>
-        <% } %>
 
-            <% if (typeof loginSuccess !=='undefined' && loginSuccess) { %>
-                <script>
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: "top-end",
-                        showConfirmButton: false,
-                        timer: 1800,
-                        didOpen: (toast) => {
-                            toast.onmouseenter = Swal.stopTimer;
-                            toast.onmouseleave = Swal.resumeTimer;
-                        }
-                    });
-                    Toast.fire({
-                        icon: "success",
-                        title: "Signed in successfully"
-                    });
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-                    // Remove the query parameter from the URL
-                    const url = new URL(window.location);
-                    url.searchParams.delete('loginSuccess');
-                    window.history.replaceState({}, '', url);
-                </script>
-                <% } %>
+        <% if (typeof logoutSuccess !=='undefined' && logoutSuccess) { %>
+            <script>
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You will be logged out of your account.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, Logout",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/logout";
+
+                    } else {
+                        window.location.href = "/"
+                    }
+                })
+            </script>
+            <% } %>
+
+                <% if (typeof loginSuccess !=='undefined' && loginSuccess) { %>
+                    <script>
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: "top-end",
+                            showConfirmButton: false,
+                            timer: 1800,
+                            didOpen: (toast) => {
+                                toast.onmouseenter = Swal.stopTimer;
+                                toast.onmouseleave = Swal.resumeTimer;
+                            }
+                        });
+                        Toast.fire({
+                            icon: "success",
+                            title: "Signed in successfully"
+                        });
+
+                        // Remove the query parameter from the URL
+                        const url = new URL(window.location);
+                        url.searchParams.delete('loginSuccess');
+                        window.history.replaceState({}, '', url);
+                    </script>
+                    <% } %>
 </body>
 
 </html>

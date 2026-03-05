@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management — Zyrox</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- You can create separate CSS or reuse users.css -->
+    <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
+    <link rel="stylesheet" href="/adminStyles/products/productListing.css">
+</head>
+
+<body>
+    <div class="d-flex" style="min-height:100vh;">
+
+        <!-- SAME SIDEBAR -->
+        <%- include('../../partials/admin/sidebar', { currentPage: 'products' ,currentUser:admin}) %>
+
+            <main class="main-content flex-grow-1">
+
+                <!-- Page Header -->
+                <div class="page-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="page-label">Product Management</p>
+                        <h1 class="page-title">Product Management</h1>
+                    </div>
+
+                    <a href="/admin/products-add" class="btn btn-dark">
+                        <i class="bi bi-plus"></i> Add Product
+                    </a>
+                </div>
+
+                <!-- Panel -->
+                <div class="panel">
+                
+                    <!-- Topbar -->
+                    <div class="panel-topbar d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+
+                        <h2 class="panel-title">Products</h2>
+
+                        <form method="GET" action="/admin/products" class="search-bar-group d-flex gap-2 flex-wrap">
+
+                            <div class="search-input-wrap">
+                                <i class="bi bi-search search-icon-inner"></i>
+                                <input type="search" name="search" placeholder="Search products..." class="search-field"
+                                    value="<%= search || '' %>">
+                            </div>
+
+                            <select name="category" class="filter-select">
+                                <option value="">All Categories</option>
+                                <% categories.forEach(cat=> { %>
+                                    <option value="<%= cat._id %>" <%=categoryFilter==cat._id ? 'selected' : '' %>>
+                                        <%= cat.name %>
+                                    </option>
+                                    <% }) %>
+                            </select>
+
+                            <select name="status" class="filter-select">
+                                <option value="">All Status</option>
+                                <option value="active" <%=statusFilter==='active' ? 'selected' : '' %>>Active</option>
+                                <option value="inactive" <%=statusFilter==='inactive' ? 'selected' : '' %>>Inactive
+                                </option>
+                            </select>
+
+                            <button type="submit" class="search-submit-btn">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- TABLE -->
+                    <div class="table-responsive">
+                        <table class="table users-table">
+                            <thead>
+                                <tr>
+                                    <th>Sl.No</th>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Category</th>
+                                    <th>Stock</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <% products.forEach((product, index)=> { %>
+
+                                    <tr>
+                                        <td>
+                                            <%= (currentPage - 1) * limit + index + 1 %>
+                                        </td>
+
+                                        <!-- Product Info -->
+                                        <td>
+                                            <div class="d-flex align-items-center gap-3">
+
+                                                <div class="product-thumb">
+                                                   <img src="<%= product.Product_images && product.Product_images.length ? product.Product_images[0] : '/images/no-image.png' %>" alt="Product">
+                                                </div>
+
+                                                <div>
+                                                    <p class="u-name mb-1">
+                                                        <%= product.name %>
+                                                    </p>
+                                                    <small class="text-muted">
+                                                        SKU: <%= product.sku || 'N/A' %>
+                                                    </small>
+                                                </div>
+
+                                            </div>
+                                        </td>
+
+                                        <td>₹ <%= product.price.toLocaleString() %>
+                                        </td>
+
+                                        <td>
+                                            <%= product.category?.name || 'N/A' %>
+                                        </td>
+
+                                        <td>
+                                            <span class="<%= product.stock < 5 ? 'text-danger' : '' %>">
+                                                <%= product.stock %>
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span class="status-badge <%= product.isActive ? 'active' : 'blocked' %>">
+                                                <%= product.isActive ? 'Active' : 'Inactive' %>
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <div class="action-cell">
+
+                                                <!-- Edit -->
+                                                <a href="/admin/products-edit/<%= product._id %>"
+                                                    class="btn-action edit">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </a>
+
+                                                <!-- Delete -->
+                                                <form action="/admin/products-delete/<%= product._id %>" method="POST"
+                                                    style="display:inline;">
+                                                    <button class="btn-action delete">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+
+                                                <!-- Toggle Status -->
+                                                <form action="/admin/products-status/<%= product._id %>" method="POST"
+                                                    style="display:inline;">
+                                                    <button
+                                                        class="btn-action <%= product.isActive ? 'block' : 'unblock' %>">
+                                                        <i
+                                                            class="bi <%= product.isActive ? 'bi-x-circle' : 'bi-check-circle' %>"></i>
+                                                    </button>
+                                                </form>
+
+                                            </div>
+                                        </td>
+
+                                    </tr>
+
+                                    <% }) %>
+
+                                        <% if(products.length===0){ %>
+                                            <tr>
+                                                <td colspan="7">
+                                                    <div class="empty-state text-center py-5">
+
+                                                        <div class="empty-icon mb-3">
+                                                            <i class="bi bi-box-seam display-5 text-muted"></i>
+                                                        </div>
+
+                                                        <h5 class="empty-title mb-2">No Products Found</h5>
+
+                                                        <p class="empty-sub text-muted mb-4">
+                                                            We couldn’t find any products matching your search or
+                                                            filters.
+                                                        </p>
+
+                                                        <% if(search || categoryFilter || statusFilter){ %>
+                                                            <!-- If search/filter applied -->
+                                                            <a href="/admin/products" class="btn btn-outline-secondary">
+                                                                <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                                                Filters
+                                                            </a>
+                                                            <% } else { %>
+                                                                <!-- If no products at all -->
+                                                                <a href="/admin/products-add" class="btn btn-dark">
+                                                                    <i class="bi bi-plus-lg"></i> Add Your First Product
+                                                                </a>
+                                                                <% } %>
+
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <% } %>
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- PAGINATION (Same Logic As Users Page) -->
+                    <div class="pagination-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <p>
+                            Showing
+                            <strong>
+                                <%= totalProducts> 0 ?
+                                    ((currentPage - 1) * limit + 1) + '-' + Math.min(currentPage * limit, totalProducts)
+                                    : '0' %>
+                            </strong>
+                            of <strong>
+                                <%= totalProducts %>
+                            </strong> products
+                        </p>
+
+                        <nav>
+                            <ul class="pagination-list">
+                                <% for(let i=1;i<=totalPages;i++){ %>
+                                    <li>
+                                        <a href="?page=<%= i %>"
+                                            class="page-btn <%= currentPage === i ? 'active' : '' %>">
+                                            <%= i %>
+                                        </a>
+                                    </li>
+                                    <% } %>
+                            </ul>
+                        </nav>
+                    </div>
+                
+                </div>
+            </main>
+    </div>
+
+</body>
+
+</html>

@@ -6,7 +6,7 @@ const UserSchema = new mongoose.Schema({
   Name: { type: String, required: true },
   googleId: { type: String, unique: true, sparse: true },
   Password: {type: String,
-    required: function () {
+    required:function (){
       return !this.googleId; 
     },
   },

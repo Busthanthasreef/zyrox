@@ -123,10 +123,13 @@
                     </div>
                   </div>
 
-                  <% }); %>
+                <% }); %>
               </div>
 
-              <!-- Pagination -->
+              
+
+
+
               <% if (totalPages> 1) { %>
                 <div class="pagination-container">
                   <a href="/address?page=<%= currentPage - 1 %>"
@@ -140,17 +143,16 @@
                       data-url="/address?page=<%= i %>">
                       <%= i %>
                     </a>
-                    <% } %>
+                  <% } %>
                       <a href="/address?page=<%= currentPage + 1 %>"
                         class="pagination-link ajax-link <%= currentPage === totalPages ? 'disabled' : '' %>"
                         data-url="/address?page=<%= currentPage + 1 %>">
                         <i class="bi bi-chevron-right"></i>
                       </a>
                 </div>
-                <% } %>
+              <% } %>
 
-                  <% } else { %>
-
+              <% } else { %>
                     <!-- Empty State -->
                     <div class="empty-state">
                       <div class="empty-icon-wrap">
@@ -164,7 +166,7 @@
                       </a>
                     </div>
 
-                    <% } %>
+              <% } %>
 
           </div>
         </div>

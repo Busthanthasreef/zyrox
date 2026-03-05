@@ -156,12 +156,13 @@
             }
 
             formElement.addEventListener("submit", function (event) {
-
+                const Name= document.getElementById('fullName').value.trim();
                 const emailValue = document.getElementById("Email").value.trim();
                 const phoneValue = document.getElementById("Phone").value.trim();
                 const passwordValue = document.getElementById("Password").value.trim();
                 const confirmPasswordValue = document.getElementById("confirmPassword").value.trim();
-
+                
+                const nameRegex=/^[a-zA-Z.]$/;
                 const emailRegex = /^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
                 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
                 const phoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
@@ -175,11 +176,27 @@
                 passError.textContent = "";
 
                 // Empty field validation
-                if (!emailValue || !phoneValue || !passwordValue || !confirmPasswordValue) {
+                if (!Name && !emailValue && !phoneValue && !passwordValue && !confirmPasswordValue) {
                     event.preventDefault();
                     Swal.fire({
                         icon: "warning",
-                        title: "All fields are required"
+                        toast:true,
+                        title: "All fields are required",
+                        position:"center",
+                        showConfirmButton:false,
+                        timer:1000
+                    });
+                    return;
+                }
+                if (!Name) {
+                    event.preventDefault();
+                    Swal.fire({
+                            icon: "warning",
+                        toast:true,
+                        title: "All fields are required",
+                        position:"center",
+                        showConfirmButton:false,
+                        timer:1000
                     });
                     return;
                 }
@@ -215,21 +232,25 @@
             });
 
             // Show Swal Toast for Email Errors (like Duplicate Email)
-            <% if (typeof emailError !== 'undefined' && emailError && (emailError.toLowerCase().includes('exist') || emailError.toLowerCase().includes('in use'))) { %>
-                Swal.fire({
-                    toast: true,
-                    position: 'top',
-                    icon: 'error',
-                    title: '<%= emailError %>',
-                    showConfirmButton: false,
-                    timer: 1500,
-                    timerProgressBar: true,
-                    background: '#1a2a30',
-                    color: '#fff'
-                });
-            <% } %>
         });
     </script>
+    <% if (typeof emailError !=='undefined' && emailError && (emailError.toLowerCase().includes('exist') ||
+        emailError.toLowerCase().includes('in use'))) { %>
+        <script>
+
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'error',
+                title: '<%= emailError %>',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                background: '#1a2a30',
+                color: '#fff'
+            });
+        </script>
+        <% } %>
 
 </body>
 

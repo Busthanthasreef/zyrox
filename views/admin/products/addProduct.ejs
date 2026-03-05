@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zyrox Admin — Add Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
+    <link rel="stylesheet" href="/adminStyles/products/addProducts.css">
+
+    <style>
+        label,
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .mb-3 {
+            margin-bottom: 18px !important;
+        }
+
+        .form-control,
+        .form-select {
+            height: 38px;
+            padding: 6px 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        textarea.form-control {
+            height: auto;
+            min-height: 90px;
+        }
+
+        .color-preview-box {
+            flex-shrink: 0;
+        }
+
+        .form-check.form-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 0;
+            margin-top: 4px;
+        }
+
+        .form-check-input {
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .form-check-label {
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* ── Image Upload Box ── */
+        .img-box {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            overflow: hidden;
+            background: #f8fafc;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .img-box:hover {
+            border-color: #6366f1;
+            background: #f0f4ff;
+        }
+
+        .img-box i {
+            font-size: 1.6rem;
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        .img-box span,
+        .img-box p {
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            pointer-events: none;
+            margin: 0;
+        }
+
+        /* Hidden file input overlaid on the box */
+        .img-box input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        /* Preview image fills the box */
+        .img-box .img-preview {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            z-index: 3;
+            display: none;
+        }
+
+        /* Remove button over the preview */
+        .img-box .remove-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            z-index: 4;
+            background: rgba(220, 38, 38, 0.85);
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+            font-size: 12px;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .img-box .remove-btn:hover {
+            background: rgba(185, 28, 28, 1);
+        }
+
+        /* When preview is active */
+        .img-box.has-image {
+            border-style: solid;
+            border-color: #6366f1;
+        }
+
+        .img-box.has-image .img-preview {
+            display: block;
+        }
+
+        .img-box.has-image .remove-btn {
+            display: flex;
+        }
+
+        .img-box.has-image i,
+        .img-box.has-image span,
+        .img-box.has-image p {
+            display: none;
+        }
+
+        /* hide file input when image is loaded so remove btn works */
+        .img-box.has-image input[type="file"] {
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .img-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        /* RAM / Storage column fix */
+        .variant-spec-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+
+<body>
+
+    <%- include('../../partials/admin/sidebar', { currentPage: 'products' , currentUser: 'admin' }) %>
+
+        <div class="main-wrap">
+
+            <div class="topbar">
+                <a href="/admin/products">Product Management</a> > Add New Product
+            </div>
+
+            <div class="page-body">
+
+                <form action="/admin/products-add" method="POST" id="addProductForm" enctype="multipart/form-data">
+
+                    <div class="row g-4">
+
+                        <!-- ── LEFT COLUMN ── -->
+                        <div class="col-lg-6">
+
+                            <div class="panel">
+                                <div class="panel-title">Basic Information</div>
+
+                                <div class="mb-3">
+                                    <label>Product Name <span class="req">*</span></label>
+                                    <input type="text" name="productName" class="form-control">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>Description</label>
+                                    <textarea name="description" class="form-control"></textarea>
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <label>Category <span class="req">*</span></label>
+                                        <select name="category" class="form-select">
+                                            <option value="">Select category</option>
+                                            <% if (categories) { %>
+                                                <% categories.forEach(cat=> { %>
+                                                    <option value="<%= cat._id %>" style="color:black;">
+                                                        <%= cat.categoryName %>
+                                                    </option>
+                                                    <% }) %>
+                                                        <% } %>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label>Status</label>
+                                        <select name="status" class="form-select">
+                                            <option value="active">Active</option>
+                                            <option value="inactive">Inactive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Product Images -->
+                            <div class="panel">
+                                <div class="panel-title">Product Images</div>
+                                <div class="img-grid">
+                                    <% for(let i=0; i < 3; i++) { %>
+                                        <div class="img-box" id="productBox_<%= i %>">
+                                            <i class="bi bi-camera"></i>
+                                            <span>Add Image</span>
+                                            <!-- Preview -->
+                                            <img class="img-preview" id="productPreview_<%= i %>" src=""
+                                                alt="preview" />
+                                            <!-- Remove -->
+                                            <button type="button" class="remove-btn"
+                                                onclick="event.stopPropagation(); removeImage('productBox_<%= i %>','productPreview_<%= i %>','productFile_<%= i %>')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <!-- File input -->
+                                            <input type="file" name="images" accept="image/*" id="productFile_<%= i %>"
+                                                onchange="previewImage(this, 'productBox_<%= i %>','productPreview_<%= i %>')">
+                                        </div>
+                                        <% } %>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- ── RIGHT COLUMN ── -->
+                        <div class="col-lg-6">
+
+                            <div class="panel">
+                                <div class="panel-title">Default Variant</div>
+
+                                <!-- Variant Images -->
+                                <div class="mb-3">
+                                    <label>Variant Images</label>
+                                    <div class="img-grid">
+                                        <% for(let j=0; j < 3; j++) { %>
+                                            <div class="img-box" id="variantBox_<%= j %>">
+                                                <i class="bi bi-camera"></i>
+                                                <p>Click to add Image</p>
+                                                <img class="img-preview" id="variantPreview_<%= j %>" src=""
+                                                    alt="preview" />
+                                                <button type="button" class="remove-btn"
+                                                    onclick="removeImage('variantBox_<%= j %>','variantPreview_<%= j %>','variantFile_<%= j %>')">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                                <input type="file" name="variantImages[0]" accept="image/*"
+                                                    id="variantFile_<%= j %>"
+                                                    onchange="previewImage(this,'variantBox_<%= j %>','variantPreview_<%= j %>')">
+                                            </div>
+                                            <% } %>
+                                    </div>
+                                </div>
+
+                                <!-- Color + RAM + Storage -->
+                                <div class="mb-3">
+                                    <div class="row g-3">
+
+                                        <!-- Color -->
+                                        <div class="col-md-4">
+                                            <label class="form-label">Color</label>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="color-preview-box" id="colorPreview0"
+                                                    style="width:40px;height:38px;flex-shrink:0;border-radius:8px;border:1px solid #e2e8f0;background:#3b82f6;position:relative;overflow:hidden;cursor:pointer;">
+                                                    <input type="color" id="colorPicker0" value="#3b82f6"
+                                                        name="variants[0][colorHex]"
+                                                        style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;"
+                                                        oninput="handlePickerChange(this.value)">
+                                                </div>
+                                                <input type="text" class="form-control" id="colorName0"
+                                                    name="variants[0][color]" placeholder="e.g. Black"
+                                                    oninput="handleNameChange(this.value)">
+                                            </div>
+                                        </div>
+
+                                        <!-- RAM -->
+                                        <div class="col-md-4 variant-spec-col">
+                                            <label class="form-label">RAM</label>
+                                            <input type="text" name="variants[0][ram]" class="form-control"
+                                                placeholder="e.g. 8GB">
+                                        </div>
+
+                                        <!-- Storage -->
+                                        <div class="col-md-4 variant-spec-col">
+                                            <label class="form-label">Storage</label>
+                                            <input type="text" name="variants[0][storage]" class="form-control"
+                                                placeholder="e.g. 256GB">
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- Price + Stock -->
+                                <div class="row g-3 mb-3">
+                                    <div class="col-6">
+                                        <label>Price <span class="req">*</span></label>
+                                        <input type="number" name="variants[0][price]" class="form-control">
+                                    </div>
+                                    <div class="col-6">
+                                        <label>Stock <span class="req">*</span></label>
+                                        <input type="number" name="variants[0][stock]" class="form-control">
+                                    </div>
+                                </div>
+
+                                <!-- SKU -->
+                                <div class="mb-3">
+                                    <label>SKU</label>
+                                    <input type="text" name="variants[0][sku]" class="form-control">
+                                </div>
+
+                                <!-- Variant Status -->
+                                <div class="form-check form-switch">
+                                    <label class="form-check-label">Status</label>
+                                    <input type="checkbox" name="variants[0][isActive]" class="form-check-input ms-2"
+                                        value="true" checked>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="/admin/products" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-save">Save Product</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+        <script>
+
+            // ─────────────────────────────────────────────────────────────────────────
+            // IMAGE PREVIEW
+            // ─────────────────────────────────────────────────────────────────────────
+
+            /**
+             * Called when a file input changes.
+             * Shows the selected image inside the box and hides the placeholder.
+             */
+            function previewImage(input, boxId, previewId) {
+                const file = input.files[0];
+                if (!file) return;
+
+                // Validate it's actually an image
+                if (!file.type.startsWith('image/')) {
+                    showWarn('Please select a valid image file');
+                    input.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const box = document.getElementById(boxId);
+                    const preview = document.getElementById(previewId);
+                    preview.src = e.target.result;
+                    box.classList.add('has-image');
+                };
+                reader.readAsDataURL(file);
+            }
+
+            /**
+             * Called when the × remove button is clicked.
+             * Clears the preview and resets the file input.
+             */
+            function removeImage(boxId, previewId, fileInputId) {
+                const box = document.getElementById(boxId);
+                const preview = document.getElementById(previewId);
+                const fileInput = document.getElementById(fileInputId);
+
+                // Reset state
+                preview.src = '';
+                box.classList.remove('has-image');
+
+                // Re-enable file input so user can pick again
+                fileInput.value = '';
+                fileInput.style.pointerEvents = '';
+                fileInput.style.zIndex = '2';
+            }
+
+            // ─────────────────────────────────────────────────────────────────────────
+            // HELPERS
+            // ─────────────────────────────────────────────────────────────────────────
+
+            function showWarn(title) {
+                Swal.fire({
+                    icon: 'warning',
+                    title,
+                    toast: true,
+                    position: 'top',
+                    background: '#000',
+                    color: '#fff',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+
+            // ─────────────────────────────────────────────────────────────────────────
+            // VALIDATION
+            // ─────────────────────────────────────────────────────────────────────────
+
+            function validateForm(form) {
+                const name = form.querySelector('[name="productName"]').value.trim();
+                const category = form.querySelector('[name="category"]').value;
+                const price = form.querySelector('[name="variants[0][price]"]').value;
+                const stock = form.querySelector('[name="variants[0][stock]"]').value;
+                const RAM = form.querySelector('[name="variants[0][ram]"]').value;
+                const storage = form.querySelector('[name="variants[0][storage]"]').value;
+                const description = form.querySelector('[name="description"]').value;
+
+                if (!name && !description && !category && !price && !stock) { showWarn('please fill all required fields '); return false }
+                if (!name) { showWarn('Product name is required'); return false; }
+                if (!category) { showWarn('Please select a category'); return false; }
+                if (!RAM) { showWarn('RAM is required for variant'); return false; }
+                if (!storage) { showWarn('storage is required for variant'); return false; }
+                if (!price || Number(price) < 0) { showWarn('Enter a valid price'); return false; }
+                if (!stock || Number(stock) < 0) { showWarn('Enter a valid stock quantity'); return false; }
+
+                return true;
+            }
+
+            // ─────────────────────────────────────────────────────────────────────────
+            // FORM SUBMIT
+            // ─────────────────────────────────────────────────────────────────────────
+
+            document.getElementById('addProductForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                if (!validateForm(this)) return;
+
+                try {
+                    const formData = new FormData(this);
+
+                    const response = await axios.post('/admin/products-add', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+
+                    await Swal.fire({
+                        icon: 'success',
+                        title: response.data.message,
+                        toast: true,
+                        position: 'center',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    window.location.href = '/admin/products';
+
+                } catch (error) {
+                    const message = error?.response?.data?.message || 'Something went wrong. Please try again.';
+                    Swal.fire({
+                        icon: 'error',
+                        title: message,
+                        toast: true,
+                        position: 'top',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            });
+
+            // ─────────────────────────────────────────────────────────────────────────
+            // COLOR PICKER
+            // ─────────────────────────────────────────────────────────────────────────
+
+            const COLOR_MAP = {
+                black: "#000000", white: "#ffffff", red: "#ff0000",
+                blue: "#0000ff", green: "#008000", yellow: "#ffff00",
+                orange: "#ffa500", purple: "#800080", pink: "#ffc0cb",
+                gray: "#808080", brown: "#a52a2a", navy: "#000080",
+                gold: "#ffd700", silver: "#c0c0c0"
+            };
+
+            function handlePickerChange(hex) {
+                const preview = document.getElementById('colorPreview0');
+                const nameInput = document.getElementById('colorName0');
+                preview.style.background = hex;
+                const found = Object.entries(COLOR_MAP).find(([_, v]) => v.toLowerCase() === hex.toLowerCase());
+                nameInput.value = found ? capitalize(found[0]) : hex;
+            }
+
+            function handleNameChange(value) {
+                const picker = document.getElementById('colorPicker0');
+                const preview = document.getElementById('colorPreview0');
+                const key = value.trim().toLowerCase();
+
+                if (COLOR_MAP[key]) {
+                    picker.value = COLOR_MAP[key];
+                    preview.style.background = COLOR_MAP[key];
+                } else if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(value.trim())) {
+                    picker.value = value.trim();
+                    preview.style.background = value.trim();
+                } else {
+                    const temp = document.createElement('div');
+                    temp.style.color = value;
+                    document.body.appendChild(temp);
+                    const computed = getComputedStyle(temp).color;
+                    document.body.removeChild(temp);
+                    const rgb = computed.match(/\d+/g);
+                    if (rgb) {
+                        const hex = '#' + rgb.slice(0, 3).map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
+                        picker.value = hex;
+                        preview.style.background = hex;
+                    }
+                }
+            }
+
+            function capitalize(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+
+        </script>
+
+</body>
+
+</html>

@@ -116,7 +116,7 @@ const editProfile = async (req, res) => {
           Name: Name || user.Name,
           Email: Email || user.Email,
           Phone_number: phoneNumber || user.Phone_number,
-          Profile_image: (req.file ? `/uploads/profile/${req.file.filename}` : user.Profile_image) || defaultImage,
+          Profile_image: (req.file ? req.file.path : user.Profile_image) || defaultImage,
         },
         isGoogleUser,
         phoneError: errors.phoneNumber || null,
@@ -177,7 +177,7 @@ const editProfile = async (req, res) => {
     if (removeImage === "true") {
       user.Profile_image = "";
     } else if (req.file) {
-      user.Profile_image = `/uploads/profile/${req.file.filename}`;
+      user.Profile_image = req.file.path;
     } else if (req.body.pendingImage) {
       // Use the image that was uploaded in a previous (failed) attempt
       user.Profile_image = req.body.pendingImage;
@@ -235,6 +235,7 @@ const editEmail = async (req, res) => {
     }
 
     await otpSchema.deleteMany({ Email });
+    
     await otpSchema.create({
       Code: hashedOtp,        // ✅ fix 1 — uppercase C
       Email: Email,

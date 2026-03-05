@@ -44,7 +44,10 @@ const login = async (req, res) => {
       return res.redirect("/admin");
     }
 
-    req.session.admin = true;
+    req.session.admin={
+      Email:user.Email,
+      Name:user.Name
+    }
     req.session.successSwal = "Login Successful";
     return res.redirect("/admin/dashboard");
 
