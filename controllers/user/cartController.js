@@ -1,5 +1,6 @@
 import cartSchema from "../../models/cart.js";
 import productSchema from "../../models/product.js";
+import CategorieSchema from "../../models/category.js";
 
 const loadCart = async (req, res) => {
   try {
@@ -12,10 +13,12 @@ const loadCart = async (req, res) => {
 
     const cart = await cartSchema.findOne({ userId }).populate("items.productId");
     const cartItemCount = await cartSchema.countDocuments()|| 3;
+    const categories = await CategorieSchema.find({})
 
     if (!cart) {
       return res.render("user/cart/cart", {
         cartItems: [],
+        categories,
         subtotal: 0,
         discount: 0,
         shipping: 0,

@@ -1,5 +1,6 @@
 import userSchema from "../../models/user.js";
 import otpSchema from "../../models/otp.js";
+import Categories from "../../models/category.js";
 import bcrypt from "bcryptjs";
 import { sendOtpEmail } from "../../utils/otpController.js";
 import generateOtp from "../../utils/otpGenerator.js";
@@ -8,12 +9,18 @@ import generateOtp from "../../utils/otpGenerator.js";
    LANDING PAGE
 ========================= */
 const landingPage = async (req, res) => {
-  const loginSuccess = req.query.loginSuccess === "true";
-  res.render("user/home/landingPage", {
-    cartItemCount: "12",
-    user: req.session.user || null,
-    loginSuccess,
-  });
+  try{
+   const categories = await Categories.find({})
+    const loginSuccess = req.query.loginSuccess === "true";
+    res.render("user/home/landingPage", {
+      cartItemCount: "12",
+      categories,
+      user: req.session.user || null,
+      loginSuccess,
+    });
+  }catch(error){
+
+  }
 };
 
 /* =========================

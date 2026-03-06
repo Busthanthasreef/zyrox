@@ -12,7 +12,9 @@ const userRoutes = express.Router();
 /* LANDING */
 userRoutes.get("/", userController.landingPage);
 
-userRoutes.get('/products', productController.loadProducts)
+userRoutes.get('/products', productController.loadProducts);
+
+
 /* SIGNUP */
 userRoutes.get("/signup", isUserGuest, userController.loadSignUp);
 userRoutes.post("/signup", isUserGuest, userController.userSignUp);

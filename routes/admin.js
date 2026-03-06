@@ -2,7 +2,8 @@ import express from "express";
 import * as adminController from "../controllers/admin/adminController.js";
 import * as costomerController from "../controllers/admin/customerController.js";
 import { isAdminAuthenticated, isAdminGuest } from "../middlewares/auth.js";
-import * as productController from "../controllers/admin/productController.js"
+import * as productController from "../controllers/admin/productController.js";
+import * as variantController from "../controllers/admin/variantController.js"
 import * as categoryController from "../controllers/admin/categoryController.js"
 import upload from "../middlewares/multer.js";
 const adminRoutes = express.Router();
@@ -22,11 +23,13 @@ adminRoutes.patch("/categories/delete/:id",isAdminAuthenticated,categoryControll
 
 adminRoutes.get("/products", isAdminAuthenticated, productController.loadProducts);
 adminRoutes.get("/products-add", isAdminAuthenticated, productController.loadAddProduct);
+adminRoutes.get("/products-edit/:id", isAdminAuthenticated, productController.loadEditProduct);
 
 adminRoutes.post("/products-add", isAdminAuthenticated, upload.any(), productController.addProduct);
-adminRoutes.get("/products/:id", isAdminAuthenticated, productController.loadEditProduct);
-adminRoutes.post("/products-edit", isAdminAuthenticated, upload.any(), productController.editProduct);
+adminRoutes.post("/products-edit/:id", isAdminAuthenticated, upload.any(), productController.editProduct);
+adminRoutes.get("/products-delete/:id",isAdminAuthenticated,productController.deleteProduct)
 
+adminRoutes.get('/products/:productId/variants', variantController.loadVariantListing);
 adminRoutes.get("/logout", isAdminAuthenticated, adminController.logout);
 
 export default adminRoutes;

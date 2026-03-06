@@ -1,22 +1,75 @@
-import mongoose from 'mongoose';
-const { Schema, ObjectId } = mongoose;
+import mongoose from "mongoose";
 
-const VariantsSchema = new Schema({
-  Images: [{ type: String, required: true,  }],
-  Color: { type: String, required: true },
-  ColorCode: { type: String, required: true },
-  Storage: { type: Number, required: true },
-  SKU: { type: String, required: true, unique: true },
-  IsActive: { type: Boolean, required: true },
-  RAM: { type: Number, required: true },
-  Product_id: { type: Schema.Types.ObjectId, required: true, unique: true },
-  IsDefault: { type: Boolean, required: true },
-  Price: { type:Number, required: true },
-  Stock: { type: Number, required: true },
-});
+const { Schema } = mongoose;
 
+const variantSchema = new Schema({
 
-const Variants = mongoose.model('Variants', VariantsSchema);
+  productId: {
+    type: Schema.Types.ObjectId,
+    ref: "Product",
+    required: true
+  },
+  categoryId:{
+     type:Schema.Types.ObjectId,
+     ref:"Categories",
+     
+  },
 
-export default Variants;
+  images: [
+    {
+      type: String,
+      required: true
+    }
+  ],
 
+  color: {
+    type: String,
+    required: true
+  },
+
+  colorCode: {
+    type: String,
+    required: true
+  },
+
+  RAM: {
+    type: Number,
+    required: true
+  },
+
+  storage: {
+    type: Number,
+    required: true
+  },
+
+  SKU: {
+    type: String,
+    required: true,
+    unique: true
+  },
+
+  price: {
+    type: Number,
+    required: true
+  },
+
+  stock: {
+    type: Number,
+    required: true
+  },
+
+  IsActive: {
+    type: Boolean,
+    default: true
+  },
+
+  IsDefault: {
+    type: Boolean,
+    default: false
+  }
+
+}, { timestamps: true });
+
+const Variant = mongoose.model("Variant", variantSchema);
+
+export default Variant;
