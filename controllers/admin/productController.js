@@ -1,7 +1,7 @@
-import userSchema     from "../../models/user.js";
-import Product        from "../../models/product.js";
-import Category       from "../../models/category.js";
-import Variant        from "../../models/variant.js";
+import userSchema from "../../models/user.js";
+import Product from "../../models/product.js";
+import Category from "../../models/category.js";
+import Variant from "../../models/variant.js";
 
 /* ─── strip non-numeric chars: "8GB" → 8, "256GB" → 256 ── */
 const parseSpec = (val) => parseInt(String(val).replace(/[^\d]/g, ""), 10);
@@ -19,7 +19,7 @@ const loadProducts = async (req, res) => {
     const limit          = 5;
     const skip           = (page - 1) * limit;
 
-    const admin = req.session.admin
+    const admin = req.session.admin;
 
     // ── Build filter ──────────────────────────────────────────────
     const filter = { IsDeleted: false };
@@ -32,54 +32,38 @@ const loadProducts = async (req, res) => {
     const totalProducts = await Product.countDocuments(filter);
     const totalPages    = Math.ceil(totalProducts / limit);
 
-    const products = await Product
-      .find(filter)
-      .populate("categoryId")       // ref: "Category"
+    const products = await Product.find(filter)
+      .populate("categoryId")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
 
-    // ── Attach default variant data ───────────────────────────────
+    // ── Fetch all variants for current page products ──────────────
     const productIds  = products.map(p => p._id);
-    const allVariants = await Variant.find({ Product_id: { $in: productIds } }).lean();
+    const allVariants = await Variant.find({ productId: { $in: productIds } }).lean();
 
-    const variantMap = {};
+    // ── Group variants by productId ───────────────────────────────
+    const variantsByProduct = {};
     allVariants.forEach(v => {
-      const key = v.Product_id.toString();
-      if (!variantMap[key]) variantMap[key] = [];
-      variantMap[key].push(v);
-    });
-
-    const enrichedProducts = products.map(product => {
-      const vars = variantMap[product._id.toString()] || [];
-      const def  = vars.find(v => v.IsDefault) || vars[0] || null;
-      return {
-        ...product,
-        // normalised fields for EJS
-        name:     product.productName,
-        image:    product.productImages?.[0] || "/images/no-image.png",
-        price:    def?.Price  ?? null,
-        stock:    def?.Stock  ?? null,
-        sku:      def?.SKU    ?? null,
-        isActive: product.status === "active",
-        category: product.categoryId,         // populated doc
-        variants: vars,
-      };
+      const key = v.productId.toString();
+      if (!variantsByProduct[key]) variantsByProduct[key] = [];
+      variantsByProduct[key].push(v);
     });
 
     const categories = await Category.find({ IsDeleted: false }).lean();
 
     res.render("admin/products/productManagement", {
+      products,
       admin,
       limit,
-      products:       enrichedProducts,
+      variantsByProduct,
       totalProducts,
       categories,
       search,
       statusFilter,
       categoryFilter,
-      currentPage:    page,
+      currentPage: page,
       totalPages,
     });
 
@@ -144,35 +128,31 @@ const addProduct = async (req, res) => {
     // ── Duplicate check ───────────────────────────────────────────
     const existed = await Product.findOne({
       productName: { $regex: `^${productName.trim()}$`, $options: "i" },
-      isDeleted: false,
+      IsDeleted: false,
     });
     if (existed)
       return res.status(400).json({ success: false, message: "Product already exists" });
 
     // ── Images ────────────────────────────────────────────────────
-    const productImages = req.files
-      ? req.files.filter(f => f.fieldname === "images").map(f => f.path)
-      : [];
+    const variantImages = (req.files || [])
+      .filter(f => f.fieldname === "variantImages[0]")
+      .map(f => f.path);
 
-    const variantImages = req.files ? req.files.filter(f => f.fieldname === "variantImages[0]").map(f => f.path) : [];
-
-    // ── Create product  ───────────────────────────────────────────
-  
+    // ── Create product ────────────────────────────────────────────
     const newProduct = await Product.create({
-      productName:   productName.trim(),    
-      description:   description.trim(),    
-      categoryId:    category,              
-      status:        status || "active",    
-      productImages: productImages,         
+      productName: productName.trim(),
+      description: description.trim(),
+      categoryId:  category,
+      status:      status || "active",
     });
 
     // ── Create default variant ────────────────────────────────────
     await Variant.create({
-      productId: newProduct._id,
+      productId:  newProduct._id,
       color:      v0.color.trim(),
       colorCode:  v0.colorHex || "#000000",
-      RAM:        parseSpec(v0.ram),        // "8GB" → 8
-      storage:    parseSpec(v0.storage),    // "256GB" → 256
+      RAM:        parseSpec(v0.ram),
+      storage:    parseSpec(v0.storage),
       price:      Number(v0.price),
       stock:      Number(v0.stock),
       SKU:        v0.sku?.trim() || "",
@@ -198,14 +178,10 @@ const loadEditProduct = async (req, res) => {
     const { id } = req.params;
     const admin  = req.session.admin || await userSchema.findOne({ isAdmin: true }).lean();
 
-    const product = await Product
-      .findById(id)
-      .populate("categoryId")        // ✅ correct field
-      .lean();
-
+    const product = await Product.findById(id).populate("categoryId").lean();
     if (!product) return res.status(404).send("Product not found");
 
-    const variants   = await Variant.find({ Product_id: id }).lean();
+    const variants   = await Variant.find({ productId: id }).lean();
     const categories = await Category.find({ IsDeleted: false }).lean();
 
     res.render("admin/products/editProduct", { product, variants, categories, admin });
@@ -222,27 +198,17 @@ const loadEditProduct = async (req, res) => {
 ===================================== */
 const editProduct = async (req, res) => {
   try {
-    const { id }  = req.params;
+    const { id }                              = req.params;
     const { productName, description, category, status } = req.body;
 
     const product = await Product.findById(id);
     if (!product) return res.status(404).send("Product not found");
 
-    let productImages = product.productImages || [];   // ✅ schema: productImages
-
-    if (req.files?.length > 0) {
-      const newImages = req.files
-        .filter(f => f.fieldname === "images")
-        .map(f => f.path);
-      if (newImages.length > 0) productImages = newImages;
-    }
-
     await Product.findByIdAndUpdate(id, {
-      productName:   productName.trim(),   // ✅
-      description:   description.trim(),   // ✅
-      categoryId:    category,             // ✅
+      productName: productName.trim(),
+      description: description.trim(),
+      categoryId:  category,
       status,
-      productImages,                       // ✅
     });
 
     res.redirect("/admin/products");
@@ -280,9 +246,8 @@ const toggleProductStatus = async (req, res) => {
 const deleteProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('hellow ')
-    await Product.findByIdAndUpdate(id, { IsDeleted: true });  // ✅ schema: isDeleted
-    res.redirect('/admin/products')
+    await Product.findByIdAndUpdate(id, { IsDeleted: true });
+    res.redirect("/admin/products");
   } catch (error) {
     console.error("deleteProduct:", error);
     res.status(500).send("Server Error");

@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Management — Zyrox</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
     <link rel="stylesheet" href="/adminStyles/products/productListing.css">
 
     <style>
         /* ===== NON-SCROLLABLE FULL-HEIGHT LAYOUT ===== */
-        html, body {
+        html,
+        body {
             height: 100%;
             overflow: hidden;
         }
@@ -80,217 +84,221 @@
         }
     </style>
 </head>
+
 <body>
-<div class="layout-wrapper">
+    <div class="layout-wrapper">
 
-    <%- include('../../partials/admin/sidebar', { currentPage: 'products', currentUser: admin }) %>
+        <%- include('../../partials/admin/sidebar', { currentPage: 'products' , currentUser: admin }) %>
 
-    <main class="main-content flex-grow-1">
+            <main class="main-content flex-grow-1">
 
-        <div class="page-header d-flex justify-content-between align-items-center">
-            <div>
-                <p class="page-label">Product Management</p>
-                <h1 class="page-title">Products</h1>
-            </div>
-            <a href="/admin/products-add" class="btn btn-dark">
-                <i class="bi bi-plus"></i> Add Product
-            </a>
-        </div>
+                <div class="page-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="page-label">Product Management</p>
+                        <h1 class="page-title">Products</h1>
+                    </div>
+                    <a href="/admin/products-add" class="btn btn-dark">
+                        <i class="bi bi-plus"></i> Add Product
+                    </a>
+                </div>
 
-        <div class="panel">
+                <div class="panel">
 
-            <div class="panel-topbar d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-                <h2 class="panel-title">All Products</h2>
+                    <div class="panel-topbar d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                        <h2 class="panel-title">All Products</h2>
 
-                <form method="GET" action="/admin/products" class="search-bar-group d-flex gap-2 flex-wrap">
-                    <div class="search-input-wrap">
-                        <i class="bi bi-search search-icon-inner"></i>
-                        <input type="search" name="search" placeholder="Search products..."
-                               class="search-field" value="<%= search || '' %>">
+                        <form method="GET" action="/admin/products" class="search-bar-group d-flex gap-2 flex-wrap">
+                            <div class="search-input-wrap">
+                                <i class="bi bi-search search-icon-inner"></i>
+                                <input type="search" name="search" placeholder="Search products..." class="search-field"
+                                    value="<%= search || '' %>">
+                            </div>
+
+                            <select name="category" class="filter-select">
+                                <option value="">All Categories</option>
+                                <% categories.forEach(cat=> { %>
+                                    <option value="<%= cat._id %>" <%=categoryFilter==cat._id.toString() ? 'selected'
+                                        : '' %>>
+                                        <%= cat.categoryName %>
+                                    </option>
+                                    <% }) %>
+                            </select>
+
+                            <select name="status" class="filter-select">
+                                <option value="">All Status</option>
+                                <option value="active" <%=statusFilter==='active' ? 'selected' : '' %>>Active</option>
+                                <option value="inactive" <%=statusFilter==='inactive' ? 'selected' : '' %>>Inactive
+                                </option>
+                            </select>
+
+                            <button type="submit" class="search-submit-btn">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </form>
                     </div>
 
-                    <select name="category" class="filter-select">
-                        <option value="">All Categories</option>
-                        <% categories.forEach(cat => { %>
-                            <option value="<%= cat._id %>"
-                                <%= categoryFilter == cat._id.toString() ? 'selected' : '' %>>
-                                <%= cat.categoryName %>
-                            </option>
-                        <% }) %>
-                    </select>
+                    <div class="table-responsive">
+                        <table class="table users-table">
+                            <thead>
+                                <tr>
+                                    <th>Sl.No</th>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Category</th>
+                                    <th>Stock</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% products.forEach((product, index)=> { %>
+                                    <% const productVariants=variantsByProduct[product._id.toString()] || [] %>
+                                        <% const firstVariant=productVariants[0] || null %>
 
-                    <select name="status" class="filter-select">
-                        <option value="">All Status</option>
-                        <option value="active"   <%= statusFilter === 'active'   ? 'selected' : '' %>>Active</option>
-                        <option value="inactive" <%= statusFilter === 'inactive' ? 'selected' : '' %>>Inactive</option>
-                    </select>
+                                            <tr>
+                                                <td>
+                                                    <%= (currentPage - 1) * limit + index + 1 %>
+                                                </td>
 
-                    <button type="submit" class="search-submit-btn">
-                        <i class="bi bi-search"></i> Search
-                    </button>
-                </form>
-            </div>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <div class="product-thumb">
+                                                            <img src="<%= firstVariant?.images?.[0] ?? '/default-product.png' %>"
+                                                                alt="<%= product.productName %>"
+                                                                onerror="this.src='/default-product.png'">
+                                                        </div>
+                                                        <div>
+                                                            <p class="u-name mb-1">
+                                                                <%= product.productName %>
+                                                            </p>
+                                                            <small class="text-muted">SKU: <%= firstVariant?.SKU
+                                                                    || 'N/A' %></small>
+                                                        </div>
+                                                    </div>
+                                                </td>
 
-            <div class="table-responsive">
-                <table class="table users-table">
-                    <thead>
-                        <tr>
-                            <th>Sl.No</th>
-                            <th>Product</th>
-                            <th>Price</th>
-                            <th>Category</th>
-                            <th>Stock</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% products.forEach((product, index) => { %>
-                            <tr>
-                                <td><%= (currentPage - 1) * limit + index + 1 %></td>
+                                                <td>
+                                                    <% if (firstVariant?.price !=null) { %>
+                                                        ₹<%= firstVariant.price.toLocaleString('en-IN') %>
+                                                            <% } else { %>
+                                                                <span class="text-muted">—</span>
+                                                                <% } %>
+                                                </td>
 
-                                <td>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="product-thumb">
-                                            <img src="<%= product.image %>" alt="<%= product.name %>">
-                                        </div>
-                                        <div>
-                                            <p class="u-name mb-1"><%= product.name %></p>
-                                            <small class="text-muted">SKU: <%= product.sku || 'N/A' %></small>
-                                        </div>
-                                    </div>
-                                </td>
+                                                <td>
+                                                    <%= product.categoryId?.categoryName || 'N/A' %>
+                                                </td>
 
-                                <td>
-                                    <% if(product.price != null){ %>
-                                        ₹<%= product.enrichedProducts.price.toLocaleString('en-IN') %>
-                                    <% } else { %>
-                                        <span class="text-muted">—</span>
-                                    <% } %>
-                                </td>
+                                                <td>
+                                                    <% if (firstVariant?.stock !=null) { %>
+                                                        <span
+                                                            class="<%= firstVariant.stock === 0 ? 'text-danger fw-bold' : firstVariant.stock < 5 ? 'text-warning' : '' %>">
+                                                            <%= firstVariant.stock %>
+                                                                <% if (firstVariant.stock===0) { %><small>(Out)</small>
+                                                                    <% } %>
+                                                        </span>
+                                                        <% } else { %>
+                                                            <span class="text-muted">—</span>
+                                                            <% } %>
+                                                </td>
 
-                                <td><%= product.category?.categoryName || 'N/A' %></td>
+                                                <td>
+                                                    <span
+                                                        class="status-badge <%= product.status === 'active' ? 'active' : 'blocked' %>">
+                                                        <%= product.status==='active' ? 'Active' : 'Inactive' %>
+                                                    </span>
+                                                </td>
 
-                                <td>
-                                    <% if(product.stock != null){ %>
-                                        <span class="<%= product.stock === 0 ? 'text-danger fw-bold' : product.stock < 5 ? 'text-warning' : '' %>">
-                                            <%= product.enrichedProducts.stock %><% if(product.enrichedProducts.stock === 0){ %> <small>(Out)</small><% } %>
-                                        </span>
-                                    <% } else { %>
-                                        <span class="text-muted">—</span>
-                                    <% } %>
-                                </td>
+                                                <td>
+                                                    <div class="action-cell">
+                                                        <a href="/admin/products/<%= product._id %>/variants"
+                                                            class="btn-action edit" title="Variants">
+                                                            <i class="bi bi-layers"></i>
+                                                        </a>
+                                                        <a href="/admin/products-edit/<%= product._id %>"
+                                                            class="btn-action edit" title="Edit">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </a>
+                                                        <form action="/admin/products-status/<%= product._id %>"
+                                                            method="POST" style="display:inline;">
+                                                            <button
+                                                                class="btn-action <%= product.status === 'active' ? 'block' : 'unblock' %>"
+                                                                title="<%= product.status === 'active' ? 'Deactivate' : 'Activate' %>">
+                                                                <i
+                                                                    class="bi <%= product.status === 'active' ? 'bi-x-circle' : 'bi-check-circle' %>"></i>
+                                                            </button>
+                                                        </form>
+                                                        <button class="btn-action delete" title="Delete"
+                                                            onclick="confirmDelete('<%= product._id %>')">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
 
-                                <td>
-                                    <span class="status-badge <%= product.isActive ? 'active' : 'blocked' %>">
-                                        <%= product.isActive ? 'Active' : 'Inactive' %>
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <div class="action-cell">
-                                        <a href="/admin/products/<%= product._id %>/variants"
-                                           class="btn-action edit" title="Variants">
-                                            <i class="bi bi-layers"></i>
+                    <div class="pagination-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <p>
+                            Showing
+                            <strong>
+                                <%= totalProducts> 0
+                                    ? ((currentPage - 1) * limit + 1) + '–' + Math.min(currentPage * limit,
+                                    totalProducts)
+                                    : '0' %>
+                            </strong>
+                            of <strong>
+                                <%= totalProducts %>
+                            </strong> products
+                        </p>
+                        <nav>
+                            <ul class="pagination-list">
+                                <% for(let i=1; i <=totalPages; i++){ %>
+                                    <li>
+                                        <a href="?page=<%= i %>&search=<%= search %>&category=<%= categoryFilter %>&status=<%= statusFilter %>"
+                                            class="page-btn <%= currentPage === i ? 'active' : '' %>">
+                                            <%= i %>
                                         </a>
-                                        <a href="/admin/products-edit/<%= product._id %>"
-                                           class="btn-action edit" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <form action="/admin/products-status/<%= product._id %>"
-                                              method="POST" style="display:inline;">
-                                            <button class="btn-action <%= product.isActive ? 'block' : 'unblock' %>"
-                                                    title="<%= product.isActive ? 'Deactivate' : 'Activate' %>">
-                                                <i class="bi <%= product.isActive ? 'bi-x-circle' : 'bi-check-circle' %>"></i>
-                                            </button>
-                                        </form>
-                                        <button class="btn-action delete" title="Delete" onclick="confirmDelete('<%=product._id%>')">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <% }) %>
+                                    </li>
+                                    <% } %>
+                            </ul>
+                        </nav>
+                    </div>
 
-                        <% if(products.length === 0){ %>
-                            <tr>
-                                <td colspan="7">
-                                    <div class="empty-state text-center py-5">
-                                        <i class="bi bi-box-seam display-5 text-muted d-block mb-3"></i>
-                                        <h5 class="mb-2">No Products Found</h5>
-                                        <p class="text-muted mb-4">No products match your search or filters.</p>
-                                        <% if(search || categoryFilter || statusFilter){ %>
-                                            <a href="/admin/products" class="btn btn-outline-secondary">
-                                                <i class="bi bi-arrow-counterclockwise"></i> Reset Filters
-                                            </a>
-                                        <% } else { %>
-                                            <a href="/admin/products-add" class="btn btn-dark">
-                                                <i class="bi bi-plus-lg"></i> Add Your First Product
-                                            </a>
-                                        <% } %>
-                                    </div>
-                                </td>
-                            </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
+                </div>
+            </main>
+    </div>
 
-            <div class="pagination-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
-                <p>
-                    Showing
-                    <strong>
-                        <%= totalProducts > 0
-                            ? ((currentPage - 1) * limit + 1) + '–' + Math.min(currentPage * limit, totalProducts)
-                            : '0' %>
-                    </strong>
-                    of <strong><%= totalProducts %></strong> products
-                </p>
-                <nav>
-                    <ul class="pagination-list">
-                        <% for(let i = 1; i <= totalPages; i++){ %>
-                            <li>
-                                <a href="?page=<%= i %>&search=<%= search %>&category=<%= categoryFilter %>&status=<%= statusFilter %>"
-                                   class="page-btn <%= currentPage === i ? 'active' : '' %>">
-                                    <%= i %>
-                                </a>
-                            </li>
-                        <% } %>
-                    </ul>
-                </nav>
-            </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        </div>
-    </main>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-    function confirmDelete(id) {
-        Swal.fire({
-            title: "Delete product?",
-            text: "This action can't be undone.",
-            icon: "warning",
-            width: "720px",
-            padding: "1.5em",
-            showCancelButton: true,
-            confirmButtonText: "Delete",
-            cancelButtonText: "Cancel",
-            confirmButtonColor: "#ff4d4f",
-            cancelButtonColor: "#6c757d",
-            customClass: {
-                popup: 'rounded-4',
-                confirmButton: 'px-3',
-                cancelButton: 'px-3'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/admin/products-delete/${id}`;
-            }
-        });
-    }
-</script>
+    <script>
+        function confirmDelete(id) {
+            Swal.fire({
+                title: "Delete product?",
+                text: "This action can't be undone.",
+                icon: "warning",
+                width: "720px",
+                padding: "1.5em",
+                showCancelButton: true,
+                confirmButtonText: "Delete",
+                cancelButtonText: "Cancel",
+                confirmButtonColor: "#ff4d4f",
+                cancelButtonColor: "#6c757d",
+                customClass: {
+                    popup: 'rounded-4',
+                    confirmButton: 'px-3',
+                    cancelButton: 'px-3'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/admin/products-delete/${id}`;
+                }
+            });
+        }
+    </script>
 </body>
+
 </html>

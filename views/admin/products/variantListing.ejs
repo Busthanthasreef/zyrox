@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Variant Management | Admin</title>
+    <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        /* (all existing styles unchanged) */
+        :root {
+            --sidebar-width: 260px;
+            --bg: #f4f6f9;
+            --white: #ffffff;
+            --border: #e2e6ed;
+            --text: #1a1d23;
+            --muted: #7a8394;
+            --green: #16a34a;
+            --green-bg: #dcfce7;
+            --red: #dc2626;
+            --red-bg: #fee2e2;
+            --yellow: #d97706;
+            --yellow-bg: #fef3c7;
+            --radius: 12px;
+            --shadow: 0 1px 4px rgba(0, 0, 0, 0.07), 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar-wrapper {
+            width: var(--sidebar-width);
+            min-height: 100vh;
+            flex-shrink: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem 2.4rem;
+            min-height: 100vh;
+            max-width: 1200px;
+        }
+
+        .page-title {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.4px;
+            margin-bottom: 1.6rem;
+        }
+
+        .product-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.2rem 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            animation: fadeUp 0.35s ease both;
+        }
+
+        .product-thumb {
+            width: 64px;
+            height: 64px;
+            border-radius: 10px;
+            background: #1a1a2e;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-thumb-placeholder {
+            color: #aaa;
+            font-size: 1.6rem;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-info .name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        .product-info .brand {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .stat-divider {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .stat-pill {
+            padding: 0.55rem 1.4rem;
+            text-align: center;
+        }
+
+        .stat-pill+.stat-pill {
+            border-left: 1px solid var(--border);
+        }
+
+        .stat-pill .val {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text);
+        }
+
+        .stat-pill .val.green {
+            color: var(--green);
+        }
+
+        .stat-pill .lbl {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-add-variant {
+            background: var(--accent, #1a1d23);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.55rem 1.2rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: opacity 0.18s, transform 0.15s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-add-variant:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+            color: #fff;
+        }
+
+        .table-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: fadeUp 0.4s ease 0.1s both;
+        }
+
+        .variants-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .variants-table thead tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .variants-table th {
+            padding: 0.75rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .variants-table td {
+            padding: 0.85rem 1rem;
+            font-size: 0.88rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .variants-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .variants-table tbody tr:hover {
+            background: #fafbfc;
+        }
+
+        .default-radio {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #d1d5db;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: border-color 0.2s;
+        }
+
+        .default-radio.selected {
+            border-color: var(--text);
+        }
+
+        .default-radio.selected::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text);
+        }
+
+        .variant-attrs {
+            font-size: 0.76rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .sku-code {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.8rem;
+            color: #374151;
+            background: #f3f4f6;
+            padding: 3px 8px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+
+        .price {
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 14px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-badge.active {
+            background: var(--green-bg);
+            color: var(--green);
+        }
+
+        .status-badge.inactive {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stock-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 28px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 0 8px;
+        }
+
+        .stock-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.76rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .stock-status.instock {
+            background: var(--green-bg);
+            color: var(--green);
+            border-color: #bbf7d0;
+        }
+
+        .stock-status.lowstock {
+            background: var(--yellow-bg);
+            color: var(--yellow);
+            border-color: #fde68a;
+        }
+
+        .stock-status.outstock {
+            background: var(--red-bg);
+            color: var(--red);
+            border-color: #fecaca;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            display: none;
+        }
+
+        .toggle-track {
+            width: 100%;
+            height: 100%;
+            border-radius: 999px;
+            background: #e5e7eb;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .toggle-track::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch input:checked+.toggle-track {
+            background: var(--green);
+        }
+
+        .toggle-switch input:checked+.toggle-track::after {
+            transform: translateX(20px);
+        }
+
+        .toggle-switch input.inactive:checked+.toggle-track {
+            background: var(--red);
+        }
+
+        .btn-edit {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .btn-edit:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .pagination-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 1.2rem;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .pagination-info {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .page-btns {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .page-btn {
+            height: 32px;
+            min-width: 32px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: var(--white);
+            color: var(--text);
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 8px;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.15s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: var(--bg);
+            border-color: #9ca3af;
+        }
+
+        .page-btn.active {
+            background: var(--accent, #1a1d23);
+            color: #fff;
+            border-color: var(--accent, #1a1d23);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted);
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            opacity: 0.35;
+            display: block;
+            margin-bottom: 0.8rem;
+        }
+
+        /* ══ MODAL STYLES ══ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1050;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s, visibility 0.25s;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+            transform: translateY(24px) scale(0.97);
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        .modal-overlay.open .modal-box {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: #f3f4f6;
+            color: #6b7280;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .modal-close:hover {
+            background: #e5e7eb;
+            color: var(--text);
+        }
+
+        .img-upload-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .img-upload-slot {
+            flex: 1;
+            aspect-ratio: 1/1;
+            max-height: 110px;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            background: #f9fafb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .img-upload-slot:hover {
+            border-color: #9ca3af;
+            background: #f3f4f6;
+        }
+
+        .img-upload-slot input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .img-upload-slot .upload-icon {
+            font-size: 1.5rem;
+            color: #9ca3af;
+            margin-bottom: 4px;
+        }
+
+        .img-upload-slot .upload-label {
+            font-size: 0.72rem;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        .img-upload-slot .preview-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .img-upload-slot .remove-img {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            z-index: 2;
+            background: rgba(220, 38, 38, 0.85);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .img-upload-slot.has-image .remove-img {
+            display: flex;
+        }
+
+        .img-upload-slot.has-image .upload-icon,
+        .img-upload-slot.has-image .upload-label {
+            display: none;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-select-custom,
+        .form-input {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.88rem;
+            color: var(--text);
+            background: var(--bg);
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            appearance: none;
+        }
+
+        .form-select-custom {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 2rem;
+        }
+
+        .form-input:focus,
+        .form-select-custom:focus {
+            border-color: #6b7280;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+        }
+
+        .input-prefix {
+            display: flex;
+            align-items: center;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-prefix:focus-within {
+            border-color: #6b7280;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+        }
+
+        .input-prefix span {
+            padding: 0 0.6rem;
+            color: var(--muted);
+            font-size: 0.88rem;
+            border-right: 1px solid var(--border);
+            background: #f3f4f6;
+            align-self: stretch;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-prefix input {
+            border: none;
+            background: transparent;
+            outline: none;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.88rem;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text);
+            width: 100%;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            margin-right: 6px;
+        }
+
+        .status-label {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+        }
+
+        .modal-footer-btns {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .btn-cancel {
+            background: #f3f4f6;
+            border: none;
+            border-radius: 8px;
+            padding: 0.55rem 1.2rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            transition: background 0.15s;
+        }
+
+        .btn-cancel:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-save {
+            background: var(--text);
+            border: none;
+            border-radius: 8px;
+            padding: 0.55rem 1.4rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            transition: opacity 0.18s, transform 0.15s;
+        }
+
+        .btn-save:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1.2rem;
+            }
+
+            .stat-divider {
+                display: none;
+            }
+
+            .variants-table th:nth-child(1),
+            .variants-table td:nth-child(1) {
+                display: none;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .img-upload-row {
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar-wrapper">
+        <%- include('../../partials/admin/sidebar', { currentPage: 'products' , currentUser: user }) %>
+    </div>
+
+    <div class="main-content">
+
+        <h1 class="page-title">Variant Management</h1>
+
+        <div class="product-card">
+            <div class="product-thumb">
+                <% if (product.images && product.images.length> 0) { %>
+                    <img src="<%= product.images[0] %>" alt="<%= product.name %>" />
+                    <% } else { %>
+                        <span class="product-thumb-placeholder"><i class="bi bi-box-seam"></i></span>
+                        <% } %>
+            </div>
+            <div class="product-info">
+                <div class="name">
+                    <%= product.name %>
+                </div>
+                <div class="brand"><i class="bi bi-geo-alt-fill"></i>
+                    <%= product.brand %>
+                </div>
+            </div>
+            <div class="stat-divider">
+                <div class="stat-pill">
+                    <div class="lbl">Total Variants</div>
+                    <div class="val">
+                        <%= typeof totalVariants !=='undefined' ? totalVariants : 0 %>
+                    </div>
+                </div>
+                <div class="stat-pill">
+                    <div class="lbl">Active</div>
+                    <div class="val green">
+                        <%= typeof activeVariants !=='undefined' ? activeVariants : 0 %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div></div>
+            <button class="btn-add-variant" onclick="openAddModal()">
+                <i class="bi bi-plus-circle-fill"></i> Add Variant
+            </button>
+        </div>
+
+        <div class="table-card">
+
+            <% if (typeof successMsg !=='undefined' && successMsg) { %>
+                <div class="alert alert-success alert-dismissible fade show mx-3 mt-2 mb-0" role="alert"
+                    style="background:var(--green-bg);color:var(--green);border:1px solid #bbf7d0;border-radius:8px;font-size:0.85rem;">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <%= successMsg %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <% } %>
+                    <% if (typeof errorMsg !=='undefined' && errorMsg) { %>
+                        <div class="alert alert-danger alert-dismissible fade show mx-3 mt-2 mb-0" role="alert"
+                            style="background:var(--red-bg);color:var(--red);border:1px solid #fecaca;border-radius:8px;font-size:0.85rem;">
+                            <i class="bi bi-exclamation-circle me-2"></i>
+                            <%= errorMsg %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        <% } %>
+
+                            <div class="table-responsive">
+                                <table class="variants-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Default</th>
+                                            <th>Details</th>
+                                            <th>SKU</th>
+                                            <th>Price</th>
+                                            <th>Variant Status</th>
+                                            <th>Stock</th>
+                                            <th>Stock Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (typeof variants !=='undefined' && variants.length> 0) { %>
+                                            <% variants.forEach(function(variant) { %>
+                                                <% var isActiveVariant=!!(variant.isActive || variant.status==='active'
+                                                    ); var variantData=JSON.stringify({ id: variant._id, color:
+                                                    variant.color || '' , storage: variant.storage || '' , RAM:
+                                                    variant.RAM || '' , price: variant.price || 0, stock: variant.stock
+                                                    !==undefined ? variant.stock : 0, SKU: variant.SKU || '' , isActive:
+                                                    isActiveVariant, images: variant.images || [] }); %>
+                                                    <tr>
+                                                        <td>
+                                                            <div class="default-radio <%= variant.isDefault ? 'selected' : '' %>"
+                                                                onclick="setDefault('<%= variant._id %>')"
+                                                                title="Set as default"></div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <div>
+                                                                    <div class="variant-attrs"><span
+                                                                            style="color:black;">Color</span> : <%=
+                                                                            variant.color %>
+                                                                    </div>
+                                                                    <div class="variant-attrs">
+                                                                        <% if (variant.RAM) { %><span
+                                                                                style="color:black;">RAM</span> : <%=
+                                                                                variant.RAM %>GB &nbsp;<% } %>
+                                                                                    <br>
+                                                                                    <% if (variant.storage) { %><span
+                                                                                            style="color:black;">Storage</span>
+                                                                                        : <%= variant.storage %>&nbsp;GB
+                                                                                            <% } %>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td><span class="sku-code">
+                                                                <%= variant.SKU || 'N/A' %>
+                                                            </span></td>
+                                                        <td><span class="price">₹<%= variant.price ?
+                                                                    variant.price.toLocaleString('en-IN') : '0' %>
+                                                            </span></td>
+                                                        <td>
+                                                            <% if (isActiveVariant) { %>
+                                                                <span class="status-badge active">Active</span>
+                                                                <% } else { %>
+                                                                    <span class="status-badge inactive">Inactive</span>
+                                                                    <% } %>
+                                                        </td>
+                                                        <td><span class="stock-num">
+                                                                <%= variant.stock !==undefined ? variant.stock : 0 %>
+                                                            </span></td>
+                                                        <td>
+                                                            <% if (variant.stock> 9) { %>
+                                                                <span class="stock-status instock">instock</span>
+                                                                <% } else if (variant.stock> 0) { %>
+                                                                    <span class="stock-status lowstock">Low Stock</span>
+                                                                    <% } else { %>
+                                                                        <span class="stock-status outstock">Out of
+                                                                            Stock</span>
+                                                                        <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <label class="toggle-switch">
+                                                                    <input type="checkbox"
+                                                                        class="<%= isActiveVariant ? '' : 'inactive' %>"
+                                                                        <%=isActiveVariant ? 'checked' : '' %>
+                                                                    onchange="toggleVariant('<%= variant._id %>',
+                                                                        this.checked)" />
+                                                                        <div class="toggle-track"></div>
+                                                                </label>
+                                                                <%# ── KEY FIX: store variant JSON in data-attr, no
+                                                                    inline quote hell ── %>
+                                                                    <button class="btn-edit" title="Edit variant"
+                                                                        data-variant="<%- encodeURIComponent(variantData) %>"
+                                                                        onclick="openEditModalFromBtn(this)">
+                                                                        <i class="bi bi-pencil"></i>
+                                                                    </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <% }); %>
+                                                        <% } else { %>
+                                                            <tr>
+                                                                <td colspan="8">
+                                                                    <div class="empty-state">
+                                                                        <i class="bi bi-layers"></i>
+                                                                        <p style="font-weight:600;color:var(--text);">No
+                                                                            variants found</p>
+                                                                        <p style="font-size:0.82rem;">Add your first
+                                                                            variant to get started.</p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="pagination-bar">
+                                <div class="pagination-info">
+                                    Showing <%= typeof startItem !=='undefined' ? startItem : 1 %> of
+                                        <%= typeof totalVariants !=='undefined' ? totalVariants : 0 %> variants
+                                </div>
+                                <div class="page-btns">
+                                    <button class="page-btn" <%=(typeof currentPage !=='undefined' && currentPage <=1)
+                                        ? 'disabled' : '' %>
+                                        onclick="goToPage(<%= typeof currentPage !=='undefined' ? currentPage - 1 : 1 %>
+                                            )">Prev</button>
+                                    <% if (typeof totalPages !=='undefined' ) { %>
+                                        <% for (var i=1; i <=totalPages; i++) { %>
+                                            <button
+                                                class="page-btn <%= (typeof currentPage !== 'undefined' && currentPage === i) ? 'active' : '' %>"
+                                                onclick="goToPage('<%= i %>')">
+                                                <%= i %>
+                                            </button>
+                                            <% } %>
+                                                <% } else { %>
+                                                    <button class="page-btn active">1</button>
+                                                    <button class="page-btn">2</button>
+                                                    <button class="page-btn">3</button>
+                                                    <% } %>
+                                                        <button class="page-btn" <%=(typeof currentPage !=='undefined'
+                                                            && typeof totalPages !=='undefined' && currentPage>=
+                                                            totalPages) ? 'disabled' : '' %>
+                                                            onclick="goToPage(<%= typeof currentPage !=='undefined' ?
+                                                                currentPage + 1 : 2 %>)">Next</button>
+                                </div>
+                            </div>
+        </div>
+    </div>
+
+
+    <!-- ══ ADD VARIANT MODAL ══ -->
+    <div class="modal-overlay" id="addModal" onclick="handleOverlayClick(event, 'addModal')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">Add &nbsp;Variant</span>
+                <button class="modal-close" onclick="closeModal('addModal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <form id="addVariantForm"
+                action="/admin/products/<%= typeof product !== 'undefined' ? product._id : '' %>/variants/add"
+                method="POST" enctype="multipart/form-data">
+
+                <div class="img-upload-row">
+                    <div class="img-upload-slot" id="addSlot0">
+                        <input type="file" name="variantImages" accept="image/*"
+                            onchange="previewImg(this, 'addSlot0')">
+                        <i class="bi bi-camera upload-icon"></i>
+                        <span class="upload-label">Upload Image</span>
+                        <img class="preview-img" src="" alt="">
+                        <button type="button" class="remove-img" onclick="removeImg('addSlot0', event)"><i
+                                class="bi bi-x"></i></button>
+                    </div>
+                    <div class="img-upload-slot" id="addSlot1">
+                        <input type="file" name="variantImages" accept="image/*"
+                            onchange="previewImg(this, 'addSlot1')">
+                        <i class="bi bi-camera upload-icon"></i>
+                        <span class="upload-label">Upload Image</span>
+                        <img class="preview-img" src="" alt="">
+                        <button type="button" class="remove-img" onclick="removeImg('addSlot1', event)"><i
+                                class="bi bi-x"></i></button>
+                    </div>
+                    <div class="img-upload-slot" id="addSlot2">
+                        <input type="file" name="variantImages" accept="image/*"
+                            onchange="previewImg(this, 'addSlot2')">
+                        <i class="bi bi-camera upload-icon"></i>
+                        <span class="upload-label">Upload Image</span>
+                        <img class="preview-img" src="" alt="">
+                        <button type="button" class="remove-img" onclick="removeImg('addSlot2', event)"><i
+                                class="bi bi-x"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+
+                        <label class="form-label">Color</label>
+
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <!-- Color Picker -->
+                            <input type="color"  id="colorPicker"
+                                style="width:50px; height:40px; border:none; cursor:pointer;"
+                                onchange="updateColorValue(this.value)">
+
+                            <!-- Color Name Input (remove readonly, add oninput handler) -->
+                            <input type="text" name="color" id="colorValue" class="form-input"
+                                placeholder="e.g. Red, Navy, #ff0000" oninput="handleColorInput(this.value)">
+
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Storage</label>
+                        <input type="number" placeholder="eg. 8GB" class="form-input">
+
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">RAM</label>
+                        <input type="number" class="form-input" placeholder="eg.128GB">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Stock</label>
+                        <input type="number" name="stock" class="form-input" placeholder="0" min="0" value="0">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Price</label>
+                        <div class="input-prefix">
+                            <span>₹</span>
+                            <input type="number" name="price" placeholder="0.00" min="0" step="0.01" value="0.00">
+                        </div>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">SKU</label>
+                        <input type="text" name="SKU" class="form-input" placeholder="Enter the SKU of this Product">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Status</label>
+                        <div class="status-row">
+                            <div class="status-label"><span class="status-dot" id="addStatusDot"></span> Active</div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="isActive" id="addStatusToggle" checked
+                                    onchange="syncStatusDot('addStatusDot', this)">
+                                <div class="toggle-track"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer-btns">
+                    <button type="button" class="btn-cancel" onclick="closeModal('addModal')">Cancel</button>
+                    <button type="submit" class="btn-save">Add Variant</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ══ EDIT VARIANT MODAL ══ -->
+    <div class="modal-overlay" id="editModal" onclick="handleOverlayClick(event, 'editModal')">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">Edit &nbsp;Variant</span>
+                <button class="modal-close" onclick="closeModal('editModal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <form id="editVariantForm" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="_method" value="PUT">
+
+                <div class="img-upload-row">
+                    <div class="img-upload-slot" id="editSlot0">
+                        <input type="file" name="variantImages" accept="image/*"
+                            onchange="previewImg(this, 'editSlot0')">
+                        <i class="bi bi-camera upload-icon"></i>
+                        <span class="upload-label">Upload Image</span>
+                        <img class="preview-img" src="" alt="">
+                        <button type="button" class="remove-img" onclick="removeImg('editSlot0', event)"><i
+                                class="bi bi-x"></i></button>
+                    </div>
+                    <div class="img-upload-slot" id="editSlot1">
+                        <input type="file" name="variantImages" accept="image/*"
+                            onchange="previewImg(this, 'editSlot1')">
+                        <i class="bi bi-camera upload-icon"></i>
+                        <span class="upload-label">Upload Image</span>
+                        <img class="preview-img" src="" alt="">
+                        <button type="button" class="remove-img" onclick="removeImg('editSlot1', event)"><i
+                                class="bi bi-x"></i></button>
+                    </div>
+                    <div class="img-upload-slot" id="editSlot2">
+                        <input type="file" name="variantImages" accept="image/*"
+                            onchange="previewImg(this, 'editSlot2')">
+                        <i class="bi bi-camera upload-icon"></i>
+                        <span class="upload-label">Upload Image</span>
+                        <img class="preview-img" src="" alt="">
+                        <button type="button" class="remove-img" onclick="removeImg('editSlot2', event)"><i
+                                class="bi bi-x"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Color</label>
+                        <select name="color" id="editColor" class="form-select-custom" required>
+                            <option value="">Select One</option>
+                            <option value="Black Titanium">Black Titanium</option>
+                            <option value="White Titanium">White Titanium</option>
+                            <option value="Blue">Blue</option>
+                            <option value="Natural Titanium">Natural Titanium</option>
+                            <option value="Desert Titanium">Desert Titanium</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                            <!-- Color Picker -->
+                            <input type="color"  id="colorPicker"
+                                style="width:50px; height:40px; border:none; cursor:pointer;"
+                                onchange="updateColorValue(this.value)">
+
+                            <!-- Color Name Input (remove readonly, add oninput handler) -->
+                            <input type="text" name="color" id="colorValue" class="form-input"
+                                placeholder="e.g. Red, Navy, #ff0000" oninput="handleColorInput(this.value)">
+
+                        </div>
+                    <div class="form-group">
+                        <label class="form-label">Storage</label>
+                        <select name="storage" id="editStorage" class="form-select-custom">
+                            <option value="">Select</option>
+                            <option value="128">128 GB</option>
+                            <option value="256">256 GB</option>
+                            <option value="512">512 GB</option>
+                            <option value="1024">1 TB</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">RAM</label>
+                        <select name="RAM" id="editRAM" class="form-select-custom">
+                            <option value="">Select</option>
+                            <option value="4">4 GB</option>
+                            <option value="6">6 GB</option>
+                            <option value="8">8 GB</option>
+                            <option value="12">12 GB</option>
+                            <option value="16">16 GB</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Stock</label>
+                        <input type="number" name="stock" id="editStock" class="form-input" min="0">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Price</label>
+                        <div class="input-prefix">
+                            <span>₹</span>
+                            <input type="number" name="price" id="editPrice" placeholder="0.00" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">SKU</label>
+                        <input type="text" name="SKU" id="editSKU" class="form-input"
+                            placeholder="Enter the SKU of this Product">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Status</label>
+                        <div class="status-row">
+                            <div class="status-label"><span class="status-dot" id="editStatusDot"></span> Active</div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="isActive" id="editStatusToggle"
+                                    onchange="syncStatusDot('editStatusDot', this)">
+                                <div class="toggle-track"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer-btns">
+                    <button type="button" class="btn-cancel" onclick="closeModal('editModal')">Cancel</button>
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+
+
+        function updateColorValue(color) {
+
+            document.getElementById("colorValue").value = color
+        }
+
+        const productId = '<%= typeof product !== "undefined" ? product._id : "" %>';
+
+        function goToPage(page) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', page);
+            window.location.href = url.toString();
+        }
+
+        function toggleVariant(variantId, isActive) {
+            fetch(`/admin/variants/${variantId}/toggle`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isActive })
+            })
+                .then(res => res.json())
+                .then(data => { if (!data.success) { alert('Failed to update status.'); window.location.reload(); } })
+                .catch(() => window.location.reload());
+        }
+
+        function setDefault(variantId) {
+            fetch(`/admin/variants/${variantId}/set-default`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(res => res.json())
+                .then(data => { if (data.success) window.location.reload(); else alert('Failed to set default.'); })
+                .catch(() => window.location.reload());
+        }
+
+        // ── Modal helpers
+        function openAddModal() {
+            document.getElementById('addModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Called from the data-attr button — avoids all inline quote issues
+        function openEditModalFromBtn(btn) {
+            const variant = JSON.parse(decodeURIComponent(btn.dataset.variant));
+            openEditModal(variant);
+        }
+
+        function openEditModal(variant) {
+            const form = document.getElementById('editVariantForm');
+            form.action = `/admin/products/${productId}/variants/${variant.id}/edit`;
+
+            document.getElementById('editColor').value = variant.color || '';
+            document.getElementById('editStorage').value = variant.storage || '';
+            document.getElementById('editRAM').value = variant.RAM || '';
+            document.getElementById('editPrice').value = variant.price || 0;
+            document.getElementById('editStock').value = variant.stock || 0;
+            document.getElementById('editSKU').value = variant.SKU || '';
+
+            const toggle = document.getElementById('editStatusToggle');
+            toggle.checked = !!variant.isActive;
+            syncStatusDot('editStatusDot', toggle);
+
+            ['editSlot0', 'editSlot1', 'editSlot2'].forEach((slotId, i) => {
+                const slot = document.getElementById(slotId);
+                const img = slot.querySelector('.preview-img');
+                if (variant.images && variant.images[i]) {
+                    img.src = variant.images[i];
+                    slot.classList.add('has-image');
+                } else {
+                    img.src = '';
+                    slot.classList.remove('has-image');
+                }
+            });
+
+            document.getElementById('editModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function handleOverlayClick(e, id) {
+            if (e.target === document.getElementById(id)) closeModal(id);
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { closeModal('addModal'); closeModal('editModal'); }
+        });
+
+        function previewImg(input, slotId) {
+            const slot = document.getElementById(slotId);
+            const img = slot.querySelector('.preview-img');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => { img.src = e.target.result; slot.classList.add('has-image'); };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function removeImg(slotId, e) {
+            e.stopPropagation();
+            const slot = document.getElementById(slotId);
+            const img = slot.querySelector('.preview-img');
+            const input = slot.querySelector('input[type="file"]');
+            img.src = ''; input.value = '';
+            slot.classList.remove('has-image');
+        }
+
+        function syncStatusDot(dotId, toggle) {
+            document.getElementById(dotId).style.background = toggle.checked ? 'var(--green)' : '#9ca3af';
+        }
+
+        // Called when color picker changes → update text input with color name
+        function updateColorValue(hex) {
+            document.getElementById('colorValue').value = getColorName(hex);
+            document.getElementById('colorPicker').value = hex;
+        }
+
+        // Called when user types in the text input → update color picker
+        function handleColorInput(value) {
+            const ctx = document.createElement('canvas').getContext('2d');
+            ctx.fillStyle = value; // browser parses color names like "red", "navy", etc.
+            const parsed = ctx.fillStyle;  // returns hex if valid, "#000000" if not recognized
+            if (parsed) {
+                document.getElementById('colorPicker').value = parsed;
+            }
+        }
+
+        // Maps hex → nearest named color
+        function getColorName(hex) {
+            const colors = {
+                "#ff0000": "Red", "#00ff00": "Green", "#0000ff": "Blue",
+                "#ffff00": "Yellow", "#ff00ff": "Magenta", "#00ffff": "Cyan",
+                "#000000": "Black", "#ffffff": "White", "#808080": "Gray",
+                "#ffa500": "Orange", "#800080": "Purple", "#a52a2a": "Brown",
+                "#ffc0cb": "Pink", "#40e0d0": "Turquoise", "#000080": "Navy",
+                "#808000": "Olive", "#008000": "Dark Green", "#800000": "Maroon",
+                "#ff6347": "Tomato", "#4682b4": "Steel Blue", "#d2691e": "Chocolate",
+                "#f5f5dc": "Beige", "#ffe4c4": "Bisque", "#dc143c": "Crimson",
+                "#b8860b": "Dark Goldenrod", "#006400": "Dark Green",
+                "#8b008b": "Dark Magenta", "#ff8c00": "Dark Orange",
+                "#e9967a": "Dark Salmon", "#9400d3": "Dark Violet",
+                "#1e90ff": "Dodger Blue", "#b22222": "Firebrick",
+                "#228b22": "Forest Green", "#daa520": "Goldenrod",
+                "#adff2f": "Green Yellow", "#ff69b4": "Hot Pink",
+                "#cd5c5c": "Indian Red", "#f0e68c": "Khaki",
+                "#7cfc00": "Lawn Green", "#add8e6": "Light Blue",
+                "#f08080": "Light Coral", "#90ee90": "Light Green",
+                "#ffb6c1": "Light Pink", "#20b2aa": "Light Sea Green",
+                "#87cefa": "Light Sky Blue", "#778899": "Light Slate Gray",
+                "#32cd32": "Lime Green", "#ff00ff": "Fuchsia",
+                "#66cdaa": "Medium Aquamarine", "#ba55d3": "Medium Orchid",
+                "#9370db": "Medium Purple", "#3cb371": "Medium Sea Green",
+                "#7b68ee": "Medium Slate Blue", "#00fa9a": "Medium Spring Green",
+                "#48d1cc": "Medium Turquoise", "#c71585": "Medium Violet Red",
+                "#191970": "Midnight Blue", "#ffe4e1": "Misty Rose",
+                "#ffe4b5": "Moccasin", "#000080": "Navy Blue",
+                "#fdf5e6": "Old Lace", "#6b8e23": "Olive Drab",
+                "#ff4500": "Orange Red", "#da70d6": "Orchid",
+                "#eee8aa": "Pale Goldenrod", "#98fb98": "Pale Green",
+                "#afeeee": "Pale Turquoise", "#db7093": "Pale Violet Red",
+                "#ffefd5": "Papaya Whip", "#ffdab9": "Peach Puff",
+                "#cd853f": "Peru", "#dda0dd": "Plum", "#b0e0e6": "Powder Blue",
+                "#bc8f8f": "Rosy Brown", "#4169e1": "Royal Blue",
+                "#8b4513": "Saddle Brown", "#fa8072": "Salmon",
+                "#f4a460": "Sandy Brown", "#2e8b57": "Sea Green",
+                "#fff5ee": "Seashell", "#a0522d": "Sienna",
+                "#87ceeb": "Sky Blue", "#6a5acd": "Slate Blue",
+                "#708090": "Slate Gray", "#00ff7f": "Spring Green",
+                "#4169e1": "Steel Blue", "#d2b48c": "Tan",
+                "#008080": "Teal", "#d8bfd8": "Thistle", "#ff6347": "Tomato",
+                "#40e0d0": "Turquoise", "#ee82ee": "Violet",
+                "#f5deb3": "Wheat", "#ffff00": "Yellow",
+                "#9acd32": "Yellow Green"
+            };
+
+            // Find closest color by comparing RGB distance
+            const r1 = parseInt(hex.slice(1, 3), 16);
+            const g1 = parseInt(hex.slice(3, 5), 16);
+            const b1 = parseInt(hex.slice(5, 7), 16);
+
+            let closest = hex;
+            let minDist = Infinity;
+
+            for (const [colorHex, colorName] of Object.entries(colors)) {
+                const r2 = parseInt(colorHex.slice(1, 3), 16);
+                const g2 = parseInt(colorHex.slice(3, 5), 16);
+                const b2 = parseInt(colorHex.slice(5, 7), 16);
+                const dist = Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closest = colorName;
+                }
+            }
+
+            return closest;
+        }
+    </script>
+</body>
+
+</html>

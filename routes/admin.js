@@ -21,7 +21,7 @@ adminRoutes.post("/categories-add",isAdminAuthenticated,categoryController.addCa
 adminRoutes.put("/categories/:id",isAdminAuthenticated,categoryController.editCategory);
 adminRoutes.patch("/categories/delete/:id",isAdminAuthenticated,categoryController.deleteCategory);
 
-adminRoutes.get("/products", isAdminAuthenticated, productController.loadProducts);
+adminRoutes.get("/products",isAdminAuthenticated, productController.loadProducts);
 adminRoutes.get("/products-add", isAdminAuthenticated, productController.loadAddProduct);
 adminRoutes.get("/products-edit/:id", isAdminAuthenticated, productController.loadEditProduct);
 
@@ -29,7 +29,8 @@ adminRoutes.post("/products-add", isAdminAuthenticated, upload.any(), productCon
 adminRoutes.post("/products-edit/:id", isAdminAuthenticated, upload.any(), productController.editProduct);
 adminRoutes.get("/products-delete/:id",isAdminAuthenticated,productController.deleteProduct)
 
-adminRoutes.get('/products/:productId/variants', variantController.loadVariantListing);
+adminRoutes.get('/products/:id/variants',isAdminAuthenticated, variantController.loadVariantListing);
+adminRoutes.post('/products/:id/variants-add',isAdminAuthenticated,variantController.addVariant);
 adminRoutes.get("/logout", isAdminAuthenticated, adminController.logout);
 
 export default adminRoutes;

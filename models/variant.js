@@ -6,7 +6,7 @@ const variantSchema = new Schema({
 
   productId: {
     type: Schema.Types.ObjectId,
-    ref: "Product",
+    ref: "Products",
     required: true
   },
   categoryId:{
