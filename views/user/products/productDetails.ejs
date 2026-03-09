@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+        <%= variant.productId.productName %> — Zyrox
+    </title>
+    <meta name="description" content="<%= variant.productId.description %>">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root {
+            --bg: #0b0c0e;
+            --bg-card: #141416;
+            --bg-mid: #1a1a1d;
+            --accent: #c8883a;
+            --accent-lt: rgba(200, 136, 58, .14);
+            --green: #00d4a0;
+            --red: #e63946;
+            --text: #eaeaea;
+            --muted: #606070;
+            --border: rgba(255, 255, 255, .08);
+            --radius: 11px;
+
+            --navbar-h: 70px;
+            --breadcrumb-h: 34px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            margin-top: var(--navbar-h);
+        }
+
+        /* ══════════ BREADCRUMB ══════════ */
+        .breadcrumb-bar {
+            height: var(--breadcrumb-h);
+            background: rgba(255, 255, 255, .03);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+        }
+
+        .breadcrumb-bar .container {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: .72rem;
+            color: var(--muted);
+        }
+
+        .breadcrumb-bar a {
+            color: var(--muted);
+            text-decoration: none;
+            transition: color .2s;
+        }
+
+        .breadcrumb-bar a:hover {
+            color: var(--accent);
+        }
+
+        .breadcrumb-bar .sep {
+            font-size: .56rem;
+        }
+
+        .breadcrumb-bar .current {
+            color: var(--text);
+        }
+
+        /* ══════════ MAIN 2-COL GRID ══════════ */
+        .pd-wrap {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            padding: 32px 0;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        /* ══════════ LEFT — GALLERY ══════════ */
+        .gallery {
+            position: sticky;
+            top: calc(var(--navbar-h) + 20px);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .gallery-main {
+            aspect-ratio: 1/1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: crosshair;
+        }
+
+        .gallery-main img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 24px;
+        }
+
+        /* Zoom Lens */
+        #zoomLens {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border: 1px solid var(--accent);
+            background: rgba(200, 136, 58, .1);
+            pointer-events: none;
+            display: none;
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        #zoomResult {
+            position: absolute;
+            top: 0;
+            left: 100%;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-left: 20px;
+            display: none;
+            z-index: 100;
+            background-repeat: no-repeat;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
+        }
+
+        .gallery-thumbs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .gallery-thumbs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .gallery-thumbs::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .thumb {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            background: var(--bg-card);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all .2s;
+            flex-shrink: 0;
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 6px;
+        }
+
+        .thumb:hover,
+        .thumb.active {
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        /* ══════════ RIGHT — INFO PANEL ══════════ */
+        .pd-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .pd-brand {
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .pd-name {
+            font-size: 1.75rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: var(--text);
+        }
+
+        /* — rating — */
+        .block-rating {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stars {
+            color: #ffbc00;
+            font-size: .85rem;
+        }
+
+        .rating-text {
+            font-size: .85rem;
+            color: var(--muted);
+        }
+
+        /* — price — */
+        .pd-price {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .price-main {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--green);
+        }
+
+        .price-old {
+            font-size: 1.1rem;
+            color: var(--muted);
+            text-decoration: line-through;
+        }
+
+        .price-save {
+            font-size: .75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            background: rgba(0, 212, 160, .12);
+            color: var(--green);
+            border-radius: 6px;
+            border: 1px solid rgba(0, 212, 160, .2);
+        }
+
+        .stock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .75rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        .in-stock {
+            background: rgba(0, 212, 160, .1);
+            color: var(--green);
+            border: 1px solid rgba(0, 212, 160, .2);
+        }
+
+        .out-stock {
+            background: rgba(230, 57, 70, .1);
+            color: var(--red);
+            border: 1px solid rgba(230, 57, 70, .2);
+        }
+
+        /* — highlights — */
+        .highlights-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .highlights-list li {
+            font-size: .85rem;
+            color: #b0b0c0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .highlights-list li::before {
+            content: "\f058";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: var(--accent);
+            margin-top: 2px;
+        }
+
+        /* — specs — */
+        .section-label {
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .spec-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        .spec-label-inner {
+            font-size: .6rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .spec-val {
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* — variants — */
+        .variant-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .variant-pill {
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: .8rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all .2s;
+        }
+
+        .variant-pill:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .variant-pill.active {
+            border-color: var(--accent);
+            background: var(--accent-lt);
+            color: var(--accent);
+        }
+
+        /* — action buttons — */
+        .block-actions {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .btn-cart,
+        .btn-buy {
+            height: 50px;
+            border-radius: 10px;
+            font-size: .9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-cart {
+            border: 2px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+        }
+
+        .btn-buy {
+            border: none;
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-cart:hover {
+            background: var(--accent-lt);
+        }
+
+        .btn-buy:hover {
+            background: #b8742e;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(200, 136, 58, .3);
+        }
+
+        /* — quantity — */
+        .block-qty {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .qty-label {
+            font-size: .75rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .qty-ctrl {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--bg-card);
+        }
+
+        .qty-btn {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            transition: background .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .8rem;
+        }
+
+        .qty-btn:hover {
+            background: var(--border);
+        }
+
+        .qty-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .qty-val {
+            width: 40px;
+            text-align: center;
+            font-size: .9rem;
+            font-weight: 700;
+            background: transparent;
+            border: none;
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-cart:disabled,
+        .btn-buy:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ══════════ SECTIONS ══════════ */
+        .pd-section {
+            border-top: 1px solid var(--border);
+            padding-top: 32px;
+            margin-top: 32px;
+        }
+
+        .pd-desc-text {
+            font-size: .95rem;
+            line-height: 1.7;
+            color: #b0b0c0;
+        }
+
+        /* ══════════ RELATED PRODUCTS ══════════ */
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .related-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all .3s;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .related-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .related-img {
+            aspect-ratio: 1/1;
+            padding: 15px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .related-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .related-info {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .related-name {
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+            flex: 1;
+        }
+
+        .related-price {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        /* ══════════ REVIEWS ══════════ */
+        .review-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .reviewer {
+            font-weight: 600;
+            font-size: .9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reviewer i {
+            color: var(--accent);
+            font-size: .75rem;
+        }
+
+        .review-date {
+            font-size: .75rem;
+            color: var(--muted);
+        }
+
+        .review-text {
+            font-size: .9rem;
+            color: #b0b0c0;
+            line-height: 1.6;
+        }
+
+        /* ══════════ MOBILE ══════════ */
+        @media (max-width: 992px) {
+            .pd-wrap {
+                grid-template-columns: 1fr;
+                padding: 20px 16px;
+            }
+
+            .gallery {
+                position: static;
+            }
+
+            #zoomResult {
+                display: none !important;
+            }
+
+            .related-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <%- include('../../partials/user/navigationbar', { user, cartItemCount, currentPage: 'products' , categories }) %>
+
+        <!-- BREADCRUMB -->
+        <div class="breadcrumb-bar">
+            <div class="container">
+                <a href="/">Home</a>
+                <i class="fas fa-chevron-right sep"></i>
+                <a href="/products">Products</a>
+                <i class="fas fa-chevron-right sep"></i>
+                <% if (variant.productId.categoryId) { %>
+                    <a href="/products?brand=<%= variant.productId.categoryId.categoryName %>">
+                        <%= variant.productId.categoryId.categoryName %>
+                    </a>
+                    <i class="fas fa-chevron-right sep"></i>
+                    <% } %>
+                        <span class="current">
+                            <%= variant.productId.productName %>
+                        </span>
+            </div>
+        </div>
+
+        <main class="container">
+            <!-- PRODUCT DETAIL -->
+            <div class="pd-wrap">
+
+                <!-- ── LEFT: IMAGE GALLERY ── -->
+                <section class="gallery">
+                    <% const images=variant.images && variant.images.length> 0
+                        ? variant.images
+                        : ['/images/placeholder.png']; %>
+
+                        <div class="gallery-main" id="mainImgWrap">
+                            <img id="mainImg" src="<%= images[0] %>" alt="<%= variant.productId.productName %>">
+                            <div id="zoomLens"></div>
+                        </div>
+                        <!-- Result stays here to appear next to the gallery on desktop -->
+                        <div id="zoomResult"></div>
+
+                        <% if (images.length> 1) { %>
+                            <div class="gallery-thumbs">
+                                <% images.forEach((img, i)=> { %>
+                                    <div class="thumb <%= i === 0 ? 'active' : '' %>"
+                                        onclick="setMainImg('<%= img %>', this)">
+                                        <img src="<%= img %>" alt="Image <%= i+1 %>">
+                                    </div>
+                                    <% }) %>
+                            </div>
+                            <% } %>
+                </section>
+
+                <!-- ── RIGHT: INFO ── -->
+                <section class="pd-info">
+
+                    <div class="block-header">
+                        <% const cat=variant.productId.categoryId; %>
+                            <div class="pd-brand">
+                                <%= cat ? (cat.categoryName || 'Zyrox' ) : 'Zyrox' %>
+                            </div>
+                            <h1 class="pd-name">
+                                <%= variant.productId.productName %>
+                            </h1>
+                    </div>
+
+                    <!-- Rating -->
+                    <div class="block-rating">
+                        <div class="stars">
+                            <% const rate=variant.productId.rating || 4.5; %>
+                                <% for (let s=1; s <=5; s++) { %>
+                                    <% if (s <=Math.floor(rate)) { %>
+                                        <i class="fas fa-star"></i>
+                                        <% } else if (s===Math.ceil(rate) && rate % 1 !==0) { %>
+                                            <i class="fas fa-star-half-alt"></i>
+                                            <% } else { %>
+                                                <i class="far fa-star"></i>
+                                                <% } %>
+                                                    <% } %>
+                        </div>
+                        <span class="rating-text">
+                            <%= rate %> / 5 (<%= variant.productId.reviewsCount || 128 %> Reviews)
+                        </span>
+                    </div>
+
+                    <!-- Price + Stock -->
+                    <div class="block-price">
+                        <div class="pd-price">
+                            <span class="price-main">₹<%= variant.price ? variant.price.toLocaleString('en-IN') : '—' %>
+                            </span>
+                            <% if (variant.oldPrice) { %>
+                                <span class="price-old">₹<%= variant.oldPrice.toLocaleString('en-IN') %></span>
+                                <% const savings=Math.round(((variant.oldPrice - variant.price) / variant.oldPrice) *
+                                    100); %>
+                                    <span class="price-save">
+                                        <%= savings %>% OFF
+                                    </span>
+                                    <% } %>
+                        </div>
+                        <div class="mt-2">
+                            <% if (variant.stock> 10) { %>
+                                <span class="stock-badge in-stock">
+                                    <i class="fas fa-check-circle"></i> In Stock
+                                </span>
+                                <% } else if (variant.stock> 0) { %>
+                                    <span class="stock-badge"
+                                        style="background:rgba(200,136,58,.1); color:var(--accent); border:1px solid rgba(200,136,58,.2);">
+                                        <i class="fas fa-exclamation-triangle"></i> Only <%= variant.stock %> left!
+                                    </span>
+                                    <% } else { %>
+                                        <span class="stock-badge out-stock">
+                                            <i class="fas fa-times-circle"></i> Sold Out
+                                        </span>
+                                        <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Highlights -->
+                    <div class="block-highlights">
+                        <!-- <span class="section-label">Product Highlights</span> -->
+                        <ul class="highlights-list">
+                            <% if (variant.productId.highlights && variant.productId.highlights.length> 0) { %>
+                                <% variant.productId.highlights.forEach(h=> { %>
+                                    <li>
+                                        <%= h %>
+                                    </li>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <!-- <li>High-performance processing power</li>
+                                            <li>Sleek and premium design language</li>
+                                            <li>Advanced camera capabilities for stunning photos</li>
+                                            <li>Optimized battery life for all-day usage</li> -->
+                                            <% } %>
+                        </ul>
+                    </div>
+
+                    <!-- Variants -->
+            </div>
+            <% } %>
+
+                <!-- Quantity Selector -->
+                <% if (variant.stock> 0) { %>
+                    <div class="block-qty">
+                        <span class="qty-label">Quantity</span>
+                        <div class="qty-ctrl">
+                            <button class="qty-btn" id="qtyMinus" onclick="changeQty(-1)" disabled>
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="text" class="qty-val" id="qtyVal" value="1" readonly>
+                            <button class="qty-btn" id="qtyPlus" onclick="changeQty(1)" <%=variant.stock <=1
+                                ? 'disabled' : '' %>>
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <span class="text-muted" style="font-size: .75rem;">(Max: <%= variant.stock %>)</span>
+                    </div>
+                    <% } %>
+
+                        <!-- Action Buttons -->
+                        <div class="block-actions">
+                            <button class="btn-cart" <%=variant.stock===0 ? 'disabled' : '' %>
+                                onclick="addToCart('<%= variant.productId._id %>', '<%= variant._id %>')">
+                                        <i class="fas fa-cart-plus"></i> Add to Cart
+                            </button>
+                            <button class="btn-buy" <%=variant.stock===0 ? 'disabled' : '' %>
+                                onclick="buyNow('<%= variant.productId._id %>', '<%= variant._id %>')">
+                                        <i class="fas fa-bolt"></i> Buy Now
+                            </button>
+                        </div>
+
+                        <!-- Trusted Badges -->
+                        <div class="d-flex gap-4 mt-2">
+                            <div class="text-center">
+                                <i class="fas fa-truck-fast text-muted mb-1" style="font-size: 1.2rem;"></i>
+                                <p style="font-size: .65rem; color: var(--muted); margin: 0;">Fast Delivery</p>
+                            </div>
+                            <div class="text-center">
+                                <i class="fas fa-shield-halved text-muted mb-1" style="font-size: 1.2rem;"></i>
+                                <p style="font-size: .65rem; color: var(--muted); margin: 0;">Secure Payment</p>
+                            </div>
+                            <div class="text-center">
+                                <i class="fas fa-rotate-left text-muted mb-1" style="font-size: 1.2rem;"></i>
+                                <p style="font-size: .65rem; color: var(--muted); margin: 0;">Easy Returns</p>
+                            </div>
+                        </div>
+
+                        </section>
+                        </div>
+
+                        <!-- DESCRIPTION SECTION -->
+                        <div class="pd-section">
+                            <span class="section-label">Product Description</span>
+                            <div class="pd-desc-text">
+                                <%= variant.productId.description %>
+                            </div>
+                        </div>
+
+                        <!-- SPECIFICATIONS TABLE -->
+                        <div class="pd-section">
+                            <span class="section-label">Technical Specifications</span>
+                            <div class="specs-grid">
+                                <div class="spec-card">
+                                    <div class="spec-label-inner">Processor</div>
+                                    <div class="spec-val">Octa-Core Pro</div>
+                                </div>
+                                <% if (variant.RAM) { %>
+                                    <div class="spec-card">
+                                        <div class="spec-label-inner">Memory (RAM)</div>
+                                        <div class="spec-val text-uppercase">
+                                            <%= variant.RAM %> GB
+                                        </div>
+                                    </div>
+                                    <% } %>
+                                        <% if (variant.storage) { %>
+                                            <div class="spec-card">
+                                                <div class="spec-label-inner">Internal Storage</div>
+                                                <div class="spec-val">
+                                                    <%= variant.storage %> GB
+                                                </div>
+                                            </div>
+                                            <% } %>
+                                                <!-- <div class="spec-card">
+                                        <div class="spec-label-inner">Display</div>
+                                        <div class="spec-val">6.7" AMOLED 120Hz</div>
+                                    </div>
+                                    <div class="spec-card">
+                                        <div class="spec-label-inner">Battery</div>
+                                        <div class="spec-val">5000 mAh Fast Charge</div>
+                                    </div>
+                                    <% if (variant.color) { %>
+                                        <div class="spec-card">
+                                            <div class="spec-label-inner">Color Finish</div>
+                                            <div class="spec-val">
+                                                <%= variant.color %>
+                                            </div>
+                                        </div> -->
+                                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class="pd-section">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <span class="section-label m-0">Customer Reviews</span>
+                                <button class="btn btn-sm btn-outline-warning" style="font-size: .75rem;">Write a
+                                    Review</button>
+                            </div>
+
+                            <div class="review-card">
+                                <div class="review-header">
+                                    <div class="reviewer">
+                                        John Doe <i class="fas fa-check-circle text-success"
+                                            title="Verified Purchase"></i>
+                                    </div>
+                                    <div class="stars">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                            class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                            class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <div class="review-text">
+                                    "Absolutely phenomenal device. The display is crisp and the performance is butter
+                                    smooth. Best
+                                    purchase this year!"
+                                </div>
+                            </div>
+
+                            <div class="review-card">
+                                <div class="review-header">
+                                    <div class="reviewer">
+                                        Sarah Miller <i class="fas fa-check-circle text-success"
+                                            title="Verified Purchase"></i>
+                                    </div>
+                                    <div class="stars">
+                                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                            class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                            class="far fa-star"></i>
+                                    </div>
+                                </div>
+                                <div class="review-text">
+                                    "Great battery life and the camera takes amazing low-light shots. Definitely worth
+                                    the price."
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RELATED PRODUCTS
+            <% if (relatedProducts && relatedProducts.length> 0) { %>
+                <div class="pd-section mb-5">
+                    <span class="section-label">You May Also Like</span>
+                    <div class="related-grid">
+                        <% relatedProducts.forEach(product=> { %>
+                            <a href="/product/<%= product._id %>?variant=<%= product.displayVariant._id %>"
+                                class="related-card">
+                                <div class="related-img">
+                                    <img src="<%= product.displayVariant.images[0] || '/images/placeholder.png' %>"
+                                        alt="<%= product.productName %>">
+                                </div>
+                                <div class="related-info">
+                                    <div class="related-name">
+                                        <%= product.productName %>
+                                    </div>
+                                    <div class="related-price">₹<%= product.displayVariant.price.toLocaleString('en-IN')
+                                            %>
+                                    </div>
+                                </div>
+                            </a>
+                            <% }) %>
+                    </div>
+                </div>
+                <% } %> -->
+        </main>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+        <script>
+            /* ── GALLERY & ZOOM ── */
+            const mainImgWrap = document.getElementById('mainImgWrap');
+            const mainImg = document.getElementById('mainImg');
+            const lens = document.getElementById('zoomLens');
+            const result = document.getElementById('zoomResult');
+
+            function setMainImg(src, thumbEl) {
+                mainImg.src = src;
+                document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+                if (thumbEl) thumbEl.classList.add('active');
+                // Update zoom background
+                result.style.backgroundImage = `url('${src}')`;
+            }
+
+            // Initialize Zoom
+            function initZoom() {
+                if (window.innerWidth < 992) return; // Disable zoom on mobile
+
+                mainImgWrap.addEventListener('mousemove', moveLens);
+                mainImgWrap.addEventListener('mouseenter', () => {
+                    lens.style.display = 'block';
+                    result.style.display = 'block';
+                    result.style.backgroundImage = `url('${mainImg.src}')`;
+                });
+                mainImgWrap.addEventListener('mouseleave', () => {
+                    lens.style.display = 'none';
+                    result.style.display = 'none';
+                });
+
+                function moveLens(e) {
+                    const rect = mainImgWrap.getBoundingClientRect();
+                    let x = e.pageX - rect.left - window.scrollX;
+                    let y = e.pageY - rect.top - window.scrollY;
+
+                    // Keep lens inside bounds
+                    const lensW = lens.offsetWidth;
+                    const lensH = lens.offsetHeight;
+
+                    x = Math.max(0, Math.min(x - lensW / 2, rect.width - lensW));
+                    y = Math.max(0, Math.min(y - lensH / 2, rect.height - lensH));
+
+                    lens.style.left = x + 'px';
+                    lens.style.top = y + 'px';
+
+                    // Calculate ratios
+                    const cx = result.offsetWidth / lensW;
+                    const cy = result.offsetHeight / lensH;
+
+                    result.style.backgroundSize = (rect.width * cx) + 'px ' + (rect.height * cy) + 'px';
+                    result.style.backgroundPosition = `-${x * cx}px -${y * cy}px`;
+                }
+            }
+
+            initZoom();
+            window.addEventListener('resize', initZoom);
+
+            /* ── QUANTITY ── */
+            const MAX_QTY = <%= variant.stock || 0 %>;
+            function changeQty(delta) {
+                const inp = document.getElementById('qtyVal');
+                if (!inp) return;
+                let v = parseInt(inp.value) + delta;
+                v = Math.max(1, Math.min(v, MAX_QTY));
+                inp.value = v;
+                document.getElementById('qtyMinus').disabled = v <= 1;
+                document.getElementById('qtyPlus').disabled = v >= MAX_QTY;
+            }
+
+            /* ── ADD TO CART ── */
+            function addToCart(productId, variantId) {
+                const qty = parseInt(document.getElementById('qtyVal')?.value || 1);
+                fetch('/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, variantId, quantity: qty })
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.requiresAuth || data.redirect) { window.location.href = '/signin'; return; }
+                        if (!data.success) {
+                            Swal.fire({
+                                icon: 'error', title: 'Error', text: data.message || 'Something went wrong',
+                                background: '#141416', color: '#eaeaea'
+                            });
+                            return;
+                        }
+                        const badge = document.querySelector('.cart-badge');
+                        if (badge && data.cartCount !== undefined) badge.textContent = data.cartCount;
+                        Swal.fire({
+                            toast: true, position: 'top-end', icon: 'success',
+                            title: 'Added to cart!', showConfirmButton: false, timer: 1800,
+                            background: '#141416', color: '#eaeaea', iconColor: '#00d4a0'
+                        });
+                    })
+                    .catch(() => { window.location.href = '/signin'; });
+            }
+
+            /* ── BUY NOW ── */
+            function buyNow(productId, variantId) {
+                const qty = parseInt(document.getElementById('qtyVal')?.value || 1);
+                fetch('/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, variantId, quantity: qty })
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.requiresAuth || data.redirect) { window.location.href = '/signin'; return; }
+                        if (!data.success) {
+                            Swal.fire({
+                                icon: 'error', title: 'Error', text: data.message || 'Something went wrong',
+                                background: '#141416', color: '#eaeaea'
+                            });
+                            return;
+                        }
+                        window.location.href = '/cart';
+                    })
+                    .catch(() => { window.location.href = '/signin'; });
+            }
+        </script>
+</body>
+
+</html>

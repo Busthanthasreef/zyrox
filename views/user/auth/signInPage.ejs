@@ -114,6 +114,7 @@
         </script>
         <% } %>
 
+
             <% if (typeof error !=='undefined' && error==='blocked' ) { %>
                 <script>
                     Swal.fire({
@@ -211,7 +212,10 @@
                                     .then(response => response.json())
                                     .then(data => {
                                         if (data.success) {
-                                            window.location.href = "/?loginSuccess=true";
+                                            // Use server-provided returnTo, or fall back to home
+                                            const dest = data.returnTo && data.returnTo !== '/' ? data.returnTo : '/?loginSuccess=true';
+                                            window.location.href = dest;
+
                                         } else {
                                             if (data.blocked) {
                                                 Swal.fire({

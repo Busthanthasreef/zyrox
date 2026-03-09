@@ -4,8 +4,16 @@ import * as productController from "../controllers/user/productController.js"
 import * as addressController from "../controllers/user/addressController.js";
 import * as profileController from "../controllers/user/profileController.js";
 import * as cartController from "../controllers/user/cartController.js"
+import * as wishlistController from "../controllers/user/wishlistController.js"
 import { isUserAuthenticated, isUserGuest } from "../middlewares/auth.js";
 import upload from "../middlewares/multer.js";
+import {
+    loadCart,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    clearCart
+} from "../controllers/user/cartController.js";
 
 const userRoutes = express.Router();
 
@@ -13,6 +21,13 @@ const userRoutes = express.Router();
 userRoutes.get("/", userController.landingPage);
 
 userRoutes.get('/products', productController.loadProducts);
+userRoutes.get('/product/:id', productController.loadProductDetails);
+
+userRoutes.get("/cart",                loadCart);
+userRoutes.post("/cart/add",           addToCart);
+userRoutes.post("/cart/update-quantity", updateQuantity);
+userRoutes.post("/cart/remove",        removeFromCart);
+userRoutes.post("/cart/clear",         clearCart);
 
 
 /* SIGNUP */
@@ -27,7 +42,10 @@ userRoutes.get("/signin", isUserGuest, userController.loadSignIn);
 userRoutes.post("/signin", isUserGuest, userController.userSignIn);
 
 /* PROFILE - PROTECTED ROUTES */
-userRoutes.get('/cart',isUserAuthenticated,cartController.loadCart)
+userRoutes.get('/cart', isUserAuthenticated, cartController.loadCart)
+userRoutes.post('/cart/add', isUserAuthenticated, cartController.addToCart);
+userRoutes.post('/wishlist/toggle', isUserAuthenticated, wishlistController.toggleWishlist);
+userRoutes.get('/wishlist', isUserAuthenticated, wishlistController.loadWishlist);
 
 
 userRoutes.get("/profile", isUserAuthenticated, profileController.userProfile);

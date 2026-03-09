@@ -26,8 +26,8 @@
             <!-- Full Name -->
             <div class="mb-3">
                 <label class="form-label">Full Name</label>
-                <input type="text" name="Name" class="form-control" placeholder="Enter Full Name"
-                    value="<%= typeof Name !== 'undefined' ? Name : '' %>">
+                <input type="text" id="fullName" name="Name" class="form-control" placeholder="Enter Full Name"
+                    value="<%= typeof Name !== 'undefined' ? Name : '' %>" required>
             </div>
 
             <!-- Email -->
@@ -156,13 +156,13 @@
             }
 
             formElement.addEventListener("submit", function (event) {
-                const Name= document.getElementById('fullName').value.trim();
+                const Name = document.getElementById('fullName').value.trim();
                 const emailValue = document.getElementById("Email").value.trim();
                 const phoneValue = document.getElementById("Phone").value.trim();
                 const passwordValue = document.getElementById("Password").value.trim();
                 const confirmPasswordValue = document.getElementById("confirmPassword").value.trim();
-                
-                const nameRegex=/^[a-zA-Z.]$/;
+
+                const nameRegex = /^[a-zA-Z.]$/;
                 const emailRegex = /^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
                 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
                 const phoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
@@ -180,23 +180,23 @@
                     event.preventDefault();
                     Swal.fire({
                         icon: "warning",
-                        toast:true,
+                        toast: true,
                         title: "All fields are required",
-                        position:"center",
-                        showConfirmButton:false,
-                        timer:1000
+                        position: "center",
+                        showConfirmButton: false,
+                        timer: 1000
                     });
                     return;
                 }
                 if (!Name) {
                     event.preventDefault();
                     Swal.fire({
-                            icon: "warning",
-                        toast:true,
+                        icon: "warning",
+                        toast: true,
                         title: "All fields are required",
-                        position:"center",
-                        showConfirmButton:false,
-                        timer:1000
+                        position: "center",
+                        showConfirmButton: false,
+                        timer: 1000
                     });
                     return;
                 }

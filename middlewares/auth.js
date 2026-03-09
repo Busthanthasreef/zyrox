@@ -23,10 +23,13 @@ const isAdminGuest = (req, res, next) => {
 // User authentication middleware
 const isUserAuthenticated = (req, res, next) => {
   if (!req.session.user) {
+    // Save the page they were trying to visit so we can redirect back after login
+    req.session.returnTo = req.originalUrl;
     return res.redirect("/signin");
   }
   next();
 };
+
 
 
 

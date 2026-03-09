@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zyrox Admin — Edit Product</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Sora:wght@600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
 
     <style>
@@ -20,10 +24,16 @@
             --text: #0f172a;
             --muted: #64748b;
             --radius: 10px;
-            --shadow: 0 1px 4px rgba(0,0,0,.07);
+            --shadow: 0 1px 4px rgba(0, 0, 0, .07);
         }
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: 'DM Sans', sans-serif;
@@ -33,7 +43,12 @@
             min-height: 100vh;
         }
 
-        .main-wrap { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .main-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
 
         .topbar {
             background: #fff;
@@ -46,10 +61,23 @@
             top: 0;
             z-index: 100;
         }
-        .topbar-title { font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 700; }
-        .topbar-sep, .topbar-sub { font-size: 0.88rem; color: var(--muted); }
 
-        .page-body { padding: 24px 26px; max-width: 700px; }
+        .topbar-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .topbar-sep,
+        .topbar-sub {
+            font-size: 0.88rem;
+            color: var(--muted);
+        }
+
+        .page-body {
+            padding: 24px 26px;
+            max-width: 700px;
+        }
 
         .panel {
             background: var(--card);
@@ -59,6 +87,7 @@
             padding: 22px;
             margin-bottom: 20px;
         }
+
         .panel-title {
             font-size: 0.9rem;
             font-weight: 700;
@@ -77,7 +106,9 @@
             margin-bottom: 5px;
             display: block;
         }
-        .form-control, .form-select {
+
+        .form-control,
+        .form-select {
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 0.875rem;
@@ -87,14 +118,486 @@
             transition: border-color .15s, box-shadow .15s;
             width: 100%;
         }
-        .form-control:focus, .form-select:focus {
+
+        .form-control:focus,
+        .form-select:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
             background: #fff;
             outline: none;
         }
-        textarea.form-control { min-height: 120px; resize: vertical; }
 
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* ── IMAGE PANEL ── */
+        .img-hint {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        .img-grid-edit {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .img-box-edit {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            overflow: hidden;
+            background: var(--bg);
+            transition: border-color .2s, background .2s;
+        }
+
+        .img-box-edit:hover {
+            border-color: #94a3b8;
+            background: #e8eef4;
+        }
+
+        .img-box-edit i.upload-icon {
+            font-size: 1.4rem;
+            color: #cbd5e1;
+            pointer-events: none;
+        }
+
+        .img-box-edit span.upload-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .img-box-edit input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .img-box-edit .img-preview {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            z-index: 3;
+            display: none;
+        }
+
+        .img-box-edit .remove-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            z-index: 5;
+            background: rgba(239, 68, 68, 0.88);
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+            font-size: 11px;
+            padding: 0;
+            transition: background .2s;
+        }
+
+        .img-box-edit .remove-btn:hover {
+            background: #ef4444;
+        }
+
+        .img-box-edit .preview-btn {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            z-index: 5;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #fff;
+            font-size: 11px;
+            padding: 0;
+            transition: background .2s;
+        }
+
+        .img-box-edit .preview-btn:hover {
+            background: rgba(0, 0, 0, 0.78);
+        }
+
+        .img-box-edit .crop-edit-btn {
+            position: absolute;
+            bottom: 6px;
+            right: 6px;
+            z-index: 5;
+            background: rgba(15, 23, 42, 0.65);
+            border: none;
+            border-radius: 6px;
+            padding: 3px 8px;
+            display: none;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 600;
+            transition: background .2s;
+        }
+
+        .img-box-edit .crop-edit-btn:hover {
+            background: rgba(15, 23, 42, 0.92);
+        }
+
+        .img-box-edit.has-image {
+            border-style: solid;
+            border-color: #64748b;
+        }
+
+        .img-box-edit.has-image .img-preview {
+            display: block;
+        }
+
+        .img-box-edit.has-image .remove-btn {
+            display: flex;
+        }
+
+        .img-box-edit.has-image .preview-btn {
+            display: flex;
+        }
+
+        .img-box-edit.has-image .crop-edit-btn {
+            display: flex;
+        }
+
+        .img-box-edit.has-image .upload-icon,
+        .img-box-edit.has-image .upload-label {
+            display: none;
+        }
+
+        .img-box-edit.has-image input[type="file"] {
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .img-slot-badge {
+            position: absolute;
+            bottom: 6px;
+            left: 6px;
+            background: rgba(0, 0, 0, 0.07);
+            color: #64748b;
+            font-size: 10px;
+            padding: 1px 7px;
+            border-radius: 20px;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .img-box-edit.has-image .img-slot-badge {
+            display: none;
+        }
+
+        /* ── CROP MODAL ── */
+        .crop-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            z-index: 9000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .crop-modal-overlay.active {
+            display: flex;
+        }
+
+        .crop-modal {
+            background: #fff;
+            border-radius: 16px;
+            width: min(660px, 95vw);
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .crop-modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .crop-modal-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .crop-modal-close {
+            background: #f1f5f9;
+            border: none;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-size: 16px;
+            transition: background .2s;
+        }
+
+        .crop-modal-close:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .crop-canvas-wrap {
+            flex: 1;
+            overflow: hidden;
+            padding: 16px 20px;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+        }
+
+        .crop-canvas-wrap img {
+            max-width: 100%;
+            max-height: 360px;
+            display: block;
+        }
+
+        .crop-toolbar {
+            padding: 14px 20px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .crop-tool-btn {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+            color: #374151;
+            font-size: 13px;
+            padding: 6px 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all .15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .crop-tool-btn:hover {
+            background: #e2e8f0;
+            border-color: #94a3b8;
+        }
+
+        .crop-ratio-group {
+            display: flex;
+            gap: 5px;
+        }
+
+        .crop-ratio-btn {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+            color: #64748b;
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 5px 11px;
+            cursor: pointer;
+            transition: all .15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .crop-ratio-btn:hover {
+            border-color: #94a3b8;
+            color: #374151;
+        }
+
+        .crop-ratio-btn.active {
+            background: #0f172a;
+            border-color: #0f172a;
+            color: #fff;
+        }
+
+        .crop-slider-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .crop-slider-group label {
+            font-size: 11px;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        .crop-slider {
+            flex: 1;
+            accent-color: #2563eb;
+        }
+
+        .crop-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-crop-cancel {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 18px;
+            cursor: pointer;
+            transition: all .15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-crop-cancel:hover {
+            border-color: #94a3b8;
+            color: #374151;
+        }
+
+        .btn-crop-apply {
+            background: var(--primary);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 8px 22px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background .2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-crop-apply:hover {
+            background: #1d4ed8;
+        }
+
+        /* ── LIGHTBOX ── */
+        .lightbox-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 9100;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+            cursor: zoom-out;
+        }
+
+        .lightbox-overlay.active {
+            display: flex;
+        }
+
+        .lightbox-img {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 12px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            object-fit: contain;
+            cursor: default;
+            animation: lbIn .2s ease;
+        }
+
+        @keyframes lbIn {
+            from {
+                opacity: 0;
+                transform: scale(.92);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .lightbox-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .lightbox-label {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(4px);
+            color: #fff;
+            font-size: 12px;
+            padding: 5px 16px;
+            border-radius: 20px;
+        }
+
+        /* ── FORM ACTIONS ── */
         .form-actions {
             display: flex;
             justify-content: flex-end;
@@ -103,6 +606,7 @@
             margin-top: 6px;
             border-top: 1px solid var(--border);
         }
+
         .btn-discard {
             padding: 9px 22px;
             border-radius: 8px;
@@ -114,7 +618,11 @@
             color: var(--text);
             transition: all .15s;
         }
-        .btn-discard:hover { background: var(--bg); }
+
+        .btn-discard:hover {
+            background: var(--bg);
+        }
+
         .btn-save {
             padding: 9px 26px;
             border-radius: 8px;
@@ -126,93 +634,356 @@
             cursor: pointer;
             transition: background .15s;
         }
-        .btn-save:hover { background: #1d4ed8; }
+
+        .btn-save:hover {
+            background: #1d4ed8;
+        }
     </style>
 </head>
+
 <body>
 
-<%- include('../../partials/admin/sidebar', { currentPage: 'products', currentUser: admin }) %>
+    <%- include('../../partials/admin/sidebar', { currentPage: 'products' , currentUser: admin }) %>
 
-<div class="main-wrap">
+        <div class="main-wrap">
 
-    <div class="topbar">
-        <span class="topbar-title">Product Management</span>
-        <span class="topbar-sep"><i class="bi bi-chevron-right" style="font-size:.75rem"></i></span>
-        <span class="topbar-sub">Edit Product</span>
-    </div>
+            <div class="topbar">
+                <span class="topbar-title">Product Management</span>
+                <span class="topbar-sep"><i class="bi bi-chevron-right" style="font-size:.75rem"></i></span>
+                <span class="topbar-sub">Edit Product</span>
+            </div>
 
-    <div class="page-body">
-        <form id="editProductForm" action="/admin/products-edit/<%= product._id %>" method="POST">
+            <div class="page-body">
+                <form id="editProductForm" action="/admin/products-edit/<%= product._id %>" method="POST"
+                    enctype="multipart/form-data">
 
-            <div class="panel">
-                <div class="panel-title">
-                    <i class="bi bi-info-circle me-2 text-primary"></i>Basic Information
-                </div>
+                    <!-- Basic Information -->
+                    <div class="panel">
+                        <div class="panel-title">
+                            <i class="bi bi-info-circle me-2 text-primary"></i>Basic Information
+                        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Product Name</label>
-                    <input type="text" name="productName" class="form-control"
-                           placeholder="Enter product name"
-                           value="<%= product.productName %>" required>
-                </div>
+                        <div class="mb-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" name="productName" class="form-control" placeholder="Enter product name"
+                                value="<%= product.productName %>" required>
+                        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Description</label>
-                    <textarea name="description" class="form-control"
-                              placeholder="Describe this product..."><%= product.description %></textarea>
-                </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control"
+                                placeholder="Describe this product..."><%= product.description %></textarea>
+                        </div>
 
-                <div class="row g-3">
-                    <div class="col-6">
-                        <label class="form-label">Category</label>
-                        <select name="category" class="form-select">
-                            <option value="">Select a category</option>
-                            <% if (typeof categories !== 'undefined') { %>
-                                <% categories.forEach(cat => { %>
-                                    <option value="<%= cat._id %>"
-                                        <%= product.categoryId && product.categoryId._id?.toString() === cat._id.toString() ? 'selected' : '' %>>
-                                        <%= cat.categoryName %>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label">Category</label>
+                                <select name="category" class="form-select">
+                                    <option value="">Select a category</option>
+                                    <% if (typeof categories !=='undefined' ) { %>
+                                        <% categories.forEach(cat=> { %>
+                                            <option value="<%= cat._id %>" <%=product.categoryId &&
+                                                product.categoryId._id?.toString()===cat._id.toString() ? 'selected'
+                                                : '' %>>
+                                                <%= cat.categoryName %>
+                                            </option>
+                                            <% }) %>
+                                                <% } %>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Status</label>
+                                <select name="status" class="form-select">
+                                    <option value="active" <%=product.status==='active' ? 'selected' : '' %>>Active
                                     </option>
-                                <% }) %>
-                            <% } %>
-                        </select>
+                                    <option value="inactive" <%=product.status==='inactive' ? 'selected' : '' %>
+                                        >Inactive</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-6">
-                        <label class="form-label">Status</label>
-                        <select name="status" class="form-select">
-                            <option value="active"   <%= product.status === 'active'   ? 'selected' : '' %>>Active</option>
-                            <option value="inactive" <%= product.status === 'inactive' ? 'selected' : '' %>>Inactive</option>
-                        </select>
+
+                    <!-- Default Variant Section -->
+                    <div class="panel">
+                        <div class="panel-title">
+                            <i class="bi bi-layers me-2 text-primary"></i>Default Variant Specs
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Color</label>
+                            <input type="text" name="color" class="form-control" placeholder="e.g. Midnight Black"
+                                value="<%= defaultVariant ? defaultVariant.color : '' %>">
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label">RAM (GB)</label>
+                                <input type="number" name="ram" class="form-control"
+                                    value="<%= defaultVariant ? defaultVariant.RAM : '' %>">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Storage (GB)</label>
+                                <input type="number" name="storage" class="form-control"
+                                    value="<%= defaultVariant ? defaultVariant.storage : '' %>">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Price (₹)</label>
+                                <input type="number" name="price" class="form-control"
+                                    value="<%= defaultVariant ? defaultVariant.price : '' %>">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Stock</label>
+                                <input type="number" name="stock" class="form-control"
+                                    value="<%= defaultVariant ? defaultVariant.stock : '' %>">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">SKU</label>
+                                <input type="text" name="sku" class="form-control"
+                                    value="<%= defaultVariant ? defaultVariant.SKU : '' %>">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Images -->
+                    <div class="panel">
+                        <div class="panel-title">
+                            <i class="bi bi-images me-2 text-primary"></i>Product Images
+                        </div>
+                        <p class="img-hint">You can upload up to 3 images for the default variant. Leave empty to keep
+                            existing.</p>
+                        <div class="img-grid-edit">
+                            <% for(let i=0; i < 3; i++) { %>
+                                <div class="img-box-edit" id="eBox_<%= i %>">
+                                    <i class="bi bi-camera upload-icon"></i>
+                                    <span class="upload-label">
+                                        <%= i===0 ? 'Primary' : 'Extra ' + i %>
+                                    </span>
+                                    <span class="img-slot-badge">#<%= i + 1 %></span>
+
+                                    <img class="img-preview" id="ePreview_<%= i %>" src="" alt="">
+
+                                    <!-- Lightbox preview button -->
+                                    <button type="button" class="preview-btn"
+                                        onclick="event.stopPropagation(); openLightbox(<%= i %>)" title="Preview image">
+                                        <i class="bi bi-zoom-in"></i>
+                                    </button>
+                                    <!-- Remove button -->
+                                    <button type="button" class="remove-btn"
+                                        onclick="event.stopPropagation(); removeImgSlot(<%= i %>)" title="Remove image">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                    <!-- Crop/edit button -->
+                                    <button type="button" class="crop-edit-btn"
+                                        onclick="event.stopPropagation(); openCropModal(<%= i %>)"
+                                        title="Crop & resize">
+                                        <i class="bi bi-crop"></i>
+                                    </button>
+
+                                    <input type="file" name="newImages[]" accept="image/*" id="eFile_<%= i %>"
+                                        onchange="onFileSelected(this, <%= i %>)">
+                                </div>
+                                <% } %>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-discard" onclick="confirmDiscard()">Discard</button>
+                        <button type="submit" class="btn-save" id="saveBtn">
+                            <i class="bi bi-check2 me-1"></i> Save Changes
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- ══ CROP MODAL ══ -->
+        <div class="crop-modal-overlay" id="cropModalOverlay">
+            <div class="crop-modal">
+                <div class="crop-modal-header">
+                    <div class="crop-modal-title"><i class="bi bi-crop"></i> Crop & Resize</div>
+                    <button class="crop-modal-close" onclick="closeCropModal()"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="crop-canvas-wrap">
+                    <img id="cropImg" src="" alt="">
+                </div>
+                <div class="crop-toolbar">
+                    <div class="crop-ratio-group">
+                        <button type="button" class="crop-ratio-btn active" data-ratio="NaN"
+                            onclick="setRatio(NaN, this)">Free</button>
+                        <button type="button" class="crop-ratio-btn" data-ratio="1"
+                            onclick="setRatio(1, this)">1:1</button>
+                        <button type="button" class="crop-ratio-btn" data-ratio="1.33"
+                            onclick="setRatio(4/3, this)">4:3</button>
+                    </div>
+                    <button type="button" class="crop-tool-btn" onclick="cropperInst && cropperInst.rotate(-90)"><i
+                            class="bi bi-arrow-counterclockwise"></i></button>
+                    <button type="button" class="crop-tool-btn" onclick="cropperInst && cropperInst.rotate(90)"><i
+                            class="bi bi-arrow-clockwise"></i></button>
+
+                    <div class="crop-actions">
+                        <button type="button" class="btn-crop-cancel" onclick="closeCropModal()">Cancel</button>
+                        <button type="button" class="btn-crop-apply" onclick="applyCrop()">Apply</button>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="form-actions">
-                <button type="button" class="btn-discard" onclick="confirmDiscard()">Discard</button>
-                <button type="submit" class="btn-save">
-                    <i class="bi bi-check2 me-1"></i> Save Changes
-                </button>
-            </div>
+        <!-- ══ LIGHTBOX ══ -->
+        <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+            <button class="lightbox-close" onclick="closeLightbox()"><i class="bi bi-x-lg"></i></button>
+            <img class="lightbox-img" id="lightboxImg" src="" alt="">
+            <div class="lightbox-label" id="lightboxLabel"></div>
+        </div>
 
-        </form>
-    </div>
-</div>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function confirmDiscard() {
-        Swal.fire({
-            icon: 'question',
-            title: 'Discard changes?',
-            text: 'All unsaved changes will be lost.',
-            showCancelButton: true,
-            confirmButtonText: 'Discard',
-            cancelButtonText: 'Keep editing',
-            confirmButtonColor: '#64748b',
-        }).then(r => {
-            if (r.isConfirmed) history.back();
-        });
-    }
-</script>
+        <script>
+            /* ── STATE ── */
+            const originalSrcs = ['', '', ''];
+            const croppedBlobs = [null, null, null];
+            const removedSlots = [false, false, false];
+
+            let cropperInst = null;
+            let activeCropSlot = -1;
+
+    /* ── INITIALIZE EXISTING IMAGES ── */
+    <% if (defaultVariant && defaultVariant.images) { %>
+        <% defaultVariant.images.forEach((img, idx) => {
+                if (idx < 3) { %>
+                    (function () {
+                        const src = '<%= img %>';
+                        const box = document.getElementById('eBox_<%= idx %>');
+                        const prev = document.getElementById('ePreview_<%= idx %>');
+                        if (box && prev) {
+                            prev.src = src;
+                            box.classList.add('has-image');
+                            originalSrcs[<%= idx %>] = src;
+                        }
+                    })();
+        <% }
+            }) %>
+    <% } %>
+
+                /* ── FILE SELECTION ── */
+                function onFileSelected(input, idx) {
+                    const file = input.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        originalSrcs[idx] = e.target.result;
+                        croppedBlobs[idx] = null;
+                        removedSlots[idx] = false;
+                        document.getElementById(`ePreview_${idx}`).src = e.target.result;
+                        document.getElementById(`eBox_${idx}`).classList.add('has-image');
+                        openCropModal(idx);
+                    };
+                    reader.readAsDataURL(file);
+                }
+
+            function removeImgSlot(idx) {
+                document.getElementById(`ePreview_${idx}`).src = '';
+                document.getElementById(`eBox_${idx}`).classList.remove('has-image');
+                document.getElementById(`eFile_${idx}`).value = '';
+                originalSrcs[idx] = '';
+                croppedBlobs[idx] = null;
+                removedSlots[idx] = true;
+            }
+
+            /* ── CROP LOGIC ── */
+            function openCropModal(idx) {
+                if (!originalSrcs[idx]) return;
+                activeCropSlot = idx;
+                const cropImg = document.getElementById('cropImg');
+                cropImg.src = originalSrcs[idx];
+                document.getElementById('cropModalOverlay').classList.add('active');
+
+                if (cropperInst) cropperInst.destroy();
+                setTimeout(() => {
+                    cropperInst = new Cropper(cropImg, { viewMode: 1, autoCropArea: 0.8 });
+                }, 100);
+            }
+
+            function closeCropModal() {
+                document.getElementById('cropModalOverlay').classList.remove('active');
+                if (cropperInst) cropperInst.destroy();
+                cropperInst = null;
+            }
+
+            function applyCrop() {
+                if (!cropperInst) return;
+                const canvas = cropperInst.getCroppedCanvas({ width: 800, height: 800 });
+                canvas.toBlob(blob => {
+                    croppedBlobs[activeCropSlot] = blob;
+                    document.getElementById(`ePreview_${activeCropSlot}`).src = URL.createObjectURL(blob);
+                    closeCropModal();
+                }, 'image/jpeg', 0.9);
+            }
+
+            function setRatio(r, btn) {
+                document.querySelectorAll('.crop-ratio-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                if (cropperInst) cropperInst.setAspectRatio(r);
+            }
+
+            /* ── LIGHTBOX ── */
+            function openLightbox(idx) {
+                const src = document.getElementById(`ePreview_${idx}`).src;
+                if (!src) return;
+                document.getElementById('lightboxImg').src = src;
+                document.getElementById('lightboxOverlay').classList.add('active');
+            }
+            function closeLightbox() { document.getElementById('lightboxOverlay').classList.remove('active'); }
+
+            /* ── FORM SUBMIT ── */
+            document.getElementById('editProductForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const saveBtn = document.getElementById('saveBtn');
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+
+                const fd = new FormData(this);
+                // Add cropped blobs
+                for (let i = 0; i < 3; i++) {
+                    if (croppedBlobs[i]) {
+                        fd.append('newImages[]', croppedBlobs[i], `crop_${i}.jpg`);
+                    }
+                }
+
+                try {
+                    const resp = await fetch(this.action, {
+                        method: 'POST',
+                        body: fd,
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await resp.json();
+                    if (data.success) {
+                        Swal.fire({ icon: 'success', title: 'Success', text: data.message, timer: 1500, showConfirmButton: false })
+                            .then(() => window.location.href = '/admin/products');
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                        saveBtn.disabled = false;
+                        saveBtn.innerHTML = '<i class="bi bi-check2 me-1"></i> Save Changes';
+                    }
+                } catch (err) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong' });
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="bi bi-check2 me-1"></i> Save Changes';
+                }
+            });
+
+            function confirmDiscard() {
+                Swal.fire({
+                    title: 'Discard?',
+                    text: 'Unsaved changes will be lost',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, discard'
+                }).then(res => { if (res.isConfirmed) window.location.href = '/admin/products'; });
+            }
+        </script>
 </body>
+
 </html>

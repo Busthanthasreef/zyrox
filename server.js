@@ -20,7 +20,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(session({
-    secret: process.env.SESSION_SECRET|| "secret",
+    secret: process.env.SESSION_SECRET||'zxcvbnm1234567',
     resave: false,
     saveUninitialized: false,
     name: "session",

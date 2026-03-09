@@ -6,7 +6,7 @@ const variantSchema = new Schema({
 
   productId: {
     type: Schema.Types.ObjectId,
-    ref: "Products",
+    ref: "Product",
     required: true
   },
   categoryId:{
@@ -66,7 +66,12 @@ const variantSchema = new Schema({
   IsDefault: {
     type: Boolean,
     default: false
-  }
+  },
+
+  IsDeleted: {
+    type: Boolean,
+    default: false
+  } 
 
 }, { timestamps: true });
 

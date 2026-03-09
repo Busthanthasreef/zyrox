@@ -8,12 +8,14 @@
     <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <!-- Google Fonts -->
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet" />
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* (all existing styles unchanged) */
         :root {
             --sidebar-width: 260px;
             --bg: #f4f6f9;
@@ -27,6 +29,7 @@
             --red-bg: #fee2e2;
             --yellow: #d97706;
             --yellow-bg: #fef3c7;
+            --accent: #1a1d23;
             --radius: 12px;
             --shadow: 0 1px 4px rgba(0, 0, 0, 0.07), 0 4px 16px rgba(0, 0, 0, 0.04);
         }
@@ -68,6 +71,7 @@
             margin-bottom: 1.6rem;
         }
 
+        /* Product Card */
         .product-card {
             background: var(--white);
             border: 1px solid var(--border);
@@ -160,6 +164,7 @@
             font-weight: 500;
         }
 
+        /* Toolbar */
         .toolbar {
             display: flex;
             align-items: center;
@@ -170,7 +175,7 @@
         }
 
         .btn-add-variant {
-            background: var(--accent, #1a1d23);
+            background: var(--accent);
             color: #fff;
             border: none;
             border-radius: 8px;
@@ -192,6 +197,7 @@
             color: #fff;
         }
 
+        /* Table */
         .table-card {
             background: var(--white);
             border: 1px solid var(--border);
@@ -234,6 +240,7 @@
             background: #fafbfc;
         }
 
+        /* Default Radio */
         .default-radio {
             width: 20px;
             height: 20px;
@@ -257,6 +264,25 @@
             height: 10px;
             border-radius: 50%;
             background: var(--text);
+        }
+
+        .default-radio input {
+            display: none;
+        }
+
+        /* Default Badge */
+        .default-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 7px;
+            margin-top: 3px;
         }
 
         .variant-attrs {
@@ -347,6 +373,7 @@
             border-color: #fecaca;
         }
 
+        /* Toggle */
         .toggle-switch {
             position: relative;
             width: 44px;
@@ -389,10 +416,6 @@
             transform: translateX(20px);
         }
 
-        .toggle-switch input.inactive:checked+.toggle-track {
-            background: var(--red);
-        }
-
         .btn-edit {
             background: none;
             border: none;
@@ -409,6 +432,7 @@
             color: var(--text);
         }
 
+        /* Pagination */
         .pagination-bar {
             display: flex;
             align-items: center;
@@ -454,9 +478,9 @@
         }
 
         .page-btn.active {
-            background: var(--accent, #1a1d23);
+            background: var(--accent);
             color: #fff;
-            border-color: var(--accent, #1a1d23);
+            border-color: var(--accent);
         }
 
         .page-btn:disabled {
@@ -489,7 +513,7 @@
             margin-bottom: 0.8rem;
         }
 
-        /* ══ MODAL STYLES ══ */
+        /* ══ MODAL ══ */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -513,7 +537,7 @@
             border-radius: 16px;
             padding: 2rem;
             width: 100%;
-            max-width: 560px;
+            max-width: 580px;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
@@ -559,6 +583,7 @@
             color: var(--text);
         }
 
+        /* Image Upload with Crop */
         .img-upload-row {
             display: flex;
             gap: 0.75rem;
@@ -587,11 +612,8 @@
             background: #f3f4f6;
         }
 
-        .img-upload-slot input[type="file"] {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
+        .img-upload-slot .file-input-hidden {
+            display: none;
         }
 
         .img-upload-slot .upload-icon {
@@ -613,13 +635,18 @@
             height: 100%;
             object-fit: cover;
             border-radius: 10px;
+            display: none;
+        }
+
+        .img-upload-slot.has-image .preview-img {
+            display: block;
         }
 
         .img-upload-slot .remove-img {
             position: absolute;
             top: 6px;
             right: 6px;
-            z-index: 2;
+            z-index: 5;
             background: rgba(220, 38, 38, 0.85);
             color: #fff;
             border: none;
@@ -642,6 +669,9 @@
             display: none;
         }
 
+
+
+        /* Form */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -797,6 +827,117 @@
             transform: translateY(-1px);
         }
 
+        /* ══ CROP MODAL ══ */
+        .crop-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+
+        .crop-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .crop-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+        }
+
+        .crop-box-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .crop-box-title {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .crop-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: #111;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #cropImage {
+            max-width: 100%;
+            display: block;
+        }
+
+        .crop-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .crop-controls label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .crop-controls input[type=range] {
+            flex: 1;
+            min-width: 80px;
+            accent-color: var(--accent);
+        }
+
+        .crop-btn-row {
+            display: flex;
+            gap: 0.6rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+
+        .btn-crop-cancel {
+            background: #f3f4f6;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6b7280;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-crop-apply {
+            background: var(--text);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Cropper.js overrides */
+        .cropper-view-box,
+        .cropper-face {
+            border-radius: 0;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 padding: 1.2rem;
@@ -820,18 +961,20 @@
             }
         }
     </style>
+    <!-- Cropper.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
-
     <div class="sidebar-wrapper">
         <%- include('../../partials/admin/sidebar', { currentPage: 'products' , currentUser: user }) %>
     </div>
 
     <div class="main-content">
-
         <h1 class="page-title">Variant Management</h1>
 
+        <!-- Product Summary Card -->
         <div class="product-card">
             <div class="product-thumb">
                 <% if (product.images && product.images.length> 0) { %>
@@ -864,6 +1007,7 @@
             </div>
         </div>
 
+        <!-- Toolbar -->
         <div class="toolbar">
             <div></div>
             <button class="btn-add-variant" onclick="openAddModal()">
@@ -871,245 +1015,270 @@
             </button>
         </div>
 
+        <!-- Table Card -->
         <div class="table-card">
 
-            <% if (typeof successMsg !=='undefined' && successMsg) { %>
-                <div class="alert alert-success alert-dismissible fade show mx-3 mt-2 mb-0" role="alert"
-                    style="background:var(--green-bg);color:var(--green);border:1px solid #bbf7d0;border-radius:8px;font-size:0.85rem;">
-                    <i class="bi bi-check-circle me-2"></i>
-                    <%= successMsg %>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
+            <% if (successMsg || errorMsg) { %>
+                <script>
+                    Swal.fire({
+                        toast: true,
+                        position: "top",
+                        icon: '<%= successMsg ? "success" : "error" %>',
+                        title: '<%= successMsg || errorMsg %>',
+                        confirmButtonColor: '#1a1d23',
+                        timer: 1900,
+
+                        showConfirmButton: false
+                    });
+                </script>
                 <% } %>
-                    <% if (typeof errorMsg !=='undefined' && errorMsg) { %>
-                        <div class="alert alert-danger alert-dismissible fade show mx-3 mt-2 mb-0" role="alert"
-                            style="background:var(--red-bg);color:var(--red);border:1px solid #fecaca;border-radius:8px;font-size:0.85rem;">
-                            <i class="bi bi-exclamation-circle me-2"></i>
-                            <%= errorMsg %>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <div class="table-responsive">
+                        <table class="variants-table">
+                            <thead>
+                                <tr>
+
+                                    <th>Image</th>
+                                    <th>Description</th>
+                                    <th>SKU</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Stock</th>
+                                    <th>Availability</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (typeof variants !=='undefined' && variants.length> 0) {
+                                    const sortedVariants = [...variants].sort((a, b) => (b.IsDefault ? 1 : 0) -
+                                    (a.IsDefault ? 1 : 0));
+                                    sortedVariants.forEach(function(variant) {
+                                    const isActiveVariant = !!variant.IsActive;
+                                    const variantData = JSON.stringify({
+                                    _id: variant._id,
+                                    color: variant.color || '',
+                                    colorCode: variant.colorCode || '#000000',
+                                    storage: variant.storage || '',
+                                    RAM: variant.RAM || '',
+                                    price: variant.price || 0,
+                                    stock: variant.stock !== undefined ? variant.stock : 0,
+                                    SKU: variant.SKU || '',
+                                    isActive: isActiveVariant,
+                                    isDefault: !!variant.IsDefault,
+                                    images: variant.images || []
+                                    }); %>
+                                    <tr>
+                                        <td style="text-align:center;">
+                                            <div
+                                                style="display:flex; flex-direction:column; align-items:center; gap:5px;">
+                                                <div
+                                                    style="width:38px;height:38px;border-radius:8px;overflow:hidden;background:#f3f4f6;border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                                                    <% if (variant.images && variant.images.length> 0) { %>
+                                                        <img src="<%= variant.images[0] %>"
+                                                            style="width:100%;height:100%;object-fit:cover;" alt="">
+                                                        <% } else { %>
+                                                            <i class="bi bi-image"
+                                                                style="color:#ccc;font-size:1rem;"></i>
+                                                            <% } %>
+                                                </div>
+                                                <% if (variant.IsDefault) { %>
+                                                    <span class="default-badge">
+                                                        <i class="bi bi-star-fill" style="font-size:0.6rem;"></i>
+                                                        Default
+                                                    </span>
+                                                    <% } %>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <div class="variant-attrs"><span style="color:black;">Color</span> :
+                                                    <%= variant.color %>
+                                                </div>
+                                                <div class="variant-attrs">
+                                                    <% if (variant.RAM) { %><span style="color:black;">RAM</span> :
+                                                        <%= variant.RAM %>GB &nbsp;<% } %>
+                                                                <br>
+                                                                <% if (variant.storage) { %><span
+                                                                        style="color:black;">Storage</span>
+                                                                    : <%= variant.storage %>&nbsp;GB<% } %>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><span class="sku-code">
+                                                <%= variant.SKU || 'N/A' %>
+                                            </span></td>
+                                        <td><span class="price">₹<%= variant.price ?
+                                                    variant.price.toLocaleString('en-IN') : '0' %></span>
+                                        </td>
+                                        <td>
+                                            <% if (isActiveVariant) { %>
+                                                <span class="status-badge active">Active</span>
+                                                <% } else { %>
+                                                    <span class="status-badge inactive">Inactive</span>
+                                                    <% } %>
+                                        </td>
+                                        <td><span class="stock-num">
+                                                <%= variant.stock !==undefined ? variant.stock : 0 %>
+                                            </span></td>
+                                        <td>
+                                            <% if (variant.stock> 9) { %>
+                                                <span class="stock-status instock">In Stock</span>
+                                                <% } else if (variant.stock> 0) { %>
+                                                    <span class="stock-status lowstock">Low Stock</span>
+                                                    <% } else { %>
+                                                        <span class="stock-status outstock">Out of
+                                                            Stock</span>
+                                                        <% } %>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <button class="btn-edit" title="Edit"
+                                                    data-variant="<%- encodeURIComponent(variantData) %>"
+                                                    onclick="openEditModalFromBtn(this)">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button class="btn-edit" title="Delete" style="color:var(--red)"
+                                                    onclick="deleteVariant('<%= variant._id %>', '<%= product._id %>')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="8">
+                                                    <div class="empty-state">
+                                                        <i class="bi bi-layers"></i>
+                                                        <p style="font-weight:600;color:var(--text);">No
+                                                            variants found</p>
+                                                        <p style="font-size:0.82rem;">Add your first variant
+                                                            to get started.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination — only shown when totalVariants > 5 -->
+                    <% if (typeof totalVariants !=='undefined' && totalVariants> 5) { %>
+                        <div class="pagination-bar">
+                            <div class="pagination-info">
+                                Showing
+                                <%= typeof startItem !=='undefined' ? startItem : 1 %>–<%= typeof endItem !=='undefined'
+                                        ? endItem : Math.min(5, totalVariants) %>
+                                        of <%= totalVariants %> variants
+                            </div>
+                            <div class="page-btns">
+                                <button class="page-btn" <%=(typeof currentPage !=='undefined' && currentPage <=1)
+                                    ? 'disabled' : '' %> onclick="goToPage(<%= (typeof currentPage !=='undefined' ?
+                                        currentPage - 1 : 1) %>)">
+                                        <i class="bi bi-chevron-left"></i>
+                                </button>
+
+                                <% if (typeof totalPages !=='undefined' ) { %>
+                                    <% for (let i=1; i <=totalPages; i++) { %>
+                                        <% if (i===1 || i===totalPages || (typeof currentPage !=='undefined' &&
+                                            Math.abs(i - currentPage) <=1)) { %>
+                                            <button
+                                                class="page-btn <%= (typeof currentPage !== 'undefined' && currentPage === i) ? 'active' : '' %>"
+                                                onclick="goToPage(<%= i %>)">
+                                                <%= i %>
+                                            </button>
+                                            <% } else if ((i===2 && typeof currentPage !=='undefined' && currentPage> 3)
+                                                || (i === totalPages - 1 && typeof currentPage !== 'undefined' &&
+                                                currentPage < totalPages - 2)) { %>
+                                                    <span
+                                                        style="padding:0 4px;color:var(--muted);font-size:0.85rem;">…</span>
+                                                    <% } %>
+                                                        <% } %>
+                                                            <% } %>
+
+                                                                <button class="page-btn" <%=(typeof currentPage
+                                                                    !=='undefined' && currentPage>= totalPages) ?
+                                                                    'disabled' : '' %> onclick="goToPage(<%= (typeof
+                                                                        currentPage !=='undefined' ? currentPage + 1 :
+                                                                        1) %>)">
+                                                                        <i class="bi bi-chevron-right"></i>
+                                                                </button>
+                            </div>
                         </div>
                         <% } %>
 
-                            <div class="table-responsive">
-                                <table class="variants-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Default</th>
-                                            <th>Details</th>
-                                            <th>SKU</th>
-                                            <th>Price</th>
-                                            <th>Variant Status</th>
-                                            <th>Stock</th>
-                                            <th>Stock Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% if (typeof variants !=='undefined' && variants.length> 0) { %>
-                                            <% variants.forEach(function(variant) { %>
-                                                <% var isActiveVariant=!!(variant.isActive || variant.status==='active'
-                                                    ); var variantData=JSON.stringify({ id: variant._id, color:
-                                                    variant.color || '' , storage: variant.storage || '' , RAM:
-                                                    variant.RAM || '' , price: variant.price || 0, stock: variant.stock
-                                                    !==undefined ? variant.stock : 0, SKU: variant.SKU || '' , isActive:
-                                                    isActiveVariant, images: variant.images || [] }); %>
-                                                    <tr>
-                                                        <td>
-                                                            <div class="default-radio <%= variant.isDefault ? 'selected' : '' %>"
-                                                                onclick="setDefault('<%= variant._id %>')"
-                                                                title="Set as default"></div>
-                                                        </td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <div>
-                                                                    <div class="variant-attrs"><span
-                                                                            style="color:black;">Color</span> : <%=
-                                                                            variant.color %>
-                                                                    </div>
-                                                                    <div class="variant-attrs">
-                                                                        <% if (variant.RAM) { %><span
-                                                                                style="color:black;">RAM</span> : <%=
-                                                                                variant.RAM %>GB &nbsp;<% } %>
-                                                                                    <br>
-                                                                                    <% if (variant.storage) { %><span
-                                                                                            style="color:black;">Storage</span>
-                                                                                        : <%= variant.storage %>&nbsp;GB
-                                                                                            <% } %>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td><span class="sku-code">
-                                                                <%= variant.SKU || 'N/A' %>
-                                                            </span></td>
-                                                        <td><span class="price">₹<%= variant.price ?
-                                                                    variant.price.toLocaleString('en-IN') : '0' %>
-                                                            </span></td>
-                                                        <td>
-                                                            <% if (isActiveVariant) { %>
-                                                                <span class="status-badge active">Active</span>
-                                                                <% } else { %>
-                                                                    <span class="status-badge inactive">Inactive</span>
-                                                                    <% } %>
-                                                        </td>
-                                                        <td><span class="stock-num">
-                                                                <%= variant.stock !==undefined ? variant.stock : 0 %>
-                                                            </span></td>
-                                                        <td>
-                                                            <% if (variant.stock> 9) { %>
-                                                                <span class="stock-status instock">instock</span>
-                                                                <% } else if (variant.stock> 0) { %>
-                                                                    <span class="stock-status lowstock">Low Stock</span>
-                                                                    <% } else { %>
-                                                                        <span class="stock-status outstock">Out of
-                                                                            Stock</span>
-                                                                        <% } %>
-                                                        </td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <label class="toggle-switch">
-                                                                    <input type="checkbox"
-                                                                        class="<%= isActiveVariant ? '' : 'inactive' %>"
-                                                                        <%=isActiveVariant ? 'checked' : '' %>
-                                                                    onchange="toggleVariant('<%= variant._id %>',
-                                                                        this.checked)" />
-                                                                        <div class="toggle-track"></div>
-                                                                </label>
-                                                                <%# ── KEY FIX: store variant JSON in data-attr, no
-                                                                    inline quote hell ── %>
-                                                                    <button class="btn-edit" title="Edit variant"
-                                                                        data-variant="<%- encodeURIComponent(variantData) %>"
-                                                                        onclick="openEditModalFromBtn(this)">
-                                                                        <i class="bi bi-pencil"></i>
-                                                                    </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <% }); %>
-                                                        <% } else { %>
-                                                            <tr>
-                                                                <td colspan="8">
-                                                                    <div class="empty-state">
-                                                                        <i class="bi bi-layers"></i>
-                                                                        <p style="font-weight:600;color:var(--text);">No
-                                                                            variants found</p>
-                                                                        <p style="font-size:0.82rem;">Add your first
-                                                                            variant to get started.</p>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                            <% } %>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div class="pagination-bar">
-                                <div class="pagination-info">
-                                    Showing <%= typeof startItem !=='undefined' ? startItem : 1 %> of
-                                        <%= typeof totalVariants !=='undefined' ? totalVariants : 0 %> variants
-                                </div>
-                                <div class="page-btns">
-                                    <button class="page-btn" <%=(typeof currentPage !=='undefined' && currentPage <=1)
-                                        ? 'disabled' : '' %>
-                                        onclick="goToPage(<%= typeof currentPage !=='undefined' ? currentPage - 1 : 1 %>
-                                            )">Prev</button>
-                                    <% if (typeof totalPages !=='undefined' ) { %>
-                                        <% for (var i=1; i <=totalPages; i++) { %>
-                                            <button
-                                                class="page-btn <%= (typeof currentPage !== 'undefined' && currentPage === i) ? 'active' : '' %>"
-                                                onclick="goToPage('<%= i %>')">
-                                                <%= i %>
-                                            </button>
-                                            <% } %>
-                                                <% } else { %>
-                                                    <button class="page-btn active">1</button>
-                                                    <button class="page-btn">2</button>
-                                                    <button class="page-btn">3</button>
-                                                    <% } %>
-                                                        <button class="page-btn" <%=(typeof currentPage !=='undefined'
-                                                            && typeof totalPages !=='undefined' && currentPage>=
-                                                            totalPages) ? 'disabled' : '' %>
-                                                            onclick="goToPage(<%= typeof currentPage !=='undefined' ?
-                                                                currentPage + 1 : 2 %>)">Next</button>
-                                </div>
-                            </div>
-        </div>
-    </div>
+        </div><!-- /table-card -->
+    </div><!-- /main-content -->
 
 
     <!-- ══ ADD VARIANT MODAL ══ -->
-    <div class="modal-overlay" id="addModal" onclick="handleOverlayClick(event, 'addModal')">
+    <div class="modal-overlay" id="addModal" onclick="handleOverlayClick(event,'addModal')">
         <div class="modal-box">
             <div class="modal-header">
-                <span class="modal-title">Add &nbsp;Variant</span>
+                <span class="modal-title">Add Variant</span>
                 <button class="modal-close" onclick="closeModal('addModal')"><i class="bi bi-x-lg"></i></button>
             </div>
             <form id="addVariantForm"
-                action="/admin/products/<%= typeof product !== 'undefined' ? product._id : '' %>/variants/add"
+                action="/admin/products/<%= typeof product !== 'undefined' ? product._id : '' %>/variants-add"
                 method="POST" enctype="multipart/form-data">
 
+                <!-- Hidden file inputs (outside slots to avoid z-index issues) -->
+                <input type="file" class="file-input-hidden" id="addFile0" name="images" accept="image/*"
+                    onchange="handleImageSelect(this,'addSlot0')" hidden>
+                <input type="file" class="file-input-hidden" id="addFile1" name="images" accept="image/*"
+                    onchange="handleImageSelect(this,'addSlot1')" hidden>
+                <input type="file" class="file-input-hidden" id="addFile2" name="images" accept="image/*"
+                    onchange="handleImageSelect(this,'addSlot2')" hidden>
+
+                <!-- Image Upload Slots -->
                 <div class="img-upload-row">
-                    <div class="img-upload-slot" id="addSlot0">
-                        <input type="file" name="variantImages" accept="image/*"
-                            onchange="previewImg(this, 'addSlot0')">
+                    <div class="img-upload-slot" id="addSlot0" onclick="triggerFileInput('addFile0',event)">
                         <i class="bi bi-camera upload-icon"></i>
-                        <span class="upload-label">Upload Image</span>
+                        <span class="upload-label">Image 1</span>
                         <img class="preview-img" src="" alt="">
-                        <button type="button" class="remove-img" onclick="removeImg('addSlot0', event)"><i
+                        <button type="button" class="remove-img" onclick="removeImg('addSlot0','addFile0',event)"><i
                                 class="bi bi-x"></i></button>
                     </div>
-                    <div class="img-upload-slot" id="addSlot1">
-                        <input type="file" name="variantImages" accept="image/*"
-                            onchange="previewImg(this, 'addSlot1')">
+                    <div class="img-upload-slot" id="addSlot1" onclick="triggerFileInput('addFile1',event)">
                         <i class="bi bi-camera upload-icon"></i>
-                        <span class="upload-label">Upload Image</span>
+                        <span class="upload-label">Image 2</span>
                         <img class="preview-img" src="" alt="">
-                        <button type="button" class="remove-img" onclick="removeImg('addSlot1', event)"><i
+                        <button type="button" class="remove-img" onclick="removeImg('addSlot1','addFile1',event)"><i
                                 class="bi bi-x"></i></button>
                     </div>
-                    <div class="img-upload-slot" id="addSlot2">
-                        <input type="file" name="variantImages" accept="image/*"
-                            onchange="previewImg(this, 'addSlot2')">
+                    <div class="img-upload-slot" id="addSlot2" onclick="triggerFileInput('addFile2',event)">
                         <i class="bi bi-camera upload-icon"></i>
-                        <span class="upload-label">Upload Image</span>
+                        <span class="upload-label">Image 3</span>
                         <img class="preview-img" src="" alt="">
-                        <button type="button" class="remove-img" onclick="removeImg('addSlot2', event)"><i
+                        <button type="button" class="remove-img" onclick="removeImg('addSlot2','addFile2',event)"><i
                                 class="bi bi-x"></i></button>
                     </div>
                 </div>
 
                 <div class="form-grid">
-                    <div class="form-group">
-
+                    <div class="form-group full">
                         <label class="form-label">Color</label>
-
                         <div style="display:flex; gap:10px; align-items:center;">
-                            <!-- Color Picker -->
-                            <input type="color"  id="colorPicker"
-                                style="width:50px; height:40px; border:none; cursor:pointer;"
-                                onchange="updateColorValue(this.value)">
-
-                            <!-- Color Name Input (remove readonly, add oninput handler) -->
-                            <input type="text" name="color" id="colorValue" class="form-input"
-                                placeholder="e.g. Red, Navy, #ff0000" oninput="handleColorInput(this.value)">
-
+                            <input type="color" name="colorCode" id="addColorPicker"
+                                style="width:46px;height:38px;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px;"
+                                onchange="updateColorValue(this.value,'addColorValue','addColorPicker')">
+                            <input type="text" name="color" id="addColorValue" class="form-input"
+                                placeholder="e.g. Midnight Black"
+                                oninput="handleColorInput(this.value,'addColorPicker')">
                         </div>
-
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Storage</label>
-                        <input type="number" placeholder="eg. 8GB" class="form-input">
-
+                        <label class="form-label">RAM (GB)</label>
+                        <input type="number" name="RAM" class="form-input" placeholder="e.g. 8">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">RAM</label>
-                        <input type="number" class="form-input" placeholder="eg.128GB">
+                        <label class="form-label">Storage (GB)</label>
+                        <input type="number" name="storage" class="form-input" placeholder="e.g. 128">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Stock</label>
                         <input type="number" name="stock" class="form-input" placeholder="0" min="0" value="0">
                     </div>
-                    <div class="form-group full">
+                    <div class="form-group">
                         <label class="form-label">Price</label>
                         <div class="input-prefix">
                             <span>₹</span>
@@ -1118,7 +1287,18 @@
                     </div>
                     <div class="form-group full">
                         <label class="form-label">SKU</label>
-                        <input type="text" name="SKU" class="form-input" placeholder="Enter the SKU of this Product">
+                        <input type="text" name="SKU" class="form-input" placeholder="e.g. PRD-BLK-128">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Set as Default Variant</label>
+                        <div class="status-row">
+                            <div class="status-label"><i class="bi bi-star-fill me-2"
+                                    style="color:#f59e0b;font-size:0.85rem;"></i> Mark as default</div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="isDefault" id="addDefaultToggle">
+                                <div class="toggle-track"></div>
+                            </label>
+                        </div>
                     </div>
                     <div class="form-group full">
                         <label class="form-label">Status</label>
@@ -1126,7 +1306,7 @@
                             <div class="status-label"><span class="status-dot" id="addStatusDot"></span> Active</div>
                             <label class="toggle-switch">
                                 <input type="checkbox" name="isActive" id="addStatusToggle" checked
-                                    onchange="syncStatusDot('addStatusDot', this)">
+                                    onchange="syncStatusDot('addStatusDot',this)">
                                 <div class="toggle-track"></div>
                             </label>
                         </div>
@@ -1135,7 +1315,7 @@
 
                 <div class="modal-footer-btns">
                     <button type="button" class="btn-cancel" onclick="closeModal('addModal')">Cancel</button>
-                    <button type="submit" class="btn-save">Add Variant</button>
+                    <button type="submit" class="btn-save"><i class="bi bi-plus-circle me-1"></i>Add Variant</button>
                 </div>
             </form>
         </div>
@@ -1143,94 +1323,71 @@
 
 
     <!-- ══ EDIT VARIANT MODAL ══ -->
-    <div class="modal-overlay" id="editModal" onclick="handleOverlayClick(event, 'editModal')">
+    <div class="modal-overlay" id="editModal" onclick="handleOverlayClick(event,'editModal')">
         <div class="modal-box">
             <div class="modal-header">
-                <span class="modal-title">Edit &nbsp;Variant</span>
+                <span class="modal-title">Edit Variant</span>
                 <button class="modal-close" onclick="closeModal('editModal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <form id="editVariantForm" method="POST" enctype="multipart/form-data">
+            <form id="editVariantForm" action="" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="_method" value="PUT">
 
                 <div class="img-upload-row">
-                    <div class="img-upload-slot" id="editSlot0">
-                        <input type="file" name="variantImages" accept="image/*"
-                            onchange="previewImg(this, 'editSlot0')">
+                    <div class="img-upload-slot" id="editSlot0" onclick="triggerFileInput('editFile0',event)">
                         <i class="bi bi-camera upload-icon"></i>
-                        <span class="upload-label">Upload Image</span>
+                        <span class="upload-label">Image 1</span>
                         <img class="preview-img" src="" alt="">
-                        <button type="button" class="remove-img" onclick="removeImg('editSlot0', event)"><i
+                        <button type="button" class="remove-img" onclick="removeImg('editSlot0','editFile0',event)"><i
                                 class="bi bi-x"></i></button>
                     </div>
-                    <div class="img-upload-slot" id="editSlot1">
-                        <input type="file" name="variantImages" accept="image/*"
-                            onchange="previewImg(this, 'editSlot1')">
+                    <div class="img-upload-slot" id="editSlot1" onclick="triggerFileInput('editFile1',event)">
                         <i class="bi bi-camera upload-icon"></i>
-                        <span class="upload-label">Upload Image</span>
+                        <span class="upload-label">Image 2</span>
                         <img class="preview-img" src="" alt="">
-                        <button type="button" class="remove-img" onclick="removeImg('editSlot1', event)"><i
+                        <button type="button" class="remove-img" onclick="removeImg('editSlot1','editFile1',event)"><i
                                 class="bi bi-x"></i></button>
                     </div>
-                    <div class="img-upload-slot" id="editSlot2">
-                        <input type="file" name="variantImages" accept="image/*"
-                            onchange="previewImg(this, 'editSlot2')">
+                    <div class="img-upload-slot" id="editSlot2" onclick="triggerFileInput('editFile2',event)">
                         <i class="bi bi-camera upload-icon"></i>
-                        <span class="upload-label">Upload Image</span>
+                        <span class="upload-label">Image 3</span>
                         <img class="preview-img" src="" alt="">
-                        <button type="button" class="remove-img" onclick="removeImg('editSlot2', event)"><i
+                        <button type="button" class="remove-img" onclick="removeImg('editSlot2','editFile2',event)"><i
                                 class="bi bi-x"></i></button>
                     </div>
                 </div>
+                <!-- Hidden file inputs for edit modal -->
+                <input type="file" class="file-input-hidden" id="editFile0" name="images" accept="image/*"
+                    onchange="handleImageSelect(this,'editSlot0')" hidden>
+                <input type="file" class="file-input-hidden" id="editFile1" name="images" accept="image/*"
+                    onchange="handleImageSelect(this,'editSlot1')" hidden>
+                <input type="file" class="file-input-hidden" id="editFile2" name="images" accept="image/*"
+                    onchange="handleImageSelect(this,'editSlot2')" hidden>
 
                 <div class="form-grid">
-                    <div class="form-group">
+                    <div class="form-group full">
                         <label class="form-label">Color</label>
-                        <select name="color" id="editColor" class="form-select-custom" required>
-                            <option value="">Select One</option>
-                            <option value="Black Titanium">Black Titanium</option>
-                            <option value="White Titanium">White Titanium</option>
-                            <option value="Blue">Blue</option>
-                            <option value="Natural Titanium">Natural Titanium</option>
-                            <option value="Desert Titanium">Desert Titanium</option>
-                        </select>
-                    </div>
-                    <div style="display:flex; gap:10px; align-items:center;">
-                            <!-- Color Picker -->
-                            <input type="color"  id="colorPicker"
-                                style="width:50px; height:40px; border:none; cursor:pointer;"
-                                onchange="updateColorValue(this.value)">
-
-                            <!-- Color Name Input (remove readonly, add oninput handler) -->
-                            <input type="text" name="color" id="colorValue" class="form-input"
-                                placeholder="e.g. Red, Navy, #ff0000" oninput="handleColorInput(this.value)">
-
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <input type="color" name="colorCode" id="editColorPicker"
+                                style="width:46px;height:38px;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px;"
+                                onchange="updateColorValue(this.value,'editColorValue','editColorPicker')">
+                            <input type="text" name="color" id="editColorValue" class="form-input"
+                                placeholder="e.g. Midnight Black"
+                                oninput="handleColorInput(this.value,'editColorPicker')">
                         </div>
-                    <div class="form-group">
-                        <label class="form-label">Storage</label>
-                        <select name="storage" id="editStorage" class="form-select-custom">
-                            <option value="">Select</option>
-                            <option value="128">128 GB</option>
-                            <option value="256">256 GB</option>
-                            <option value="512">512 GB</option>
-                            <option value="1024">1 TB</option>
-                        </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">RAM</label>
-                        <select name="RAM" id="editRAM" class="form-select-custom">
-                            <option value="">Select</option>
-                            <option value="4">4 GB</option>
-                            <option value="6">6 GB</option>
-                            <option value="8">8 GB</option>
-                            <option value="12">12 GB</option>
-                            <option value="16">16 GB</option>
-                        </select>
+                        <label class="form-label">RAM (GB)</label>
+                        <input type="number" name="RAM" id="editRAM" class="form-input" placeholder="e.g. 8">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Storage (GB)</label>
+                        <input type="number" name="storage" id="editStorage" class="form-input" placeholder="e.g. 128">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Stock</label>
                         <input type="number" name="stock" id="editStock" class="form-input" min="0">
                     </div>
-                    <div class="form-group full">
+                    <div class="form-group">
                         <label class="form-label">Price</label>
                         <div class="input-prefix">
                             <span>₹</span>
@@ -1239,8 +1396,18 @@
                     </div>
                     <div class="form-group full">
                         <label class="form-label">SKU</label>
-                        <input type="text" name="SKU" id="editSKU" class="form-input"
-                            placeholder="Enter the SKU of this Product">
+                        <input type="text" name="SKU" id="editSKU" class="form-input" placeholder="e.g. PRD-BLK-128">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Set as Default Variant</label>
+                        <div class="status-row">
+                            <div class="status-label"><i class="bi bi-star-fill me-2"
+                                    style="color:#f59e0b;font-size:0.85rem;"></i> Mark as default</div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="isDefault" id="editDefaultToggle">
+                                <div class="toggle-track"></div>
+                            </label>
+                        </div>
                     </div>
                     <div class="form-group full">
                         <label class="form-label">Status</label>
@@ -1248,7 +1415,7 @@
                             <div class="status-label"><span class="status-dot" id="editStatusDot"></span> Active</div>
                             <label class="toggle-switch">
                                 <input type="checkbox" name="isActive" id="editStatusToggle"
-                                    onchange="syncStatusDot('editStatusDot', this)">
+                                    onchange="syncStatusDot('editStatusDot',this)">
                                 <div class="toggle-track"></div>
                             </label>
                         </div>
@@ -1257,31 +1424,62 @@
 
                 <div class="modal-footer-btns">
                     <button type="button" class="btn-cancel" onclick="closeModal('editModal')">Cancel</button>
-                    <button type="submit" class="btn-save">Save Changes</button>
+                    <button type="submit" class="btn-save"><i class="bi bi-check2 me-1"></i>Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
 
 
+    <!-- ══ IMAGE CROP MODAL ══ -->
+    <div class="crop-overlay" id="cropModal">
+        <div class="crop-box">
+            <div class="crop-box-header">
+                <span class="crop-box-title"><i class="bi bi-crop me-2"></i>Crop & Resize Image</span>
+                <button class="modal-close" onclick="cancelCrop()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="crop-container">
+                <img id="cropImage" src="" alt="Crop">
+            </div>
+            <div class="crop-controls">
+                <label>Zoom</label>
+                <input type="range" id="cropZoom" min="0.1" max="3" step="0.05" value="1"
+                    oninput="cropperInstance && cropperInstance.zoomTo(parseFloat(this.value))">
+                <span id="cropZoomVal" style="font-size:0.75rem;color:var(--muted);min-width:30px;">1×</span>
+            </div>
+            <div style="display:flex;gap:0.5rem;margin-top:0.6rem;flex-wrap:wrap;">
+                <button type="button" onclick="setCropAspect(1,1)"
+                    style="font-size:0.75rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#f3f4f6;">1:1</button>
+                <button type="button" onclick="setCropAspect(4,3)"
+                    style="font-size:0.75rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#f3f4f6;">4:3</button>
+                <button type="button" onclick="setCropAspect(16,9)"
+                    style="font-size:0.75rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#f3f4f6;">16:9</button>
+                <button type="button" onclick="setCropAspect(NaN)"
+                    style="font-size:0.75rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#f3f4f6;">Free</button>
+            </div>
+            <div class="crop-btn-row">
+                <button type="button" class="btn-crop-cancel" onclick="cancelCrop()">Cancel</button>
+                <button type="button" class="btn-crop-apply" onclick="applyCrop()"><i
+                        class="bi bi-check2 me-1"></i>Apply Crop</button>
+            </div>
+        </div>
+    </div>
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+
     <script>
-
-
-
-        function updateColorValue(color) {
-
-            document.getElementById("colorValue").value = color
-        }
-
         const productId = '<%= typeof product !== "undefined" ? product._id : "" %>';
 
+        // ══ Pagination ══
         function goToPage(page) {
             const url = new URL(window.location.href);
             url.searchParams.set('page', page);
             window.location.href = url.toString();
         }
 
+        // ══ Toggle variant status ══
         function toggleVariant(variantId, isActive) {
             fetch(`/admin/variants/${variantId}/toggle`, {
                 method: 'PATCH',
@@ -1293,23 +1491,29 @@
                 .catch(() => window.location.reload());
         }
 
-        function setDefault(variantId) {
-            fetch(`/admin/variants/${variantId}/set-default`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' }
-            })
-                .then(res => res.json())
-                .then(data => { if (data.success) window.location.reload(); else alert('Failed to set default.'); })
-                .catch(() => window.location.reload());
+        // ══ Soft delete variant ══
+        async function deleteVariant(variantId, productId) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this variant?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#1a1d23',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                window.location.href = `/admin/products/${productId}/variants-delete/${variantId}`;
+            }
         }
 
-        // ── Modal helpers
+        // ══ Modal helpers ══
         function openAddModal() {
             document.getElementById('addModal').classList.add('open');
             document.body.style.overflow = 'hidden';
         }
 
-        // Called from the data-attr button — avoids all inline quote issues
         function openEditModalFromBtn(btn) {
             const variant = JSON.parse(decodeURIComponent(btn.dataset.variant));
             openEditModal(variant);
@@ -1317,11 +1521,12 @@
 
         function openEditModal(variant) {
             const form = document.getElementById('editVariantForm');
-            form.action = `/admin/products/${productId}/variants/${variant.id}/edit`;
+            form.action = `/admin/products/${productId}/variants-edit/${variant._id}`;
 
-            document.getElementById('editColor').value = variant.color || '';
-            document.getElementById('editStorage').value = variant.storage || '';
+            document.getElementById('editColorValue').value = variant.color || '';
+            document.getElementById('editColorPicker').value = variant.colorCode || '#000000';
             document.getElementById('editRAM').value = variant.RAM || '';
+            document.getElementById('editStorage').value = variant.storage || '';
             document.getElementById('editPrice').value = variant.price || 0;
             document.getElementById('editStock').value = variant.stock || 0;
             document.getElementById('editSKU').value = variant.SKU || '';
@@ -1329,6 +1534,9 @@
             const toggle = document.getElementById('editStatusToggle');
             toggle.checked = !!variant.isActive;
             syncStatusDot('editStatusDot', toggle);
+
+            const defaultToggle = document.getElementById('editDefaultToggle');
+            defaultToggle.checked = !!variant.isDefault;
 
             ['editSlot0', 'editSlot1', 'editSlot2'].forEach((slotId, i) => {
                 const slot = document.getElementById(slotId);
@@ -1356,116 +1564,160 @@
         }
 
         document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') { closeModal('addModal'); closeModal('editModal'); }
+            if (e.key === 'Escape') { closeModal('addModal'); closeModal('editModal'); cancelCrop(); }
         });
 
-        function previewImg(input, slotId) {
-            const slot = document.getElementById(slotId);
-            const img = slot.querySelector('.preview-img');
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => { img.src = e.target.result; slot.classList.add('has-image'); };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function removeImg(slotId, e) {
-            e.stopPropagation();
-            const slot = document.getElementById(slotId);
-            const img = slot.querySelector('.preview-img');
-            const input = slot.querySelector('input[type="file"]');
-            img.src = ''; input.value = '';
-            slot.classList.remove('has-image');
-        }
-
+        // ══ Status dot ══
         function syncStatusDot(dotId, toggle) {
             document.getElementById(dotId).style.background = toggle.checked ? 'var(--green)' : '#9ca3af';
         }
 
-        // Called when color picker changes → update text input with color name
-        function updateColorValue(hex) {
-            document.getElementById('colorValue').value = getColorName(hex);
-            document.getElementById('colorPicker').value = hex;
+        // ══ Color picker ══
+        function updateColorValue(hex, valueId, pickerId) {
+            document.getElementById(valueId).value = getColorName(hex);
+            document.getElementById(pickerId).value = hex;
         }
 
-        // Called when user types in the text input → update color picker
-        function handleColorInput(value) {
+        function handleColorInput(value, pickerId) {
             const ctx = document.createElement('canvas').getContext('2d');
-            ctx.fillStyle = value; // browser parses color names like "red", "navy", etc.
-            const parsed = ctx.fillStyle;  // returns hex if valid, "#000000" if not recognized
-            if (parsed) {
-                document.getElementById('colorPicker').value = parsed;
-            }
+            ctx.fillStyle = value;
+            const parsed = ctx.fillStyle;
+            if (parsed) document.getElementById(pickerId).value = parsed;
         }
 
-        // Maps hex → nearest named color
         function getColorName(hex) {
             const colors = {
-                "#ff0000": "Red", "#00ff00": "Green", "#0000ff": "Blue",
-                "#ffff00": "Yellow", "#ff00ff": "Magenta", "#00ffff": "Cyan",
-                "#000000": "Black", "#ffffff": "White", "#808080": "Gray",
-                "#ffa500": "Orange", "#800080": "Purple", "#a52a2a": "Brown",
-                "#ffc0cb": "Pink", "#40e0d0": "Turquoise", "#000080": "Navy",
-                "#808000": "Olive", "#008000": "Dark Green", "#800000": "Maroon",
-                "#ff6347": "Tomato", "#4682b4": "Steel Blue", "#d2691e": "Chocolate",
-                "#f5f5dc": "Beige", "#ffe4c4": "Bisque", "#dc143c": "Crimson",
-                "#b8860b": "Dark Goldenrod", "#006400": "Dark Green",
-                "#8b008b": "Dark Magenta", "#ff8c00": "Dark Orange",
-                "#e9967a": "Dark Salmon", "#9400d3": "Dark Violet",
-                "#1e90ff": "Dodger Blue", "#b22222": "Firebrick",
-                "#228b22": "Forest Green", "#daa520": "Goldenrod",
-                "#adff2f": "Green Yellow", "#ff69b4": "Hot Pink",
-                "#cd5c5c": "Indian Red", "#f0e68c": "Khaki",
-                "#7cfc00": "Lawn Green", "#add8e6": "Light Blue",
-                "#f08080": "Light Coral", "#90ee90": "Light Green",
-                "#ffb6c1": "Light Pink", "#20b2aa": "Light Sea Green",
-                "#87cefa": "Light Sky Blue", "#778899": "Light Slate Gray",
-                "#32cd32": "Lime Green", "#ff00ff": "Fuchsia",
-                "#66cdaa": "Medium Aquamarine", "#ba55d3": "Medium Orchid",
-                "#9370db": "Medium Purple", "#3cb371": "Medium Sea Green",
-                "#7b68ee": "Medium Slate Blue", "#00fa9a": "Medium Spring Green",
-                "#48d1cc": "Medium Turquoise", "#c71585": "Medium Violet Red",
-                "#191970": "Midnight Blue", "#ffe4e1": "Misty Rose",
-                "#ffe4b5": "Moccasin", "#000080": "Navy Blue",
-                "#fdf5e6": "Old Lace", "#6b8e23": "Olive Drab",
-                "#ff4500": "Orange Red", "#da70d6": "Orchid",
-                "#eee8aa": "Pale Goldenrod", "#98fb98": "Pale Green",
-                "#afeeee": "Pale Turquoise", "#db7093": "Pale Violet Red",
-                "#ffefd5": "Papaya Whip", "#ffdab9": "Peach Puff",
-                "#cd853f": "Peru", "#dda0dd": "Plum", "#b0e0e6": "Powder Blue",
-                "#bc8f8f": "Rosy Brown", "#4169e1": "Royal Blue",
-                "#8b4513": "Saddle Brown", "#fa8072": "Salmon",
-                "#f4a460": "Sandy Brown", "#2e8b57": "Sea Green",
-                "#fff5ee": "Seashell", "#a0522d": "Sienna",
-                "#87ceeb": "Sky Blue", "#6a5acd": "Slate Blue",
-                "#708090": "Slate Gray", "#00ff7f": "Spring Green",
-                "#4169e1": "Steel Blue", "#d2b48c": "Tan",
-                "#008080": "Teal", "#d8bfd8": "Thistle", "#ff6347": "Tomato",
-                "#40e0d0": "Turquoise", "#ee82ee": "Violet",
-                "#f5deb3": "Wheat", "#ffff00": "Yellow",
-                "#9acd32": "Yellow Green"
+                "#ff0000": "Red", "#00ff00": "Green", "#0000ff": "Blue", "#ffff00": "Yellow", "#ff00ff": "Magenta",
+                "#00ffff": "Cyan", "#000000": "Black", "#ffffff": "White", "#808080": "Gray", "#ffa500": "Orange",
+                "#800080": "Purple", "#a52a2a": "Brown", "#ffc0cb": "Pink", "#40e0d0": "Turquoise", "#000080": "Navy",
+                "#808000": "Olive", "#008000": "Dark Green", "#800000": "Maroon", "#ff6347": "Tomato", "#4682b4": "Steel Blue",
+                "#d2691e": "Chocolate", "#f5f5dc": "Beige", "#dc143c": "Crimson", "#1e90ff": "Dodger Blue",
+                "#228b22": "Forest Green", "#daa520": "Goldenrod", "#ff69b4": "Hot Pink", "#cd5c5c": "Indian Red",
+                "#32cd32": "Lime Green", "#9370db": "Medium Purple", "#191970": "Midnight Blue", "#ff4500": "Orange Red",
+                "#da70d6": "Orchid", "#bc8f8f": "Rosy Brown", "#4169e1": "Royal Blue", "#fa8072": "Salmon",
+                "#2e8b57": "Sea Green", "#87ceeb": "Sky Blue", "#6a5acd": "Slate Blue", "#008080": "Teal",
+                "#ee82ee": "Violet", "#9acd32": "Yellow Green", "#b8860b": "Dark Goldenrod", "#e9967a": "Dark Salmon",
+                "#c0c0c0": "Silver", "#cd7f32": "Bronze", "#b87333": "Copper"
             };
-
-            // Find closest color by comparing RGB distance
-            const r1 = parseInt(hex.slice(1, 3), 16);
-            const g1 = parseInt(hex.slice(3, 5), 16);
-            const b1 = parseInt(hex.slice(5, 7), 16);
-
-            let closest = hex;
-            let minDist = Infinity;
-
+            const r1 = parseInt(hex.slice(1, 3), 16), g1 = parseInt(hex.slice(3, 5), 16), b1 = parseInt(hex.slice(5, 7), 16);
+            let closest = hex, minDist = Infinity;
             for (const [colorHex, colorName] of Object.entries(colors)) {
-                const r2 = parseInt(colorHex.slice(1, 3), 16);
-                const g2 = parseInt(colorHex.slice(3, 5), 16);
-                const b2 = parseInt(colorHex.slice(5, 7), 16);
+                const r2 = parseInt(colorHex.slice(1, 3), 16), g2 = parseInt(colorHex.slice(3, 5), 16), b2 = parseInt(colorHex.slice(5, 7), 16);
                 const dist = Math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2);
-                if (dist < minDist) {
-                    minDist = dist;
-                    closest = colorName;
-                }
+                if (dist < minDist) { minDist = dist; closest = colorName; }
             }
-
             return closest;
+        }
+
+        // ══ Trigger hidden file input ══
+        function triggerFileInput(inputId, e) {
+            // Don't trigger if clicking the remove button
+            if (e && e.target.closest('.remove-img')) return;
+            document.getElementById(inputId).click();
+        }
+
+        // ══ Remove image ══
+        function removeImg(slotId, inputId, e) {
+            if (e) e.stopPropagation();
+            const slot = document.getElementById(slotId);
+            const img = slot.querySelector('.preview-img');
+            const input = document.getElementById(inputId);
+            img.src = '';
+            if (input) input.value = '';
+            slot.classList.remove('has-image');
+        }
+
+        // ══ CROP SYSTEM ══
+        let cropperInstance = null;
+        let currentCropSlotId = null;
+        let currentCropInput = null;
+
+        function handleImageSelect(input, slotId) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                openCropModal(e.target.result, slotId, input);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function openCropModal(src, slotId, input) {
+            currentCropSlotId = slotId;
+            currentCropInput = input;
+
+            const cropImg = document.getElementById('cropImage');
+            cropImg.src = src;
+
+            document.getElementById('cropModal').classList.add('open');
+
+            // Reset zoom slider
+            document.getElementById('cropZoom').value = 1;
+            document.getElementById('cropZoomVal').textContent = '1×';
+
+            // Destroy old cropper
+            if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+
+            setTimeout(() => {
+                cropperInstance = new Cropper(cropImg, {
+                    aspectRatio: 1,
+                    viewMode: 2,
+                    dragMode: 'move',
+                    autoCropArea: 0.85,
+                    restore: false,
+                    guides: true,
+                    center: true,
+                    highlight: false,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false,
+                    zoom(e) {
+                        const slider = document.getElementById('cropZoom');
+                        slider.value = e.detail.ratio;
+                        document.getElementById('cropZoomVal').textContent = e.detail.ratio.toFixed(1) + '×';
+                    }
+                });
+            }, 150);
+        }
+
+        function setCropAspect(w, h) {
+            if (!cropperInstance) return;
+            cropperInstance.setAspectRatio(isNaN(w) ? NaN : w / h);
+        }
+
+        function cancelCrop() {
+            document.getElementById('cropModal').classList.remove('open');
+            if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+            // Reset the file input so user can re-select
+            if (currentCropInput) currentCropInput.value = '';
+            currentCropSlotId = null;
+            currentCropInput = null;
+        }
+
+        function applyCrop() {
+            if (!cropperInstance || !currentCropSlotId) return;
+
+            const canvas = cropperInstance.getCroppedCanvas({ width: 800, height: 800, imageSmoothingQuality: 'high' });
+
+            canvas.toBlob(function (blob) {
+                const slot = document.getElementById(currentCropSlotId);
+                const img = slot.querySelector('.preview-img');
+                img.src = URL.createObjectURL(blob);
+                slot.classList.add('has-image');
+
+                // Write cropped file back to the hidden input
+                if (currentCropInput) {
+                    const file = new File([blob], 'variant-image.jpg', { type: 'image/jpeg' });
+                    const dt = new DataTransfer();
+                    dt.items.add(file);
+                    currentCropInput.files = dt.files;
+                }
+
+                document.getElementById('cropModal').classList.remove('open');
+                if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+                currentCropSlotId = null;
+                currentCropInput = null;
+            }, 'image/jpeg', 0.92);
         }
     </script>
 </body>

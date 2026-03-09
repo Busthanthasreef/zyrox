@@ -39,9 +39,12 @@ const loadProducts = async (req, res) => {
       .limit(limit)
       .lean();
 
-    // ── Fetch all variants for current page products ──────────────
+    // ── Fetch all variants for current page products (active ones only) ──
     const productIds  = products.map(p => p._id);
-    const allVariants = await Variant.find({ productId: { $in: productIds } }).lean();
+    const allVariants = await Variant.find({ 
+      productId: { $in: productIds },
+      IsDeleted: { $ne: true }
+    }).lean();
 
     // ── Group variants by productId ───────────────────────────────
     const variantsByProduct = {};
@@ -134,8 +137,9 @@ const addProduct = async (req, res) => {
       return res.status(400).json({ success: false, message: "Product already exists" });
 
     // ── Images ────────────────────────────────────────────────────
+    // Support both 'variantImages[0]' (static form) and 'variantImages[]' (axios/cropped)
     const variantImages = (req.files || [])
-      .filter(f => f.fieldname === "variantImages[0]")
+      .filter(f => f.fieldname.startsWith("variantImages"))
       .map(f => f.path);
 
     // ── Create product ────────────────────────────────────────────
@@ -181,10 +185,19 @@ const loadEditProduct = async (req, res) => {
     const product = await Product.findById(id).populate("categoryId").lean();
     if (!product) return res.status(404).send("Product not found");
 
-    const variants   = await Variant.find({ productId: id }).lean();
+    const variants   = await Variant.find({ productId: id, IsDeleted: false }).lean();
     const categories = await Category.find({ IsDeleted: false }).lean();
 
-    res.render("admin/products/editProduct", { product, variants, categories, admin });
+    // Identify the default variant for the edit form
+    const defaultVariant = variants.find(v => v.IsDefault) || variants[0];
+
+    res.render("admin/products/editProduct", { 
+      product, 
+      variants, 
+      defaultVariant, 
+      categories, 
+      admin 
+    });
 
   } catch (error) {
     console.error("loadEditProduct:", error);
@@ -198,12 +211,25 @@ const loadEditProduct = async (req, res) => {
 ===================================== */
 const editProduct = async (req, res) => {
   try {
-    const { id }                              = req.params;
-    const { productName, description, category, status } = req.body;
+    const { id } = req.params;
+    const { 
+      productName, 
+      description, 
+      category, 
+      status,
+      // Variant fields potentially coming from a unified edit form
+      color,
+      ram,
+      storage,
+      price,
+      stock,
+      sku
+    } = req.body;
 
     const product = await Product.findById(id);
-    if (!product) return res.status(404).send("Product not found");
+    if (!product) return res.status(404).json({ success: false, message: "Product not found" });
 
+    // Update product
     await Product.findByIdAndUpdate(id, {
       productName: productName.trim(),
       description: description.trim(),
@@ -211,10 +237,41 @@ const editProduct = async (req, res) => {
       status,
     });
 
+    // Update default variant if secondary fields are present
+    const defaultVariant = await Variant.findOne({ productId: id, IsDefault: true });
+    if (defaultVariant) {
+      const updates = {};
+      if (color)   updates.color = color.trim();
+      if (ram)     updates.RAM = parseSpec(ram);
+      if (storage) updates.storage = parseSpec(storage);
+      if (price)   updates.price = Number(price);
+      if (stock)   updates.stock = Number(stock);
+      if (sku)     updates.SKU = sku.trim();
+
+      // Handle images if any were uploaded through the edit form
+      const newImages = (req.files || [])
+        .filter(f => f.fieldname.startsWith("newImages") || f.fieldname.startsWith("variantImages"))
+        .map(f => f.path);
+
+      if (newImages.length > 0) {
+        // If we want to replace or merge images, we need logic
+        // For now, let's say we replace if any new ones come
+        updates.images = newImages;
+      }
+
+      await Variant.findByIdAndUpdate(defaultVariant._id, updates);
+    }
+
+    if (req.headers.accept?.includes('application/json')) {
+      return res.json({ success: true, message: "Product updated successfully" });
+    }
     res.redirect("/admin/products");
 
   } catch (error) {
     console.error("editProduct:", error);
+    if (req.headers.accept?.includes('application/json')) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
     res.status(500).send("Server Error");
   }
 };

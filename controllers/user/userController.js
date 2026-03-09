@@ -56,6 +56,12 @@ const userSignUp = async (req, res) => {
     const trimmedPhone = Phone ? Phone.trim() : "";
     const trimmedPassword = Password ? Password.trim() : "";
 
+    if (!trimmedName) {
+      req.session.signupErrors = { Name: "Full Name is required" };
+      req.session.signupData = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone };
+      return res.redirect("/signup");
+    }
+
     const emailRegex = /^[a-zA-Z0-9+._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const indianPhone = /^(?:\+91|91|0)?[6-9]\d{9}$/;
 
@@ -247,13 +253,17 @@ const resendOtp = async (req, res) => {
 ========================= */
 const loadSignIn = (req, res) => {
   const { error } = req.query;
+  // Grab returnTo from session (set by isUserAuthenticated middleware)
+  const returnTo = req.session.returnTo || null;
   res.render("user/auth/signInPage", {
     emailError: null,
     passError: null,
     Email: "",
     error: error || null,
+    returnTo,
   });
 };
+
 
 const userSignIn = async (req, res) => {
   try {
@@ -291,11 +301,16 @@ const userSignIn = async (req, res) => {
         Email: user.Email,
       };
 
+      // Grab the returnTo URL before saving the session
+      const returnTo = req.session.returnTo || '/';
+      delete req.session.returnTo;
+
       req.session.save((err) => {
         if (err) return res.json({ success: false, message: "Session save error" });
-        res.json({ success: true, message: "Login Successful" });
+        res.json({ success: true, message: "Login Successful", returnTo });
       });
     });
+
   } catch (error) {
     console.log("Signin Error:", error);
     res.status(500).json({ success: false, message: "Server Error" });

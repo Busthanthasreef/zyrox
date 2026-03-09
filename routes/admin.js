@@ -29,8 +29,15 @@ adminRoutes.post("/products-add", isAdminAuthenticated, upload.any(), productCon
 adminRoutes.post("/products-edit/:id", isAdminAuthenticated, upload.any(), productController.editProduct);
 adminRoutes.get("/products-delete/:id",isAdminAuthenticated,productController.deleteProduct)
 
-adminRoutes.get('/products/:id/variants',isAdminAuthenticated, variantController.loadVariantListing);
-adminRoutes.post('/products/:id/variants-add',isAdminAuthenticated,variantController.addVariant);
+adminRoutes.get('/products/:id/variants-delete/:variantId', isAdminAuthenticated, (req, res, next) => {
+    console.log(`Hitting delete variant route for ID: ${req.params.variantId}`);
+    next();
+}, variantController.deleteVariant);
+adminRoutes.get('/products/:id/variants', isAdminAuthenticated, variantController.loadVariantListing);
+adminRoutes.post('/products/:id/variants-add', isAdminAuthenticated, upload.array('images', 5), variantController.addVariant);
+adminRoutes.post('/products/:id/variants-edit/:variantId', isAdminAuthenticated, upload.array('images', 5), variantController.editVariant);
+adminRoutes.patch('/variants/:variantId/set-default', isAdminAuthenticated, variantController.setDefaultVariant);
 adminRoutes.get("/logout", isAdminAuthenticated, adminController.logout);
+
 
 export default adminRoutes;

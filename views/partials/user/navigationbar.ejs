@@ -484,7 +484,7 @@
                     <% categories.forEach(category=> { %>
                         <a href="/categories/<%= category._id %>">
                             <i class="fas fa-tag" style="font-size:11px; margin-right:8px; color:#00ff6a;"></i>
-                            <%= category.name %>
+                            <%= category.categoryName %>
                         </a>
                         <% }) %>
                             <% } else { %>
@@ -501,10 +501,11 @@
     </ul>
 
     <!-- Search -->
-    <div class="search-box">
+    <form action="/products" method="GET" class="search-box">
         <i class="fas fa-search"></i>
-        <input type="text" placeholder="Search mobiles by category or model">
-    </div>
+        <input type="text" name="search" placeholder="Search mobiles..."
+            value="<%= typeof activeFilters !== 'undefined' ? activeFilters.search : '' %>">
+    </form>
 
     <!-- Right Icons -->
     <div class="nav-icons">
@@ -607,15 +608,15 @@
         <!-- Sidebar Categories Accordion -->
         <li>
             <details class="sidebar-dropdown">
-                <summary class="<%= currentPage === 'categories' ? 'active' : '' %>">
+                <!-- <summary class="<%= currentPage === 'categories' ? 'active' : '' %>">
                     Categories
-                </summary>
+                </summary> -->
                 <div class="sidebar-cat-links">
                     <% if (typeof categories !=='undefined' && categories.length> 0) { %>
                         <% categories.forEach(category=> { %>
                             <a href="/categories/<%= category._id %>" onclick="toggleSidebar()">
                                 <i class="fas fa-tag" style="font-size:11px; margin-right:8px; color:#00ff6a;"></i>
-                                <%= category.name %>
+                                <%= category.categoryName %>
                             </a>
                             <% }) %>
                                 <% } else { %>

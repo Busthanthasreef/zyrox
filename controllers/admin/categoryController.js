@@ -1,4 +1,5 @@
 import categorySchema from "../../models/category.js";
+import productSchema from "../../models/product.js";
 
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -162,10 +163,17 @@ const editCategory = async (req, res) => {
             });
         }
 
+        const isActive = status === true || status === "true";
         await categorySchema.findByIdAndUpdate(id, {
             categoryName: normalizedName,
-            IsActive:     status === true || status === "true"
+            IsActive:     isActive
         });
+
+        // Sync product status with category status
+        await productSchema.updateMany(
+            { categoryId: id },
+            { status: isActive ? 'active' : 'inactive' }
+        );
 
         return res.json({
             success: true,
@@ -187,7 +195,13 @@ const editCategory = async (req, res) => {
 const deleteCategory = async (req, res) => {
     try {
         const id = req.params.id;
-        await categorySchema.findByIdAndUpdate(id, { IsDeleted: true });
+        await categorySchema.findByIdAndUpdate(id, { IsDeleted: true, IsActive: false });
+
+        // Soft delete all products under this deleted category
+        await productSchema.updateMany(
+            { categoryId: id },
+            { IsDeleted: true, status: 'inactive' }
+        );
 
         return res.status(200).json({
             success: true,
