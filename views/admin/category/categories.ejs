@@ -133,9 +133,10 @@
                                             </td>
 
                                             <td>
-                                                <span class="product-count">
-                                                    <i class="bi bi-box" style="color:var(--text-muted);"></i>
-                                                    <%= cat.productCount || 0 %>
+                                                <span
+                                                    class="product-count <%= cat.productCount > 0 ? 'has-products' : 'no-products' %>">
+                                                    <i class="bi bi-box"></i>
+                                                    <%= cat.productCount ?? 0 %>
                                                 </span>
                                             </td>
 

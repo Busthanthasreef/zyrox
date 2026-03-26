@@ -27,8 +27,11 @@
             <div class="mb-3">
                 <label class="form-label">Full Name</label>
                 <input type="text" id="fullName" name="Name" class="form-control" placeholder="Enter Full Name"
-                    value="<%= typeof Name !== 'undefined' ? Name : '' %>" required>
+                    value="<%= typeof Name !== 'undefined' ? Name : '' %>" >
             </div>
+            <p style="color:red; font-size: small;" id="nameError">
+                <%= typeof nameError !=='undefined' && nameError ? nameError : '' %>
+            </p>
 
             <!-- Email -->
             <div class="mb-3">
@@ -161,43 +164,36 @@
                 const phoneValue = document.getElementById("Phone").value.trim();
                 const passwordValue = document.getElementById("Password").value.trim();
                 const confirmPasswordValue = document.getElementById("confirmPassword").value.trim();
+                 
 
                 const nameRegex = /^[a-zA-Z.]$/;
                 const emailRegex = /^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
                 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
                 const phoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
 
+                const nameError = document.getElementById("nameError");
                 const emailError = document.getElementById("emailError");
                 const phoneError = document.getElementById("phoneError");
                 const passError = document.getElementById("passError");
 
+                nameError.textContent = "";
                 emailError.textContent = "";
                 phoneError.textContent = "";
                 passError.textContent = "";
 
-                // Empty field validation
-                if (!Name && !emailValue && !phoneValue && !passwordValue && !confirmPasswordValue) {
+            
+
+                // // Empty field validation
+                if (!Name && !emailValue && !passwordValue && !confirmPasswordValue) {
                     event.preventDefault();
-                    Swal.fire({
-                        icon: "warning",
-                        toast: true,
-                        title: "All fields are required",
-                        position: "center",
-                        showConfirmButton: false,
-                        timer: 1000
-                    });
+                    nameError.textContent = "full name is required "
+                    emailError.textContent = "email is required"
+                    passError.textContent = "Password is required"
                     return;
                 }
                 if (!Name) {
                     event.preventDefault();
-                    Swal.fire({
-                        icon: "warning",
-                        toast: true,
-                        title: "All fields are required",
-                        position: "center",
-                        showConfirmButton: false,
-                        timer: 1000
-                    });
+                    nameError.textContent = "invalid email , please enter a valid email "
                     return;
                 }
 
@@ -231,7 +227,6 @@
                 localStorage.removeItem("otp_timer_expiry");
             });
 
-            // Show Swal Toast for Email Errors (like Duplicate Email)
         });
     </script>
     <% if (typeof emailError !=='undefined' && emailError && (emailError.toLowerCase().includes('exist') ||

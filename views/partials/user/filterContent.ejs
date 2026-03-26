@@ -1,0 +1,162 @@
+<%
+  /*
+    Partial: _sidebarFilters.ejs
+    Locals expected:
+      sidebarData  — { brands:[{name,count}], rams:[], storages:[], colors:[] }
+      curBrands    — string[]
+      curRAMs      — string[]
+      curStorages  — string[]
+      curColors    — string[]
+      curMax       — number
+      PRICE_MAX_VAL — number
+      PRICE_MIN_VAL — number
+      curSort      — string
+      curSearch    — string
+      formId       — string  (unique per panel: 'desktopForm' | 'mobileForm')
+  */
+%>
+
+<div class="sidebar-top">
+  <span class="sidebar-title">Filter by</span>
+  <a href="/products<% if (curSort) { %>?sort=<%= curSort %><% } %>" class="btn-clear-all">Clear All</a>
+</div>
+
+<form id="<%= formId %>" method="GET" action="/products">
+  <!-- Preserve sort and search when applying filters -->
+  <% if (curSort)   { %><input type="hidden" name="sort"   value="<%= curSort %>"><% } %>
+  <% if (curSearch) { %><input type="hidden" name="search" value="<%= curSearch %>"><% } %>
+
+  <!-- ── CATEGORIES ────────────────────────── -->
+  <% if (sidebarData && sidebarData.brands && sidebarData.brands.length > 0) { %>
+    <div class="filter-sec">
+      <div class="filter-sec-head" onclick="toggleSection(this)">
+        Categories <i class="fas fa-chevron-up"></i>
+      </div>
+      <div class="filter-body">
+        <% sidebarData.brands.forEach(brand => { %>
+          <div class="cb-row">
+            <label>
+              <input
+                type="checkbox"
+                name="brand"
+                value="<%= brand.name %>"
+                <%= curBrands.includes(brand.name) ? 'checked' : '' %>
+              >
+              <span><%= brand.name %></span>
+            </label>
+            <% if (brand.count != null) { %>
+              <span class="cb-count"><%= brand.count %></span>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- ── PRICE RANGE ────────────────────────── -->
+  <div class="filter-sec">
+    <div class="filter-sec-head" onclick="toggleSection(this)">
+      Price Range <i class="fas fa-chevron-up"></i>
+    </div>
+    <div class="filter-body">
+      <div class="price-range-wrap">
+        <div class="price-range-fill" style="left:0; width:'<%= Math.round((curMax / PRICE_MAX_VAL) * 100) %>%;'"></div>
+        <input
+          type="range"
+          class="price-range-input"
+          min="<%= PRICE_MIN_VAL %>"
+          max="<%= PRICE_MAX_VAL %>"
+          step="500"
+          value="<%= curMax %>"
+          oninput="updatePrice(this)"
+        >
+      </div>
+      <input type="hidden" name="maxPrice" value="<%= curMax %>">
+      <div class="price-labels">
+        <span>₹<%= Number(PRICE_MIN_VAL).toLocaleString('en-IN') %></span>
+        <span class="price-max-label">₹<%= Number(curMax).toLocaleString('en-IN') %></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RAM ───────────────────────────────── -->
+  <% if (sidebarData && sidebarData.rams && sidebarData.rams.length > 0) { %>
+    <div class="filter-sec">
+      <div class="filter-sec-head" onclick="toggleSection(this)">
+        RAM <i class="fas fa-chevron-up"></i>
+      </div>
+      <div class="filter-body">
+        <div class="pills-wrap">
+          <% sidebarData.rams.forEach(ram => { %>
+            <button
+              type="button"
+              class="pill-btn <%= curRAMs.includes(String(ram)) ? 'active' : '' %>"
+              data-name="ram"
+              data-val="<%= ram %>"
+              onclick="togglePill(this, 'ram', '<%= ram %>')"
+            >
+              <%= ram %>GB
+            </button>
+          <% }) %>
+        </div>
+        <!-- Pre-populate hidden inputs for already-active RAM values -->
+        <% curRAMs.forEach(r => { %>
+          <input type="hidden" name="ram" value="<%= r %>" data-pill="ram-<%= r %>">
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- ── STORAGE ────────────────────────────── -->
+  <% if (sidebarData && sidebarData.storages && sidebarData.storages.length > 0) { %>
+    <div class="filter-sec">
+      <div class="filter-sec-head" onclick="toggleSection(this)">
+        Storage <i class="fas fa-chevron-up"></i>
+      </div>
+      <div class="filter-body">
+        <div class="pills-wrap">
+          <% sidebarData.storages.forEach(storage => { %>
+            <button
+              type="button"
+              class="pill-btn <%= curStorages.includes(String(storage)) ? 'active' : '' %>"
+              data-name="storage"
+              data-val="<%= storage %>"
+              onclick="togglePill(this, 'storage', '<%= storage %>')"
+            >
+              <% if (storage >= 1000) { %><%= storage / 1000 %>TB<% } else { %><%= storage %>GB<% } %>
+            </button>
+          <% }) %>
+        </div>
+        <% curStorages.forEach(s => { %>
+          <input type="hidden" name="storage" value="<%= s %>" data-pill="storage-<%= s %>">
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- ── COLOR ─────────────────────────────── -->
+  <% if (sidebarData && sidebarData.colors && sidebarData.colors.length > 0) { %>
+    <div class="filter-sec">
+      <div class="filter-sec-head" onclick="toggleSection(this)">
+        Color <i class="fas fa-chevron-up"></i>
+      </div>
+      <div class="filter-body">
+        <% sidebarData.colors.forEach(color => { %>
+          <div class="cb-row">
+            <label>
+              <input
+                type="checkbox"
+                name="color"
+                value="<%= color %>"
+                <%= curColors.includes(color) ? 'checked' : '' %>
+              >
+              <span><%= color %></span>
+            </label>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+  <button type="submit" class="btn-apply">Apply Filters</button>
+</form>

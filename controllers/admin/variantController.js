@@ -13,7 +13,7 @@ const loadVariantListing = async (req, res) => {
         const limit = 5;
         const skip = (page - 1) * limit;
 
-        const product = await ProductSchema.findById(id).lean();
+        const product = await ProductSchema.findById(id).populate('categoryId').lean();
         if (!product) return res.status(404).send("Product not found");
 
         const totalVariants = await VariantSchema.countDocuments({ productId: id, IsDeleted: false });
@@ -21,17 +21,20 @@ const loadVariantListing = async (req, res) => {
         const inactiveVariants = await VariantSchema.countDocuments({ productId: id, IsActive: false, IsDeleted: false });
         const totalPages = Math.ceil(totalVariants / limit);
 
-        const variants = await VariantSchema.find({ productId: id ,IsDeleted:false})
-            .sort({ createdAt: -1 })
+        const variants = await VariantSchema.find({ productId: id, IsDeleted: false })
+            .sort({ IsDefault: -1, createdAt: -1 })
             .skip(skip)
             .limit(limit)
             .lean();
+
+        const defaultVariant = await VariantSchema.findOne({ productId: id, IsDefault: true, IsDeleted: false }).lean();
 
         const categories = await categorySchema.find().lean();
 
         res.render("admin/products/variantListing", {
             product,
             variants,
+            defaultVariant,
             categories,
             totalVariants,
             activeVariants,
@@ -64,11 +67,33 @@ const loadVariantListing = async (req, res) => {
 const addVariant = async (req, res) => {
     try {
         const { id: productId } = req.params;
-        const { color, storage, RAM, stock, price, SKU, isActive, isDefault } = req.body;
+        let { color, storage, RAM, stock, price, SKU, isActive, isDefault } = req.body;
 
         const product = await ProductSchema.findById(productId);
         if (!product) return res.status(404).send("Product not found");
 
+        // 🔧 Normalize values
+        const parseNum = (val) => val ? Number(String(val).replace(/[^\d]/g, "")) : undefined;
+
+        color = (color || "").trim().toLowerCase();
+        storage = parseNum(storage);
+        RAM = parseNum(RAM);
+
+        // 🔴 CHECK DUPLICATE VARIANT
+        const existingVariant = await VariantSchema.findOne({
+            productId,
+            color,
+            RAM,
+            storage,
+            IsDeleted: false
+        });
+
+        if (existingVariant) {
+            req.session.errorMsg = "Variant already exists (same color, RAM, storage)";
+            return res.redirect(`/admin/products/${productId}/variants`);
+        }
+
+        // 🔴 SKU CHECK
         if (SKU) {
             const existingSKU = await VariantSchema.findOne({ SKU });
             if (existingSKU) {
@@ -77,9 +102,10 @@ const addVariant = async (req, res) => {
             }
         }
 
-        // images are already uploaded by multer-storage-cloudinary
+        // 📸 Images
         const imageUrls = (req.files || []).map(f => f.path);
 
+        // ⭐ Handle Default Variant
         if (isDefault === "on" || isDefault === true) {
             await VariantSchema.updateMany({ productId }, { IsDefault: false });
         }
@@ -87,12 +113,13 @@ const addVariant = async (req, res) => {
         const existingCount = await VariantSchema.countDocuments({ productId });
         const shouldBeDefault = (isDefault === "on") || existingCount === 0;
 
+        // ✅ CREATE VARIANT
         const newVariant = new VariantSchema({
             productId,
-            color: color || "",
+            color,
             colorCode: req.body.colorCode || "#000000",
-            storage: storage ? Number(storage) : undefined,
-            RAM: RAM ? Number(RAM) : undefined,
+            storage,
+            RAM,
             stock: stock ? Number(stock) : 0,
             price: price ? Number(price) : 0,
             SKU: SKU || "",
@@ -102,6 +129,7 @@ const addVariant = async (req, res) => {
         });
 
         await newVariant.save();
+
         req.session.successMsg = "Variant added successfully";
         res.redirect(`/admin/products/${productId}/variants`);
 
@@ -111,27 +139,60 @@ const addVariant = async (req, res) => {
         res.redirect(`/admin/products/${req.params.id}/variants`);
     }
 };
-
 /* =====================================
    EDIT VARIANT
 ===================================== */
 const editVariant = async (req, res) => {
     try {
         const { id: productId, variantId } = req.params;
-        const { color, storage, RAM, stock, price, SKU, isActive, isDefault } = req.body;
+        let { color, storage, RAM, stock, price, SKU, isActive, isDefault } = req.body;
 
         const variant = await VariantSchema.findById(variantId);
         if (!variant) return res.status(404).send("Variant not found");
 
-        let imageUrls = variant.images || [];
+        // Normalize values
+        const parseNum = (val) => val ? Number(String(val).replace(/[^\d]/g, "")) : undefined;
 
-        // If new images uploaded, we add/replace depending on frontend implementation
-        // For simplicity here, if new images come, we replace all (matching variantListing model)
-        if (req.files && req.files.length > 0) {
-            imageUrls = req.files.map(f => f.path);
-            // Optional: delete old images from cloudinary if you want to be clean
+        color   = (color || variant.color).trim().toLowerCase();
+        storage = storage ? parseNum(storage) : variant.storage;
+        RAM     = RAM ? parseNum(RAM) : variant.RAM;
+
+        // CHECK DUPLICATE (exclude current variant)
+        const duplicate = await VariantSchema.findOne({
+            productId,
+            _id: { $ne: variantId },
+            color,
+            RAM,
+            storage,
+            IsDeleted: false
+        });
+
+        if (duplicate) {
+            req.session.errorMsg = "Another variant with same specs already exists";
+            return res.redirect(`/admin/products/${productId}/variants`);
         }
 
+        //  SKU CHECK (exclude current variant)
+        if (SKU) {
+            const existingSKU = await VariantSchema.findOne({
+                SKU,
+                _id: { $ne: variantId }
+            });
+
+            if (existingSKU) {
+                req.session.errorMsg = "SKU already exists";
+                return res.redirect(`/admin/products/${productId}/variants`);
+            }
+        }
+
+        // Handle Images
+        let imageUrls = variant.images || [];
+
+        if (req.files && req.files.length > 0) {
+            imageUrls = req.files.map(f => f.path);
+        }
+
+        //  Handle Default Variant
         if (isDefault === "on" || isDefault === true) {
             await VariantSchema.updateMany(
                 { productId, _id: { $ne: variantId } },
@@ -139,15 +200,14 @@ const editVariant = async (req, res) => {
             );
             variant.IsDefault = true;
         } else {
-            // Note: Ensuring at least one default might be needed, 
-            // but for now we follow the user's toggle.
             variant.IsDefault = false;
         }
 
-        variant.color     = color || variant.color;
+        //  UPDATE FIELDS
+        variant.color     = color;
         variant.colorCode = req.body.colorCode || variant.colorCode || "#000000";
-        variant.storage   = storage ? Number(storage) : variant.storage;
-        variant.RAM       = RAM ? Number(RAM) : variant.RAM;
+        variant.storage   = storage;
+        variant.RAM       = RAM;
         variant.stock     = stock !== undefined ? Number(stock) : variant.stock;
         variant.price     = price !== undefined ? Number(price) : variant.price;
         variant.SKU       = SKU || variant.SKU;
@@ -155,6 +215,7 @@ const editVariant = async (req, res) => {
         variant.images    = imageUrls;
 
         await variant.save();
+
         req.session.successMsg = "Variant updated successfully";
         res.redirect(`/admin/products/${productId}/variants`);
 
@@ -171,7 +232,7 @@ const editVariant = async (req, res) => {
 const toggleVariant = async (req, res) => {
     try {
         const { variantId } = req.params;
-        const { isActive }  = req.body;
+        const { isActive } = req.body;
         await VariantSchema.findByIdAndUpdate(variantId, {
             IsActive: isActive === true || isActive === "true"
         });
@@ -236,7 +297,7 @@ const deleteVariant = async (req, res) => {
         }
 
         // Soft delete the current variant
-        await VariantSchema.findByIdAndUpdate(variantId, { 
+        await VariantSchema.findByIdAndUpdate(variantId, {
             IsDeleted: true,
             IsDefault: false,
             IsActive: false,

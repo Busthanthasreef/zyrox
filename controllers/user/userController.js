@@ -1,5 +1,7 @@
 import userSchema from "../../models/user.js";
 import otpSchema from "../../models/otp.js";
+import cartSchema from "../../models/cart.js";
+import * as userService from "../../services/userServices/userService.js"
 import Categories from "../../models/category.js";
 import bcrypt from "bcryptjs";
 import { sendOtpEmail } from "../../utils/otpController.js";
@@ -9,20 +11,37 @@ import generateOtp from "../../utils/otpGenerator.js";
    LANDING PAGE
 ========================= */
 const landingPage = async (req, res) => {
-  try{
-   const categories = await Categories.find({})
+  try {
+    const categories = await Categories.find({});
     const loginSuccess = req.query.loginSuccess === "true";
+    const currentUser = req.session.user?._id || null;
+
+    let totalItems = 0; // default value
+
+    if (currentUser) {
+      const cart = await cartSchema
+        .findOne({ User_id: currentUser })
+        .populate("Items.Product_id")
+        .populate("Items.Variant_id");
+
+      // check if cart exists
+      if (cart && cart.Items) {
+        totalItems = cart.Items.length;
+      }
+    }
+
     res.render("user/home/landingPage", {
-      cartItemCount: "12",
+      cartItemCount: totalItems,
       categories,
       user: req.session.user || null,
       loginSuccess,
     });
-  }catch(error){
 
+  } catch (error) {
+    console.log("Landing Page Error:", error);
+    res.status(500).send("Server Error");
   }
 };
-
 /* =========================
    SIGN UP
 ========================= */
@@ -34,10 +53,10 @@ const loadSignUp = (req, res) => {
   delete req.session.signupData;
 
   res.render("user/auth/signUpPage", {
+    nameError: signupErrors.Name || null,
     emailError: signupErrors.Email || null,
     passError: signupErrors.Password || null,
     phoneError: signupErrors.Phone || null,
-
     Name: signupData.Name || "",
     Email: signupData.Email || "",
     Phone: signupData.Phone || "",
@@ -49,69 +68,16 @@ const loadSignUp = (req, res) => {
 
 const userSignUp = async (req, res) => {
   try {
-    const { Name, Email, Phone, Password, confirmPassword } = req.body;
+    const result = await userService.userSignUpService(req.body);
 
-    const trimmedName = Name ? Name.trim() : "";
-    const trimmedEmail = Email ? Email.trim().toLowerCase() : "";
-    const trimmedPhone = Phone ? Phone.trim() : "";
-    const trimmedPassword = Password ? Password.trim() : "";
-
-    if (!trimmedName) {
-      req.session.signupErrors = { Name: "Full Name is required" };
-      req.session.signupData = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone };
-      return res.redirect("/signup");
+    if (result.error) {
+      req.session.signupErrors = result.error;
+      req.session.signupData = result.data;
+      res.redirect("/signup");
+      return;
     }
 
-    const emailRegex = /^[a-zA-Z0-9+._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const indianPhone = /^(?:\+91|91|0)?[6-9]\d{9}$/;
-
-    if (!emailRegex.test(trimmedEmail)) {
-      req.session.signupErrors = { Email: "Invalid email format" };
-      req.session.signupData = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone };
-      return res.redirect("/signup");
-    }
-
-    if (!indianPhone.test(trimmedPhone)) {
-      req.session.signupErrors = { Phone: "Enter a valid 10-digit indian phone number" };
-      req.session.signupData = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone };
-      return res.redirect("/signup");
-    }
-
-    if (trimmedPassword !== confirmPassword) {
-      req.session.signupErrors = { Password: "Passwords do not match" };
-      req.session.signupData = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone };
-      return res.redirect("/signup");
-    }
-
-    const existingUser = await userSchema.findOne({ Email: trimmedEmail });
-
-    if (existingUser) {
-      req.session.signupErrors = { Email: "User with this email already exists" };
-      req.session.signupData = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone };
-      return res.redirect("/signup");
-    }
-
-    const hashedPassword = await bcrypt.hash(trimmedPassword, 10);
-
-    req.session.tempUser = {
-      Name: trimmedName,
-      Email: trimmedEmail,
-      Phone: trimmedPhone,
-      Password: hashedPassword,
-    };
-
-    const { OTP, hashedOtp } = await generateOtp();
-
-    await otpSchema.deleteMany({ Email: trimmedEmail });
-    
-    await otpSchema.create({
-      Email: trimmedEmail,
-      Code: hashedOtp,
-      ExpiresAt: new Date(Date.now() + 3 * 60 * 1000),
-    });
-
-    await sendOtpEmail(trimmedEmail, OTP);
-
+    req.session.tempUser = result.tempUser;
     res.redirect("/otp-verification");
   } catch (error) {
     console.log("Signup Error:", error);
@@ -253,7 +219,6 @@ const resendOtp = async (req, res) => {
 ========================= */
 const loadSignIn = (req, res) => {
   const { error } = req.query;
-  // Grab returnTo from session (set by isUserAuthenticated middleware)
   const returnTo = req.session.returnTo || null;
   res.render("user/auth/signInPage", {
     emailError: null,
@@ -263,7 +228,6 @@ const loadSignIn = (req, res) => {
     returnTo,
   });
 };
-
 
 const userSignIn = async (req, res) => {
   try {
@@ -301,7 +265,6 @@ const userSignIn = async (req, res) => {
         Email: user.Email,
       };
 
-      // Grab the returnTo URL before saving the session
       const returnTo = req.session.returnTo || '/';
       delete req.session.returnTo;
 
@@ -310,7 +273,6 @@ const userSignIn = async (req, res) => {
         res.json({ success: true, message: "Login Successful", returnTo });
       });
     });
-
   } catch (error) {
     console.log("Signin Error:", error);
     res.status(500).json({ success: false, message: "Server Error" });

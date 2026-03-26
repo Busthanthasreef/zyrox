@@ -151,9 +151,11 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <%if(products){%>
                                 <% products.forEach((product, index)=> { %>
                                     <% const productVariants=variantsByProduct[product._id.toString()] || [] %>
-                                        <% const firstVariant=productVariants[0] || null %>
+                                        <% const defaultVariant=productVariants.find(v=> v.IsDefault) ||
+                                            productVariants[0] || null %>
 
                                             <tr>
                                                 <td>
@@ -163,7 +165,7 @@
                                                 <td>
                                                     <div class="d-flex align-items-center gap-3">
                                                         <div class="product-thumb">
-                                                            <img src="<%= firstVariant?.images?.[0] ?? '/default-product.png' %>"
+                                                            <img src="<%= defaultVariant?.images?.[0] ?? '/default-product.png' %>"
                                                                 alt="<%= product.productName %>"
                                                                 onerror="this.src='/default-product.png'">
                                                         </div>
@@ -171,15 +173,15 @@
                                                             <p class="u-name mb-1">
                                                                 <%= product.productName %>
                                                             </p>
-                                                            <small class="text-muted">SKU: <%= firstVariant?.SKU
+                                                            <small class="text-muted">SKU: <%= defaultVariant?.SKU
                                                                     || 'N/A' %></small>
                                                         </div>
                                                     </div>
                                                 </td>
 
                                                 <td>
-                                                    <% if (firstVariant?.price !=null) { %>
-                                                        ₹<%= firstVariant.price.toLocaleString('en-IN') %>
+                                                    <% if (defaultVariant?.price !=null) { %>
+                                                        ₹<%= defaultVariant.price.toLocaleString('en-IN') %>
                                                             <% } else { %>
                                                                 <span class="text-muted">—</span>
                                                                 <% } %>
@@ -190,11 +192,12 @@
                                                 </td>
 
                                                 <td>
-                                                    <% if (firstVariant?.stock !=null) { %>
+                                                    <% if (defaultVariant?.stock !=null) { %>
                                                         <span
-                                                            class="<%= firstVariant.stock === 0 ? 'text-danger fw-bold' : firstVariant.stock < 5 ? 'text-warning' : '' %>">
-                                                            <%= firstVariant.stock %>
-                                                                <% if (firstVariant.stock===0) { %><small>(Out)</small>
+                                                            class="<%= defaultVariant.stock === 0 ? 'text-danger fw-bold' : defaultVariant.stock < 5 ? 'text-warning' : '' %>">
+                                                            <%= defaultVariant.stock %>
+                                                                <% if (defaultVariant.stock===0) { %>
+                                                                    <small>(Out)</small>
                                                                     <% } %>
                                                         </span>
                                                         <% } else { %>
@@ -219,7 +222,7 @@
                                                             class="btn-action edit" title="Edit">
                                                             <i class="bi bi-pencil"></i>
                                                         </a>
-                                                       
+
                                                         <button class="btn-action delete" title="Delete"
                                                             onclick="confirmDelete('<%= product._id %>')">
                                                             <i class="bi bi-trash"></i>
@@ -228,6 +231,11 @@
                                                 </td>
                                             </tr>
                                             <% }) %>
+                                <%}else{%>
+
+<h4>no Products found</h4>
+
+                                <%}%>
                             </tbody>
                         </table>
                     </div>

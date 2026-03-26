@@ -659,6 +659,7 @@
                                         </div>
 
                                         <!-- Quantity -->
+                                        <!-- ↓ + button disabled when qty >= 3 (MAX_QTY) OR out of stock -->
                                         <div class="qty-cell">
                                             <div class="qty-ctrl">
                                                 <button class="qty-btn" <%=isOOS ? 'disabled' : '' %>
@@ -670,11 +671,11 @@
                                                 <span class="qty-num" id="qty-<%= item.variantId %>">
                                                     <%= item.quantity %>
                                                 </span>
-                                                <button class="qty-btn" <%=isOOS || item.quantity>= item.product.stock ?
-                                                    'disabled' : '' %>
+                                                <button class="qty-btn" <%=isOOS || item.quantity>= 3 ? 'disabled' : ''
+                                                    %>
                                                     onclick="changeQty('<%= item.variantId %>', '<%= item.productId %>',
-                                                            1, <%= item.product.stock || 0 %>)"
-                                                                id="plus-<%= item.variantId %>">
+                                                            1, <%= item.product.stock || 0 %>)" id="plus-<%=
+                                                                    item.variantId %>">
                                                                     <i class="fas fa-plus"></i>
                                                 </button>
                                             </div>
@@ -799,6 +800,10 @@
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
         <script>
+
+            /* ─── GLOBAL CART LIMIT ─────────────────────── */
+            const MAX_QTY = 3;
+
             /* ═══════════════════════════════════════════
                LOCAL STATE — mirrors server data
             ═══════════════════════════════════════════ */
@@ -820,30 +825,38 @@
                 const state = cartState[variantId];
                 if (!state) return;
 
-                const maxQty = stock;
                 const newQty = state.qty + delta;
 
-                // Validate bounds
+                // Lower bound
                 if (newQty < 1) return;
 
-                if (newQty > maxQty) {
+                // ── MAX QUANTITY LIMIT (3 per product) ──
+                if (newQty > MAX_QTY) {
                     Swal.fire({
-                        toast: true, position: 'top-end', icon: 'warning',
-                        title: `Only ${maxQty} unit${maxQty > 1 ? 's' : ''} available in stock`,
-                        showConfirmButton: false, timer: 2200,
-                        background: '#12131a', color: '#e8e8f0', iconColor: '#c8883a'
+                        icon: 'warning',
+                        title: 'Quantity Limit Reached',
+                        html: `You can only add up to <strong>${MAX_QTY}</strong> units of the same product to your cart.`,
+                        confirmButtonText: 'Got it',
+                        confirmButtonColor: '#c8883a',
+                        background: '#12131a',
+                        color: '#e8e8f0',
+                        iconColor: '#c8883a',
+                        customClass: {
+                            popup: 'swal-zyrox'
+                        }
                     });
                     return;
                 }
 
-                // Warn when approaching stock limit
-                if (newQty === maxQty && delta > 0) {
+                // Stock exceeded (within the 3-cap)
+                if (newQty > stock) {
                     Swal.fire({
-                        toast: true, position: 'top-end', icon: 'info',
-                        title: `Only ${maxQty} in stock — maximum reached`,
-                        showConfirmButton: false, timer: 2400,
+                        toast: true, position: 'top-end', icon: 'warning',
+                        title: `Only ${stock} unit${stock > 1 ? 's' : ''} available in stock`,
+                        showConfirmButton: false, timer: 2200,
                         background: '#12131a', color: '#e8e8f0', iconColor: '#c8883a'
                     });
+                    return;
                 }
 
                 try {
@@ -873,9 +886,9 @@
                     document.getElementById('price-' + variantId).textContent =
                         '₹' + rowPrice.toLocaleString('en-IN');
 
-                    // Update ± button states
+                    // Update ± button states — respect BOTH stock limit and MAX_QTY
                     document.getElementById('minus-' + variantId).disabled = newQty <= 1;
-                    document.getElementById('plus-' + variantId).disabled = newQty >= maxQty;
+                    document.getElementById('plus-' + variantId).disabled = newQty >= MAX_QTY || newQty >= stock;
 
                     // Recalculate summary
                     recalcSummary();
@@ -893,6 +906,7 @@
                REMOVE ITEM
             ═══════════════════════════════════════════ */
             async function removeItem(variantId, productId) {
+
                 const confirmed = await Swal.fire({
                     title: 'Remove item?',
                     text: 'This item will be removed from your cart.',
@@ -902,8 +916,11 @@
                     cancelButtonText: 'Keep it',
                     confirmButtonColor: '#e63946',
                     cancelButtonColor: '#1a1b26',
-                    background: '#12131a', color: '#e8e8f0'
+                    background: '#12131a',
+                    color: '#e8e8f0'
                 });
+
+                // ❌ Cancel → no reload
                 if (!confirmed.isConfirmed) return;
 
                 try {
@@ -912,45 +929,46 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ variantId, productId })
                     });
+
                     const data = await res.json();
 
                     if (!data.success) {
                         Swal.fire({
-                            toast: true, position: 'top-end', icon: 'error',
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'error',
                             title: data.message || 'Could not remove item',
-                            showConfirmButton: false, timer: 2000,
-                            background: '#12131a', color: '#e8e8f0'
+                            showConfirmButton: false,
+                            timer: 2000,
+                            background: '#12131a',
+                            color: '#e8e8f0'
                         });
                         return;
                     }
 
-                    // Animate row out then remove from DOM
-                    const row = document.getElementById('row-' + variantId);
-                    if (row) {
-                        row.style.transition = 'opacity .3s, transform .3s';
-                        row.style.opacity = '0';
-                        row.style.transform = 'translateX(30px)';
-                        setTimeout(() => {
-                            row.remove();
-                            delete cartState[variantId];
-                            recalcSummary();
-                            updateCartCountBadge(data.cartCount);
-                            checkEmptyCart();
-                            checkOOS();
-                        }, 320);
-                    }
-
-                    Swal.fire({
-                        toast: true, position: 'top-end', icon: 'success',
-                        title: 'Item removed', showConfirmButton: false, timer: 1600,
-                        background: '#12131a', color: '#e8e8f0', iconColor: '#00d4a0'
+                    // ✅ Optional: show success before reload
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Item removed',
+                        showConfirmButton: false,
+                        timer: 800,
+                        background: '#12131a',
+                        color: '#e8e8f0'
                     });
 
-                } catch {
+                    // ✅ NOW reload safely
+                    window.location.reload();
+
+                } catch (err) {
                     Swal.fire({
-                        toast: true, position: 'top-end', icon: 'error',
-                        title: 'Network error', showConfirmButton: false, timer: 2000,
-                        background: '#12131a', color: '#e8e8f0'
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'error',
+                        title: 'Network error',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        background: '#12131a',
+                        color: '#e8e8f0'
                     });
                 }
             }

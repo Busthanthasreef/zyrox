@@ -13,76 +13,95 @@ import wishlistSchema  from "../../models/wishlist.js";   // adjust path if diff
 const loadCart = async (req, res) => {
   try {
     if (!req.session.user) return res.redirect("/signin");
+
     const userId = req.session.user._id;
 
     const page  = parseInt(req.query.page) || 1;
     const limit = 4;
     const skip  = (page - 1) * limit;
 
-    const categories = await categorySchema.find({ IsActive: true, IsDeleted: false });
+    const categories = await categorySchema.find({
+      IsActive: true,
+      IsDeleted: false
+    });
 
-    const cart = await cartSchema
+    /* ================= GET CART ================= */
+    let cart = await cartSchema
       .findOne({ User_id: userId })
       .populate("Items.Product_id")
       .populate("Items.Variant_id");
 
-    if (!cart || cart.Items.length === 0) {
+    /* ================= HANDLE NULL CART ================= */
+    if (!cart) {
       return res.render("user/cart/cart", {
-        cartItems:     [],
+        cartItems: [],
         categories,
-        subtotal:      0,
-        discount:      0,
-        shipping:      0,
-        total:         0,
-        currentPage:   1,
-        totalPages:    1,
+        subtotal: 0,
+        discount: 0,
+        shipping: 0,
+        total: 0,
+        currentPage: 1,
+        totalPages: 1,
         cartItemCount: 0,
-        user:          req.session.user
+        user: req.session.user
       });
     }
 
-    // Remove any items whose variant/product was deleted
-    const validItems = cart.Items.filter(
+    /* ================= CLEAN INVALID ITEMS ================= */
+    cart.Items = (cart.Items || []).filter(
       item => item.Product_id && item.Variant_id
     );
-    if (validItems.length !== cart.Items.length) {
-      cart.Items = validItems;
-      await cart.save();
-    }
+    await cart.save();
 
-    const totalItems     = cart.Items.length;
+    const totalItems = cart.Items.length;
+
+    /* ================= PAGINATION ================= */
     const paginatedItems = cart.Items.slice(skip, skip + limit);
 
-    const cartItems = paginatedItems.map(item => ({
-      quantity:  item.Quantity,
-      productId: item.Product_id?._id,
-      variantId: item.Variant_id?._id,
-      product: {
-        name:    item.Product_id?.productName,
-        image:   item.Variant_id?.images?.length > 0
-                   ? item.Variant_id.images[0]
-                   : "/images/placeholder.png",
-        price:   item.Variant_id?.price    ?? 0,
-        color:   item.Variant_id?.color,
-        ram:     item.Variant_id?.RAM,
-        storage: item.Variant_id?.storage,
-        stock:   item.Variant_id?.stock    ?? 0,
-      }
-    }));
+    /* ================= MAP CART ITEMS ================= */
+    const cartItems = paginatedItems.map(item => {
+      const isActiveProduct = item.Product_id?.IsActive !== false;
+      const isInStock       = item.Variant_id?.stock > 0;
 
-    // Subtotal is calculated over ALL items (across pages)
+      const isAvailable = isActiveProduct && isInStock;
+
+      return {
+        quantity:  item.Quantity,
+        productId: item.Product_id?._id,
+        variantId: item.Variant_id?._id,
+
+        isAvailable, // 🔥 IMPORTANT (use in frontend)
+
+        product: {
+          name:    item.Product_id?.productName,
+          image:   item.Variant_id?.images?.[0] || "/images/placeholder.png",
+          price:   isAvailable ? item.Variant_id?.price : 0,
+          color:   item.Variant_id?.color,
+          ram:     item.Variant_id?.RAM,
+          storage: item.Variant_id?.storage,
+          stock:   item.Variant_id?.stock || 0,
+        }
+      };
+    });
+
+    /* ================= SUBTOTAL (ONLY AVAILABLE ITEMS) ================= */
     let subtotal = 0;
+
     cart.Items.forEach(item => {
-      if (item.Variant_id) {
-        subtotal += (item.Variant_id.price ?? 0) * item.Quantity;
+      const isActiveProduct = item.Product_id?.IsActive !== false;
+      const isInStock       = item.Variant_id?.stock > 0;
+
+      if (isActiveProduct && isInStock) {
+        subtotal += (item.Variant_id.price || 0) * item.Quantity;
       }
     });
 
-    const discount   = 0;   // coupon logic can go here
-    const shipping   = 0;   // free shipping logic here
+    const discount   = 0;
+    const shipping   = 0;
     const total      = subtotal - discount + shipping;
     const totalPages = Math.ceil(totalItems / limit);
 
+    /* ================= RENDER ================= */
     res.render("user/cart/cart", {
       cartItems,
       categories,

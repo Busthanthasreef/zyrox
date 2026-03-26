@@ -20,6 +20,8 @@
             --radius: 14px;
             --radius-sm: 8px;
         }
+        .has-products { color: #16a34a; }
+.no-products { color: #9ca3af; }
 
         *, *::before, *::after {
             box-sizing: border-box;
