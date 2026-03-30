@@ -239,10 +239,56 @@
             margin-top: 4px;
         }
 
+        /* Admin-inactive product banner */
+        .unavailable-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            padding: 4px 10px;
+            background: rgba(230, 57, 70, .10);
+            border: 1px solid rgba(230, 57, 70, .28);
+            border-radius: 5px;
+            font-size: .62rem;
+            font-weight: 700;
+            color: var(--red);
+            letter-spacing: .3px;
+        }
+
+        .unavailable-banner i {
+            font-size: .65rem;
+        }
+
+        /* Muted price for unavailable items */
+        .price-unavailable {
+            font-family: 'Exo 2', sans-serif;
+            font-size: .82rem;
+            color: var(--muted);
+            font-style: italic;
+        }
+
         /* Quantity cell */
         .qty-cell {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Below-qty unavailable message */
+        .qty-unavail-msg {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: .58rem;
+            font-weight: 700;
+            color: var(--red);
+            background: rgba(230, 57, 70, .09);
+            border: 1px solid rgba(230, 57, 70, .22);
+            border-radius: 4px;
+            padding: 3px 8px;
+            letter-spacing: .2px;
+            white-space: nowrap;
         }
 
         .qty-ctrl {
@@ -619,97 +665,123 @@
 
                             <!-- Rows -->
                             <% cartItems.forEach(function(item, idx) { %>
-                                <% const isOOS=!item.product.stock || item.product.stock===0; %>
-                                    <div class="cart-row <%= isOOS ? 'out-of-stock-row' : '' %>"
-                                        id="row-<%= item.variantId %>" data-variant="<%= item.variantId %>"
-                                        data-product="<%= item.productId %>" data-price="<%= item.product.price %>"
-                                        data-stock="<%= item.product.stock || 0 %>"
-                                        style="animation-delay: <%= idx * 0.06 %>s">
+                                <% const isUnavailable=!item.isAvailable; %>
+                                    <% const isAdminInactive=!!item.isAdminInactive; %>
+                                        <div class="cart-row <%= isUnavailable ? 'out-of-stock-row' : '' %>"
+                                            id="row-<%= item.variantId %>" data-variant="<%= item.variantId %>"
+                                            data-product="<%= item.productId %>" data-price="<%= item.product.price %>"
+                                            data-stock="<%= item.product.stock || 0 %>"
+                                            data-admin-inactive="<%= isAdminInactive %>"
+                                            style="animation-delay: <%= idx * 0.06 %>s">
 
-                                        <!-- Product info -->
-                                        <div class="product-cell">
-                                            <div class="product-img-wrap">
-                                                <img src="<%= item.product.image %>" alt="<%= item.product.name %>"
-                                                    loading="lazy">
-                                            </div>
-                                            <div class="product-meta">
-                                                <div class="product-name" title="<%= item.product.name %>">
-                                                    <%= item.product.name %>
+                                            <!-- Product info -->
+                                            <div class="product-cell">
+                                                <div class="product-img-wrap">
+                                                    <img src="<%= item.product.image %>" alt="<%= item.product.name %>"
+                                                        loading="lazy">
                                                 </div>
-                                                <div class="product-specs">
-                                                    <% if (item.product.color) { %><span class="spec-chip">
-                                                            <%= item.product.color %>
-                                                        </span>
-                                                        <% } %>
-                                                            <% if (item.product.ram) { %><span class="spec-chip">RAM:
-                                                                    <%= item.product.ram %>
-                                                                </span>
-                                                                <% } %>
-                                                                    <% if (item.product.storage) { %><span
-                                                                            class="spec-chip">Storage: <%=
-                                                                                item.product.storage %></span>
-                                                                        <% } %>
-                                                </div>
-                                                <% if (isOOS) { %>
-                                                    <div class="oos-label">
-                                                        <i class="fas fa-times-circle"></i> Out of Stock
+                                                <div class="product-meta">
+                                                    <div class="product-name" title="<%= item.product.name %>">
+                                                        <%= item.product.name %>
                                                     </div>
-                                                    <% } %>
+                                                    <div class="product-specs">
+                                                        <% if (item.product.color) { %><span class="spec-chip">
+                                                                <%= item.product.color %>
+                                                            </span>
+                                                            <% } %>
+                                                                <% if (item.product.ram) { %><span
+                                                                        class="spec-chip">RAM:
+                                                                        <%= item.product.ram %>
+                                                                    </span>
+                                                                    <% } %>
+                                                                        <% if (item.product.storage) { %><span
+                                                                                class="spec-chip">Storage: <%=
+                                                                                    item.product.storage %></span>
+                                                                            <% } %>
+                                                    </div>
+                                                    <% if (isUnavailable && !isAdminInactive) { %>
+                                                        <div class="oos-label">
+                                                            <i class="fas fa-times-circle"></i>
+                                                            Out of Stock
+                                                        </div>
+                                                        <% } %>
+                                                </div>
                                             </div>
+
+                                            <!-- Quantity -->
+                                            <!-- ↓ buttons disabled when unavailable -->
+                                            <div class="qty-cell">
+                                                <div class="qty-ctrl">
+                                                    <button class="qty-btn" <%=isUnavailable ? 'disabled' : '' %>
+                                                        onclick="changeQty('<%= item.variantId %>', '<%= item.productId
+                                                                %>',
+                                                                -1, <%= item.product.stock || 0 %>)"
+                                                                    id="minus-<%= item.variantId %>">
+                                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                    <span class="qty-num" id="qty-<%= item.variantId %>">
+                                                        <%= item.quantity %>
+                                                    </span>
+                                                    <button class="qty-btn" <%=(isUnavailable || item.quantity>=
+                                                        Math.min(3,
+                                                        item.product.stock - 1)) ?
+                                                        'disabled' : '' %>
+                                                        onclick="changeQty('<%= item.variantId %>', '<%= item.productId
+                                                                %>',
+                                                                1, <%= item.product.stock || 0 %>)" id="plus-<%=
+                                                                        item.variantId %>">
+                                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                                <% if (isAdminInactive) { %>
+                                                    <div class="qty-unavail-msg">
+                                                        <i class="fas fa-ban"></i>
+                                                        Product is currently unavailable
+                                                    </div>
+                                                    <% } else if (isUnavailable) { %>
+                                                        <div class="qty-unavail-msg">
+                                                            <i class="fas fa-times-circle"></i>
+                                                            Out of Stock
+                                                        </div>
+                                                        <% } %>
+                                            </div>
+
+                                            <!-- Price -->
+                                            <div class="price-cell">
+                                                <% if (isUnavailable) { %>
+                                                    <div class="price-unavailable" id="price-<%= item.variantId %>">—
+                                                    </div>
+                                                    <div class="price-unit">not available</div>
+                                                    <% } else { %>
+                                                        <div class="price-new" id="price-<%= item.variantId %>">
+                                                            ₹<%= (item.product.price *
+                                                                item.quantity).toLocaleString('en-IN') %>
+                                                        </div>
+                                                        <div class="price-unit">₹<%=
+                                                                item.product.price.toLocaleString('en-IN') %> each</div>
+                                                        <% } %>
+                                            </div>
+
+                                            <!-- Remove -->
+                                            <button class="remove-btn"
+                                                onclick="removeItem('<%= item.variantId %>', '<%= item.productId %>')"
+                                                title="Remove">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+
                                         </div>
+                                        <% }) %>
 
-                                        <!-- Quantity -->
-                                        <!-- ↓ + button disabled when qty >= 3 (MAX_QTY) OR out of stock -->
-                                        <div class="qty-cell">
-                                            <div class="qty-ctrl">
-                                                <button class="qty-btn" <%=isOOS ? 'disabled' : '' %>
-                                                    onclick="changeQty('<%= item.variantId %>', '<%= item.productId %>',
-                                                            -1, <%= item.product.stock || 0 %>)"
-                                                                id="minus-<%= item.variantId %>">
-                                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                                <span class="qty-num" id="qty-<%= item.variantId %>">
-                                                    <%= item.quantity %>
-                                                </span>
-                                                <button class="qty-btn" <%=isOOS || item.quantity>= 3 ? 'disabled' : ''
-                                                    %>
-                                                    onclick="changeQty('<%= item.variantId %>', '<%= item.productId %>',
-                                                            1, <%= item.product.stock || 0 %>)" id="plus-<%=
-                                                                    item.variantId %>">
-                                                                    <i class="fas fa-plus"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <!-- Price -->
-                                        <div class="price-cell">
-                                            <div class="price-new" id="price-<%= item.variantId %>">
-                                                ₹<%= (item.product.price * item.quantity).toLocaleString('en-IN') %>
-                                            </div>
-                                            <div class="price-unit">₹<%= item.product.price.toLocaleString('en-IN') %>
-                                                    each</div>
-                                        </div>
-
-                                        <!-- Remove -->
-                                        <button class="remove-btn"
-                                            onclick="removeItem('<%= item.variantId %>', '<%= item.productId %>')"
-                                            title="Remove">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-
-                                    </div>
-                                    <% }) %>
-
-                                        <% } else { %>
-                                            <div class="empty-cart">
-                                                <i class="fas fa-box-open"></i>
-                                                <p>Your cart is empty</p>
-                                                <a href="/products"
-                                                    style="display:inline-block;margin-top:14px;color:var(--accent);font-size:.78rem;text-decoration:none;">
-                                                    Browse Products →
-                                                </a>
-                                            </div>
-                                            <% } %>
+                                            <% } else { %>
+                                                <div class="empty-cart">
+                                                    <i class="fas fa-box-open"></i>
+                                                    <p>Your cart is empty</p>
+                                                    <a href="/products"
+                                                        style="display:inline-block;margin-top:14px;color:var(--accent);font-size:.78rem;text-decoration:none;">
+                                                        Browse Products →
+                                                    </a>
+                                                </div>
+                                                <% } %>
 
                     </div>
 
@@ -815,7 +887,8 @@
                 const price = parseFloat(row.dataset.price);
                 const stock = parseInt(row.dataset.stock, 10);
                 const qty = parseInt(document.getElementById('qty-' + vid)?.textContent || '1', 10);
-                cartState[vid] = { price, stock, qty };
+                const isAdminInactive = row.dataset.adminInactive === 'true';
+                cartState[vid] = { price, stock, qty, isAdminInactive };
             });
 
             /* ═══════════════════════════════════════════
@@ -848,12 +921,15 @@
                     return;
                 }
 
-                // Stock exceeded (within the 3-cap)
-                if (newQty > stock) {
+                // ── Stock exceeded or Min Stock requirement (stock - 1 limit) ──
+                const stockLimit = Math.max(0, stock - 1);
+                if (newQty > stockLimit) {
                     Swal.fire({
                         toast: true, position: 'top-end', icon: 'warning',
-                        title: `Only ${stock} unit${stock > 1 ? 's' : ''} available in stock`,
-                        showConfirmButton: false, timer: 2200,
+                        title: stockLimit === 0
+                            ? 'Min stock requirement reached (must leave 1 in inventory)'
+                            : `Only ${stockLimit} unit${stockLimit > 1 ? 's' : ''} can be added (must leave 1 in inventory)`,
+                        showConfirmButton: false, timer: 2500,
                         background: '#12131a', color: '#e8e8f0', iconColor: '#c8883a'
                     });
                     return;
@@ -886,9 +962,9 @@
                     document.getElementById('price-' + variantId).textContent =
                         '₹' + rowPrice.toLocaleString('en-IN');
 
-                    // Update ± button states — respect BOTH stock limit and MAX_QTY
+                    const stockLimit = Math.max(0, state.stock - 1);
                     document.getElementById('minus-' + variantId).disabled = newQty <= 1;
-                    document.getElementById('plus-' + variantId).disabled = newQty >= MAX_QTY || newQty >= stock;
+                    document.getElementById('plus-' + variantId).disabled = newQty >= MAX_QTY || newQty >= stockLimit;
 
                     // Recalculate summary
                     recalcSummary();
@@ -978,7 +1054,12 @@
             ═══════════════════════════════════════════ */
             function recalcSummary() {
                 let subtotal = 0;
-                Object.values(cartState).forEach(s => { subtotal += s.price * s.qty; });
+                // Exclude admin-inactive and out-of-stock items from the total
+                Object.values(cartState).forEach(s => {
+                    if (!s.isAdminInactive && s.price > 0) {
+                        subtotal += s.price * s.qty;
+                    }
+                });
 
                 const discount = 0;
                 const shipping = 0;
@@ -990,19 +1071,21 @@
                 checkOOS();
             }
 
-            /* ═══════════════════════════════════════════
-               CHECK OUT-OF-STOCK → disable checkout
-            ═══════════════════════════════════════════ */
             function checkOOS() {
                 const rows = document.querySelectorAll('.cart-row');
-                const hasOOS = [...rows].some(r => parseInt(r.dataset.stock, 10) === 0);
+                const hasUnavailable = [...rows].some(r => {
+                    const adminInactive = r.dataset.adminInactive === 'true';
+                    const stock = parseInt(r.dataset.stock, 10);
+                    const qty = parseInt(document.getElementById('qty-' + r.dataset.variant)?.textContent || '0', 10);
+                    return adminInactive || stock <= 1 || qty > (stock - 1);
+                });
                 const isEmpty = rows.length === 0;
 
                 const btn = document.getElementById('checkoutBtn');
                 const warn = document.getElementById('oosWarning');
 
-                btn.disabled = hasOOS || isEmpty;
-                warn.classList.toggle('show', hasOOS);
+                btn.disabled = hasUnavailable || isEmpty;
+                warn.classList.toggle('show', hasUnavailable);
             }
 
             /* ═══════════════════════════════════════════
@@ -1032,17 +1115,30 @@
                 if (badge) badge.textContent = count ?? '';
             }
 
-            /* ═══════════════════════════════════════════
-               CHECKOUT GUARD
-            ═══════════════════════════════════════════ */
             function proceedCheckout() {
                 const rows = document.querySelectorAll('.cart-row');
-                const hasOOS = [...rows].some(r => parseInt(r.dataset.stock, 10) === 0);
+                const hasAdminInactive = [...rows].some(r => r.dataset.adminInactive === 'true');
+                const hasOOS = [...rows].some(r => {
+                    if (r.dataset.adminInactive === 'true') return false; // already flagged above
+                    const stock = parseInt(r.dataset.stock, 10);
+                    const qty = parseInt(document.getElementById('qty-' + r.dataset.variant)?.textContent || '0', 10);
+                    return stock <= 1 || qty > (stock - 1);
+                });
+                if (hasAdminInactive) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Unavailable Items in Cart',
+                        text: 'One or more products are currently unavailable. Please remove them before checking out.',
+                        confirmButtonColor: '#c8883a',
+                        background: '#12131a', color: '#e8e8f0'
+                    });
+                    return;
+                }
                 if (hasOOS) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Out-of-stock items',
-                        text: 'Please remove out-of-stock items before proceeding to checkout.',
+                        title: 'Unavailable or Limited Items',
+                        text: 'Please adjust your cart to respect minimum stock requirements before proceeding.',
                         confirmButtonColor: '#c8883a',
                         background: '#12131a', color: '#e8e8f0'
                     });

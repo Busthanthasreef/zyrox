@@ -2,7 +2,8 @@ import cartSchema     from "../../models/cart.js";
 import productSchema   from "../../models/product.js";
 import categorySchema  from "../../models/category.js";
 import variantSchema   from "../../models/variant.js";
-import wishlistSchema  from "../../models/wishlist.js";   // adjust path if different
+import wishlistSchema  from "../../models/wishlist.js";
+import { validateVariantForCart, MAX_CART_QTY } from "../../services/userServices/productService.js";
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -60,26 +61,34 @@ const loadCart = async (req, res) => {
 
     /* ================= MAP CART ITEMS ================= */
     const cartItems = paginatedItems.map(item => {
-      const isActiveProduct = item.Product_id?.IsActive !== false;
-      const isInStock       = item.Variant_id?.stock > 0;
+      const prod = item.Product_id;
+      const vari = item.Variant_id;
 
-      const isAvailable = isActiveProduct && isInStock;
+      // Product is inactive if explicitly deactivated OR status !== 'active'
+      const isActiveProduct = prod?.IsActive !== false && prod?.status === 'active';
+      const isActiveVariant = vari?.IsActive !== false;
+      const isInStock       = (vari?.stock || 0) > 0;
+
+      // Admin deactivated either the product or its variant
+      const isAdminInactive = !isActiveProduct || !isActiveVariant;
+      const isAvailable     = isActiveProduct && isActiveVariant && isInStock;
 
       return {
-        quantity:  item.Quantity,
-        productId: item.Product_id?._id,
-        variantId: item.Variant_id?._id,
+        quantity:        item.Quantity,
+        productId:       prod?._id,
+        variantId:       vari?._id,
 
-        isAvailable, // 🔥 IMPORTANT (use in frontend)
+        isAvailable,    // 🔥 IMPORTANT (use in frontend)
+        isAdminInactive, // true when product/variant is deactivated by admin
 
         product: {
-          name:    item.Product_id?.productName,
-          image:   item.Variant_id?.images?.[0] || "/images/placeholder.png",
-          price:   isAvailable ? item.Variant_id?.price : 0,
-          color:   item.Variant_id?.color,
-          ram:     item.Variant_id?.RAM,
-          storage: item.Variant_id?.storage,
-          stock:   item.Variant_id?.stock || 0,
+          name:    prod?.productName,
+          image:   vari?.images?.[0] || "/images/placeholder.png",
+          price:   isAvailable ? (vari?.price || 0) : 0,
+          color:   vari?.color,
+          ram:     vari?.RAM,
+          storage: vari?.storage,
+          stock:   vari?.stock || 0,
         }
       };
     });
@@ -88,11 +97,14 @@ const loadCart = async (req, res) => {
     let subtotal = 0;
 
     cart.Items.forEach(item => {
-      const isActiveProduct = item.Product_id?.IsActive !== false;
-      const isInStock       = item.Variant_id?.stock > 0;
+      const prod = item.Product_id;
+      const vari = item.Variant_id;
+      const isActiveProduct = prod?.IsActive !== false && prod?.status === 'active';
+      const isActiveVariant = vari?.IsActive !== false;
+      const isInStock       = (vari?.stock || 0) > 0;
 
-      if (isActiveProduct && isInStock) {
-        subtotal += (item.Variant_id.price || 0) * item.Quantity;
+      if (isActiveProduct && isActiveVariant && isInStock) {
+        subtotal += (vari.price || 0) * item.Quantity;
       }
     });
 
@@ -130,91 +142,104 @@ const loadCart = async (req, res) => {
 ═══════════════════════════════════════════════════════════════ */
 const addToCart = async (req, res) => {
   try {
-    if (!req.session.user) {
+    const userId = req.session.user?._id || req.session.user?.id;
+
+    if (!userId) {
       return res.status(401).json({
-        success:     false,
+        success:      false,
         requiresAuth: true,
-        message:     "Please sign in to add items to cart"
+        redirect:     "/signin",
+        message:      "Please sign in to add items to cart"
       });
     }
 
     const { productId, variantId, quantity = 1 } = req.body;
-    const userId = req.session.user._id;
-    const addQty = Math.max(1, parseInt(quantity, 10));
+    const requestedQty = Math.max(1, Math.min(parseInt(quantity, 10) || 1, MAX_CART_QTY));
 
-    // Validate variant & stock
-    const variant = await variantSchema.findById(variantId);
-    if (!variant) {
-      return res.status(404).json({ success: false, message: "Product variant not found" });
+    if (!productId || !/^[a-f\d]{24}$/i.test(productId) ||
+        !variantId || !/^[a-f\d]{24}$/i.test(variantId)) {
+      return res.status(400).json({ success: false, message: "Invalid product or variant." });
     }
-    if (variant.stock <= 0) {
-      return res.status(400).json({ success: false, message: "This product is out of stock" });
+
+    const { variant, error } = await validateVariantForCart(productId, variantId);
+    if (error) {
+      return res.status(400).json({ success: false, message: error });
     }
 
     let cart = await cartSchema.findOne({ User_id: userId });
-
     if (!cart) {
-      // Brand-new cart
-      const cappedQty = Math.min(addQty, variant.stock);
-      cart = await cartSchema.create({
-        User_id: userId,
-        Items: [{
-          Product_id: productId,
-          Variant_id: variantId,
-          Quantity:   cappedQty,
-          Price:      variant.price
-        }]
-      });
-    } else {
-      const itemIndex = cart.Items.findIndex(
-        item => item.Variant_id.toString() === variantId.toString()
-      );
-
-      if (itemIndex > -1) {
-        // Variant already in cart — increment
-        const currentQty = cart.Items[itemIndex].Quantity;
-        const newQty     = currentQty + addQty;
-
-        if (newQty > variant.stock) {
-          return res.status(400).json({
-            success: false,
-            message: `Only ${variant.stock} unit${variant.stock > 1 ? "s" : ""} available in stock`
-          });
-        }
-
-        cart.Items[itemIndex].Quantity = newQty;
-      } else {
-        // New item in existing cart
-        const cappedQty = Math.min(addQty, variant.stock);
-        cart.Items.push({
-          Product_id: productId,
-          Variant_id: variantId,
-          Quantity:   cappedQty,
-          Price:      variant.price
-        });
-      }
-
-      await cart.save();
+      cart = new cartSchema({ User_id: userId, Items: [] });
     }
 
-    // Remove from wishlist if present
+    const existingIndex = cart.Items.findIndex(
+      (item) => item.Variant_id.toString() === variantId.toString()
+    );
+    const existingQty = existingIndex >= 0 ? cart.Items[existingIndex].Quantity : 0;
+
+    if (existingQty >= MAX_CART_QTY) {
+      return res.json({
+        success:      false,
+        limitReached: true,
+        currentQty:   existingQty,
+        message:      `You can only add up to ${MAX_CART_QTY} units of this product.`,
+      });
+    }
+
+    const canAdd   = MAX_CART_QTY - existingQty;
+    const stockCap = (variant.stock - 1) - existingQty; // 🔥 User requirement: max in cart = stock - 1
+    const allowedQty = Math.min(requestedQty, canAdd, stockCap);
+
+    if (allowedQty <= 0) {
+      let message = "";
+      if (stockCap <= 0) {
+        message = variant.stock <= 1 
+          ? "This item is currently unavailable for purchase (minimum stock requirement)."
+          : `You can only add up to ${variant.stock - 1} units of this product.`;
+      } else if (canAdd <= 0) {
+        message = `You can only add up to ${MAX_CART_QTY} units of this product.`;
+      }
+
+      return res.json({
+        success:      false,
+        limitReached: true,
+        message:      message || "Cannot add more of this item."
+      });
+    }
+
+    if (existingIndex >= 0) {
+      cart.Items[existingIndex].Quantity += allowedQty;
+    } else {
+      cart.Items.push({
+        Product_id: productId,
+        Variant_id: variantId,
+        Quantity:   allowedQty,
+        Price:      variant.price
+      });
+    }
+
+    await cart.save();
+
     await wishlistSchema.updateOne(
       { User_id: userId },
       { $pull: { Items: { Product_id: productId } } }
-    ).catch(() => {}); // silently ignore if wishlist model differs
+    ).catch(() => {});
 
-    const cartItemCount        = cart.Items.length;
-    req.session.cartItemCount  = cartItemCount;
+    const newQty = existingQty + allowedQty;
+    const cartCount = cart.Items.reduce((sum, item) => sum + (item.Quantity || 0), 0);
+    req.session.cartItemCount = cartCount;
 
-    res.json({
-      success:       true,
-      message:       "Item added to cart",
-      cartCount:     cartItemCount
+    return res.json({
+      success:      true,
+      cartCount:    cartCount,
+      newQty:       newQty,
+      limitReached: newQty >= MAX_CART_QTY || newQty >= (variant.stock - 1),
+      canAddMore:   Math.min(MAX_CART_QTY, variant.stock - 1) - newQty,
+      message:      "Item added to cart",
     });
 
   } catch (error) {
     console.error("addToCart error:", error);
-    res.status(500).json({ success: false, message: "Failed to add item to cart" });
+    res.status(500).json({ success: false, message: "Server error." });
   }
 };
 
@@ -224,6 +249,7 @@ const addToCart = async (req, res) => {
    - Validates against real-time stock
    - Enforces MAX_QTY_PER_ITEM cap
    - Returns updated subtotal so client can sync summary
+   - User requirement: max items = stock - 1
 ═══════════════════════════════════════════════════════════════ */
 const updateQuantity = async (req, res) => {
   try {
@@ -239,18 +265,31 @@ const updateQuantity = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid quantity" });
     }
 
-    // Re-fetch variant for live stock check
-    const variant = await variantSchema.findById(variantId);
-    if (!variant) {
-      return res.status(404).json({ success: false, message: "Variant not found" });
+    if (!productId || !/^[a-f\d]{24}$/i.test(productId) ||
+        !variantId || !/^[a-f\d]{24}$/i.test(variantId)) {
+      return res.status(400).json({ success: false, message: "Invalid product or variant." });
     }
-    if (variant.stock <= 0) {
-      return res.status(400).json({ success: false, message: "Product is out of stock" });
+
+    // Re-fetch using strict logic
+    const { variant, error } = await validateVariantForCart(productId, variantId);
+    if (error) {
+      return res.status(400).json({ success: false, message: error });
     }
-    if (newQty > variant.stock) {
+
+    const maxAllowed = Math.max(0, variant.stock - 1);
+    if (newQty > maxAllowed) {
       return res.status(400).json({
         success: false,
-        message: `Only ${variant.stock} unit${variant.stock > 1 ? "s" : ""} available`
+        message: maxAllowed === 0 
+          ? "This item is currently unavailable for purchase."
+          : `Only ${maxAllowed} unit${maxAllowed > 1 ? "s" : ""} can be added to cart.`
+      });
+    }
+    
+    if (newQty > MAX_CART_QTY) {
+      return res.status(400).json({
+        success: false,
+        message: `You can only add up to ${MAX_CART_QTY} units of this product.`
       });
     }
 

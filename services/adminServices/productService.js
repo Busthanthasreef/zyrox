@@ -134,6 +134,7 @@ const updateProduct = async (id, body, files) => {
         category,
         status,
         color,
+        colorHex,
         ram,
         storage,
         price,
@@ -155,6 +156,7 @@ const updateProduct = async (id, body, files) => {
         const updates = {};
 
         if (color) updates.color = color.trim();
+        if (colorHex) updates.colorCode = colorHex.trim();
         if (ram) updates.RAM = parseSpec(ram);
         if (storage) updates.storage = parseSpec(storage);
         if (price) updates.price = Number(price);

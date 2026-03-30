@@ -23,11 +23,11 @@ userRoutes.get("/", userController.landingPage);
 userRoutes.get('/products', productController.loadProducts);
 userRoutes.get('/product/:id', productController.loadProductDetails);
 
-userRoutes.get("/cart",                loadCart);
-userRoutes.post("/cart/add",           addToCart);
-userRoutes.post("/cart/update-quantity", updateQuantity);
-userRoutes.post("/cart/remove",        removeFromCart);
-userRoutes.post("/cart/clear",         clearCart);
+userRoutes.get("/cart",                isUserAuthenticated, loadCart);
+userRoutes.post("/cart/add",           isUserAuthenticated, addToCart);
+userRoutes.post("/cart/update-quantity", isUserAuthenticated, updateQuantity);
+userRoutes.post("/cart/remove",        isUserAuthenticated, removeFromCart);
+userRoutes.post("/cart/clear",         isUserAuthenticated, clearCart);
 
 
 /* SIGNUP */
@@ -42,8 +42,6 @@ userRoutes.get("/signin", isUserGuest, userController.loadSignIn);
 userRoutes.post("/signin", isUserGuest, userController.userSignIn);
 
 /* PROFILE - PROTECTED ROUTES */
-userRoutes.get('/cart', isUserAuthenticated, cartController.loadCart)
-userRoutes.post('/cart/add', isUserAuthenticated, cartController.addToCart);
 userRoutes.post('/wishlist/toggle', isUserAuthenticated, wishlistController.toggleWishlist);
 userRoutes.get('/wishlist', isUserAuthenticated, wishlistController.loadWishlist);
 

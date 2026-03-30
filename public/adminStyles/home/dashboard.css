@@ -20,7 +20,7 @@
 }
 
 body {
-  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif ;
+  font-family: 'Inter', sans-serif;
   background: var(--bg);
   color: var(--text-dark);
 }
@@ -40,7 +40,7 @@ body {
 }
 
 .page-title {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: var(--text-dark);
@@ -105,7 +105,7 @@ body {
 }
 
 .stat-value {
-  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 24px;
   font-weight: 800;
   color: var(--text-dark);
@@ -136,7 +136,7 @@ body {
 }
 
 .panel-title {
-  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 15px;
   font-weight: 700;
   color: var(--text-dark);

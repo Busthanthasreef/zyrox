@@ -597,6 +597,30 @@
             border-radius: 20px;
         }
 
+        /* ── COLOR SWATCH ── */
+        .color-swatch {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            background: #3b82f6;
+        }
+
+        .color-swatch input[type="color"] {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+
         /* ── FORM ACTIONS ── */
         .form-actions {
             display: flex;
@@ -710,9 +734,21 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Color</label>
-                            <input type="text" name="color" class="form-control" placeholder="e.g. Midnight Black"
-                                value="<%= defaultVariant ? defaultVariant.color : '' %>">
+                            <label class="form-label">Color <span class="text-danger">*</span></label>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="color-swatch" id="colorSwatch"
+                                    style="background: <%= defaultVariant && defaultVariant.colorHex ? defaultVariant.colorHex : '#3b82f6' %>">
+                                    <input type="color" id="colorPicker" name="colorHex"
+                                        value="<%= defaultVariant && defaultVariant.colorHex ? defaultVariant.colorHex : '#3b82f6' %>"
+                                        oninput="onPickerChange(this.value)">
+                                </div>
+                                <input type="text" class="form-control" id="colorName" name="color"
+                                    placeholder="e.g. Midnight Black"
+                                    value="<%= defaultVariant ? defaultVariant.color : '' %>"
+                                    oninput="onNameChange(this.value)">
+                            </div>
+                            <p class="form-hint" style="font-size: 11.5px; color: #9ca3af; margin-top: 5px;">Pick a
+                                color or type a name — they'll sync automatically.</p>
                         </div>
 
                         <div class="row g-3">
@@ -848,6 +884,73 @@
             let cropperInst = null;
             let activeCropSlot = -1;
 
+            const COLOR_MAP = {
+                "#ff0000": "Red", "#00ff00": "Green", "#0000ff": "Blue", "#ffff00": "Yellow", "#ff00ff": "Magenta",
+                "#00ffff": "Cyan", "#000000": "Black", "#ffffff": "White", "#808080": "Gray", "#ffa500": "Orange",
+                "#800080": "Purple", "#a52a2a": "Brown", "#ffc0cb": "Pink", "#40e0d0": "Turquoise", "#000080": "Navy",
+                "#808000": "Olive", "#008000": "Dark Green", "#800000": "Maroon", "#ff6347": "Tomato", "#4682b4": "Steel Blue",
+                "#d2691e": "Chocolate", "#f5f5dc": "Beige", "#dc143c": "Crimson", "#1e90ff": "Dodger Blue",
+                "#228b22": "Forest Green", "#daa520": "Goldenrod", "#ff69b4": "Hot Pink", "#cd5c5c": "Indian Red",
+                "#32cd32": "Lime Green", "#9370db": "Medium Purple", "#191970": "Midnight Blue", "#ff4500": "Orange Red",
+                "#da70d6": "Orchid", "#bc8f8f": "Rosy Brown", "#4169e1": "Royal Blue", "#fa8072": "Salmon",
+                "#2e8b57": "Sea Green", "#87ceeb": "Sky Blue", "#6a5acd": "Slate Blue", "#008080": "Teal",
+                "#ee82ee": "Violet", "#9acd32": "Yellow Green", "#b8860b": "Dark Goldenrod", "#e9967a": "Dark Salmon",
+                "#c0c0c0": "Silver", "#cd7f32": "Bronze", "#b87333": "Copper"
+            };
+
+            function hexToRgb(hex) {
+                const bigint = parseInt(hex.substring(1), 16);
+                return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+            }
+
+            function getNearestColorName(hex) {
+                const h = hex.toLowerCase();
+                if (COLOR_MAP[h]) return COLOR_MAP[h];
+
+                const target = hexToRgb(h);
+                let nearestName = hex;
+                let minDistance = Infinity;
+
+                for (const [mapHex, mapName] of Object.entries(COLOR_MAP)) {
+                    const rgb = hexToRgb(mapHex);
+                    const dist = Math.pow(target.r - rgb.r, 2) + Math.pow(target.g - rgb.g, 2) + Math.pow(target.b - rgb.b, 2);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        nearestName = mapName;
+                    }
+                }
+                return nearestName;
+            }
+
+            function onPickerChange(hex) {
+                document.getElementById('colorSwatch').style.background = hex;
+                document.getElementById('colorName').value = getNearestColorName(hex);
+            }
+
+            function onNameChange(val) {
+                const key = val.trim().toLowerCase();
+                const foundEntry = Object.entries(COLOR_MAP).find(([hex, name]) => name.toLowerCase() === key);
+
+                if (foundEntry) {
+                    document.getElementById('colorPicker').value = foundEntry[0];
+                    document.getElementById('colorSwatch').style.background = foundEntry[0];
+                } else if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(val.trim())) {
+                    const hexStr = val.trim();
+                    document.getElementById('colorPicker').value = hexStr;
+                    document.getElementById('colorSwatch').style.background = hexStr;
+                    const nearest = getNearestColorName(hexStr);
+                    if (nearest && nearest.toLowerCase() !== val.trim().toLowerCase()) {
+                        document.getElementById('colorName').value = nearest;
+                    }
+                }
+            }
+
+            // Sync on load just in case hex matches but name is missing format
+            window.addEventListener('DOMContentLoaded', () => {
+                const currentName = document.getElementById('colorName').value;
+                if (currentName) onNameChange(currentName);
+            });
+
     /* ── INITIALIZE EXISTING IMAGES ── */
     <% if (defaultVariant && defaultVariant.images) { %>
         <% defaultVariant.images.forEach((img, idx) => {
@@ -940,6 +1043,23 @@
             /* ── FORM SUBMIT ── */
             document.getElementById('editProductForm').addEventListener('submit', async function (e) {
                 e.preventDefault();
+
+                // Image validation
+                let hasImage = false;
+                for (let i = 0; i < 3; i++) {
+                    const box = document.getElementById(`eBox_${i}`);
+                    // If box has class 'has-image' and the input file has a file OR it's an existing image that wasn't removed
+                    if (box && box.classList.contains('has-image')) {
+                        hasImage = true;
+                        break;
+                    }
+                }
+
+                if (!hasImage) {
+                    Swal.fire({ icon: 'error', title: 'Image Required', text: 'At least one product image is required.' });
+                    return;
+                }
+
                 const saveBtn = document.getElementById('saveBtn');
                 saveBtn.disabled = true;
                 saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
