@@ -7,6 +7,7 @@ import userRoutes from "./routes/user.js";
 import authRoutes from "./routes/auth.js"
 import errorHandler from "./middlewares/error.js"; 
 import passport from "./config/passport.js"
+import attachLocalCounts from "./middlewares/locals.js";
 
 
 const app = express();
@@ -38,6 +39,7 @@ app.use(passport.session());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
+app.use(attachLocalCounts);
 
 app.use("/admin", adminRoutes);
 app.use("/", userRoutes);

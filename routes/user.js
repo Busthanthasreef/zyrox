@@ -2,6 +2,7 @@ import express from "express";
 import * as userController from "../controllers/user/userController.js";
 import * as productController from "../controllers/user/productController.js"
 import * as addressController from "../controllers/user/addressController.js";
+import * as checkoutController from "../controllers/user/checkoutController.js";
 import * as profileController from "../controllers/user/profileController.js";
 import * as cartController from "../controllers/user/cartController.js"
 import * as wishlistController from "../controllers/user/wishlistController.js"
@@ -42,7 +43,7 @@ userRoutes.get("/signin", isUserGuest, userController.loadSignIn);
 userRoutes.post("/signin", isUserGuest, userController.userSignIn);
 
 /* PROFILE - PROTECTED ROUTES */
-userRoutes.post('/wishlist/toggle', isUserAuthenticated, wishlistController.toggleWishlist);
+userRoutes.post('/wishlist/toggle', wishlistController.toggleWishlist);
 userRoutes.get('/wishlist', isUserAuthenticated, wishlistController.loadWishlist);
 
 
@@ -80,5 +81,10 @@ userRoutes.post("/resend-reset-otp", userController.resendOtp); // Reusing resen
 /* RESET PASSWORD */
 userRoutes.get("/new-password", userController.loadNewPassword);
 userRoutes.post("/new-password", userController.resetPassword);
+
+userRoutes.get("/checkout", isUserAuthenticated, checkoutController.loadCheckout);
+userRoutes.post("/checkout/place-order", isUserAuthenticated, checkoutController.placeOrder);
+userRoutes.get("/order-success/:orderId", isUserAuthenticated, checkoutController.getOrderSuccess);
+
 
 export default userRoutes;

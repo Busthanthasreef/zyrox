@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>User Profile - Zyrox</title>
+    <title>My Profile - Zyrox</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap 5 -->
@@ -12,8 +12,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="/userStyles/profile/profileShared.css">
 </head>
 
@@ -21,78 +24,119 @@
 
     <div class="main-container">
         <!-- Sidebar Partial -->
-        <%- include('../../partials/user/profileSidebar', {activePage: 'profile' }) %>
+        <%- include('../../partials/user/profileSidebar', { activePage: 'profile' }) %>
 
             <!-- Main Content -->
             <main class="main-wrapper">
-                <div id="profile-card-container" class="w-100 d-flex justify-content-center">
-                    <div class="profile-card col-12 col-sm-10 col-md-8">
+                <div id="profile-card-container">
+                    <div class="profile-card">
 
-                        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                            <h3>My Profile</h3>
-                            <div class="d-flex gap-2 flex-wrap">
-                                <button class="btn btn-custom logout-btn">
-                                    <a onclick="confirmLogout()" style="text-decoration: none; color: inherit;">
-                                        <i class="bi bi-box-arrow-right"></i> Logout
-                                    </a>
-                                </button>
+                        <div class="d-flex justify-content-between align-items-center mb-5">
+                            <h3 class="m-0">User Profile</h3>
+                            <div class="d-flex gap-2">
                                 <button class="btn btn-custom edit-btn ajax-link" data-url="/profile-edit">
-                                    <i class="bi bi-pencil-square"></i> Edit
+                                    <i class="bi bi-pencil-square"></i> Edit Profile
+                                </button>
+                                <button class="btn btn-custom logout-btn" onclick="confirmLogout()">
+                                    <i class="bi bi-box-arrow-right"></i>
                                 </button>
                             </div>
                         </div>
 
                         <% if (user) { %>
-                            <div class="text-center mb-4">
-                                <img src="<%= user.Profile_image%>" class="profile-img">
-                                <p class="mt-3 text-light opacity-75">Joined At: <%= user.createdAt %>
-                                </p>
-                            </div>
-
-                            <div class="info-box">
-                                <label>Full Name</label>
-                                <p class="mb-0 fw-bold">
-                                    <%= user.Name %>
-                                </p>
-                            </div>
-
-                            <div class="info-box">
-                                <label>Phone Number</label>
-                                <p class="mb-0 fw-bold">
-                                    +91 <%= user.Phone_number %>
-                                </p>
-                            </div>
-
-                            <div class="info-box">
-                                <label>Email Address</label>
-                                <div class="d-flex align-items-center gap-2">
-                                    <input type="text" class="form-control" value="<%= user.Email %>" disabled>
-                                    <% if (isGoogleUser) { %>
-                                        <span class="badge bg-warning text-dark">Google Account</span>
-                                        <% }%>
-                                            <% if (!isGoogleUser) { %>
-                                                <span class="badge bg-success text-light">Zyrox Account</span>
-                                                <% }%>
-
+                            <div class="text-center">
+                                <div class="profile-img-container">
+                                    <img src="<%= user.Profile_image || '/images/default-avatar.png' %>"
+                                        class="profile-img" alt="Profile">
+                                </div>
+                                <div class="mb-5">
+                                    <h4 class="fw-bold mb-1">
+                                        <%= user.Name %>
+                                    </h4>
+                                    <p class="text-muted small">Member since <%= new
+                                            Date(user.createdAt).toLocaleDateString('en-US', { month: 'long' ,
+                                            year: 'numeric' }) %>
+                                    </p>
                                 </div>
                             </div>
-                            <% } %>
-                                <div class="text-end mt-4">
+
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-box">
+                                        <label>First Name</label>
+                                        <p class="mb-0 fw-bold">
+                                            <%= user.Name.split(' ')[0] %></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-box">
+                                    <label>Last Name</label>
+                                    <p class="mb-0 fw-bold"><%= user.Name.split(' ').slice(1).join(' ') || ' —' %>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-box">
+                                        <label>Phone Number</label>
+                                        <p class="mb-0 fw-bold">+91 <%= user.Phone_number %>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-box">
+                                        <label>Verification Status</label>
+                                        <p class="mb-0">
+                                            <% if (isGoogleUser) { %>
+                                                <span
+                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+                                                    <i class="bi bi-google me-1"></i> Google Verified
+                                                </span>
+                                                <% } else { %>
+                                                    <span
+                                                        class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                                        <i class="bi bi-shield-check me-1"></i> Zyrox Verified
+                                                    </span>
+                                                    <% } %>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="info-box">
+                                        <label>Email Address</label>
+                                        <div class="d-flex align-items-center gap-2 mt-1">
+                                            <div
+                                                class="flex-grow-1 py-2 px-3 bg-dark-subtle rounded border border-secondary-subtle text-white opacity-75">
+                                                <%= user.Email %>
+                                            </div>
+                                            <button class="btn btn-outline-secondary btn-sm rounded-pill ajax-link"
+                                                data-url="/edit-email">
+                                                Change
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-5 pt-3 border-top border-secondary-subtle">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">Security</h6>
+                                        <p class="text-muted small mb-0">Update your account security settings</p>
+                                    </div>
                                     <% if(isGoogleUser && !hasPassword) { %>
-                                        <button class="pass btn btn-custom change-pass-btn ajax-link"
+                                        <button class="btn btn-custom change-pass-btn ajax-link"
                                             data-url="/add-password">
-                                            <i class="bi bi-shield-lock"></i> Add a Password
+                                            <i class="bi bi-shield-plus"></i> Add Password
                                         </button>
                                         <% } else { %>
-                                            <button class="pass btn btn-custom change-pass-btn ajax-link"
+                                            <button class="btn btn-custom change-pass-btn ajax-link"
                                                 data-url="/change-password">
-                                                <i class="bi bi-shield-lock"></i> Change Password
+                                                <i class="bi bi-shield-lock"></i> Update Password
                                             </button>
                                             <% } %>
                                 </div>
-                                <% if (typeof passwordToast !=='undefined' && passwordToast) { %>
-                                    <input type="hidden" id="showPasswordToast" value="true">
-                                    <% } %>
+                            </div>
+                            <% } %>
                     </div>
                 </div>
             </main>
@@ -104,22 +148,24 @@
     <script src="/js/userProfile.js"></script>
     <script>
         function confirmLogout() {
-
-            swal.fire({
+            Swal.fire({
+                background: '#111422',
+                color: '#f0f2ff',
                 icon: 'warning',
-                text: "are you sure you want to logout?",
+                title: 'Logout?',
+                text: "Are you sure you want to end your session?",
                 showCancelButton: true,
-                confirmButtonText: "yes,iam sure",
-                cancelButtonText: "NO"
-            }).then((isconfirm) => {
-                if (isconfirm.isConfirmed) {
+                confirmButtonText: "Yes, logout",
+                cancelButtonText: "Cancel",
+                confirmButtonColor: '#ff4d6d',
+                cancelButtonColor: 'rgba(255,255,255,0.1)',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
                     window.location.href = "/logout"
                 }
             })
-
         }
-
-
     </script>
 </body>
 

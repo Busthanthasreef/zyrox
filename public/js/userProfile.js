@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (removeBtn && preview) {
             removeBtn.addEventListener('click', () => {
                 const name = document.querySelector('input[name="Name"]')?.value || 'User';
-                preview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00ff88&color=000&size=130`;
+                preview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4f6ef7&color=fff&size=130`;
                 if (imageUpload) imageUpload.value = '';
                 const removeInput = document.getElementById('removeImageInput');
                 if (removeInput) removeInput.value = 'true';

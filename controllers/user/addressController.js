@@ -40,7 +40,15 @@ const loadAddAddress = async (req, res) => {
 
 const addAddress = async (req, res) => {
   try {
-    const { addressType, name, phone, houseName, locality, city, state, pincode, country, isDefault } = req.body;
+    let { addressType, name, phone, houseName, locality, city, state, pincode, isDefault } = req.body;
+    let { country } = req.body;
+    if (!country) country = "India";
+    
+    // Normalize addressType to match Model Enum (Home, Work, Other)
+    if (addressType) {
+      addressType = addressType.charAt(0).toUpperCase() + addressType.slice(1).toLowerCase();
+    }
+
     const errors = {};
 
     const trimmedName = name ? name.trim() : "";
@@ -66,13 +74,16 @@ const addAddress = async (req, res) => {
     const userId = req.session.user._id;
 
     if (Object.keys(errors).length > 0) {
+      if (req.headers['accept']?.includes('application/json') || req.xhr) {
+        return res.status(400).json({ success: false, errors });
+      }
       req.session.addressErrors    = errors;
       req.session.addressFormData  = req.body;
       return res.redirect("/address-add");
     }
 
     // Escape regex sensitive characters to prevent crashes
-    const escapeRegex = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const escapeRegex = (string) => string ? string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : "";
 
     const existingAddress = await Address.findOne({
       userId,
@@ -88,12 +99,17 @@ const addAddress = async (req, res) => {
     });
 
     if (existingAddress) {
+      if (req.headers['accept']?.includes('application/json') || req.xhr) {
+        return res.status(400).json({ success: false, message: "Address already exists" });
+      }
       req.session.isDuplicate      = true;
       req.session.addressFormData  = req.body;
       return res.redirect("/address-add");
     }
 
-    if (isDefault === 'on') {
+    const isDefaultBool = (isDefault === 'on' || isDefault === true);
+
+    if (isDefaultBool) {
       await Address.updateMany({ userId }, { isDefault: false });
     }
 
@@ -108,7 +124,7 @@ const addAddress = async (req, res) => {
       state: trimmedState,
       pincode: trimmedPincode,
       country,
-      isDefault: isDefault === 'on'
+      isDefault: isDefaultBool
     });
 
     await newAddress.save();
@@ -119,10 +135,17 @@ const addAddress = async (req, res) => {
       await newAddress.save();
     }
 
+    if (req.headers['accept']?.includes('application/json') || req.xhr) {
+      return res.json({ success: true, message: "Address added successfully" });
+    }
+
     res.redirect("/address");
 
   } catch (error) {
     console.error("Add Address Error:", error);
+    if (req.headers['accept']?.includes('application/json') || req.xhr) {
+      return res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
     res.status(500).send("Server Error");
   }
 }
@@ -160,7 +183,13 @@ const updateAddress = async (req, res) => {
   try {
     const addressId = req.params.id;
     const userId = req.session.user._id;
-    const { addressType, name, phone, houseName, locality, city, state, pincode, country, isDefault } = req.body;
+    let { addressType, name, phone, houseName, locality, city, state, pincode, country, isDefault } = req.body;
+    
+    // Normalize addressType
+    if (addressType) {
+      addressType = addressType.charAt(0).toUpperCase() + addressType.slice(1).toLowerCase();
+    }
+
     const errors = {};
 
     const trimmedName = name ? name.trim() : "";
@@ -184,6 +213,9 @@ const updateAddress = async (req, res) => {
     if (!trimmedPincode || !pincodeRegex.test(trimmedPincode)) errors.pincode = "Enter a valid 6-digit pincode";
 
     if (Object.keys(errors).length > 0) {
+      if (req.headers['accept']?.includes('application/json') || req.xhr) {
+        return res.status(400).json({ success: false, errors });
+      }
       req.session.addressErrors   = errors;
       req.session.addressFormData = req.body;
       return res.redirect(`/address-edit/${addressId}`);
@@ -208,16 +240,21 @@ const updateAddress = async (req, res) => {
     });
 
     if (existingAddress) {
+      if (req.headers['accept']?.includes('application/json') || req.xhr) {
+        return res.status(400).json({ success: false, message: "Address already exists" });
+      }
       req.session.isDuplicate     = true;
       req.session.addressFormData = req.body;
       return res.redirect(`/address-edit/${addressId}`);
     }
 
     // Use the validated 10-digit number
-    const cleanPhone = phone;
+    const cleanPhone = phone.trim();
+
+    const isDefaultBool = (isDefault === 'on' || isDefault === true);
 
     // If setting as default, unset others
-    if (isDefault === 'on') {
+    if (isDefaultBool) {
       await Address.updateMany({ userId }, { isDefault: false });
     }
 
@@ -233,13 +270,20 @@ const updateAddress = async (req, res) => {
         state: trimmedState,
         pincode: trimmedPincode,
         country,
-        isDefault: isDefault === 'on'
+        isDefault: isDefaultBool
       }
     );
+
+    if (req.headers['accept']?.includes('application/json') || req.xhr) {
+      return res.json({ success: true, message: "Address updated successfully" });
+    }
 
     res.redirect("/address");
   } catch (error) {
     console.error("Update Address Error:", error);
+    if (req.headers['accept']?.includes('application/json') || req.xhr) {
+      return res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
     res.status(500).send("Server Error");
   }
 }

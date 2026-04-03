@@ -5,9 +5,9 @@
 }
 
 .text {
-    font-size: medium;
-    font-weight: 300;
-    color: red
+    font-size: small;
+    font-weight: 500;
+    color: var(--danger);
 }
 
 .radio-option {
@@ -15,10 +15,11 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    color: var(--text-2);
 }
 
 .radio-option input {
-    accent-color: var(--accent-green);
+    accent-color: var(--accent);
 }
 
 .form-row {

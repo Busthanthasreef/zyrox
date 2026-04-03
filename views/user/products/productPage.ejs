@@ -1097,15 +1097,14 @@
                   <% products.forEach(product=> {
                     const isInactive = product.status && product.status !== 'active';
                     %>
-                    <div class="product-card <%= isInactive ? 'is-inactive' : '' %>"
-                      onclick="<%= isInactive ? 'void(0)' : `window.location='/product/${product.id}?variant=${product.variantId}'` %>">
+                    <div class="product-card <%= isInactive ? 'is-inactive' : '' %>">
 
                       <div class="card-img-wrap">
                         <% if (product.image && product.image !=='/images/placeholder.png' ) { %>
                           <img src="<%= product.image %>" alt="<%= product.name %>" loading="lazy"
                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                           <div class="img-placeholder" style="display:none;position:absolute;inset:0;">
-                            <i class="fas fa-image"></i><span>No image</span>
+
                           </div>
                           <% } else { %>
                             <div class="img-placeholder">
@@ -1124,13 +1123,7 @@
                                   </span>
                                   <% } %>
 
-                                    <% if (!isInactive) { %>
-                                      <button class="wishlist-btn"
-                                        onclick="event.stopPropagation(); toggleWishlist(this,'<%= product.id %>')"
-                                        title="Wishlist">
-                                        <i class="fas fa-heart"></i>
-                                      </button>
-                                      <% } %>
+
                       </div>
 
                       <div class="card-body">
@@ -1141,69 +1134,88 @@
                           <%= product.name %>
                         </div>
 
-                            <div class="stock-status-wrap">
-                              <% if (isInactive) { %>
-                                <!-- Skip if inactive (handled in footer) -->
-                                <% } else if (product.stock> 10) { %>
-                                  <span class="stock-badge badge-in-stock">
-                                    <i class="fas fa-check-circle"></i> In Stock
+                        <div class="stock-status-wrap">
+                          <% if (isInactive) { %>
+                            <!-- Skip if inactive (handled in footer) -->
+                            <% } else if (product.stock> 10) { %>
+                              <span class="stock-badge badge-in-stock">
+                                <i class="fas fa-check-circle"></i> In Stock
+                              </span>
+                              <% } else if (product.stock> 5) { %>
+                                <span class="stock-badge badge-low-stock">
+                                  <i class="fas fa-exclamation-triangle"></i> Low stock
+                                </span>
+                                <% } else if (product.stock> 0) { %>
+                                  <span class="stock-badge badge-low-stock">
+                                    <i class="fas fa-exclamation-triangle"></i> Only <%= product.stock %> left
                                   </span>
-                                  <% } else if (product.stock> 5) { %>
-                                    <span class="stock-badge badge-low-stock">
-                                      <i class="fas fa-exclamation-triangle"></i> Low stock
+                                  <% } else { %>
+                                    <span class="stock-badge badge-out-stock">
+                                      <i class="fas fa-times-circle"></i> Out of Stock
                                     </span>
-                                    <% } else if (product.stock> 0) { %>
-                                      <span class="stock-badge badge-low-stock">
-                                        <i class="fas fa-exclamation-triangle"></i> Only <%= product.stock %> left
-                                      </span>
-                                      <% } else { %>
-                                        <span class="stock-badge badge-out-stock">
-                                          <i class="fas fa-times-circle"></i> Out of Stock
-                                        </span>
-                                        <% } %>
-                            </div>
+                                    <% } %>
+                        </div>
 
-                            <div class="card-footer">
-                              <div class="card-price-col">
-                                <% if (!isInactive && product.oldPrice) { %>
-                                  <span class="card-price-old">&#8377;<%= product.oldPrice.toLocaleString('en-IN') %>
-                                  </span>
-                                  <% } %>
-                                    <% if (!isInactive && product.stock===0) { %>
-                                      <span class="out-label">Out of Stock</span>
-                                      <% } else if (!isInactive && product.price) { %>
-                                        <span class="card-price">&#8377;<%= product.price.toLocaleString('en-IN') %>
-                                        </span>
-                                        <% } %>
+                        <div class="card-footer">
+                          <div class="card-price-col">
+                            <% if (!isInactive && product.oldPrice) { %>
+                              <span class="card-price-old">&#8377;<%= product.oldPrice.toLocaleString('en-IN') %>
+                              </span>
+                              <% } %>
+                                <% if (!isInactive && product.stock===0) { %>
+                                  <span class="out-label">Out of Stock</span>
+                                  <% } else if (!isInactive && product.price) { %>
+                                    <span class="card-price">&#8377;<%= product.price.toLocaleString('en-IN') %>
+                                    </span>
+                                    <% } %>
+                          </div>
+
+                          <% if (isInactive) { %>
+                            <span class="unavailable-label"><i class="fas fa-ban"></i> Unavailable</span>
+                            <% } else { %>
+                              <div style="display:flex;flex-direction:column;gap:8px;width:100%;margin-top:12px;">
+                                <% const isInWishlist=(typeof wishlistIds !=='undefined' ) &&
+                                  wishlistIds.includes(product.id.toString()); %>
+                                  <% if (user) { %>
+                                    <div style="display:flex; gap:8px; width:100%; height:40px;">
+                                      <button class="btn-view" style="flex:1;"
+                                        onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
+                                        <i class="fas fa-eye"></i> View Details
+                                      </button>
+                                      <button class="btn-wish-list"
+                                        onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistListing(this, '<%= product.id %>')"
+                                        style="display:flex; align-items:center; justify-content:center; width:44px; height:100%; border:1px solid var(--border2); border-radius:var(--radius-sm); background:transparent; color:<%= isInWishlist ? '#e63946' : 'var(--text-dim)' %>; cursor:pointer; transition:all 0.2s;"
+                                        onmouseover="this.style.background='rgba(230,57,70,0.1)'; this.style.borderColor='rgba(230,57,70,0.5)'; this.style.color='#e63946'"
+                                        onmouseout="if(this.querySelector('i').classList.contains('fas')){ this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='#e63946'; } else { this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='var(--text-dim)'; }">
+                                        <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"></i>
+                                      </button>
+                                    </div>
+                                    <button class="btn-buy-now"
+                                      onclick="event.preventDefault(); event.stopPropagation(); buyNow('<%= product.productId %>', '<%= product.variantId %>', <%= product.stock %>)">
+                                     Buy
+                                    </button>
+                                    <% } else { %>
+                                      <div style="display:flex; gap:8px; width:100%; height:40px;">
+                                        <button class="btn-view" style="flex:1;"
+                                          onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
+                                          <i class="fas fa-eye"></i> View Details
+                                        </button>
+                                        <button class="btn-wish-list"
+                                          onclick="event.preventDefault(); event.stopPropagation(); window.location.href='/signin'"
+                                          style="display:flex; align-items:center; justify-content:center; width:44px; height:100%; border:1px solid var(--border2); border-radius:var(--radius-sm); background:transparent; color:var(--text-dim); cursor:pointer; transition:all 0.2s;"
+                                          onmouseover="this.style.background='rgba(230,57,70,0.1)'; this.style.borderColor='rgba(230,57,70,0.5)'; this.style.color='#e63946'"
+                                          onmouseout="this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='var(--text-dim)'">
+                                          <i class="far fa-heart"></i>
+                                        </button>
+                                      </div>
+                                      <button class="btn-buy-now"
+                                        onclick="event.preventDefault(); event.stopPropagation(); window.location.href='/signin'">
+                                        Quick Buy
+                                      </button>
+                                      <% } %>
                               </div>
-
-                              <% if (isInactive) { %>
-                                <span class="unavailable-label"><i class="fas fa-ban"></i> Unavailable</span>
-                                <% } else { %>
-                                  <div style="display:flex;flex-direction:column;gap:8px;width:100%;margin-top:12px;">
-                                    <% if (user) { %>
-                                      <button class="btn-view" id="viewDetails" 
-                                            onclick="<%=`window.location='/product/${product.id}?variant=${product.variantId}'` %>">
-                                            <i class="fas fa-eye"></i> View Details
-                                      </button>
-                                      <button class="btn-buy-now" %>
-                                        onclick="event.stopPropagation(); buyNow('<%= product.productId %>', '<%=
-                                            product.variantId %>', <%= product.stock %>)">
-                                              Quick Buy
-                                      </button>
-                                      <% } else { %>
-                                        <button class="btn-view"  id="viewDetails"
-                                          onclick="<%=`window.location='/product/${product.id}?variant=${product.variantId}'` %>">
-                                          <i class="fas fa-shopping-cart"></i> View Details
-                                        </button>
-                                        <button class="btn-buy-now"
-                                          onclick="event.stopPropagation(); window.location.href='/signin'">
-                                          Quick Buy
-                                        </button>
-                                        <% } %>
-                                  </div>
-                                  <% } %>
-                            </div>
+                              <% } %>
+                        </div>
                       </div>
 
                     </div>
@@ -1251,10 +1263,11 @@
             </div>
           </div>
         </div>
+        <input type="hidden" id="cartQtyData" value="<%= JSON.stringify(cartQuantityMap || {}) %>">
 
         <script>
-          const cartQuantities = <% - JSON.stringify(cartQuantityMap || {}) %>;
-          const MAX_QTY = <%= MAX_CART_QTY %>;
+          const cartQuantities = JSON.parse(document.getElementById('cartQtyData').value || '{}');
+          const MAX_QTY = parseInt('<%= MAX_CART_QTY %>', 10);
           const JS_PRICE_MAX = 219999;
           const JS_MIN_GAP = 5000;
 
@@ -1291,23 +1304,8 @@
             cancelButtonColor: '#3a3a4a',
           };
 
-          function showLimitSwal(canAddMore) {
-            const isHard = canAddMore <= 0;
-            Swal.fire({
-              ...swalBase,
-              icon: isHard ? 'warning' : 'success',
-              title: isHard ? 'Cart Limit Reached' : 'Added to Cart',
-              html: isHard
-                ? `<span style="color:#70788a">You already have the maximum of <strong style="color:#c8883a">${MAX_QTY}</strong> units in your cart.</span>`
-                : `<span style="color:#70788a">Product added successfully! You can still add <strong style="color:#c8883a">${canAddMore}</strong> more.</span>`,
-              confirmButtonText: 'View Cart',
-              showCancelButton: true,
-              cancelButtonText: 'Continue Shopping',
-            }).then(r => { if (r.isConfirmed) window.location.href = '/cart'; });
-          }
 
 
-         
           function buyNow(productId, variantId, stock) {
             if (stock <= 1) {
               Swal.fire({
@@ -1343,16 +1341,51 @@
             });
           }
 
-          function toggleWishlist(btn, productId) {
-            btn.classList.toggle('active');
-            const on = btn.classList.contains('active');
-            Swal.fire({
-              toast: true, position: 'top-end', icon: 'success',
-              title: on ? 'Added to wishlist' : 'Removed from wishlist',
-              showConfirmButton: false, timer: 1600,
-              background: '#1a1d24', color: '#f0f0f2', iconColor: '#4ade80'
-            });
+          async function toggleWishlistListing(btn, productId) {
+            try {
+              const response = await fetch('/wishlist/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId })
+              });
+
+              if (response.status === 401) {
+                return Swal.fire({
+                  background: '#141416',
+                  color: '#eaeaea',
+                  confirmButtonColor: '#c8883a',
+                  icon: 'warning',
+                  title: 'Sign In Required',
+                  text: 'Please log in to add items to your wishlist.',
+                  confirmButtonText: 'Sign In',
+                  showCancelButton: true
+                }).then(r => { if (r.isConfirmed) window.location.href = '/signin'; });
+              }
+
+              const data = await response.json();
+              if (data.success) {
+                const icon = btn.querySelector('i');
+
+                if (data.action === 'added') {
+                  icon.className = 'fas fa-heart';
+                  btn.style.color = '#e63946';
+                } else {
+                  icon.className = 'far fa-heart';
+                  btn.style.color = 'var(--text-dim)';
+                }
+
+                Swal.fire({
+                  toast: true, position: 'top-end', icon: 'success',
+                  title: data.action === 'added' ? 'Added to wishlist!' : 'Removed from wishlist',
+                  showConfirmButton: false, timer: 1600,
+                  background: 'black', color:"white", iconColor: data.action === 'added' ? 'green' : 'red'
+                });
+              }
+            } catch (err) {
+              console.error("Wishlist Toggle Error:", err);
+            }
           }
+
         </script>
 </body>
 

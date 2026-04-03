@@ -1,3 +1,4 @@
+import Wishlist from "../../models/wishlist.js";
 import categorySchema from "../../models/category.js";
 import Cart from "../../models/cart.js";
 import {
@@ -74,10 +75,13 @@ const loadProducts = async (req, res) => {
         const { products, totalProducts, totalPages, currentPage } =
             await getFilteredProducts({ categories, filters });
 
-        const [cartQuantityMap, cartItemCount] = await Promise.all([
+        const [cartQuantityMap, cartItemCount, wishlist] = await Promise.all([
             buildCartQuantityMap(userId),
             getCartItemCount(userId),
+            userId ? Wishlist.findOne({ User_id: userId }).select("Products").lean() : null,
         ]);
+
+        const wishlistIds = wishlist ? wishlist.Products.map(id => id.toString()) : [];
 
         return res.render("user/products/productPage", {
             user:          req.session.user || null,
@@ -87,6 +91,7 @@ const loadProducts = async (req, res) => {
             totalProducts,
             totalPages,
             currentPage,
+            wishlistIds,
             activeFilters: {
                 brands:   filters.brandFilter,
                 rams:     filters.ramFilter,
@@ -121,10 +126,13 @@ const loadProductDetails = async (req, res) => {
 
         const userId = req.session.user?._id || req.session.user?.id || null;
 
-        const [cartQuantityMap, cartItemCount] = await Promise.all([
+        const [cartQuantityMap, cartItemCount, wishlist] = await Promise.all([
             buildCartQuantityMap(userId),
             getCartItemCount(userId),
+            userId ? Wishlist.findOne({ User_id: userId }).select("Products").lean() : null,
         ]);
+
+        const isInWishlist = wishlist ? wishlist.Products.some(p => p.toString() === req.params.id) : false;
 
         return res.render("user/products/productDetails", {
             user:          req.session.user || null,
@@ -134,6 +142,7 @@ const loadProductDetails = async (req, res) => {
             allVariants,
             relatedProducts,
             cartQuantityMap,
+            isInWishlist,
             MAX_CART_QTY,
         });
     } catch (error) {

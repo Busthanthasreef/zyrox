@@ -24,8 +24,7 @@ export const validateVariantForCart = async (productId, variantId) => {
     return { variant };
 };
 
-// ── Sidebar Data ──────────────────────────────────────────────────────────────
-// BUG FIX: was using `category: c._id` but product model field is `categoryId`
+
 export const getSidebarData = async (categories) => {
     // Only include active, non-deleted categories
     const activeCategories = categories.filter(

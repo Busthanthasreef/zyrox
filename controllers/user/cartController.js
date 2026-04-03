@@ -64,23 +64,26 @@ const loadCart = async (req, res) => {
       const prod = item.Product_id;
       const vari = item.Variant_id;
 
-      // Product is inactive if explicitly deactivated OR status !== 'active'
+      
       const isActiveProduct = prod?.IsActive !== false && prod?.status === 'active';
       const isActiveVariant = vari?.IsActive !== false;
       const isInStock       = (vari?.stock || 0) > 0;
 
-      // Admin deactivated either the product or its variant
+      
+      
       const isAdminInactive = !isActiveProduct || !isActiveVariant;
       const isAvailable     = isActiveProduct && isActiveVariant && isInStock;
+      const isDeleted = productSchema.find({IsDeleted:true});
+      console.log(isDeleted)
 
       return {
         quantity:        item.Quantity,
         productId:       prod?._id,
         variantId:       vari?._id,
 
-        isAvailable,    // 🔥 IMPORTANT (use in frontend)
-        isAdminInactive, // true when product/variant is deactivated by admin
-
+        isAvailable,    
+        isAdminInactive,
+        
         product: {
           name:    prod?.productName,
           image:   vari?.images?.[0] || "/images/placeholder.png",
@@ -133,13 +136,6 @@ const loadCart = async (req, res) => {
   }
 };
 
-/* ═══════════════════════════════════════════════════════════════
-   ADD TO CART
-   - Validates stock before adding
-   - If item already in cart → increments quantity
-   - Removes the product from wishlist if it was wishlisted
-   - Enforces per-item max (MAX_QTY_PER_ITEM)
-═══════════════════════════════════════════════════════════════ */
 const addToCart = async (req, res) => {
   try {
     const userId = req.session.user?._id || req.session.user?.id;
@@ -221,7 +217,7 @@ const addToCart = async (req, res) => {
 
     await wishlistSchema.updateOne(
       { User_id: userId },
-      { $pull: { Items: { Product_id: productId } } }
+      { $pull: { Products: productId } }
     ).catch(() => {});
 
     const newQty = existingQty + allowedQty;
@@ -243,14 +239,7 @@ const addToCart = async (req, res) => {
   }
 };
 
-/* ═══════════════════════════════════════════════════════════════
-   UPDATE QUANTITY
-   - Increment or decrement
-   - Validates against real-time stock
-   - Enforces MAX_QTY_PER_ITEM cap
-   - Returns updated subtotal so client can sync summary
-   - User requirement: max items = stock - 1
-═══════════════════════════════════════════════════════════════ */
+
 const updateQuantity = async (req, res) => {
   try {
     if (!req.session.user) {
@@ -265,12 +254,7 @@ const updateQuantity = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid quantity" });
     }
 
-    if (!productId || !/^[a-f\d]{24}$/i.test(productId) ||
-        !variantId || !/^[a-f\d]{24}$/i.test(variantId)) {
-      return res.status(400).json({ success: false, message: "Invalid product or variant." });
-    }
-
-    // Re-fetch using strict logic
+    
     const { variant, error } = await validateVariantForCart(productId, variantId);
     if (error) {
       return res.status(400).json({ success: false, message: error });

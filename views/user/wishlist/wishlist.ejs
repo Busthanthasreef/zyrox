@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist – Zyrox Premium</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <style>
+        :root {
+            --bg-deep: #0a0c14;
+            --bg-card: #111422;
+            --bg-surface: #181c2e;
+            --bg-hover: #1e2338;
+            --border: #252a42;
+            --accent: #c8883a;
+            --accent-glow: rgba(200, 136, 58, 0.25);
+            --danger: #ff4d6d;
+            --text-1: #f0f2ff;
+            --text-2: #8b92b8;
+            --text-3: #4f566b;
+            --success: #00d4aa;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --transition: .25s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-1);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(200, 136, 58, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 212, 170, 0.03) 0%, transparent 40%);
+            padding-top: 110px;
+        }
+
+        .wishlist-container {
+            padding-bottom: 5rem;
+        }
+
+        .breadcrumb-bar {
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb-item a {
+            color: var(--text-2);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color var(--transition);
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--accent);
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .page-title {
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: 2.8rem;
+            letter-spacing: -1.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-title span {
+            color: var(--accent);
+        }
+
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 1200px) {
+            .wishlist-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .wishlist-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .wishlist-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .wishlist-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .wishlist-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: all var(--transition);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .wishlist-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .img-wrap {
+            position: relative;
+            padding-top: 80%;
+            background: rgba(255, 255, 255, 0.012);
+            overflow: hidden;
+        }
+
+        .img-wrap img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 75%;
+            height: 75%;
+            object-fit: contain;
+            transform: translate(-50%, -50%);
+            transition: transform .6s cubic-bezier(.165, .84, .44, 1);
+        }
+
+        .wishlist-card:hover .img-wrap img {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        /* Float Badge */
+        .card-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 11;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--accent);
+            color: #000;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(17, 20, 34, 0.8);
+            color: var(--text-2);
+            border: 1px solid var(--border);
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 12;
+            transition: all var(--transition);
+            backdrop-filter: blur(8px);
+        }
+
+        .remove-btn:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+            transform: scale(1.1);
+        }
+
+        .card-body-custom {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            flex-grow: 1;
+            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.25));
+        }
+
+        .product-brand {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .product-name {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-1);
+            text-decoration: none;
+            margin-bottom: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.25;
+            transition: color var(--transition);
+        }
+
+        .product-name:hover {
+            color: var(--accent);
+        }
+
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-top: 2px;
+        }
+
+        .current-price {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--text-1);
+        }
+
+        .old-price {
+            font-size: 0.8rem;
+            color: var(--text-3);
+            text-decoration: line-through;
+            font-weight: 500;
+        }
+
+        .stock-badge-pill {
+            font-size: 0.6rem;
+            padding: 3px 10px;
+            border-radius: 30px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        .actions-wrap {
+            margin-top: auto;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            padding-top: 0.75rem;
+        }
+
+        .btn-action-view {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition);
+            text-decoration: none;
+            flex-shrink: 0;
+            font-size: 0.85rem;
+        }
+
+        .btn-action-view:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .btn-action-cart {
+            flex: 1;
+            height: 36px;
+            padding: 0 0.5rem;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all var(--transition);
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-action-cart:hover:not(:disabled) {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .btn-action-cart:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: var(--text-3);
+            color: var(--text-1);
+        }
+
+        /* Empty State */
+        .empty-wishlist {
+            text-align: center;
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            opacity: 0.2;
+        }
+
+        /* Pagination */
+        .pagination-container {
+            margin-top: 5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .page-link-custom {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-2);
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-weight: 700;
+            transition: all var(--transition);
+            text-decoration: none;
+            margin: 0 4px;
+        }
+
+        .page-link-custom.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+        }
+
+        .page-link-custom:hover:not(.active) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .sort-wishlist-select {
+            background: var(--bg-surface);
+            color: var(--text-2);
+            border: 1px solid var(--border);
+            padding: 8px 30px 8px 15px;
+            font-size: 0.85rem;
+            border-radius: var(--radius-md);
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            position: relative;
+            font-weight: 500;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b92b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 15px;
+            transition: all var(--transition);
+        }
+
+        .sort-wishlist-select:hover {
+            border-color: var(--accent);
+            color: var(--text-1);
+        }
+
+        @media(max-width: 768px) {
+            .page-header {
+                position: relative !important;
+                text-align: left !important;
+            }
+
+            .wishlist-sort-wrap {
+                position: static !important;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('../../partials/user/navigationbar', { user, cartItemCount, categories }) %>
+
+        <div class="container wishlist-container">
+            <header class="page-header" style="position:relative;">
+                <h1 class="page-title">My <span>Wishlist</span></h1>
+                <p class="text-secondary" style="font-size: 0.95rem; opacity: 0.7;">View and manage your saved favorites
+                </p>
+                <% if (wishlist && wishlist.length> 0) { %>
+                    <div class="wishlist-sort-wrap" style="position: absolute; right: 0; top: 10px;">
+                        <form id="sortForm" action="/wishlist" method="GET"
+                            style="display:flex; align-items:center; gap: 10px;">
+                            <i class="fas fa-sort-amount-down mt-1" style="color:var(--text-3);"></i>
+                            <select name="sort" class="sort-wishlist-select"
+                                onchange="document.getElementById('sortForm').submit()">
+                                <option value="default" <%=typeof currentSort !=='undefined' && currentSort==='default'
+                                    ? 'selected' : '' %>>Default</option>
+                                <option value="price_asc" <%=typeof currentSort !=='undefined' &&
+                                    currentSort==='price_asc' ? 'selected' : '' %>>Price: Low to High</option>
+                                <option value="price_desc" <%=typeof currentSort !=='undefined' &&
+                                    currentSort==='price_desc' ? 'selected' : '' %>>Price: High to Low</option>
+                                <option value="name_asc" <%=typeof currentSort !=='undefined' &&
+                                    currentSort==='name_asc' ? 'selected' : '' %>>Name: A to Z</option>
+                                <option value="name_desc" <%=typeof currentSort !=='undefined' &&
+                                    currentSort==='name_desc' ? 'selected' : '' %>>Name: Z to A</option>
+                            </select>
+                        </form>
+                    </div>
+                    <% } %>
+            </header>
+
+            <% if (wishlist && wishlist.length> 0) { %>
+                <div class="wishlist-grid">
+                    <% wishlist.forEach(product=> {
+                        const hasDiscount = product.oldPrice && product.oldPrice > product.price;
+                        const discPercent = hasDiscount ? Math.round(((product.oldPrice - product.price) /
+                        product.oldPrice) * 100) : 0;
+                        %>
+                        <div class="wishlist-card" id="product-<%= product.id %>">
+                            <div class="img-wrap">
+                                <a href="/product/<%= product.id %>?variant=<%= product.variantId %>">
+                                    <img src="<%= product.image %>" alt="<%= product.name %>"
+                                        onerror="this.src='/images/placeholder.png'">
+                                </a>
+
+                                <% if (hasDiscount) { %>
+                                    <div class="card-badge">
+                                        <%= discPercent %>% OFF
+                                    </div>
+                                    <% } %>
+
+                                        <button class="remove-btn" onclick="toggleWishlist('<%= product.id %>')"
+                                            title="Remove item">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                            </div>
+
+                            <div class="card-body-custom">
+                                <div class="product-brand">
+                                    <%= product.brand || "ZYROX PREMIUM" %>
+                                </div>
+                                <a href="/product/<%= product.id %>?variant=<%= product.variantId %>"
+                                    class="product-name">
+                                    <%= product.name %>
+                                </a>
+
+                                <div class="price-row">
+                                    <span class="current-price">₹<%= product.price.toLocaleString('en-IN') %></span>
+                                    <% if (hasDiscount) { %>
+                                        <span class="old-price">₹<%= product.oldPrice.toLocaleString('en-IN') %></span>
+                                        <% } %>
+                                </div>
+
+                                <div class="stock-status">
+                                    <% if (product.stock <=0) { %>
+                                        <span class="stock-badge-pill"
+                                            style="background: rgba(255, 77, 107, 0.1); color: #ff4d6b;">
+                                            <i class="fas fa-times-circle"></i> Out of Stock
+                                        </span>
+                                        <% } else if (product.stock <=5) { %>
+                                            <span class="stock-badge-pill"
+                                                style="background: rgba(255, 171, 0, 0.1); color: #ffab00;">
+                                                <i class="fas fa-exclamation-triangle"></i> Only <%= product.stock %>
+                                                    left
+                                            </span>
+                                            <% } else { %>
+                                                <span class="stock-badge-pill"
+                                                    style="background: rgba(0, 212, 170, 0.1); color: #00d4aa;">
+                                                    <i class="fas fa-check-circle"></i> In Stock
+                                                </span>
+                                                <% } %>
+                                </div>
+
+                                <div class="actions-wrap">
+                                    <a href="/product/<%= product.id %>?variant=<%= product.variantId %>"
+                                        class="btn-action-view" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn-action-cart"
+                                        onclick="addToCart('<%= product.id %>', '<%= product.variantId %>')"
+                                        <%=product.stock <=1 ? 'disabled' : '' %>>
+                                        <i class="fas fa-cart-plus"></i>
+                                        <%= product.stock <=0 ? 'Out of Stock' : (product.stock===1 ? 'Unavailable'
+                                            : 'Add to Cart' ) %>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <% }) %>
+                </div>
+
+                <% if (totalPages> 1) { %>
+                    <nav class="pagination-container">
+                        <% for(let i=1; i <=totalPages; i++) { %>
+                            <a href="?page=<%= i %>" class="page-link-custom <%= i === currentPage ? 'active' : '' %>">
+                                <%= i %>
+                            </a>
+                            <% } %>
+                    </nav>
+                    <% } %>
+                        <% } else { %>
+                            <div class="empty-wishlist">
+                                <div class="empty-icon"><i class="fas fa-heart-circle-xmark"></i></div>
+                                <h3>Your wishlist is empty</h3>
+                                <p class="text-secondary mb-4">Discover premium products and save your favorites here.
+                                </p>
+                                <a href="/products" class="btn px-5 py-3"
+                                    style="background: var(--accent); color:#000; font-weight:800; border-radius:12px; text-transform:uppercase; letter-spacing:1px; text-decoration:none;">
+                                    Continue Shopping
+                                </a>
+                            </div>
+                            <% } %>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script>
+            const toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                background: '#181c2e',
+                color: '#f0f2ff'
+            });
+
+            async function toggleWishlist(productId) {
+                try {
+                    const response = await fetch('/wishlist/toggle', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ productId })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        if (data.action === 'removed') {
+                            const card = document.getElementById(`product-${productId}`);
+                            if (card) {
+                                card.style.opacity = '0';
+                                card.style.transform = 'scale(0.9) translateY(20px)';
+                                setTimeout(() => location.reload(), 900);
+                            } else {
+                                location.reload();
+                            }
+                            toast.fire({ icon: 'success', title: 'Removed from wishlist' });
+                        }
+                    } else {
+                        throw new Error(data.message || 'Something went wrong');
+                    }
+                } catch (error) {
+                    toast.fire({ icon: 'error', title: error.message });
+                }
+            }
+
+            async function addToCart(productId, variantId) {
+                try {
+                    const btn = event.currentTarget;
+                    const originalContent = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+
+                    const response = await fetch('/cart/add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ productId, variantId, quantity: 1 })
+                    });
+
+                    if (response.status === 401) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Sign In Required',
+                            text: 'Please log in to add items to your cart.',
+                            background: '#111422',
+                            color: '#f0f2ff',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sign In',
+                            confirmButtonColor: '#c8883a'
+                        }).then(r => { if (r.isConfirmed) window.location.href = '/signin'; });
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                        return;
+                    }
+
+                    const data = await response.json();
+                    if (data.success) {
+                        toast.fire({ icon: 'success', title: 'Added to cart' }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        throw new Error(data.message || 'Failed to add to cart');
+                    }
+                } catch (err) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Cart Error',
+                        text: err.message,
+                        background: '#111422',
+                        color: '#f0f2ff',
+                        confirmButtonColor: '#c8883a'
+                    });
+                    const btn = document.querySelector(`[onclick*="${variantId}"]`);
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
+                    }
+                }
+            }
+        </script>
+</body>
+
+</html>

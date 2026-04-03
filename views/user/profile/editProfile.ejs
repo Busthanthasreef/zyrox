@@ -27,26 +27,25 @@
                 <div id="profile-card-container" class="w-100 d-flex justify-content-center">
                     <div class="edit-card col-12 col-sm-10 col-md-8">
 
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h3>Edit Profile</h3>
-                            <a href="/profile" class="btn btn-back ajax-link" data-url="/profile">
-                                <i class="bi bi-arrow-left"></i> Back to Profile
+                        <div class="d-flex justify-content-between align-items-center mb-5">
+                            <h3 class="m-0">Edit Profile</h3>
+                            <a href="/profile" class="btn btn-custom change-pass-btn ajax-link" data-url="/profile">
+                                <i class="bi bi-arrow-left"></i> Back
                             </a>
                         </div>
 
                         <% if(user) { %>
-                            <div class="text-center mb-4">
-                                <div class="position-relative d-inline-block">
-                                    <img src="<%= user.Profile_image%>" class="profile-img mb-4" id="profilePreview">
-
-
-                                    <div class="position-absolute bottom-0 end-0 d-flex gap-1 p-1">
-                                        <button type="button" class="btn btn-sm btn-success rounded-circle shadow-sm"
-                                            id="changeBtn" title="Change Image">
-                                            <i class="bi bi-camera "></i>
+                            <div class="text-center mb-5">
+                                <div class="profile-img-container">
+                                    <img src="<%= user.Profile_image || '/images/default-avatar.png' %>"
+                                        class="profile-img" id="profilePreview">
+                                    <div class="position-absolute bottom-0 end-0 d-flex gap-1 p-2">
+                                        <button type="button" class="btn btn-sm btn-primary rounded-circle shadow"
+                                            id="changeBtn">
+                                            <i class="bi bi-camera"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-danger rounded-circle shadow-sm"
-                                            id="removeBtn" title="Remove Image">
+                                        <button type="button" class="btn btn-sm btn-danger rounded-circle shadow"
+                                            id="removeBtn">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
@@ -60,63 +59,60 @@
                                 <input type="hidden" name="pendingImage" id="pendingImageInput"
                                     value="<%= user.Profile_image %>">
 
-                                <div class="form-group">
-                                    <label>Full Name</label>
-                                    <input type="text" name="Name" class="form-control" value="<%= user.Name %>"
-                                        required>
-                                    <% if(nameError) { %>
-                                        <p class="text-danger small mt-1 mb-0">
-                                            <%= nameError %>
-                                        </p>
-                                        <% } %>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Phone Number</label>
-                                    <div class="input-group">
-                                        <span
-                                            class="input-group-text bg-transparent text-light border-secondary">+91</span>
-                                        <input type="text" name="phoneNumber" class="form-control"
-                                            value="<%= user.Phone_number || '' %>"
-                                            placeholder="Enter your 10-digit mobile number" maxlength="10"
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                                    </div>
-                                    <% if(phoneError) { %>
-                                        <p class="text-danger small mt-1 mb-0">
-                                            <%= phoneError %>
-                                        </p>
-                                        <% } %>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Email Address</label>
-                                    <div class="d-flex gap-2">
-                                        <input type="email" name="Email" class="form-control" value="<%= user.Email %>"
-                                            <%=isGoogleUser ? 'disabled' : '' %>>
-                                        <% if (!isGoogleUser) { %>
-                                            <a href="/edit-email"
-                                                style="text-decoration: none; color:rgb(0, 0, 0);padding: 0px;"><span
-                                                    style="color: black;"
-                                                    class="badge btn-custom bg-warning d-flex align-items-center me-4">
-                                                    <i class="bi bi-pencil-fill"></i>
-                                                    Edit </span></a>
-                                            <% } %>
-                                    </div>
-                                    <% if (isGoogleUser) { %>
-                                        <p class="small mt-1 text-warning mb-0">Google managed accounts can't edit email
-                                        </p>
-                                        <% } %>
-                                            <% if (emailError) { %>
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Full Name</label>
+                                            <input type="text" name="Name" class="form-control" value="<%= user.Name %>"
+                                                required>
+                                            <% if(nameError) { %>
                                                 <p class="text-danger small mt-1 mb-0">
-                                                    <%= emailError %>
+                                                    <%= nameError %>
                                                 </p>
                                                 <% } %>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Phone Number</label>
+                                            <div class="input-group">
+                                                <span
+                                                    class="input-group-text bg-transparent border-secondary text-white-50">+91</span>
+                                                <input type="text" name="phoneNumber" class="form-control"
+                                                    value="<%= user.Phone_number || '' %>" maxlength="10">
+                                            </div>
+                                            <% if(phoneError) { %>
+                                                <p class="text-danger small mt-1 mb-0">
+                                                    <%= phoneError %>
+                                                </p>
+                                                <% } %>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Email Address</label>
+                                            <div class="d-flex gap-2">
+                                                <input type="email" name="Email" class="form-control"
+                                                    value="<%= user.Email %>" <%=isGoogleUser ? 'disabled' : '' %>>
+                                                <% if (!isGoogleUser) { %>
+                                                    <a href="/edit-email"
+                                                        class="btn btn-custom change-pass-btn px-3">Update</a>
+                                                    <% } %>
+                                            </div>
+                                            <% if (isGoogleUser) { %>
+                                                <p class="small mt-1 text-warning-emphasis mb-0">Managed by Google</p>
+                                                <% } %>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div class="d-flex justify-content-end mt-4 gap-2">
-                                    <a href="/profile" class="btn btn-custom btn-cancel ajax-link"
+                                <div class="d-flex justify-content-end mt-5 gap-3">
+                                    <a href="/profile" class="btn btn-custom change-pass-btn ajax-link"
                                         data-url="/profile">Cancel</a>
-                                    <button type="submit" class="btn btn-custom btn-save">Save Changes</button>
+                                    <button type="submit" class="btn btn-custom edit-btn bg-primary text-white">Save
+                                        Changes</button>
                                 </div>
                             </form>
                             <% } %>

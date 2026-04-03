@@ -397,7 +397,7 @@
         }
 
         .price-main {
-            font-family: 'Syne', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: 2rem;
             font-weight: 800;
             color: var(--green);
@@ -487,7 +487,7 @@
             background: var(--bg-card);
             color: var(--text-dim);
             font-size: .8rem;
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-weight: 500;
             cursor: pointer;
             transition: var(--trans);
@@ -533,7 +533,7 @@
             background: var(--bg-card);
             transition: var(--trans);
             font-size: .8rem;
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             color: var(--text-dim);
         }
 
@@ -652,7 +652,7 @@
             border-left: 1px solid var(--border-hi);
             border-right: 1px solid var(--border-hi);
             color: var(--text);
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             padding: 0;
             height: 36px;
         }
@@ -681,7 +681,7 @@
             align-items: center;
             justify-content: center;
             gap: 9px;
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
             letter-spacing: .2px;
         }
 
@@ -778,7 +778,7 @@
         }
 
         .section-title {
-            font-family: 'Syne', sans-serif;
+            font-family: 'Inter', sans-serif;
             font-size: .65rem;
             font-weight: 700;
             letter-spacing: 2px;
@@ -1137,7 +1137,7 @@
                                     </button>
                                 </div>
                                 <br>
-                                
+
                             </div>
 
                             <!-- ═══ ACTIONS ═══ -->
@@ -1155,6 +1155,16 @@
                                             <i class="fas fa-bolt"></i> Buy Now
                                 </button>
                             </div>
+
+                            <button class="btn-wishlist <%= isInWishlist ? 'active' : '' %>" id="btnWishlist"
+                                onclick="toggleWishlistDetail('<%= variant.productId._id %>')"
+                                style="width: 100%; height: 52px; margin-top: 10px; border-radius: var(--radius-sm); border: 1.5px solid var(--border-hi); background: var(--bg-card); color: var(--text-dim); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s ease;">
+                                <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"
+                                    style="<%= isInWishlist ? 'color: #e63946;' : '' %>"></i>
+                                <span id="wishlistText">
+                                    <%= isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %>
+                                </span>
+                            </button>
 
                             <!-- Trust Badges -->
                             <div class="trust-row">
@@ -1233,7 +1243,7 @@
 
             <!-- Related Products -->
             <div class="pd-section" style="margin-bottom: 64px;">
-                <h4 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;margin-bottom:4px;">You May
+                <h4 style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.2rem;margin-bottom:4px;">You May
                     Also Like</h4>
                 <span class="section-title">Related Products</span>
 
@@ -1877,17 +1887,32 @@
             function changeQty(delta) {
                 const inp = document.getElementById('qtyVal');
                 if (!inp) return;
+
                 const canAddFromCartLimit = MAX_CART_QTY - alreadyInCart;
                 const stock = getCurrentStock();
                 const stockLimit = Math.max(0, stock - 1);
                 const maxQty = Math.min(canAddFromCartLimit, stockLimit);
 
-                let v = parseInt(inp.value, 10) + delta;
-                v = Math.max(1, Math.min(v, maxQty));
+                const current = parseInt(inp.value, 10);
+
+                // Show SweetAlert when trying to go beyond the limit
+                if (delta > 0 && current >= maxQty) {
+                    Swal.fire({
+                        ...swalBase,
+                        icon: 'warning',
+                        title: 'Quantity Limit Reached',
+                        html: "only can add 3 product at once",
+                        confirmButtonText: 'Got it',
+                        customClass: { popup: 'swal-dark-popup' }
+                    })
+                    return;
+                }
+
+                let v = Math.max(1, Math.min(current + delta, maxQty));
                 inp.value = v;
 
-                document.getElementById('qtyMinus').disabled = (v <= 1);
-                document.getElementById('qtyPlus').disabled = (v >= maxQty);
+                // document.getElementById('qtyMinus').disabled = (v <= 1);
+                // document.getElementById('qtyPlus').disabled = (v >= maxQty);
             }
 
             /* ═══════════════════════════════════════════════════════════════════
@@ -2063,6 +2088,60 @@
                     window.location.href = '/signin';
                 }
             }
+            // Wishlist Toggle
+            async function toggleWishlistDetail(productId) {
+
+                try {
+                    const response = await fetch('/wishlist/toggle', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ productId })
+                    });
+
+                    if (response.status === 401) {
+                        return Swal.fire({
+                            background: '#141416',
+                            color: '#eaeaea',
+                            confirmButtonColor: '#c8883a',
+                            icon: 'warning',
+                            title: 'Sign In Required',
+                            text: 'Please log in to add items to your wishlist.',
+                            confirmButtonText: 'Sign In',
+                            showCancelButton: true
+                        }).then(r => { if (r.isConfirmed) window.location.href = '/signin'; });
+                    }
+
+                    const data = await response.json();
+                    if (data.success) {
+                        const btn = document.getElementById('btnWishlist');
+                        const icon = btn.querySelector('i');
+                        const text = document.getElementById('wishlistText');
+
+                        if (data.action === 'added') {
+                            btn.classList.add('active');
+                            icon.className = 'fas fa-heart';
+                            icon.style.color = '#e63946';
+                            text.textContent = 'Remove from Wishlist';
+                        } else {
+                            btn.classList.remove('active');
+                            icon.className = 'far fa-heart';
+                            icon.style.color = '';
+                            text.textContent = 'Add to Wishlist';
+                        }
+
+                        Swal.fire({
+                            toast: true, position: 'top-end', icon: 'success',
+                            title: data.action === 'added' ? 'Added to wishlist' : 'Removed from wishlist',
+                            showConfirmButton: false, timer: 1600,
+                            background: '#1a1d24', color: '#f0f0f2', iconColor: '#4ade80'
+                        });
+                    }
+                } catch (err) {
+                    console.error("Wishlist Toggle Error:", err);
+                }
+            }
+
+            
         </script>
 </body>
 

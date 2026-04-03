@@ -4,16 +4,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Addresses – Zyrox</title>
+  <title>My Addresses - Zyrox</title>
   <link rel="stylesheet" href="/userStyles/profile/profileShared.css">
   <link rel="stylesheet" href="/userStyles/address/userAddress.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body>
@@ -21,28 +21,21 @@
     <%- include('../../partials/user/profileSidebar', { activePage: 'address' }) %>
 
       <main class="main-wrapper">
-        <div id="profile-card-container" class="w-100 d-flex justify-content-center">
-          <div class="card col-12 col-lg-12">
+        <div id="profile-card-container">
 
+          <div class="d-flex justify-content-between align-items-center mb-5">
+            <h3 class="m-0">Shipping Addresses</h3>
+            <a href="/address-add" class="btn-add">
+              <i class="fa-solid fa-plus"></i> Add New Address
+            </a>
+          </div>
+
+          <div class="card">
             <% if (address && address.length> 0) { %>
-
-              <!-- Page Header -->
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="mb-0 fs-4 fw-bold">
-                  <i class="fa-solid fa-location-dot me-2" style="color:var(--accent-green)"></i> My Addresses
-                </h3>
-                <a href="/address-add" class="btn-add py-2">
-                  <i class="fa-solid fa-plus"></i> Add New
-                </a>
-              </div>
-
-              <!-- Address List -->
               <div class="address-list">
                 <% address.forEach(function(addr) { %>
 
                   <div class="address-card <%= addr.isDefault ? 'active' : '' %>" id="address-<%= addr._id %>">
-
-                    <!-- ── Top Bar ── -->
                     <div class="card-topbar">
                       <div class="topbar-left">
                         <div class="custom-radio-wrap">
@@ -55,7 +48,7 @@
                         <span class="status-badge <%= addr.isDefault ? 'default' : 'set-default' %>"
                           onclick="setDefaultAddress('<%= addr._id %>')">
                           <% if (addr.isDefault) { %>
-                            <i class="bi bi-patch-check-fill me-1"></i> Default Address
+                            <i class="bi bi-patch-check-fill me-1"></i> Default
                             <% } else { %>
                               Set as Default
                               <% } %>
@@ -64,18 +57,14 @@
 
                       <span class="type-tag">
                         <i
-                          class="fa-solid fa-<%= addr.addressType === 'Work' ? 'briefcase' : addr.addressType === 'Others' ? 'map-pin' : 'house' %>"></i>
+                          class="fa-solid fa-<%= addr.addressType === 'Work' ? 'briefcase' : addr.addressType === 'Others' ? 'map-pin' : 'house' %> me-1"></i>
                         <%= addr.addressType %>
                       </span>
                     </div>
 
-                    <!-- ── Card Body ── -->
                     <div class="card-body-inner">
-
-                      <!-- Left: Name + Address -->
                       <div class="addr-left">
                         <p class="customer-name">
-                          <i class="fa-regular fa-user" style="font-size:0.8rem;color:var(--text-muted)"></i>
                           <%= addr.name %>
                         </p>
                         <div class="addr-detail-block">
@@ -85,16 +74,16 @@
                               <%= addr.houseName %>, <%= addr.locality %>
                             </span>
                           </div>
-                          <div class="addr-row sub">
+                          <div class="addr-row">
+                            <span style="width: 8px; flex-shrink: 0;"></span>
                             <span>
-                              <%= addr.city %>, <%= addr.state %> &ndash; <%= addr.pincode %>
+                              <%= addr.city %>, <%= addr.state %>
+                                  <%= addr.pincode %>
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      
-                      <!-- Center: Phone + Country -->
                       <div class="addr-center">
                         <div class="phone-block">
                           <div class="ph-num">
@@ -107,7 +96,6 @@
                         </div>
                       </div>
 
-                      <!-- Right: Action Buttons -->
                       <div class="addr-right">
                         <div class="action-btns">
                           <a href="/address-edit/<%= addr._id %>" class="btn-action-sm btn-edit-sm" title="Edit">
@@ -119,145 +107,50 @@
                           </button>
                         </div>
                       </div>
-
                     </div>
                   </div>
 
-                <% }); %>
+                  <% }); %>
               </div>
 
-              
-
-
-
               <% if (totalPages> 1) { %>
-                <div class="pagination-container">
+                <div class="pagination-container mt-5">
                   <a href="/address?page=<%= currentPage - 1 %>"
-                    class="pagination-link ajax-link <%= currentPage === 1 ? 'disabled' : '' %>"
-                    data-url="/address?page=<%= currentPage - 1 %>">
+                    class="pagination-link ajax-link <%= currentPage === 1 ? 'disabled' : '' %>">
                     <i class="bi bi-chevron-left"></i>
                   </a>
                   <% for (let i=1; i <=totalPages; i++) { %>
                     <a href="/address?page=<%= i %>"
-                      class="pagination-link ajax-link <%= currentPage === i ? 'active' : '' %>"
-                      data-url="/address?page=<%= i %>">
+                      class="pagination-link ajax-link <%= currentPage === i ? 'active' : '' %>">
                       <%= i %>
                     </a>
-                  <% } %>
+                    <% } %>
                       <a href="/address?page=<%= currentPage + 1 %>"
-                        class="pagination-link ajax-link <%= currentPage === totalPages ? 'disabled' : '' %>"
-                        data-url="/address?page=<%= currentPage + 1 %>">
+                        class="pagination-link ajax-link <%= currentPage === totalPages ? 'disabled' : '' %>">
                         <i class="bi bi-chevron-right"></i>
                       </a>
                 </div>
-              <% } %>
+                <% } %>
 
-              <% } else { %>
-                    <!-- Empty State -->
+                  <% } else { %>
                     <div class="empty-state">
                       <div class="empty-icon-wrap">
                         <i class="fa-solid fa-location-dot"></i>
-                        <span class="plus-dot"><i class="fa-solid fa-plus"></i></span>
                       </div>
-                      <h2>No Saved Addresses</h2>
-                      <p>You haven't added any delivery addresses yet. Add one now to make checkout faster.</p>
+                      <h4 class="fw-bold text-white mb-2">No addresses saved</h4>
+                      <p class="text-muted mb-4">You haven't added any shipping addresses to your account yet.</p>
                       <a href="/address-add" class="btn-add-empty">
-                        <i class="fa-solid fa-plus"></i> Add New Address
+                        <i class="fa-solid fa-plus me-2"></i> Add Your First Address
                       </a>
                     </div>
-
-              <% } %>
-
+                    <% } %>
           </div>
         </div>
       </main>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/js/userProfile.js"></script>
-  <script>
-    function setDefaultAddress(id) {
-      const card = document.getElementById(`address-${id}`);
-      const otherCards = document.querySelectorAll(`.address-card:not(#address-${id})`);
-      const statusBadge = card.querySelector('.status-badge');
-
-      const originalContent = statusBadge.innerHTML;
-      const originalClass = statusBadge.className;
-
-      card.classList.add('switching');
-      otherCards.forEach(c => c.classList.add('fade-out'));
-
-      statusBadge.innerHTML = `<span class="switching-text"><span class="spinner-small"></span> Setting as Default...</span>`;
-
-      fetch(`/address-default/${id}`, { method: 'PATCH' })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            setTimeout(() => {
-              if (typeof window.loadCardContent === 'function') {
-                window.loadCardContent('/address', false);
-              } else {
-                window.location.href = '/address';
-              }
-            }, 2000);
-          } else {
-            card.classList.remove('switching');
-            otherCards.forEach(c => c.classList.remove('fade-out'));
-            statusBadge.innerHTML = originalContent;
-            statusBadge.className = originalClass;
-            alert(data.message || 'Error updating default address');
-          }
-        })
-        .catch(err => {
-          console.error('Set Default Error:', err);
-          card.classList.remove('switching');
-          otherCards.forEach(c => c.classList.remove('fade-out'));
-          statusBadge.innerHTML = originalContent;
-          statusBadge.className = originalClass;
-          alert('Something went wrong!');
-        });
-    }
-
-    function deleteAddress(id) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Are you sure?',
-        text: 'Are you sure you want to delete this address?',
-        confirmButtonText: 'Yes, Delete',
-        cancelButtonText: 'Cancel',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        reverseButtons: true
-      }).then(result => {
-        if (result.isConfirmed) {
-          fetch(`/address-delete/${id}`, { method: 'DELETE' })
-            .then(res => res.json())
-            .then(data => {
-              if (data.success) {
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Deleted!',
-                  text: 'Address deleted successfully',
-                  timer: 1500,
-                  showConfirmButton: false
-                });
-                if (typeof window.loadCardContent === 'function') {
-                  const url = new URL(window.location.href);
-                  window.loadCardContent(url.pathname + url.search, false);
-                } else {
-                  setTimeout(() => window.location.reload(), 1500);
-                }
-              } else {
-                Swal.fire('Error', data.message || 'Error deleting address', 'error');
-              }
-            })
-            .catch(err => {
-              console.error('Delete Error:', err);
-              Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
-            });
-        }
-      });
-    }
-  </script>
 </body>
 
 </html>

@@ -2,9 +2,11 @@
    ADMIN LOGIN — adminLogin.css
    =========================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -24,13 +26,13 @@
   --error-bg: #fff0ee;
   --error-border: #f5c0b3;
   --error-text: #c0392b;
-  --shadow: 0 20px 60px rgba(0,0,0,0.18);
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
   --radius: 14px;
   --radius-sm: 8px;
 }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   background: var(--bg);
   min-height: 100vh;
   display: flex;
@@ -44,8 +46,8 @@ body {
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 48px 48px;
   pointer-events: none;
   z-index: 0;
@@ -64,10 +66,10 @@ body {
 
 /* Top label */
 .page-label {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255, 255, 255, 0.35);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   align-self: flex-start;
@@ -88,8 +90,15 @@ body {
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Logo */
@@ -110,7 +119,7 @@ body {
 }
 
 .logo-text {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
   font-size: 15px;
   color: #fff;
@@ -172,7 +181,7 @@ body {
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: var(--text-dark);
   outline: none;
@@ -249,15 +258,39 @@ body {
 }
 
 @keyframes shake {
-  10%, 90%  { transform: translateX(-2px); }
-  20%, 80%  { transform: translateX(3px); }
-  30%, 50%, 70% { transform: translateX(-4px); }
-  40%, 60%  { transform: translateX(4px); }
+
+  10%,
+  90% {
+    transform: translateX(-2px);
+  }
+
+  20%,
+  80% {
+    transform: translateX(3px);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translateX(-4px);
+  }
+
+  40%,
+  60% {
+    transform: translateX(4px);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Forgot */
@@ -315,6 +348,7 @@ body {
   .card {
     padding: 28px 20px 24px;
   }
+
   .form-box {
     padding: 20px 16px;
   }
