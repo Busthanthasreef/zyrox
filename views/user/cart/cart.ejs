@@ -17,7 +17,7 @@
             --bg-card: #12131a;
             --bg-mid: #1a1b26;
             --bg-row: #0f1018;
-            --accent: #c8883a;
+            --accent: #00ff04;
             --accent-lt: rgba(200, 136, 58, .13);
             --accent-b: rgba(200, 136, 58, .4);
             --green: #00d4a0;
@@ -909,10 +909,10 @@
                         title: 'Quantity Limit Reached',
                         html: `You can only add up to <strong>${MAX_QTY}</strong> units of the same product to your cart.`,
                         confirmButtonText: 'Got it',
-                        confirmButtonColor: '#c8883a',
+                        confirmButtonColor: '#00ff04',
                         background: '#12131a',
                         color: '#e8e8f0',
-                        iconColor: '#c8883a',
+                        iconColor: '#00ff04',
                         customClass: {
                             popup: 'swal-zyrox'
                         }
@@ -929,7 +929,7 @@
                             ? 'Min stock requirement reached (must leave 1 in inventory)'
                             : `Only ${stockLimit} unit${stockLimit > 1 ? 's' : ''} can be added (must leave 1 in inventory)`,
                         showConfirmButton: false, timer: 2500,
-                        background: '#12131a', color: '#e8e8f0', iconColor: '#c8883a'
+                        background: '#12131a', color: '#e8e8f0', iconColor: '#00ff04'
                     });
                     return;
                 }
@@ -1128,7 +1128,7 @@
                         icon: 'warning',
                         title: 'Unavailable Items in Cart',
                         text: 'One or more products are currently unavailable. Please remove them before checking out.',
-                        confirmButtonColor: '#c8883a',
+                        confirmButtonColor: '#00ff04',
                         background: '#12131a', color: '#e8e8f0'
                     });
                     return;
@@ -1138,7 +1138,7 @@
                         icon: 'warning',
                         title: 'Unavailable or Limited Items',
                         text: 'Please adjust your cart to respect minimum stock requirements before proceeding.',
-                        confirmButtonColor: '#c8883a',
+                        confirmButtonColor: '#00ff04',
                         background: '#12131a', color: '#e8e8f0'
                     });
                     return;

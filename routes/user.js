@@ -6,15 +6,9 @@ import * as checkoutController from "../controllers/user/checkoutController.js";
 import * as profileController from "../controllers/user/profileController.js";
 import * as cartController from "../controllers/user/cartController.js"
 import * as wishlistController from "../controllers/user/wishlistController.js"
+import * as orderController from "../controllers/user/orderController.js"
 import { isUserAuthenticated, isUserGuest } from "../middlewares/auth.js";
 import upload from "../middlewares/multer.js";
-import {
-    loadCart,
-    addToCart,
-    updateQuantity,
-    removeFromCart,
-    clearCart
-} from "../controllers/user/cartController.js";
 
 const userRoutes = express.Router();
 
@@ -24,11 +18,11 @@ userRoutes.get("/", userController.landingPage);
 userRoutes.get('/products', productController.loadProducts);
 userRoutes.get('/product/:id', productController.loadProductDetails);
 
-userRoutes.get("/cart",                isUserAuthenticated, loadCart);
-userRoutes.post("/cart/add",           isUserAuthenticated, addToCart);
-userRoutes.post("/cart/update-quantity", isUserAuthenticated, updateQuantity);
-userRoutes.post("/cart/remove",        isUserAuthenticated, removeFromCart);
-userRoutes.post("/cart/clear",         isUserAuthenticated, clearCart);
+userRoutes.get("/cart",                isUserAuthenticated, cartController.loadCart);
+userRoutes.post("/cart/add",           isUserAuthenticated, cartController.addToCart);
+userRoutes.post("/cart/update-quantity", isUserAuthenticated, cartController.updateQuantity);
+userRoutes.post("/cart/remove",        isUserAuthenticated,cartController.removeFromCart);
+userRoutes.post("/cart/clear",         isUserAuthenticated, cartController.clearCart);
 
 
 /* SIGNUP */
@@ -46,6 +40,12 @@ userRoutes.post("/signin", isUserGuest, userController.userSignIn);
 userRoutes.post('/wishlist/toggle', wishlistController.toggleWishlist);
 userRoutes.get('/wishlist', isUserAuthenticated, wishlistController.loadWishlist);
 
+
+userRoutes.get("/checkout", isUserAuthenticated, checkoutController.loadCheckout);
+userRoutes.post("/checkout/place-order", isUserAuthenticated, checkoutController.placeOrder);
+userRoutes.get("/order-success/:orderId", isUserAuthenticated, checkoutController.getOrderSuccess);
+
+userRoutes.get("/myOrders",isUserAuthenticated, orderController.getMyOrders)
 
 userRoutes.get("/profile", isUserAuthenticated, profileController.userProfile);
 userRoutes.get("/profile-edit", isUserAuthenticated, profileController.loadEditProfile);
@@ -81,10 +81,6 @@ userRoutes.post("/resend-reset-otp", userController.resendOtp); // Reusing resen
 /* RESET PASSWORD */
 userRoutes.get("/new-password", userController.loadNewPassword);
 userRoutes.post("/new-password", userController.resetPassword);
-
-userRoutes.get("/checkout", isUserAuthenticated, checkoutController.loadCheckout);
-userRoutes.post("/checkout/place-order", isUserAuthenticated, checkoutController.placeOrder);
-userRoutes.get("/order-success/:orderId", isUserAuthenticated, checkoutController.getOrderSuccess);
 
 
 export default userRoutes;

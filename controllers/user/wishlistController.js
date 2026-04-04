@@ -6,15 +6,15 @@ import Cart from "../../models/cart.js"
 
 
 
-const getCartItemCount = async (userId) => {
-    if (!userId) return 0;
-    try {
-        const cart = await Cart.findOne({ User_id: userId }).select("Items").lean();
-        return cart?.Items?.length ?? 0;
-    } catch {
-        return 0;
-    }
-};
+// const getCartItemCount = async (userId) => {
+//     if (!userId) return 0;
+//     try {
+//         const cart = await Cart.findOne({ User_id: userId }).select("Items").lean();
+//         return cart?.Items?.length ?? 0;
+//     } catch {
+//         return 0;
+//     }
+// };
 
 const toggleWishlist = async (req, res) => {
     try {
@@ -102,6 +102,7 @@ const loadWishlist = async (req, res) => {
         
         res.render("user/wishlist/wishlist", {
             user: req.session.user,
+            userId:req.session.user._id,
             wishlist: paginatedProducts,
             currentPage: page,
             totalPages: totalPages,

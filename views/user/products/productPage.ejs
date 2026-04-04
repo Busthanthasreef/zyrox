@@ -14,7 +14,7 @@
       --bg: #0d0f14;
       --bg-card: #16181e;
       --bg-card-h: #1c1f26;
-      --accent: #c8883a;
+      --accent: #00ff04;
       --accent-rgb: 200, 136, 58;
       --accent-lt: rgba(200, 136, 58, .12);
       --green: #00d4a0;
@@ -716,7 +716,7 @@
 
     .badge-low-stock {
       background: var(--accent-lt);
-      color: var(--accent);
+      color: orangered;
       border: 1px solid rgba(200, 136, 58, .2);
     }
 
@@ -729,7 +729,7 @@
     .btn-view {
       padding: 8px 12px;
       border-radius: 8px;
-      background: linear-gradient(135deg, var(--accent), #b38f2d);
+      background: linear-gradient(135deg, #0ce0a1);
       border: none;
       display: flex;
       align-items: center;
@@ -1072,7 +1072,7 @@
                                 </div>
                                 <% }) %>
                                   <% } else { %>
-                                    <span class="no-data">No color options</span>
+                                    <span class="no-data">No colors</span>
                                     <% } %>
                           </div>
 
@@ -1099,7 +1099,8 @@
                     %>
                     <div class="product-card <%= isInactive ? 'is-inactive' : '' %>">
 
-                      <div class="card-img-wrap">
+                      <div class="card-img-wrap"
+                        onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
                         <% if (product.image && product.image !=='/images/placeholder.png' ) { %>
                           <img src="<%= product.image %>" alt="<%= product.name %>" loading="lazy"
                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
@@ -1192,7 +1193,7 @@
                                     </div>
                                     <button class="btn-buy-now"
                                       onclick="event.preventDefault(); event.stopPropagation(); buyNow('<%= product.productId %>', '<%= product.variantId %>', <%= product.stock %>)">
-                                     Buy
+                                      Buy
                                     </button>
                                     <% } else { %>
                                       <div style="display:flex; gap:8px; width:100%; height:40px;">
@@ -1300,7 +1301,7 @@
           const swalBase = {
             background: '#141416',
             color: '#eaeaea',
-            confirmButtonColor: '#c8883a',
+            confirmButtonColor: '#00ff04',
             cancelButtonColor: '#3a3a4a',
           };
 
@@ -1332,12 +1333,12 @@
               icon: isFull ? 'warning' : 'success',
               title: isFull ? 'Limit Reached' : 'Added to cart!',
               html: isFull
-                ? `<span style="font-size:.76rem;color:var(--text-dim)">You can only add up to <strong style="color:#c8883a">${limitVal}</strong> units of this item.</span>`
-                : `<span style="font-size:.76rem;color:var(--text-dim)">You can add <strong style="color:#c8883a">${remaining}</strong> more unit${remaining === 1 ? '' : 's'}</span>`,
+                ? `<span style="font-size:.76rem;color:var(--text-dim)">You can only add up to <strong style="color:#00ff04">${limitVal}</strong> units of this item.</span>`
+                : `<span style="font-size:.76rem;color:var(--text-dim)">You can add <strong style="color:#00ff04">${remaining}</strong> more unit${remaining === 1 ? '' : 's'}</span>`,
               showConfirmButton: false,
               timer: 2500,
               timerProgressBar: true,
-              iconColor: isFull ? '#c8883a' : '#00d4a0',
+              iconColor: isFull ? '#00ff04' : '#00d4a0',
             });
           }
 
@@ -1353,7 +1354,7 @@
                 return Swal.fire({
                   background: '#141416',
                   color: '#eaeaea',
-                  confirmButtonColor: '#c8883a',
+                  confirmButtonColor: '#00ff04',
                   icon: 'warning',
                   title: 'Sign In Required',
                   text: 'Please log in to add items to your wishlist.',
@@ -1378,8 +1379,13 @@
                   toast: true, position: 'top-end', icon: 'success',
                   title: data.action === 'added' ? 'Added to wishlist!' : 'Removed from wishlist',
                   showConfirmButton: false, timer: 1600,
-                  background: 'black', color:"white", iconColor: data.action === 'added' ? 'green' : 'red'
+                  background: 'black', color: "white", iconColor: data.action === 'added' ? 'green' : 'red'
                 });
+
+                setTimeout(()=>{
+                  window.location.reload();
+
+                },1000)
               }
             } catch (err) {
               console.error("Wishlist Toggle Error:", err);

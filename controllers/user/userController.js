@@ -12,6 +12,7 @@ import generateOtp from "../../utils/otpGenerator.js";
 ========================= */
 const landingPage = async (req, res) => {
   try {
+
     const categories = await Categories.find({});
     const loginSuccess = req.query.loginSuccess === "true";
     const currentUser = req.session.user?._id || null;

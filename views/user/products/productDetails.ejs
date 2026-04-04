@@ -20,7 +20,7 @@
             --bg: #0b0c0e;
             --bg-card: #141416;
             --bg-raised: #1c1c1f;
-            --accent: #c8883a;
+            --accent: #00ff04;
             --accent-lt: rgba(200, 136, 58, .15);
             --accent-glow: rgba(200, 136, 58, .25);
             --green: #00d4a0;
@@ -438,8 +438,8 @@
         }
 
         .badge-low-stock {
-            background: var(--accent-lt);
-            color: var(--accent);
+            background:orange;
+            color: orangered;
             border: 1px solid rgba(200, 136, 58, .25);
         }
 
@@ -468,7 +468,7 @@
             font-size: .65rem;
             font-weight: 700;
             letter-spacing: 1.5px;
-            color: var(--muted);
+            color:orangered;
             text-transform: uppercase;
             margin-bottom: 10px;
         }
@@ -501,9 +501,9 @@
         }
 
         .v-chip.v-selected {
-            border-color: var(--accent);
-            background: var(--accent-lt);
-            color: var(--accent);
+            border-color: rgb(30, 181, 103);
+            background:rgba(153, 205, 50, 0.268);
+            color: mediumturquoise;
             font-weight: 700;
             box-shadow: 0 0 0 1px var(--accent-glow);
         }
@@ -539,13 +539,13 @@
 
         .v-color-wrap:hover:not(.v-disabled) {
             border-color: var(--accent);
-            color: var(--accent);
+            color:rebeccapurple;
         }
 
         .v-color-wrap.v-selected {
-            border-color: var(--accent);
-            background: var(--accent-lt);
-            color: var(--accent);
+            border-color: rgb(30, 181, 103);
+            background: rgba(53, 87, 83, 0.451);
+            color:rgb(0, 0, 0)    ;
             font-weight: 600;
             box-shadow: 0 0 0 1px var(--accent-glow);
         }
@@ -590,7 +590,7 @@
         .variant-msg.msg-stock {
             background: var(--accent-lt);
             border: 1px solid rgba(200, 136, 58, .25);
-            color: var(--accent);
+            color:rgba(228, 215, 26, 0.796);
         }
 
         /* ── Quantity ──────────────────────────────────────────── */
@@ -686,9 +686,9 @@
         }
 
         .btn-cart {
-            border: 2px solid var(--accent);
+            border: 2px solid orangered ;
             background: transparent;
-            color: var(--accent);
+            color:lightcoral;
         }
 
         .btn-cart:hover:not(:disabled) {
@@ -698,7 +698,7 @@
 
         .btn-buy {
             border: none;
-            background: var(--accent);
+            background: tomato;
             color: #fff;
         }
 
@@ -1921,7 +1921,7 @@
             const swalBase = {
                 background: '#141416',
                 color: '#eaeaea',
-                confirmButtonColor: '#c8883a',
+                confirmButtonColor: '#00ff04',
                 cancelButtonColor: '#3a3a4a',
             };
 
@@ -1932,8 +1932,8 @@
                     icon: 'warning',
                     title: isHard ? 'Cart Limit Reached' : 'Added to Cart',
                     html: isHard
-                        ? `<span style="color:var(--text-dim)">You already have the maximum of <strong style="color:#c8883a">${MAX_CART_QTY}</strong> units in your cart.</span>`
-                        : `<span style="color:var(--text-dim)">You can still add <strong style="color:#c8883a">${canAddMore}</strong> more unit${canAddMore === 1 ? '' : 's'}.</span>`,
+                        ? `<span style="color:var(--text-dim)">You already have the maximum of <strong style="color:#00ff04">${MAX_CART_QTY}</strong> units in your cart.</span>`
+                        : `<span style="color:var(--text-dim)">You can still add <strong style="color:#00ff04">${canAddMore}</strong> more unit${canAddMore === 1 ? '' : 's'}.</span>`,
                     confirmButtonText: 'View Cart',
                     showCancelButton: true,
                     cancelButtonText: 'Continue Shopping',
@@ -2022,7 +2022,7 @@
                             icon: 'success',
                             title: 'Added to cart!',
                             html: `<span style="font-size:.76rem;color:var(--text-dim)">
-                        You can add <strong style="color:#c8883a">${canAddMore}</strong> more unit${canAddMore === 1 ? '' : 's'}
+                        You can add <strong style="color:#00ff04">${canAddMore}</strong> more unit${canAddMore === 1 ? '' : 's'}
                        </span>`,
                             showConfirmButton: false,
                             timer: 2500,
@@ -2102,7 +2102,7 @@
                         return Swal.fire({
                             background: '#141416',
                             color: '#eaeaea',
-                            confirmButtonColor: '#c8883a',
+                            confirmButtonColor: '#00ff04',
                             icon: 'warning',
                             title: 'Sign In Required',
                             text: 'Please log in to add items to your wishlist.',

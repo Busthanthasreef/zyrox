@@ -208,6 +208,7 @@ const getOrderSuccess = async (req, res) => {
 
         res.render("user/checkout/orderSuccess", {
             user: req.session.user,
+            userId,
             categories,
             order,
             cartItemCount: 0,

@@ -18,35 +18,30 @@
         <i class="fa-solid fa-wallet"></i> Wallet
     </a>
     <div style="margin-top: auto;">
-        <button id="logoutBtn" class="btn-custom logout-btn w-100 justify-content-center">
+        <button id="logoutBtn" onclick="confirmLogout()" class="btn-custom logout-btn w-100 justify-content-center">
             <i class="fa-solid fa-right-from-bracket"></i> Logout
         </button>
     </div>
 </aside>
 
-<!-- Mobile Dropdown Navigation -->
-<div class="col-12 mobile-nav d-md-none mb-3">
-    <div class="dropdown">
-        <button class="btn w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fa-solid fa-bars me-2"></i> Account Menu
-        </button>
-        <ul class="dropdown-menu w-100" style="background: var(--bg-card); border: 1px solid var(--border);">
-            <li><a class="dropdown-item text-white" href="/profile"><i class="fa-regular fa-user me-2"></i> Profile</a>
-            </li>
-            <li><a class="dropdown-item text-white" href="/address"><i class="fa-solid fa-location-dot me-2"></i>
-                    Address</a></li>
-            <li><a class="dropdown-item text-white" href="/myOrders"><i class="fa-solid fa-box me-2"></i> My Orders</a>
-            </li>
-            <li><a class="dropdown-item text-white" href="/wishlist"><i class="fa-regular fa-heart me-2"></i>
-                    Wishlist</a></li>
-            <li><a class="dropdown-item text-white" href="/wallet"><i class="fa-solid fa-wallet me-2"></i> Wallet</a>
-            </li>
-            <li>
-                <hr class="dropdown-divider" style="border-color: var(--border);">
-            </li>
-            <li><a class="dropdown-item text-white" href="/"><i class="fa-solid fa-house me-2"></i> Home</a></li>
-            <li><a class="dropdown-item text-danger" href="/logout" id="logoutBtnMobile"><i
-                        class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
-        </ul>
-    </div>
-</div>
+   <script>
+        function confirmLogout() {
+            Swal.fire({
+                background: '#111422',
+                color: '#f0f2ff',
+                icon: 'warning',
+                title: 'Logout?',
+                text: "Are you sure you want to end your session?",
+                showCancelButton: true,
+                confirmButtonText: "Yes, logout",
+                cancelButtonText: "Cancel",
+                confirmButtonColor: '#ff4d6d',
+                cancelButtonColor: 'rgba(255,255,255,0.1)',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/logout"
+                }
+            })
+        }
+    </script>

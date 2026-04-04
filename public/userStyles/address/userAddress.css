@@ -1,5 +1,5 @@
 .address-card {
-  background: var(--bg-card);
+  background: black;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 0;
@@ -8,6 +8,14 @@
   transition: all var(--transition);
   position: relative;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.main-container {
+  background-color: rgb(0, 0, 0);
+}
+
+.profile-card-container {
+  background-color: #000000;
 }
 
 .address-card:hover {
@@ -115,6 +123,67 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Base Button */
+.pagination-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+
+  transition: all 0.25s ease;
+}
+
+/* Hover */
+.pagination-link:hover {
+  background: #eef2ff;
+  color: #4f46e5;
+  border-color: #c7d2fe;
+}
+
+/* Active Page */
+.pagination-link.active {
+  background: linear-gradient(135deg, #4f46e5, #3b82f6);
+  color: #fff;
+  border: none;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+}
+
+/* Disabled */
+.pagination-link.disabled {
+  pointer-events: none;
+  opacity: 0.4;
+  background: #f1f5f9;
+  color: #94a3b8;
+  border-color: #e2e8f0;
+}
+
+/* Icon size fix */
+.pagination-link i {
+  font-size: 16px;
+}
+
+.pagination-link:hover:not(.active):not(.disabled) {
+  transform: translateY(-2px);
 }
 
 .addr-detail-block {

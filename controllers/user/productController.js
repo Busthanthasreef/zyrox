@@ -85,6 +85,7 @@ const loadProducts = async (req, res) => {
 
         return res.render("user/products/productPage", {
             user:          req.session.user || null,
+            userId,
             categories,
             cartItemCount,
             products,
@@ -136,6 +137,7 @@ const loadProductDetails = async (req, res) => {
 
         return res.render("user/products/productDetails", {
             user:          req.session.user || null,
+            userId,
             categories,
             cartItemCount,
             variant,

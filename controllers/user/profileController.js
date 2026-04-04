@@ -202,10 +202,11 @@ const loadEditEmail=(req,res)=>{
    try{
   
   const user= req.session.user;
+  const userId=user._id;
   const errors=req.session.formErrors ||{};
   delete req.session.formErrors;
 
-    res.render("user/profile/editEmail",{user,errors})
+    res.render("user/profile/editEmail",{user,errors,userId})
    }catch(error){
     console.log(error.message)
    }

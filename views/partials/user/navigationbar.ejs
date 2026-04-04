@@ -24,7 +24,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        color: var(--accent, #c8883a);
+        color: var(--accent, #00ff04);
         font-size: 20px;
         transition: transform 0.3s ease;
     }
@@ -57,13 +57,13 @@
     }
 
     .nav-links a:hover {
-        color: var(--accent, #c8883a);
+        color: var(--accent, #00ff04);
         opacity: 1;
     }
 
     /* ===== ACTIVE PAGE LINK ===== */
     .nav-links a.active {
-        color: var(--accent, #c8883a);
+        color: var(--accent, #00ff04);
         opacity: 1;
         font-weight: 700;
     }
@@ -117,7 +117,7 @@
 
     .dropdown-menu a:hover {
         background-color: #2a2a2a;
-        color: #c8883a !important;
+        color: #00ff04 !important;
         padding-left: 24px;
     }
 
@@ -162,7 +162,7 @@
     }
 
     .icon:hover {
-        color: #c8883a;
+        color: #00ff04;
     }
 
     .badge {
@@ -205,7 +205,7 @@
 
     .profile-btn:hover {
         background: #2a2a2a;
-        border-color: #c8883a;
+        border-color: #00ff04;
     }
 
     .profile-btn i.fa-chevron-down {
@@ -267,7 +267,7 @@
 
     .profile-dropdown a:hover {
         background: #2a2a2a;
-        color: #c8883a;
+        color: #00ff04;
     }
 
     .profile-dropdown a i {
@@ -335,7 +335,7 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        color: #c8883a;
+        color: #00ff04;
         font-size: 22px;
     }
 
@@ -358,7 +358,7 @@
     }
 
     .close-btn:hover {
-        color: #c8883a;
+        color: #00ff04;
     }
 
     .sidebar-links {
@@ -381,12 +381,12 @@
     }
 
     .sidebar-links a:hover {
-        color: #c8883a;
+        color: #00ff04;
         padding-left: 10px;
     }
 
     .sidebar-links a.active {
-        color: #c8883a;
+        color: #00ff04;
         text-decoration: underline;
         text-underline-offset: 5px;
     }
@@ -411,12 +411,12 @@
     }
 
     .sidebar-dropdown summary:hover {
-        color: #c8883a;
+        color: #00ff04;
         padding-left: 10px;
     }
 
     .sidebar-dropdown summary.active {
-        color: #c8883a;
+        color: #00ff04;
     }
 
     .sidebar-dropdown summary::after {
@@ -443,7 +443,7 @@
     }
 
     .sidebar-cat-links a:hover {
-        color: #c8883a;
+        color: #00ff04;
         padding-left: 28px;
     }
 
@@ -499,7 +499,7 @@
                 <% if (typeof categories !=='undefined' && categories.length> 0) { %>
                     <% categories.forEach(category=> { %>
                         <a href="/categories/<%= category._id %>">
-                            <i class="fas fa-tag" style="font-size:11px; margin-right:8px; color:#c8883a;"></i>
+                            <i class="fas fa-tag" style="font-size:11px; margin-right:8px; color:#00ff04;"></i>
                             <%= category.categoryName %>
                         </a>
                         <% }) %>
@@ -572,7 +572,7 @@
                             <a href="/wishlist" onclick="closeProfileDropdown()">
                                 <i class="fas fa-heart"></i> My Wishlist
                             </a>
-                            <a href="/orders" onclick="closeProfileDropdown()">
+                            <a href="/myOrders" onclick="closeProfileDropdown()">
                                 <i class="fas fa-box"></i> My Orders
                             </a>
                             <a href="/wallet" onclick="closeProfileDropdown()">
@@ -636,7 +636,7 @@
                     <% if (typeof categories !=='undefined' && categories.length> 0) { %>
                         <% categories.forEach(category=> { %>
                             <a href="/categories/<%= category._id %>" onclick="toggleSidebar()">
-                                <i class="fas fa-tag" style="font-size:11px; margin-right:8px; color:#c8883a;"></i>
+                                <i class="fas fa-tag" style="font-size:11px; margin-right:8px; color:#00ff04;"></i>
                                 <%= category.categoryName %>
                             </a>
                             <% }) %>
