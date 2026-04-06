@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; }
+        .glass-card { background: #1e293b; border-radius: 1rem; border: 1px solid #334155; }
+        
+        /* This class hides elements ONLY in the PDF */
+        .no-export { display: block; }
+    </style>
+</head>
+
+<body class="p-8">
+
+    <div class="max-w-6xl mx-auto" id="invoice-content">
+        
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <button
+                    class="no-print border border-gray-600 px-6 py-2 rounded-lg hover:bg-gray-800 transition flex items-center gap-2 mb-8"
+                    onclick="window.location.href='/myOrders'">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to Orders
+                </button>
+                <div class="flex items-center gap-4">
+                    <h1 class="text-2xl font-bold">
+                        Order ID: <%= order.orderId %>
+                    </h1>
+                    <span class="bg-green-900/30 text-green-400 text-xs px-3 py-1 rounded-full border border-green-800">
+                        ● <%= order.orderStatus %>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-6">
+                <% if(order.items) { %>
+                    <% order.items.forEach((item, index)=> { %>
+                        <div class="glass-card overflow-hidden">
+                            <div class="p-6">
+                                <div class="flex gap-6">
+                                    <img src="<%= item.image %>" alt="Product"
+                                        class="w-32 h-32 object-cover rounded-xl shadow-lg">
+
+                                    <div class="flex-1">
+                                        <div class="flex justify-between">
+                                            <h2 class="text-xl font-semibold"><%= item.name %></h2>
+                                            <span class="text-xl font-bold">₹<%= item.price %></span>
+                                        </div>
+
+                                        <span class="bg-gray-800 px-3 py-1 rounded text-xs border border-white-700 text-black-400">
+                                            Qty: <b class="text-white ml-1"><%= item.quantity %></b>
+                                        </span>
+                                       
+                                        <div class="flex gap-2 mt-4">
+                                            <span class="bg-gray-800 px-3 py-1 rounded text-xs border border-gray-700 text-gray-400">
+                                                RAM: <b class="text-white ml-1"><%= item.RAM %></b>
+                                            </span>
+                                            <span class="bg-gray-800 px-3 py-1 rounded text-xs border border-gray-700 text-gray-400">
+                                                STORAGE: <b class="text-white ml-1"><%= item.storage %></b>
+                                            </span>
+                                            <span class="bg-gray-800 px-3 py-1 rounded text-xs border border-gray-700 text-gray-400">
+                                                COLOR: <b class="text-white ml-1"><%= item.color %></b>
+                                            </span>
+                                        </div>
+
+                                        <div class="mt-8">
+                                            <div class="relative flex items-center justify-between px-2">
+                                                <% const statuses=['Pending', 'Processing', 'Shipped', 'Delivered'];
+                                                   const currentIdx=statuses.findIndex(s=> s.toLowerCase() === order.orderStatus.toLowerCase()); %>
+
+                                                <% statuses.forEach((status, index)=> { %>
+                                                    <div class="flex flex-col items-center z-10">
+                                                        <div class="w-4 h-4 rounded-full flex items-center justify-center transition-all duration-500 
+                                                            <%= index <= currentIdx ? 'bg-blue-500/20 ring-4 ring-blue-500/10' : 'bg-gray-700/50 ring-4 ring-gray-700/5' %>">
+                                                            <div class="w-1.5 h-1.5 rounded-full <%= index <= currentIdx ? 'bg-blue-400' : 'bg-gray-600' %>"></div>
+                                                        </div>
+                                                        <span class="text-[10px] mt-2 font-medium <%= index <= currentIdx ? 'text-blue-400' : 'text-gray-500' %>">
+                                                            <%= status %>
+                                                        </span>
+                                                    </div>
+                                                    <% if (index < statuses.length - 1) { %>
+                                                        <div class="h-[1px] flex-grow mx-2 mb-4 transition-colors duration-500 <%= index < currentIdx ? 'bg-blue-500/50' : 'bg-gray-700' %>"></div>
+                                                    <% } %>
+                                                <% }) %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            </div>
+
+            <div class="space-y-4">
+                <div class="glass-card p-6">
+                    <div class="flex items-center gap-2 mb-6">
+                        <i class="fas fa-circle text-blue-500 text-[10px]"></i>
+                        <h3 class="font-semibold">Shipping Address</h3>
+                    </div>
+                    <div class="text-sm space-y-4 text-gray-400">
+                        <div class="flex flex-col gap-2">
+                            <span class="text-white"><i class="far fa-user mr-2"></i><%= order.shippingAddress.fullName %></span>
+                            <span><i class="fas fa-phone-alt mr-2"></i><%= order.shippingAddress.phone %></span>
+                            <span class="text-white"><i class="fas fa-map-marker-alt mr-2"></i><%= order.shippingAddress.city %>, <%= order.shippingAddress.state %></span>
+                        </div>
+                        <div class="leading-relaxed">
+                            <%= order.shippingAddress.houseName %>, <%= order.shippingAddress.locality %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="font-semibold mb-4 flex items-center gap-2">
+                        <i class="fas fa-file-invoice text-blue-400 text-xs"></i> Price Details
+                    </h3>
+                    <div class="space-y-3 text-sm text-gray-400">
+                        <div class="flex justify-between"><span>Subtotal</span> <span class="text-white">₹<%= order.subtotal %></span></div>
+                        <div class="flex justify-between"><span>Discount</span> <span class="text-green-500">-₹<%= order.discount %></span></div>
+                        <div class="flex justify-between"><span>Coupon</span> <span class="text-green-500">-₹<%= order.couponDiscount %></span></div>
+                        <div class="flex justify-between border-b border-gray-700 pb-3"><span>Tax (GST)</span> <span class="text-white">₹<%= order.tax %></span></div>
+                        <div class="flex justify-between text-lg font-bold text-white pt-2"><span>Total</span> <span>₹<%= order.subtotal %></span></div>
+                    </div>
+                </div>
+
+                <div class="space-y-3 no-print">
+                    <% if (order.orderStatus.toLowerCase()==='delivered' ) { %>
+                        <button class="w-full border border-gray-700 py-3 rounded-lg font-medium text-blue-500 hover:bg-blue-500/10 transition">Return Entire Order</button>
+                    <% } %>
+
+                    <% if (['pending', 'processing'].includes(order.orderStatus.toLowerCase())) { %>
+                        <button class="w-full border border-gray-700 py-3 rounded-lg font-medium text-red-500 hover:bg-red-500/10 transition">Cancel Entire Order</button>
+                    <% } %>
+                    
+                    <%if(order.orderStatus=='Delivered'){%>
+                        <button onclick="downloadInvoice()"
+                        class="w-full border border-cyan-700/50 py-3 rounded-lg font-medium text-cyan-400 flex items-center justify-center gap-2 hover:bg-cyan-400/5 transition">
+                        <i class="fas fa-download text-xs"></i> Invoice
+                    </button>
+                    <%}%>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function downloadInvoice() {
+            const element = document.getElementById('invoice-content');
+            
+            // Temporary hide buttons that shouldn't be in PDF
+            const buttonsToHide = document.querySelectorAll('.no-print');
+            buttonsToHide.forEach(btn => btn.style.display = 'none');
+
+            const opt = {
+                margin: [0.5, 0.5],
+                filename: 'Invoice_<%= order.orderId %>.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#0f172a',
+                    letterRendering: true
+                },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Generate PDF then show buttons again
+            html2pdf().set(opt).from(element).save().then(() => {
+                buttonsToHide.forEach(btn => btn.style.display = 'block');
+            });
+        }
+    </script>
+</body>
+</html>

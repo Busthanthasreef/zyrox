@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Management | Zyrox Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
+    <link rel="stylesheet" href="/adminStyles/orders/orders.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .bell-container {
+            position: relative;
+        }
+
+        .bell-icon {
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-primary);
+            position: relative;
+            display: flex;
+        }
+
+        .bell-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #ef4444;
+            color: white;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 800;
+            border: 2px solid var(--white);
+        }
+
+        .requests-dropdown {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            width: 340px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
+        }
+
+        .requests-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f1f1;
+            font-weight: 800;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .request-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .request-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f9f9f9;
+        }
+
+        .request-btns {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .req-btn {
+            flex: 1;
+            padding: 6px;
+            border-radius: 6px;
+            border: 0;
+            font-size: 10px;
+            font-weight: 800;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .req-btn:hover {
+            opacity: 0.8;
+        }
+
+        .req-btn-accept {
+            background: #10b981;
+        }
+
+        .req-btn-decline {
+            background: #ef4444;
+        }
+
+        .request-reason {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
+        .request-type-badge {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .empty-state {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 32px;
+            color: #d1d5db;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .empty-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .empty-subtitle {
+            font-size: 11px;
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        /* New Search Components */
+        .search-area-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            max-width: 420px;
+        }
+
+        .search-pill {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-clear-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: #999;
+            cursor: pointer;
+            display: <%=search ? 'block': 'none' %>;
+        }
+
+        .search-clear-btn:hover {
+            color: #334155;
+        }
+
+        .search-btn {
+            background: #111318;
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+            height: 38px;
+        }
+
+        .search-btn:hover {
+            background: #222;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="d-flex">
+
+        <!-- Sidebar -->
+        <%- include('../../partials/admin/sidebar', { currentPage: 'orders' ,currentUser:user }) %>
+
+            <!-- Main Content -->
+            <main class="main-content">
+
+                <!-- Page Header -->
+                <div class="top-section">
+                    <h1 class="page-title">Orders</h1>
+                    <div class="bell-container">
+                        <div class="bell-icon" id="bellToggle">
+                            <i class="bi bi-bell"></i>
+                            <% if (returnRequests.length> 0) { %>
+                                <span class="bell-badge">
+                                    <%= returnRequests.length %>
+                                </span>
+                                <% } %>
+                        </div>
+
+                        <div class="requests-dropdown" id="requestsDropdown">
+                            <div class="dropdown-header">Inbox & Requests</div>
+                            <div class="request-list">
+                                <% if (returnRequests.length> 0) { %>
+                                    <% returnRequests.forEach(req=> { %>
+                                        <% const isR=req.orderStatus==='Return Requested' ; %>
+                                            <div class="request-item">
+                                                <span class="request-type-badge"
+                                                    style="color:<%= isR?'#0f766e':'#b91c1c' %>; background:<%= isR?'#f0fdfa':'#fef2f2' %>">
+                                                    <%= isR ? 'Return' : 'Cancellation' %> Request
+                                                </span>
+                                                <div style="font-weight: 800; font-size: 12px; color:#111;">
+                                                    <%= req.userId?.Name || 'User' %>
+                                                </div>
+                                                <div style="font-size: 10px; color: #999;">Order #<%= req.orderId %>
+                                                </div>
+                                                <div class="request-reason">"<%= req.returnReason ||
+                                                        req.cancellationReason || 'No reason' %>"</div>
+                                                <div class="request-btns">
+                                                    <button class="req-btn req-btn-accept"
+                                                        onclick="handleRequest('<%= req._id %>', 'accept')">Accept</button>
+                                                    <button class="req-btn req-btn-decline"
+                                                        onclick="handleRequest('<%= req._id %>', 'decline')">Decline</button>
+                                                </div>
+                                            </div>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <div class="empty-state">
+                                                        <i class="bi bi-check2-circle empty-icon"
+                                                            style="color:#10b981"></i>
+                                                        <div class="empty-title">All caught up!</div>
+                                                        <div class="empty-subtitle">No incoming return or cancellation
+                                                            requests</div>
+                                                    </div>
+                                                    <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <span class="stat-card-title">Total Revenue</span>
+                        <div class="stat-card-val">₹<%= stats.totalRevenue %>
+                        </div>
+                        <div class="stat-card-growth pos">+20.1%↑</div>
+                        <div class="stat-card-icon"><i class="bi bi-cash-stack"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-title">Total Orders</span>
+                        <div class="stat-card-val">+<%= stats.totalOrders %>
+                        </div>
+                        <div class="stat-card-growth pos">+180.1%↑</div>
+                        <div class="stat-card-icon"><i class="bi bi-bicycle"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-title">Pending Fulfillment</span>
+                        <div class="stat-card-val">
+                            <%= stats.pendingOrders %>
+                        </div>
+                        <div class="stat-card-growth neu" style="color:#71717a">Watch out!</div>
+                        <div class="stat-card-icon"><i class="bi bi-clock-history"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-card-title">Return/Cancel Rate</span>
+                        <div class="stat-card-val">
+                            <%= stats.returns %>
+                        </div>
+                        <div class="stat-card-growth neg" style="color:#ef4444">+2 today</div>
+                        <div class="stat-card-icon"><i class="bi bi-shield-exclamation"></i></div>
+                    </div>
+                </div>
+
+                <!-- Orders Table Card -->
+                <div class="orders-card">
+                    <div class="card-header">
+                        <form action="/admin/orders" method="GET" class="search-area-wrapper">
+                            <div class="search-pill">
+                                <i class="bi bi-search"></i>
+                                <input type="text" name="search" id="searchInput" class="search-pill-input"
+                                    placeholder="Search by ID or name..." value="<%= search %>" style="height:38px;">
+                                <i class="bi bi-x search-clear-btn" id="clearBtn" title="Clear Search"></i>
+                            </div>
+                            <button type="submit" class="search-btn">Search Orders</button>
+                        </form>
+                    </div>
+
+                    <div class="table-area">
+                        <table class="orders-table">
+                            <thead>
+                                <tr>
+                                    <th width="16%">Order ID</th>
+                                    <th width="28%">Customer Info</th>
+                                    <th width="12%">Order Date</th>
+                                    <th width="10%">Method</th>
+                                    <th width="18%">Current Status</th>
+                                    <th width="12%">Final Price</th>
+                                    <th width="4%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (orders && orders.length> 0) { %>
+                                    <% orders.forEach((order, index)=> { %>
+                                        <tr>
+                                            <td style="font-weight: 800; color:#111;">#<%= order.orderId %>
+                                            </td>
+                                            <td class="user-td">
+                                                <div class="user-cell">
+                                                    <% if (order.userId && order.userId.Profile_image) { %>
+                                                        <img src="<%= order.userId.Profile_image %>" class="user-avatar"
+                                                            alt="">
+                                                        <% } else { %>
+                                                            <div class="user-avatar-init">
+                                                                <%= order.userId ?
+                                                                    order.userId.Name.charAt(0).toUpperCase() : 'U' %>
+                                                            </div>
+                                                            <% } %>
+                                                                <div class="user-meta">
+                                                                    <span class="name">
+                                                                        <%= order.userId ?
+                                                                            order.userId.Name.split(' ')[0] : ' Guest'
+                                                                            %>
+                                                                    </span>
+                                                                    <span class="email">
+                                                                        <%= order.userId ? order.userId.Email : '—' %>
+                                                                    </span>
+                                                                </div>
+                                                </div>
+                                            </td>
+                                            <td style="font-weight: 800; color: #111;">
+                                                <%= new Date(order.createdAt).toLocaleDateString('en-US', {
+                                                    month: 'short' , day: 'numeric' , year: 'numeric' }) %>
+                                            </td>
+                                            <td
+                                                style="color:var(--text-secondary); font-size:11px; font-weight:800; text-transform:uppercase;">
+                                                <%= order.paymentMethod %>
+                                            </td>
+                                            <td>
+                                                <% const s=order.orderStatus.toLowerCase(); let tc='s-pending' ; if
+                                                    (s.includes('deliver')) tc='s-delivered' ; else if
+                                                    (s.includes('ship')) tc='s-shipped' ; else if (s.includes('cancel')
+                                                    && s.includes('req')) tc='s-cancellation-requested' ; else if
+                                                    (s.includes('cancel')) tc='s-canceled' ; else if
+                                                    (s.includes('return') && s.includes('req')) tc='s-return-requested'
+                                                    ; else if (s.includes('return')) tc='s-returned' ; else if
+                                                    (s.includes('paid')) tc='s-paid' ; %>
+                                                    <span class="status-tag <%= tc %>">
+                                                        <%= order.orderStatus %>
+                                                    </span>
+                                            </td>
+                                            <td style="font-weight: 800; font-size: 14px; color:#111;">
+                                                ₹<%= (order.finalPrice || 0).toLocaleString('en-IN') %>
+                                            </td>
+                                            <td>
+                                                <a href="/admin/orders/details?id=<%= order._id %>"
+                                                    class="view-link">view</a>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <tr class="table-empty-row">
+                                                    <td colspan="7">
+                                                        <div class="empty-state">
+                                                            <i class="bi bi-box-seam empty-icon"></i>
+                                                            <div class="empty-title">No orders found yet</div>
+                                                            <div class="empty-subtitle">Your store hasn't received any
+                                                                orders matching your criteria</div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-footer">
+                        <div class="showing-info">
+                            Showing <%= ((page-1)*5)+1 %>-<%= Math.min(page*5, totalOrdersCount) %> of <%=
+                                        totalOrdersCount %>
+                        </div>
+
+                        <div class="pag-nav-group">
+                            <a href="/admin/orders?page=<%= page - 1 %>&search=<%= search %>"
+                                class="p-nav-link <%= page === 1 ? 'disabled' : '' %>">
+                                <i class="bi bi-chevron-left"></i> Previous
+                            </a>
+                            <% for(let i=Math.max(1, page-2); i <=Math.min(totalPages, page+2); i++) { %>
+                                <a href="/admin/orders?page=<%= i %>&search=<%= search %>"
+                                    class="p-num <%= page === i ? 'active' : '' %>">
+                                    <%= i %>
+                                </a>
+                                <% } %>
+                                    <a href="/admin/orders?page=<%= page + 1 %>&search=<%= search %>"
+                                        class="p-nav-link <%= page >= totalPages ? 'disabled' : '' %>">
+                                        Next <i class="bi bi-chevron-right"></i>
+                                    </a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+    </div>
+
+    <script>
+        const bell = document.getElementById('bellToggle');
+        const dropdown = document.getElementById('requestsDropdown');
+        if (bell) {
+            bell.onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle('show'); };
+        }
+        window.onclick = () => dropdown.classList.remove('show');
+
+        // Search Input Functionality
+        const searchInput = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearBtn');
+
+        if (clearBtn) {
+            clearBtn.onclick = () => {
+                window.location.href = '/admin/orders';
+            };
+        }
+
+        if (searchInput) {
+            searchInput.oninput = () => {
+                clearBtn.style.display = searchInput.value.length > 0 ? 'block' : 'none';
+            };
+        }
+
+        function handleRequest(orderId, action) {
+            const url = action === 'accept' ? '/admin/orders/accept-return' : '/admin/orders/decline-return';
+            Swal.fire({
+                title: 'Confirm Operation',
+                text: `${action.charAt(0).toUpperCase() + action.slice(1)} this request permanently?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: action === 'accept' ? '#10b981' : '#ef4444',
+                confirmButtonText: 'Yes, proceed'
+            }).then((res) => {
+                if (res.isConfirmed) {
+                    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId }) })
+                        .then(r => r.json()).then(d => {
+                            if (d.success) location.reload();
+                            else Swal.fire('Error', d.message, 'error');
+                        });
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

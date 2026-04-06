@@ -42,10 +42,14 @@ userRoutes.get('/wishlist', isUserAuthenticated, wishlistController.loadWishlist
 
 
 userRoutes.get("/checkout", isUserAuthenticated, checkoutController.loadCheckout);
+userRoutes.get("/checkout/buy-now", isUserAuthenticated, checkoutController.loadBuyNowCheckout);
 userRoutes.post("/checkout/place-order", isUserAuthenticated, checkoutController.placeOrder);
 userRoutes.get("/order-success/:orderId", isUserAuthenticated, checkoutController.getOrderSuccess);
 
-userRoutes.get("/myOrders",isUserAuthenticated, orderController.getMyOrders)
+userRoutes.get("/myOrders",isUserAuthenticated, orderController.getOrdersPage);
+userRoutes.get("/myOrders/:id",isUserAuthenticated, orderController.getOrdersDetailsPage);
+userRoutes.post("/cancel-order", isUserAuthenticated, orderController.cancelOrder);
+userRoutes.post("/return-order", isUserAuthenticated, orderController.returnOrder);
 
 userRoutes.get("/profile", isUserAuthenticated, profileController.userProfile);
 userRoutes.get("/profile-edit", isUserAuthenticated, profileController.loadEditProfile);

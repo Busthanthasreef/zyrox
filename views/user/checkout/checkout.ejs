@@ -24,7 +24,7 @@
             --bg-surface: #181c2e;
             --bg-hover: #1e2338;
             --border: #252a42;
-            --accent: #4f6ef7;
+            --accent: #1afa1a;
             --accent-glow: rgba(79, 110, 247, .35);
             --accent-2: #00d4aa;
             --danger: #ff4d6d;
@@ -591,7 +591,7 @@
         .btn-place-order {
             width: 100%;
             padding: 1rem;
-            background: linear-gradient(135deg, var(--accent) 0%, #6c8aff 100%);
+            background: #6c8aff 100%;
             border: none;
             border-radius: var(--radius-md);
             color: #fff;
@@ -1392,43 +1392,6 @@
                 </div><!-- end row -->
             </div><!-- end container -->
         </div><!-- end checkoutPage -->
-
-        <!-- ─── ORDER SUCCESS PAGE ─────────────────────────────── -->
-        <div id="successPage">
-            <div class="success-confetti mb-3">🎉</div>
-            <div class="success-circle mb-3">
-                <i class="bi bi-check-lg"></i>
-            </div>
-            <h2 class="success-title">Order Placed!</h2>
-            <p class="success-sub">
-                Thank you, <strong>
-                    <%= user.Name.split(' ')[0] %></strong>! Your order has been successfully placed.
-    We' ll send a confirmation to <strong>
-                        <%= user.Email %>
-                </strong>.
-            </p>
-            <div class="order-id-pill">
-                <i class="bi bi-hash"></i>
-                Order ID: <strong id="displayOrderId">—</strong>
-            </div>
-
-            <div class="success-summary-card mt-3">
-                <div class="row-item"><span>Items</span><strong id="sItems">—</strong></div>
-                <div class="row-item"><span>Total Paid</span><strong id="sTotal">—</strong></div>
-                <div class="row-item"><span>Payment</span><strong>Cash on Delivery</strong></div>
-                <div class="row-item"><span>Estimated Delivery</span><strong>3–5 Business Days</strong></div>
-            </div>
-
-            <div class="success-actions">
-                <a href="/orders/<%= typeof newOrderId !== 'undefined' ? newOrderId : '' %>" id="viewOrderBtn"
-                    class="btn-success-primary">
-                    <i class="bi bi-box-seam-fill"></i> View Order Details
-                </a>
-                <a href="/shop" class="btn-success-outline">
-                    <i class="bi bi-shop"></i> Continue Shopping
-                </a>
-            </div>
-        </div>
 
         <!-- ─── ADD/EDIT ADDRESS MODAL ─────────────────────────── -->
         <div class="modal fade" id="addAddressModal" tabindex="-1" data-bs-backdrop="static">

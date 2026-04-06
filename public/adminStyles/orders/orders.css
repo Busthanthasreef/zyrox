@@ -1,0 +1,343 @@
+:root {
+    --bg-page: #f4f3ef;
+    --white: #ffffff;
+    --text-primary: #111318;
+    --text-secondary: #555b6a;
+    --text-muted: #8b919e;
+    --border: #e8e8e4;
+    --accent-brown: #b46b4b;
+    --radius: 12px;
+}
+
+body {
+    background-color: var(--bg-page);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+    margin: 0;
+    overflow: hidden;
+    height: 100vh;
+}
+
+.d-flex {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+}
+
+.main-content {
+    flex: 1;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 24px;
+    overflow: hidden;
+}
+
+.top-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0;
+}
+
+/* Stats Cards */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+    flex-shrink: 0;
+}
+
+.stat-card {
+    background: var(--white);
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+}
+
+.stat-card-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    display: block;
+}
+
+.stat-card-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.stat-card-growth {
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.stat-card-growth.pos {
+    color: #22c55e;
+}
+
+.stat-card-growth.neg {
+    color: #ef4444;
+}
+
+.stat-card-icon {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    font-size: 12px;
+    color: var(--text-primary);
+}
+
+/* Orders Table Card */
+.orders-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.card-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid #f8f8f8;
+    flex-shrink: 0;
+}
+
+.search-pill {
+    max-width: 300px;
+    position: relative;
+}
+
+.search-pill-input {
+    width: 100%;
+    padding: 7px 16px 7px 38px;
+    background: #f8f8fafb;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    font-size: 13px;
+    outline: none;
+}
+
+.search-pill i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* Table Style */
+.table-area {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.table-area::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.orders-table thead {
+    background: #fcfcfc;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.orders-table th {
+    text-align: left;
+    padding: 12px 18px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.orders-table td {
+    padding: 8px 18px;
+    border-bottom: 1px solid #f9f9f9;
+    vertical-align: middle;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    /* Prevent data breaking across lines */
+}
+
+/* Allow User cell to wrap if absolutely necessary, but name/email should be stacked */
+.user-td {
+    white-space: normal !important;
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-avatar-init {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #f0f2f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 12px;
+}
+
+.name {
+    font-weight: 700;
+    color: var(--text-primary);
+    display: block;
+    line-height: 1.2;
+}
+
+.email {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: block;
+    line-height: 1.2;
+}
+
+.status-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 9.5px;
+    font-weight: 800;
+    border: 1.5px solid transparent;
+    white-space: nowrap;
+    text-transform: capitalize;
+}
+
+.s-paid {
+    border-color: #22c55e;
+    color: #166534;
+}
+
+.s-pending {
+    border-color: #f59e0b;
+    color: #92400e;
+}
+
+.s-delivered {
+    border-color: #10b981;
+    color: #065f46;
+}
+
+.s-canceled {
+    border-color: #ef4444;
+    color: #991b1b;
+}
+
+.s-shipped {
+    border-color: #3b82f6;
+    color: #1e40af;
+}
+
+.s-return-requested {
+    border-color: #14b8a6;
+    color: #0f766e;
+    background: #f0fdfa;
+}
+
+.s-cancellation-requested {
+    border-color: #f43f5e;
+    color: #9f1239;
+    background: #fff1f2;
+}
+
+.view-link {
+    font-weight: 800;
+    font-size: 12px;
+    color: var(--text-primary);
+    text-decoration: none;
+    text-transform: lowercase;
+}
+
+.table-footer {
+    padding: 12px 18px;
+    background: #fff;
+    border-top: 1px solid #f1f1f1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.showing-info {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-secondary);
+}
+
+.pag-nav-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.p-nav-link {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.p-nav-link.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.p-num {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.p-num.active {
+    background: #f4f3ef;
+    box-shadow: inset 0 0 0 1px #e2e2e0;
+}

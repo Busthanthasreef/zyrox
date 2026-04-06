@@ -59,6 +59,9 @@ const loadCart = async (req, res) => {
     /* ================= PAGINATION ================= */
     const paginatedItems = cart.Items.slice(skip, skip + limit);
 
+
+
+
     /* ================= MAP CART ITEMS ================= */
     const cartItems = paginatedItems.map(item => {
       const prod = item.Product_id;
@@ -69,12 +72,15 @@ const loadCart = async (req, res) => {
       const isActiveVariant = vari?.IsActive !== false;
       const isInStock       = (vari?.stock || 0) > 0;
 
-      
+      const product = variantSchema.findOne({productId:prod,_id:vari});
+      console.log(product)
       
       const isAdminInactive = !isActiveProduct || !isActiveVariant;
       const isAvailable     = isActiveProduct && isActiveVariant && isInStock;
+      const isMinQty = product.stock < prod.quantity ? true: false ;
+      console.log(isMinQty)
       const isDeleted = productSchema.find({IsDeleted:true});
-      console.log(isDeleted)
+      
 
       return {
         quantity:        item.Quantity,
@@ -83,6 +89,7 @@ const loadCart = async (req, res) => {
 
         isAvailable,    
         isAdminInactive,
+        isMinQty,
         
         product: {
           name:    prod?.productName,

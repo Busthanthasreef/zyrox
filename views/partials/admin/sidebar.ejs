@@ -1,7 +1,7 @@
 <!-- ===================== SIDEBAR ===================== -->
 <aside class="sidebar">
     <div class="sidebar-logo">
-        <i class="bi bi-bag-fill"></i>
+        <i class="bi bi-shop"></i>
         <span>Zyrox</span>
     </div>
 
@@ -41,16 +41,20 @@
                 <%= currentUser.Name ? currentUser.Name.charAt(0).toUpperCase():'' %>
             </div>
             <div class="user-info">
-                <p class="user-name"><%= currentUser.Name%></p>
-                <p class="user-email"><%= currentUser.Email%></p>
+                <p class="user-name">
+                    <%= currentUser.Name%>
+                </p>
+                <p class="user-email">
+                    <%= currentUser.Email%>
+                </p>
             </div>
-        <% } else { %>
-            <div class="user-avatar">A</div>
-            <div class="user-info">
-                <p class="user-name">Admin</p>
-                <p class="user-email">admin@zyrox.com</p>
-            </div>
-        <% } %>
+            <% } else { %>
+                <div class="user-avatar">A</div>
+                <div class="user-info">
+                    <p class="user-name">Admin</p>
+                    <p class="user-email">admin@zyrox.com</p>
+                </div>
+                <% } %>
     </div>
 
 </aside>

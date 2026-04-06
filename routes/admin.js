@@ -5,6 +5,7 @@ import { isAdminAuthenticated, isAdminGuest } from "../middlewares/auth.js";
 import * as productController from "../controllers/admin/productController.js";
 import * as variantController from "../controllers/admin/variantController.js"
 import * as categoryController from "../controllers/admin/categoryController.js"
+import * as orderController from "../controllers/admin/orderController.js"
 import upload from "../middlewares/multer.js";
 const adminRoutes = express.Router();
 adminRoutes.get("/", isAdminGuest, adminController.loadLogin);
@@ -16,18 +17,18 @@ adminRoutes.get("/users", isAdminAuthenticated, costomerController.loadUserManag
 adminRoutes.post("/users/status", isAdminAuthenticated, costomerController.userStatus);
 adminRoutes.get("/users/details", isAdminAuthenticated, costomerController.userDetails);
 
-adminRoutes.get("/categories",isAdminAuthenticated,categoryController.loadCategories);
-adminRoutes.post("/categories-add",isAdminAuthenticated,categoryController.addCategory);
-adminRoutes.put("/categories/:id",isAdminAuthenticated,categoryController.editCategory);
-adminRoutes.patch("/categories/delete/:id",isAdminAuthenticated,categoryController.deleteCategory);
+adminRoutes.get("/categories", isAdminAuthenticated, categoryController.loadCategories);
+adminRoutes.post("/categories-add", isAdminAuthenticated, categoryController.addCategory);
+adminRoutes.put("/categories/:id", isAdminAuthenticated, categoryController.editCategory);
+adminRoutes.patch("/categories/delete/:id", isAdminAuthenticated, categoryController.deleteCategory);
 
-adminRoutes.get("/products",isAdminAuthenticated, productController.loadProducts);
+adminRoutes.get("/products", isAdminAuthenticated, productController.loadProducts);
 adminRoutes.get("/products-add", isAdminAuthenticated, productController.loadAddProduct);
 adminRoutes.get("/products-edit/:id", isAdminAuthenticated, productController.loadEditProduct);
 
 adminRoutes.post("/products-add", isAdminAuthenticated, upload.any(), productController.addProduct);
 adminRoutes.post("/products-edit/:id", isAdminAuthenticated, upload.any(), productController.editProduct);
-adminRoutes.get("/products-delete/:id",isAdminAuthenticated,productController.deleteProduct)
+adminRoutes.get("/products-delete/:id", isAdminAuthenticated, productController.deleteProduct)
 
 adminRoutes.get('/products/:id/variants-delete/:variantId', isAdminAuthenticated, (req, res, next) => {
     console.log(`Hitting delete variant route for ID: ${req.params.variantId}`);
@@ -37,6 +38,14 @@ adminRoutes.get('/products/:id/variants', isAdminAuthenticated, variantControlle
 adminRoutes.post('/products/:id/variants-add', isAdminAuthenticated, upload.array('images', 5), variantController.addVariant);
 adminRoutes.post('/products/:id/variants-edit/:variantId', isAdminAuthenticated, upload.array('images', 5), variantController.editVariant);
 adminRoutes.patch('/variants/:variantId/set-default', isAdminAuthenticated, variantController.setDefaultVariant);
+
+adminRoutes.get('/orders',isAdminAuthenticated,orderController.getOrders)
+adminRoutes.get('/orders/details', isAdminAuthenticated, orderController.getOrderDetails);
+adminRoutes.post('/orders/update-status', isAdminAuthenticated, orderController.updateOrderStatus);
+adminRoutes.post('/orders/accept-return', isAdminAuthenticated, orderController.acceptReturn);
+adminRoutes.post('/orders/decline-return', isAdminAuthenticated, orderController.declineReturn);
+
+
 adminRoutes.get("/logout", isAdminAuthenticated, adminController.logout);
 
 

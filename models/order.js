@@ -67,14 +67,17 @@ const orderSchema = new mongoose.Schema(
     orderStatus: {
       type: String,
       required: true,
-      default: "Order Placed",
+      default: "Pending",
       enum: [
-        "Order Placed",
+        "Pending",
         "Processing",
         "Shipped",
         "Delivered",
         "Cancelled",
         "Returned",
+        "Return Requested",
+        "Cancellation Requested",
+        "Out for Delivery"
       ],
     },
     subtotal: Number,
@@ -94,6 +97,14 @@ const orderSchema = new mongoose.Schema(
     finalPrice: {
       type: Number,
       required: true,
+    },
+    cancellationReason: {
+      type: String,
+      default: null,
+    },
+    returnReason: {
+      type: String,
+      default: null,
     },
   },
   {

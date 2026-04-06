@@ -1,10 +1,10 @@
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import pkg from "multer-storage-cloudinary";
-
-const CloudinaryStorage = pkg.CloudinaryStorage || pkg;
-
 import dotenv from "dotenv";
+
+// മുമ്പത്തെ എറർ ഒഴിവാക്കാൻ ഈ രീതി ഉപയോഗിക്കുക
+const CloudinaryStorage = pkg.CloudinaryStorage || pkg;
 
 dotenv.config();
 
@@ -20,15 +20,17 @@ const storage = new CloudinaryStorage({
     let folderName = "zyrox-uploads";
     
     if (file.fieldname === "profileImage") {
-      folderName = "zyrox/profiles";
+      folderName = "zyrox/profile";
     } else if (file.fieldname === "images" || file.fieldname.startsWith("variantImages")) {
       folderName = "zyrox/products";
     }
 
+    const cleanFileName = file.originalname.split(".")[0].replace(/\s+/g, "-");
+
     return {
       folder: folderName,
       allowed_formats: ["jpg", "jpeg", "png", "webp"],
-      public_id: `${Date.now()}-${file.originalname.split(".")[0]}`,
+      public_id: `${Date.now()}-${cleanFileName}`,
     };
   },
 });
