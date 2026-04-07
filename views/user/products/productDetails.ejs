@@ -1813,12 +1813,10 @@
                 if (v.stock <= 1) { qtyBlock.style.display = 'none'; return; }
 
                 qtyBlock.style.display = 'flex';
-                const canAdd = MAX_CART_QTY - alreadyInCart;
-                const stockLimit = Math.max(0, v.stock - 1);
-                const maxQty = Math.min(canAdd, stockLimit);
+                const maxQty = Math.min(MAX_CART_QTY, v.stock);
 
                 qtyVal.value = 1;
-                document.getElementById('qtyMinus').disabled = false;
+                document.getElementById('qtyMinus').disabled = true;
                 document.getElementById('qtyPlus').disabled = maxQty <= 1;
 
                 // if (qtyHint) {
@@ -1891,31 +1889,28 @@
                 const inp = document.getElementById('qtyVal');
                 if (!inp) return;
 
-                const canAddFromCartLimit = MAX_CART_QTY - alreadyInCart;
                 const stock = getCurrentStock();
-                const stockLimit = Math.max(0, stock - 1);
-                const maxQty = Math.min(canAddFromCartLimit, stockLimit);
+                const maxQty = Math.min(MAX_CART_QTY, stock);
 
                 const current = parseInt(inp.value, 10);
 
-                // Show SweetAlert when trying to go beyond the limit
                 if (delta > 0 && current >= maxQty) {
                     Swal.fire({
                         ...swalBase,
                         icon: 'warning',
                         title: 'Quantity Limit Reached',
-                        html: "only can add 3 product at once",
+                        html: `Only can buy ${MAX_CART_QTY} products at once`,
                         confirmButtonText: 'Got it',
                         customClass: { popup: 'swal-dark-popup' }
                     })
                     return;
                 }
 
-                let v = Math.max(1, Math.min(current + delta, maxQty));
-                inp.value = v;
+                let newVal = Math.max(1, Math.min(current + delta, maxQty));
+                inp.value = newVal;
 
-                // document.getElementById('qtyMinus').disabled = (v <= 1);
-                // document.getElementById('qtyPlus').disabled = (v >= maxQty);
+                document.getElementById('qtyMinus').disabled = (newVal <= 1);
+                document.getElementById('qtyPlus').disabled = (newVal >= maxQty);
             }
 
             /* ═══════════════════════════════════════════════════════════════════
@@ -2047,49 +2042,21 @@
                 }
             }
             /* ═══════════════════════════════════════════════════════════════════
-               BUY NOW
+               BUY NOW — redirects directly to dedicated checkout (bypasses cart)
             ═══════════════════════════════════════════════════════════════════ */
-            async function buyNow() {
+            function buyNow() {
                 const btn = document.getElementById('btnBuyNow');
                 const pid = btn.dataset.pid;
                 const vid = btn.dataset.vid;
-                const qty = parseInt(document.getElementById('qtyVal')?.value || 1, 10);
+                const qty = parseInt(document.getElementById('qtyVal')?.value || '1', 10);
 
                 if (!pid || !vid) return;
-                if (alreadyInCart >= MAX_CART_QTY) { showLimitSwal(0); return; }
 
                 btn.disabled = true;
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing…';
 
-                try {
-                    const res = await fetch('/cart/add', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ productId: pid, variantId: vid, quantity: qty }),
-                    });
-
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-bolt"></i> Buy Now';
-
-                    if (data.requiresAuth || data.redirect) { window.location.href = '/signin'; return; }
-
-                    if (!data.success) {
-                        if (data.limitReached) { alreadyInCart = MAX_CART_QTY; showLimitSwal(0); }
-                        else Swal.fire({ ...swalBase, icon: 'error', title: 'Oops!', text: data.message || 'Something went wrong.' });
-                        return;
-                    }
-
-                    window.location.href = '/cart';
-
-                } catch (err) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-bolt"></i> Buy Now';
-                    console.error('buyNow error:', err);
-                    window.location.href = '/signin';
-                }
+                // Redirect straight to the buy-now checkout; no cart mutation needed.
+                window.location.href = `/checkout/buy-now?product=${encodeURIComponent(pid)}&variant=${encodeURIComponent(vid)}&qty=${qty}`;
             }
             // Wishlist Toggle
             async function toggleWishlistDetail(productId) {

@@ -2,180 +2,762 @@
 <html lang="en">
 
 <head>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details | Zyrox</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Bootstrap CSS for Modals -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <style>
-        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; }
-        .glass-card { background: #1e293b; border-radius: 1rem; border: 1px solid #334155; }
-        
-        /* This class hides elements ONLY in the PDF */
-        .no-export { display: block; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            background-color: #0d1117;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+        }
+
+        .badge-status-green {
+            background: rgba(46, 160, 67, 0.15);
+            color: #3fb950;
+            border: 1px solid rgba(46, 160, 67, 0.3);
+        }
+
+        .badge-status-yellow {
+            background: rgba(210, 153, 34, 0.15);
+            color: #d29922;
+            border: 1px solid rgba(210, 153, 34, 0.3);
+        }
+
+        .badge-status-red {
+            background: rgba(248, 81, 73, 0.15);
+            color: #f85149;
+            border: 1px solid rgba(248, 81, 73, 0.3);
+        }
+
+        .badge-variant {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+        }
+
+        .badge-variant b {
+            color: #ffffff;
+            margin-left: 4px;
+        }
+
+        .stepper-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #30363d;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stepper-dot.active {
+            background: #58a6ff;
+            box-shadow: 0 0 10px rgba(88, 166, 255, 0.5);
+        }
+
+        .stepper-line {
+            flex-grow: 1;
+            height: 2px;
+            background: #30363d;
+            margin: 0 4px;
+            position: relative;
+            top: -1px;
+        }
+
+        .stepper-line.active {
+            background: #58a6ff;
+        }
+
+        .stepper-text {
+            font-size: 0.65rem;
+            color: #8b949e;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .stepper-text.active {
+            color: #ffffff;
+        }
+
+        .modal-content {
+            background-color: #161b22 !important;
+            border: 1px solid #30363d !important;
+            border-radius: 16px;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #30363d !important;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #30363d !important;
+        }
+
+        .form-select {
+            background-color: #0d1117 !important;
+            border: 1px solid #30363d !important;
+            color: #000000 !important;
+        }
+
+        .form-select:focus {
+            border-color: #58a6ff !important;
+            box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.25) !important;
+        }
+
+        /* ── Reason dropdown color chips ── */
+        #actionReason option[value="mistake"] {
+            color: #f59e0b;
+        }
+
+        #actionReason option[value="better_price"] {
+            color: #3b82f6;
+        }
+
+        #actionReason option[value="change_mind"] {
+            color: #a855f7;
+        }
+
+        #actionReason option[value="defective"] {
+            color: #ef4444;
+        }
+
+        #actionReason option[value="other"] {
+            color: #10b981;
+        }
+
+        /* ── Others input slide-in ── */
+        #othersWrapper {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        #othersWrapper.show {
+            max-height: 120px;
+            opacity: 1;
+        }
+
+        #othersInput {
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: #0d1117;
+            border: 1.5px solid #30363d;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            resize: none;
+            transition: border-color 0.2s;
+        }
+
+        #othersInput:focus {
+            outline: none;
+            border-color: #58a6ff;
+        }
+
+        #othersInput.error {
+            border-color: #ef4444;
+        }
+
+        /* ── Stock Status Badges ── */
+        .stock-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .stock-pill.in-stock {
+            background: rgba(46, 160, 67, .12);
+            color: #3fb950;
+            border: 1px solid rgba(46, 160, 67, .3);
+        }
+
+        .stock-pill.low-stock {
+            background: rgba(210, 153, 34, .12);
+            color: #d29922;
+            border: 1px solid rgba(210, 153, 34, .3);
+        }
+
+        .stock-pill.out-stock {
+            background: rgba(248, 81, 73, .12);
+            color: #f85149;
+            border: 1px solid rgba(248, 81, 73, .3);
+        }
     </style>
 </head>
 
-<body class="p-8">
+<body class="p-4 md:p-8">
 
-    <div class="max-w-6xl mx-auto" id="invoice-content">
-        
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <button
-                    class="no-print border border-gray-600 px-6 py-2 rounded-lg hover:bg-gray-800 transition flex items-center gap-2 mb-8"
-                    onclick="window.location.href='/myOrders'">
-                    <i class="fas fa-arrow-left mr-2"></i> Back to Orders
-                </button>
-                <div class="flex items-center gap-4">
-                    <h1 class="text-2xl font-bold">
-                        Order ID: <%= order.orderId %>
-                    </h1>
-                    <span class="bg-green-900/30 text-green-400 text-xs px-3 py-1 rounded-full border border-green-800">
-                        ● <%= order.orderStatus %>
-                    </span>
-                </div>
-            </div>
+    <div class="max-w-6xl mx-auto" id="order-dashboard">
+        <!-- Back Button -->
+        <div class="mb-8">
+            <a href="/myOrders"
+                class="inline-flex items-center gap-2 px-6 py-2 border border-[#30363d] rounded-lg text-sm font-semibold hover:bg-[#161b22] transition">
+                <i class="fas fa-arrow-left"></i> Back to Orders
+            </a>
+        </div>
+
+        <!-- Order Header -->
+        <div class="flex items-center gap-4 mb-8">
+            <h1 class="text-3xl font-extrabold tracking-tight">Order ID: <span class="text-white">
+                    <%= order.orderId %>
+                </span></h1>
+            <% let hC='#ffc107' ; const os=order.orderStatus.toLowerCase(); if(os.includes('pending')) hC='#fd7e14' ;
+                else if(os.includes('processing')) hC='#ffc107' ; else if(os.includes('shipped')) hC='#0ea5e9' ; else
+                if(os.includes('delivered')) hC='#22c55e' ; else if(os.includes('cancel')) hC='#ef4444' ; else
+                if(os.includes('return')) hC='#f59e0b' ; %>
+                <span class="px-3 py-1 rounded-full text-[0.7rem] font-bold border"
+                    style="border-color: <%= hC %>; color: <%= hC %>; background: <%= hC %>1a">
+                    <i class="fas fa-circle text-[6px] mr-1 align-middle"></i>
+                    <%= order.orderStatus %>
+                </span>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Side: Product Cards -->
             <div class="lg:col-span-2 space-y-6">
-                <% if(order.items) { %>
-                    <% order.items.forEach((item, index)=> { %>
-                        <div class="glass-card overflow-hidden">
-                            <div class="p-6">
-                                <div class="flex gap-6">
-                                    <img src="<%= item.image %>" alt="Product"
-                                        class="w-32 h-32 object-cover rounded-xl shadow-lg">
-
-                                    <div class="flex-1">
-                                        <div class="flex justify-between">
-                                            <h2 class="text-xl font-semibold"><%= item.name %></h2>
-                                            <span class="text-xl font-bold">₹<%= item.price %></span>
+                <% (order.items || []).forEach(item=> { %>
+                    <div class="glass-card p-4">
+                        <div class="flex flex-col md:flex-row gap-4">
+                            <div class="w-full md:w-20 h-20 flex-shrink-0">
+                                <img src="<%= item.image %>" class="w-full h-full object-contain rounded-lg bg-black/10"
+                                    alt="">
+                            </div>
+                            <div class="flex-grow">
+                                <div class="mb-1">
+                                    <h2 class="text-base font-bold text-white uppercase tracking-tight">
+                                        <%= item.name %>
+                                    </h2>
+                                    <% const iS=(item.status || order.orderStatus).toLowerCase(); let iC='#ffc107' ;
+                                        if(iS.includes('pending')) iC='#fd7e14' ; else if(iS.includes('processing'))
+                                        iC='#ffc107' ; else if(iS.includes('shipped')) iC='#0ea5e9' ; else
+                                        if(iS.includes('delivered')) iC='#22c55e' ; else if(iS.includes('cancel'))
+                                        iC='#ef4444' ; else if(iS.includes('return')) iC='#f59e0b' ; %>
+                                        <div class="text-[0.6rem] font-black uppercase tracking-widest mt-1"
+                                            style="color: <%= iC %>">
+                                            <%= item.status || order.orderStatus %>
                                         </div>
-
-                                        <span class="bg-gray-800 px-3 py-1 rounded text-xs border border-white-700 text-black-400">
-                                            Qty: <b class="text-white ml-1"><%= item.quantity %></b>
-                                        </span>
-                                       
-                                        <div class="flex gap-2 mt-4">
-                                            <span class="bg-gray-800 px-3 py-1 rounded text-xs border border-gray-700 text-gray-400">
-                                                RAM: <b class="text-white ml-1"><%= item.RAM %></b>
-                                            </span>
-                                            <span class="bg-gray-800 px-3 py-1 rounded text-xs border border-gray-700 text-gray-400">
-                                                STORAGE: <b class="text-white ml-1"><%= item.storage %></b>
-                                            </span>
-                                            <span class="bg-gray-800 px-3 py-1 rounded text-xs border border-gray-700 text-gray-400">
-                                                COLOR: <b class="text-white ml-1"><%= item.color %></b>
-                                            </span>
-                                        </div>
-
-                                        <div class="mt-8">
-                                            <div class="relative flex items-center justify-between px-2">
-                                                <% const statuses=['Pending', 'Processing', 'Shipped', 'Delivered'];
-                                                   const currentIdx=statuses.findIndex(s=> s.toLowerCase() === order.orderStatus.toLowerCase()); %>
-
-                                                <% statuses.forEach((status, index)=> { %>
-                                                    <div class="flex flex-col items-center z-10">
-                                                        <div class="w-4 h-4 rounded-full flex items-center justify-center transition-all duration-500 
-                                                            <%= index <= currentIdx ? 'bg-blue-500/20 ring-4 ring-blue-500/10' : 'bg-gray-700/50 ring-4 ring-gray-700/5' %>">
-                                                            <div class="w-1.5 h-1.5 rounded-full <%= index <= currentIdx ? 'bg-blue-400' : 'bg-gray-600' %>"></div>
-                                                        </div>
-                                                        <span class="text-[10px] mt-2 font-medium <%= index <= currentIdx ? 'text-blue-400' : 'text-gray-500' %>">
-                                                            <%= status %>
-                                                        </span>
+                                </div>
+                                <div class="flex justify-between items-start mb-1">
+                                    <div class="flex-grow"></div>
+                                    <div class="text-right flex flex-col items-end gap-2">
+                                        <span class="text-lg font-black text-white">₹<%=
+                                                item.total.toLocaleString('en-IN') %></span>
+                                        <% if (['Pending', 'Processing' ].includes(item.status) &&
+                                            !['Cancelled', 'Returned' , 'Cancellation Requested' , 'Return Requested'
+                                            ].includes(item.status)) { %>
+                                            <button
+                                                onclick="openItemModal('<%= item._id %>', '<%= item.name %>', 'cancel')"
+                                                class="px-3 py-1 bg-red-600/10 border border-red-600/50 text-red-500 rounded-lg text-[0.6rem] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition duration-300">
+                                                Cancel Item
+                                            </button>
+                                            <% } else if (item.status==='Delivered' ) { %>
+                                                <button
+                                                    onclick="openItemModal('<%= item._id %>', '<%= item.name %>', 'return')"
+                                                    class="px-3 py-1 bg-orange-600/10 border border-orange-600/50 text-orange-500 rounded-lg text-[0.6rem] font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition duration-300">
+                                                    Return Item
+                                                </button>
+                                                <% } else if (['Cancelled', 'Cancellation Requested'
+                                                    ].includes(item.status)) { %>
+                                                    <div
+                                                        class="text-[0.6rem] font-black text-red-500 uppercase tracking-widest text-right">
+                                                        <%= item.status==='Cancelled' ? 'ITEM CANCELLED'
+                                                            : 'CANCELLATION PENDING' %>
                                                     </div>
-                                                    <% if (index < statuses.length - 1) { %>
-                                                        <div class="h-[1px] flex-grow mx-2 mb-4 transition-colors duration-500 <%= index < currentIdx ? 'bg-blue-500/50' : 'bg-gray-700' %>"></div>
-                                                    <% } %>
-                                                <% }) %>
-                                            </div>
-                                        </div>
+                                                    <% } else if (['Returned', 'Return Requested'
+                                                        ].includes(item.status)) { %>
+                                                        <div
+                                                            class="text-[0.6rem] font-black text-orange-500 uppercase tracking-widest text-right">
+                                                            <%= item.status==='Returned' ? 'ITEM RETURNED'
+                                                                : 'RETURN PENDING' %>
+                                                        </div>
+                                                        <% } %>
                                     </div>
                                 </div>
+                                <% const itemStock=(stockMap && item.variant) ? (stockMap[String(item.variant)] ?? null)
+                                    : null; %>
+                                    <% if (itemStock !==null) { %>
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span
+                                                class="text-[0.55rem] font-black uppercase tracking-widest text-[#8b949e]">Stock
+                                                Status:</span>
+                                            <% if (itemStock> 10) { %>
+                                                <span class="stock-pill in-stock">
+                                                    <i class="fas fa-circle-check" style="font-size:0.55rem"></i> In
+                                                    Stock
+                                                </span>
+                                                <% } else if (itemStock> 5) { %>
+                                                    <span class="stock-pill low-stock">
+                                                        <i class="fas fa-triangle-exclamation"
+                                                            style="font-size:0.55rem"></i> Low Stock
+                                                    </span>
+                                                    <% } else if (itemStock> 0) { %>
+                                                        <span class="stock-pill low-stock">
+                                                            <i class="fas fa-triangle-exclamation"
+                                                                style="font-size:0.55rem"></i>
+                                                            <%= itemStock %> Left
+                                                        </span>
+                                                        <% } else { %>
+                                                            <span class="stock-pill out-stock">
+                                                                <i class="fas fa-circle-xmark"
+                                                                    style="font-size:0.55rem"></i> Out of Stock
+                                                            </span>
+                                                            <% } %>
+                                        </div>
+                                        <% } %>
+                                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                                <span
+                                                    class="bg-[#0d1117] border border-[#30363d] px-2 py-0.5 rounded text-[0.6rem] font-bold text-gray-400">
+                                                    QTY: <span class="text-white ml-1">
+                                                        <%= item.quantity %>
+                                                    </span>
+                                                </span>
+                                                <div class="flex gap-1">
+                                                    <div class="badge-variant" style="padding: 2px 6px;">RAM: <b>
+                                                            <%= item.RAM %>
+                                                        </b></div>
+                                                    <div class="badge-variant" style="padding: 2px 6px;">STORAGE: <b>
+                                                            <%= item.storage %>
+                                                        </b></div>
+                                                    <div class="badge-variant" style="padding: 2px 6px;">COLOR: <b>
+                                                            <%= item.color %>
+                                                        </b></div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-4">
+                                                <div class="flex items-center justify-between relative px-2">
+                                                    <% let steps=['Pending', 'Processing' , 'Shipped' , 'Delivered' ];
+                                                        let itemS=item.status || order.orderStatus; if
+                                                        (itemS.includes('Return')) { steps[3]=itemS; } else if
+                                                        (itemS.includes('Cancel')) { steps=['Pending', itemS]; } let
+                                                        cIdx=steps.indexOf(itemS); if(cIdx===-1) cIdx=steps.length - 1;
+                                                        %>
+                                                        <% steps.forEach((step, i)=> { %>
+                                                            <div class="flex flex-col items-center">
+                                                                <div
+                                                                    class="stepper-dot <%= i <= cIdx ? 'active' : '' %>">
+                                                                </div>
+                                                                <span
+                                                                    class="stepper-text <%= i <= cIdx ? 'active' : '' %>">
+                                                                    <%= step %>
+                                                                </span>
+                                                            </div>
+                                                            <% if(i < steps.length - 1) { %>
+                                                                <div
+                                                                    class="stepper-line <%= i < cIdx ? 'active' : '' %>">
+                                                                </div>
+                                                                <% } %>
+                                                                    <% }) %>
+                                                </div>
+                                            </div>
                             </div>
                         </div>
+                    </div>
                     <% }) %>
-                <% } %>
             </div>
 
-            <div class="space-y-4">
+            <!-- Right Side: Sidebar -->
+            <div class="space-y-6 no-download">
                 <div class="glass-card p-6">
                     <div class="flex items-center gap-2 mb-6">
-                        <i class="fas fa-circle text-blue-500 text-[10px]"></i>
-                        <h3 class="font-semibold">Shipping Address</h3>
+                        <i class="fas fa-circle text-blue-500 text-[8px]"></i>
+                        <h3 class="text-lg font-bold">Shipping Address</h3>
                     </div>
-                    <div class="text-sm space-y-4 text-gray-400">
-                        <div class="flex flex-col gap-2">
-                            <span class="text-white"><i class="far fa-user mr-2"></i><%= order.shippingAddress.fullName %></span>
-                            <span><i class="fas fa-phone-alt mr-2"></i><%= order.shippingAddress.phone %></span>
-                            <span class="text-white"><i class="fas fa-map-marker-alt mr-2"></i><%= order.shippingAddress.city %>, <%= order.shippingAddress.state %></span>
-                        </div>
-                        <div class="leading-relaxed">
-                            <%= order.shippingAddress.houseName %>, <%= order.shippingAddress.locality %>
+                    <div class="space-y-3 text-sm text-[#8b949e]">
+                        <p class="text-white font-medium"><i class="far fa-user mr-2"></i>
+                            <%= order.shippingAddress.fullName %>
+                        </p>
+                        <p><i class="fas fa-phone-alt mr-2"></i>
+                            <%= order.shippingAddress.phone %>
+                        </p>
+                        <div class="flex items-start gap-2">
+                            <i class="fas fa-map-marker-alt mt-1"></i>
+                            <div>
+                                <p class="text-white font-medium">
+                                    <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>
+                                </p>
+                                <p class="mt-1 leading-relaxed">
+                                    <%= order.shippingAddress.houseName %>(h), <%= order.shippingAddress.locality %>,
+                                            <%= order.shippingAddress.pincode %>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="glass-card p-6">
-                    <h3 class="font-semibold mb-4 flex items-center gap-2">
-                        <i class="fas fa-file-invoice text-blue-400 text-xs"></i> Price Details
-                    </h3>
-                    <div class="space-y-3 text-sm text-gray-400">
-                        <div class="flex justify-between"><span>Subtotal</span> <span class="text-white">₹<%= order.subtotal %></span></div>
-                        <div class="flex justify-between"><span>Discount</span> <span class="text-green-500">-₹<%= order.discount %></span></div>
-                        <div class="flex justify-between"><span>Coupon</span> <span class="text-green-500">-₹<%= order.couponDiscount %></span></div>
-                        <div class="flex justify-between border-b border-gray-700 pb-3"><span>Tax (GST)</span> <span class="text-white">₹<%= order.tax %></span></div>
-                        <div class="flex justify-between text-lg font-bold text-white pt-2"><span>Total</span> <span>₹<%= order.subtotal %></span></div>
+                    <div class="flex items-center gap-2 mb-6">
+                        <i class="fas fa-file-invoice text-blue-500 text-[8px]"></i>
+                        <h3 class="text-lg font-bold">Price Details</h3>
+                    </div>
+                    <div class="space-y-4 text-sm">
+                        <div class="flex justify-between"><span>Subtotal</span><span class="text-white font-bold">₹<%=
+                                    order.subtotal.toLocaleString('en-IN') %></span></div>
+                        <div class="flex justify-between text-red-500"><span>Discount</span><span>-₹<%= (order.discount
+                                    || 0).toLocaleString('en-IN') %></span></div>
+                        <div class="flex justify-between text-red-500"><span>Coupon</span><span>-₹<%=
+                                    (order.couponDiscount || 0).toLocaleString('en-IN') %></span></div>
+                        <div class="flex justify-between pb-4 border-b border-[#30363d]"><span>Tax (GST)</span><span
+                                class="text-white font-bold">₹<%= (order.tax || 0).toLocaleString('en-IN') %></span>
+                        </div>
+                        <div class="flex justify-between items-center pt-2"><span
+                                class="text-xl font-extrabold uppercase">Total</span><span
+                                class="text-2xl font-extrabold text-white">₹<%= order.finalPrice.toLocaleString('en-IN')
+                                    %></span></div>
                     </div>
                 </div>
 
-                <div class="space-y-3 no-print">
-                    <% if (order.orderStatus.toLowerCase()==='delivered' ) { %>
-                        <button class="w-full border border-gray-700 py-3 rounded-lg font-medium text-blue-500 hover:bg-blue-500/10 transition">Return Entire Order</button>
-                    <% } %>
-
-                    <% if (['pending', 'processing'].includes(order.orderStatus.toLowerCase())) { %>
-                        <button class="w-full border border-gray-700 py-3 rounded-lg font-medium text-red-500 hover:bg-red-500/10 transition">Cancel Entire Order</button>
-                    <% } %>
-                    
-                    <%if(order.orderStatus=='Delivered'){%>
-                        <button onclick="downloadInvoice()"
-                        class="w-full border border-cyan-700/50 py-3 rounded-lg font-medium text-cyan-400 flex items-center justify-center gap-2 hover:bg-cyan-400/5 transition">
-                        <i class="fas fa-download text-xs"></i> Invoice
-                    </button>
-                    <%}%>
+                <div class="space-y-3">
+                    <% if (['Pending', 'Processing' ].includes(order.orderStatus)) { %>
+                        <button onclick="handleCancelEntireOrder()"
+                            class="w-full bg-red-600/10 border border-red-600/50 text-red-500 py-3 rounded-xl font-bold hover:bg-red-600 hover:text-white transition uppercase tracking-wider text-xs">Cancel
+                            Entire Order</button>
+                        <% } %>
+                            <% if (order.orderStatus==='Delivered' ) { %>
+                                <button onclick="downloadInvoiceBill()"
+                                    class="w-full border border-blue-600/50 text-blue-400 py-3 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition uppercase tracking-wider text-xs">
+                                    <i class="fas fa-download mr-1"></i> Download Invoice
+                                </button>
+                                <% } %>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        function downloadInvoice() {
-            const element = document.getElementById('invoice-content');
-            
-            // Temporary hide buttons that shouldn't be in PDF
-            const buttonsToHide = document.querySelectorAll('.no-print');
-            buttonsToHide.forEach(btn => btn.style.display = 'none');
+    <!-- Modals (Outside hidden elements) -->
+    <div class="modal fade" id="itemActionModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-slate-700">
+                    <h5 class="modal-title font-bold text-white uppercase tracking-tighter" id="modalTitle">Cancel Item
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-6">
+                    <p class="text-slate-400 text-sm mb-4" id="itemNameText">Are you sure you want to cancel this item?
+                    </p>
+                    <label class="block text-slate-400 text-xs font-black uppercase tracking-widest mb-2">Select
+                        Reason</label>
 
-            const opt = {
-                margin: [0.5, 0.5],
-                filename: 'Invoice_<%= order.orderId %>.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#0f172a',
-                    letterRendering: true
-                },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                    <!-- Colored reason dropdown -->
+                    <select id="actionReason" onchange="onReasonChange()"
+                        class="form-select w-full rounded-xl py-3 px-4 border-slate-700 focus:outline-none"
+                        style="font-weight:600">
+                        <option value="" selected disabled style="color:#8b949e">Choose a reason...</option>
+                        <option value="mistake" style="color:#f59e0b; background:#161b22">🟡 Mistake purchase</option>
+                        <option value="better_price" style="color:#3b82f6; background:#161b22">🔵 Found better price
+                        </option>
+                        <option value="change_mind" style="color:#a855f7; background:#161b22">🟣 Changed my mind
+                        </option>
+                        <option value="defective" style="color:#ef4444; background:#161b22">🔴 Product issues</option>
+                        <option value="other" style="color:#10b981; background:#161b22">🟢 Others</option>
+                    </select>
+
+                    <!-- Others text field (hidden by default) -->
+                    <div id="othersWrapper">
+                        <textarea id="othersInput" rows="3" placeholder="Please describe your reason here…"></textarea>
+                        <p class="text-[0.6rem] text-red-500 font-bold mt-1 hidden" id="othersError">This field is
+                            required when selecting "Others".</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-slate-700">
+                    <button type="button" class="px-6 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold text-xs"
+                        data-bs-dismiss="modal">CLOSE</button>
+                    <button type="button" class="px-6 py-2 rounded-lg bg-red-600 text-white font-bold text-xs"
+                        id="confirmBtn" onclick="submitItemAction()">CONFIRM ACTION</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HIDDEN INVOICE FOR DOWNLOADING -->
+    <div id="hidden-invoice-bill"
+        style="display: none; background: white; color: black; padding: 40px; font-family: 'Inter', sans-serif;">
+        <div
+            style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
+            <div style="width: 50%;">
+                <h1>Zyrox mobile store pvt ltd </h1>
+                <p style="font-size: 11px; font-weight: 800; text-transform: uppercase;">Order ID: <span
+                        style="font-weight: 600;">
+                        <%= order.orderId %>
+                    </span></p>
+                <p style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin-top: 10px;">Order Date:
+                    <span style="font-weight: 600;">
+                        <%= new Date(order.createdAt).toLocaleDateString('en-GB') %>
+                    </span>
+                </p>
+                <p style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin-top: 10px;">PAN: <span
+                        style="font-weight: 600;">AACCU3841N</span></p>
+                <p style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin-top: 10px;">CIN: <span
+                        style="font-weight: 600;">U74999UP2019PTC182407</span></p>
+            </div>
+            <div style="width: 50%; text-align: right;">
+                <p style="font-size: 11px; font-weight: 800; text-transform: uppercase;">Billing Address</p>
+                <p style="font-size: 12px; font-weight: 600;">
+                    <%= order.shippingAddress.fullName %>
+                </p>
+                <p style="font-size: 11px; color: #444;">
+                    <%= order.shippingAddress.houseName %>(h), <%= order.shippingAddress.locality %>
+                </p>
+                <p style="font-size: 11px; color: #444;">
+                    <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>
+                </p>
+                <p style="font-size: 11px; color: #444;">Phone: <%= order.shippingAddress.phone %>
+                </p>
+            </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr style="border-top: 2px solid #444; border-bottom: 2px solid #444;">
+                    <th style="padding: 10px; font-size: 10px; text-align: left;">DESCRIPTION</th>
+                    <th style="padding: 10px; font-size: 10px; text-align: center;">QTY</th>
+                    <th style="padding: 10px; font-size: 10px; text-align: right;">TAXABLE VALUE</th>
+                    <th style="padding: 10px; font-size: 10px; text-align: right;">IGST (18%)</th>
+                    <th style="padding: 10px; font-size: 10px; text-align: right;">TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% order.items.forEach(item=> {
+                    const taxable = item.total / 1.18;
+                    const igst = item.total - taxable;
+                    %>
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 15px 10px; font-size: 11px;">
+                            <p style="font-weight: 700;">
+                                <%= item.name %>
+                            </p>
+                            <p style="font-size: 9px; color: #666;">Variant: <%= item.RAM %>GB/<%= item.storage %>GB |
+                                        Color: <%= item.color %>
+                            </p>
+                        </td>
+                        <td style="padding: 15px 10px; font-size: 11px; text-align: center;">
+                            <%= item.quantity %>
+                        </td>
+                        <td style="padding: 15px 10px; font-size: 11px; text-align: right;">₹<%= taxable.toFixed(2) %>
+                        </td>
+                        <td style="padding: 15px 10px; font-size: 11px; text-align: right;">₹<%= igst.toFixed(2) %>
+                        </td>
+                        <td style="padding: 15px 10px; font-size: 11px; font-weight: 800; text-align: right;">₹<%=
+                                item.total.toFixed(2) %>
+                        </td>
+                    </tr>
+                    <% }) %>
+                        <tr
+                            style="border-top: 2px solid #444; border-bottom: 2px solid #444; font-weight: 800; font-size: 12px;">
+                            <td colspan="4" style="padding: 15px 10px; text-align: right; text-transform: uppercase;">
+                                Grand Total</td>
+                            <td style="padding: 15px 10px; text-align: right;">₹<%=
+                                    order.finalPrice.toLocaleString('en-IN') %>.00</td>
+                        </tr>
+            </tbody>
+        </table>
+
+        <div style="display: flex; flex-direction: column; align-items: flex-end; margin-top: 40px;">
+            <p style="font-size: 10px; font-weight: 800; margin-bottom: 5px;">Zyrox mobile store Pvt Ltd</p>
+            <div style="width: 150px; height: 50px; border: 1px solid #eee; position: relative;">
+                <svg viewBox="0 0 500 150" preserveAspectRatio="none" style="height: 100%; width: 100%;">
+                    <path d="M50,100 Q150,50 250,100 T450,100" fill="none" stroke="#2b448a" stroke-width="6" />
+                </svg>
+            </div>
+            <p style="font-size: 10px; font-weight: 800; margin-top: 5px;">Authorized Signatory</p>
+
+        </div>
+    </div>
+
+    <script>
+        let selectedOrder = '<%= order._id %>';
+        let selectedItem = null;
+        let actionType = '';
+
+        function openItemModal(itemId, itemName, type) {
+            selectedItem = itemId;
+            actionType = type;
+            const title = type === 'cancel' ? 'Cancel Item' : 'Return Item';
+            const text = type === 'cancel' ? 'Are you sure you want to cancel the product: ' : 'Are you sure you want to return the product: ';
+            const btnClass = type === 'cancel' ? 'px-6 py-2 rounded-lg bg-red-600 text-white font-bold text-xs' : 'px-6 py-2 rounded-lg bg-orange-600 text-white font-bold text-xs';
+            const btnText = type === 'cancel' ? 'CONFIRM CANCELLATION' : 'CONFIRM RETURN';
+
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('itemNameText').innerText = text + itemName + '?';
+            document.getElementById('confirmBtn').className = btnClass;
+            document.getElementById('confirmBtn').innerText = btnText;
+
+            // Reset dropdown + others field each time modal opens
+            document.getElementById('actionReason').value = '';
+            const wrapper = document.getElementById('othersWrapper');
+            const input = document.getElementById('othersInput');
+            const err = document.getElementById('othersError');
+            wrapper.classList.remove('show');
+            input.value = '';
+            input.classList.remove('error');
+            err.classList.add('hidden');
+
+            new bootstrap.Modal(document.getElementById('itemActionModal')).show();
+        }
+
+        function onReasonChange() {
+            const sel = document.getElementById('actionReason').value;
+            const wrapper = document.getElementById('othersWrapper');
+            const input = document.getElementById('othersInput');
+            const err = document.getElementById('othersError');
+
+            if (sel === 'other') {
+                wrapper.classList.add('show');
+            } else {
+                wrapper.classList.remove('show');
+                input.classList.remove('error');
+                err.classList.add('hidden');
+            }
+        }
+
+        function submitItemAction() {
+            const sel = document.getElementById('actionReason').value;
+            const input = document.getElementById('othersInput');
+            const err = document.getElementById('othersError');
+
+            if (!sel) {
+                return Swal.fire({ title: 'Error', text: 'Please select a reason', icon: 'error', background: '#161b22', color: '#fff' });
+            }
+
+            let reason = sel;
+            if (sel === 'other') {
+                const custom = input.value.trim();
+                if (!custom) {
+                    input.classList.add('error');
+                    err.classList.remove('hidden');
+                    input.focus();
+                    return;
+                }
+                reason = custom; // send the actual typed reason
+            }
+
+            input.classList.remove('error');
+            err.classList.add('hidden');
+
+            const endpoint = actionType === 'cancel' ? '/cancel-item' : '/return-item';
+            axios.post(endpoint, { orderId: selectedOrder, itemId: selectedItem, reason })
+                .then(res => {
+                    if (res.data.success) {
+                        Swal.fire({ title: 'Success', text: res.data.message, icon: 'success', background: '#161b22', color: '#fff' }).then(() => location.reload());
+                    } else {
+                        Swal.fire({ title: 'Error', text: res.data.message, icon: 'error', background: '#161b22', color: '#fff' });
+                    }
+                });
+        }
+
+        function handleCancelEntireOrder() {
+            const reasonOptions = {
+                mistake: '🟡 Mistake purchase',
+                better_price: '🔵 Found better price',
+                change_mind: '🟣 Changed my mind',
+                others: '🟢 Others'
             };
 
-            // Generate PDF then show buttons again
+            Swal.fire({
+                title: 'Cancel Entire Order?',
+                text: 'Select a reason for cancellation',
+                input: 'select',
+                inputOptions: reasonOptions,
+                inputPlaceholder: 'Choose a reason…',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#334155',
+                confirmButtonText: 'Next →',
+                cancelButtonText: 'Go Back',
+                background: '#161b22',
+                color: '#fff',
+                inputValidator: (value) => {
+                    if (!value) return 'Please select a reason!';
+                }
+            }).then(r => {
+                if (!r.isConfirmed || !r.value) return;
+
+                if (r.value === 'others') {
+                    // Step 2 — ask for custom reason text
+                    Swal.fire({
+                        title: 'Describe your reason',
+                        input: 'textarea',
+                        inputPlaceholder: 'Please describe why you want to cancel…',
+                        inputAttributes: { maxlength: 300 },
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#334155',
+                        confirmButtonText: 'Confirm Cancel',
+                        cancelButtonText: 'Go Back',
+                        background: '#161b22',
+                        color: '#fff',
+                        inputValidator: (value) => {
+                            if (!value || !value.trim()) return 'Please describe your reason!';
+                        }
+                    }).then(r2 => {
+                        if (r2.isConfirmed && r2.value) {
+                            submitCancelOrder(r2.value.trim());
+                        }
+                    });
+                } else {
+                    submitCancelOrder(r.value);
+                }
+            });
+        }
+
+        function submitCancelOrder(reason) {
+            axios.post('/cancel-order', { orderId: selectedOrder, reason })
+                .then(res => {
+                    if (res.data.success) {
+                        Swal.fire({ title: 'Cancelled!', text: 'Your order has been cancelled.', icon: 'success', background: '#161b22', color: '#fff' })
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire({ title: 'Error', text: res.data.message, icon: 'error', background: '#161b22', color: '#fff' });
+                    }
+                });
+        }
+
+        function downloadInvoiceBill() {
+            const element = document.getElementById('hidden-invoice-bill');
+            element.style.display = 'block';
+            const opt = {
+                margin: 0.2,
+                filename: 'Invoice_<%= order.orderId %>.pdf',
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 3, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
             html2pdf().set(opt).from(element).save().then(() => {
-                buttonsToHide.forEach(btn => btn.style.display = 'block');
+                element.style.display = 'none';
             });
         }
     </script>
 </body>
+
 </html>

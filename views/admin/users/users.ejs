@@ -40,11 +40,15 @@
 
 
                             <form method="GET" action="/admin/users" class="search-bar-group">
-                                <div class="search-input-wrap">
+                                <div class="search-input-wrap" style="position: relative;">
                                     <i class="bi bi-search search-icon-inner"></i>
                                     <input type="search" name="search" id="searchInput"
                                         placeholder="Search by name or email…" class="search-field"
-                                        value="<%= search || '' %>" autocomplete="off">
+                                        value="<%= search || '' %>" autocomplete="off" style="padding-right: 30px;"
+                                        oninput="document.getElementById('clearBtn').style.display = this.value.length > 0 ? 'block' : 'none'">
+                                    <i class="bi bi-x" id="clearBtn" title="Clear Search"
+                                        style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #999; cursor: pointer; display: <%= search ? 'block' : 'none' %>;"
+                                        onclick="document.getElementById('searchInput').value=''; this.style.display='none'; this.closest('form').submit();"></i>
                                 </div>
                                 <select name="status" class="filter-select" onchange="this.form.submit()">
                                     <option value="" <%=(!statusFilter || statusFilter==='' ) ? 'selected' : '' %>>All

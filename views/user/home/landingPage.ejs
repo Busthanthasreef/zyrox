@@ -43,7 +43,7 @@
         <section class="categories">
             <div class="section-header">
                 <h2 class="section-title">Shop by category</h2>
-                <a href="#" class="view-all-link">View all categories →</a>
+                <a href="/products" class="view-all-link">View all categories →</a>
             </div>
 
             <div class="categories-grid">
@@ -78,78 +78,44 @@
         <section class="products">
             <div class="section-header">
                 <h2 class="section-title">Trending Products</h2>
-                <a href="#" class="view-all-link">View all →</a>
+                <a href="/products" class="view-all-link">View all →</a>
             </div>
 
             <div class="products-grid">
-                <div class="product-card">
-                    <div class="product-badge">10% OFF</div>
-                    <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                    <img src="https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=300&h=300&fit=crop"
-                        alt="iPhone 14 Pro Max" class="product-image">
-                    <div class="product-name">iPhone 14 Pro Max</div>
-                    <div class="product-price">₹42,999.00</div>
-                    <button class="buy-now-btn">Buy now</button>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-badge new">NEW</div>
-                    <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                    <img src="https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=300&h=300&fit=crop"
-                        alt="Galaxy S22 Ultra" class="product-image">
-                    <div class="product-name">Galaxy S22 Ultra</div>
-                    <div class="product-price">₹54,999.00</div>
-                    <button class="buy-now-btn">Buy now</button>
-                </div>
-
-                <div class="product-card">
-                    <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                    <img src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=300&h=300&fit=crop"
-                        alt="Pixel 7 Pro" class="product-image">
-                    <div class="product-name">Pixel 7 Pro</div>
-                    <div class="product-price">₹36,555.00</div>
-                    <button class="buy-now-btn">Buy now</button>
-                </div>
-
-                <div class="product-card">
-                    <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                    <img src="https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=300&h=300&fit=crop"
-                        alt="OnePlus 9 Pro" class="product-image">
-                    <div class="product-name">OnePlus 9 Pro</div>
-                    <div class="product-price">₹54,444.00</div>
-                    <button class="buy-now-btn">Buy now</button>
-                </div>
+                <% if(trendingVariants && trendingVariants.length> 0) { %>
+                    <% trendingVariants.forEach((item, index)=> { %>
+                        <div class="product-card"
+                            onclick="window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'"
+                            style="cursor: pointer;">
+                            <% if(index===0) { %>
+                                <div class="product-badge">10% OFF</div>
+                                <% } %>
+                                    <% if(index===1) { %>
+                                        <div class="product-badge new">NEW</div>
+                                        <% } %>
+                                            <button class="wishlist-btn"
+                                                onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'"><i
+                                                    class="far fa-heart"></i></button>
+                                            <img src="<%= (item.variant.images && item.variant.images.length > 0) ? item.variant.images[0] : 'https://via.placeholder.com/300' %>"
+                                                alt="<%= item.product.productName %>" class="product-image"
+                                                style="object-fit: cover;">
+                                            <div class="product-name">
+                                                <%= item.product.productName %>
+                                            </div>
+                                            <div class="product-price">₹<%= item.variant.price.toLocaleString('en-IN')
+                                                    %>.00</div>
+                                            <button class="buy-now-btn"
+                                                onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">Buy
+                                                now</button>
+                        </div>
+                        <% }) %>
+                            <% } else { %>
+                                <p style="text-align: center; width: 100%; color: #999; padding: 40px 0;">Explore our
+                                    latest arrivals in the Shop section!</p>
+                                <% } %>
             </div>
         </section>
 
-        <!-- Featured Mobiles -->
-        <section class="products">
-            <div class="section-header">
-                <h2 class="section-title">Featured Mobiles</h2>
-                <a href="/products" class="view-all-link">View All Products →</a>
-            </div>
-
-            <div class="products-grid">
-                <div class="product-card">
-                    <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                    <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop"
-                        alt="iPhone 13 Pro Max" class="product-image">
-                    <div class="product-name">iPhone 13 Pro Max</div>
-                    <div class="product-price">₹54,999.00</div>
-                    <button class="buy-now-btn">Buy now</button>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-badge new">NEW</div>
-                    <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                    <img src="https://images.unsplash.com/photo-1603891219515-5b84156d0bc5?w=300&h=300&fit=crop"
-                        alt="Galaxy S23 Ultra" class="product-image">
-                    <div class="product-name">Galaxy S23 Ultra</div>
-                    <div class="product-price">₹68,999.00</div>
-                    <button class="buy-now-btn">Buy now</button>
-                </div>
-
-        </section>
 
         <!-- Footer -->
         <footer class="footer">
@@ -164,22 +130,22 @@
                         cutting-edge technology and competitive prices. Your trusted partner for all your mobile needs.
                     </p>
                     <div class="social-links">
-                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="/products" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="/products" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="/products" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="/products" class="social-link"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
 
                 <div class="footer-column">
-                    <h3>Shop Now</h3>
+                    <h3 onclick="window.location.href='/products'">Shop Now</h3>
                     <ul class="footer-links">
-                        <li><a href="#">Apple</a></li>
-                        <li><a href="#">Samsung</a></li>
-                        <li><a href="#">Realme</a></li>
-                        <li><a href="#">Oppo</a></li>
-                        <li><a href="#">Xiaomi</a></li>
-                        <li><a href="#">Vivo</a></li>
+                        <li><a href="/products">Apple</a></li>
+                        <li><a href="/products">Samsung</a></li>
+                        <li><a href="/products">Realme</a></li>
+                        <li><a href="/products">Oppo</a></li>
+                        <li><a href="/products">Xiaomi</a></li>
+                        <li><a href="/products">Vivo</a></li>
                     </ul>
                 </div>
 
@@ -213,7 +179,7 @@
             </div>
         </footer>
 
-       
+
 </body>
 
 </html>

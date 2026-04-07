@@ -171,7 +171,7 @@
             font-size: 16px;
             color: #999;
             cursor: pointer;
-            display: <%=search ? 'block': 'none' %>;
+            display: none;
         }
 
         .search-clear-btn:hover {
@@ -224,38 +224,58 @@
                         <div class="requests-dropdown" id="requestsDropdown">
                             <div class="dropdown-header">Inbox & Requests</div>
                             <div class="request-list">
-                                <% if (returnRequests.length> 0) { %>
-                                    <% returnRequests.forEach(req=> { %>
-                                        <% const isR=req.orderStatus==='Return Requested' ; %>
-                                            <div class="request-item">
-                                                <span class="request-type-badge"
-                                                    style="color:<%= isR?'#0f766e':'#b91c1c' %>; background:<%= isR?'#f0fdfa':'#fef2f2' %>">
-                                                    <%= isR ? 'Return' : 'Cancellation' %> Request
-                                                </span>
-                                                <div style="font-weight: 800; font-size: 12px; color:#111;">
-                                                    <%= req.userId?.Name || 'User' %>
-                                                </div>
-                                                <div style="font-size: 10px; color: #999;">Order #<%= req.orderId %>
-                                                </div>
-                                                <div class="request-reason">"<%= req.returnReason ||
-                                                        req.cancellationReason || 'No reason' %>"</div>
-                                                <div class="request-btns">
-                                                    <button class="req-btn req-btn-accept"
-                                                        onclick="handleRequest('<%= req._id %>', 'accept')">Accept</button>
-                                                    <button class="req-btn req-btn-decline"
-                                                        onclick="handleRequest('<%= req._id %>', 'decline')">Decline</button>
-                                                </div>
+                                <% if (returnRequests && returnRequests.length> 0) { %>
+                                    <% returnRequests.forEach(req=> {
+                                        const isR = req.orderStatus === 'Return Requested';
+                                        const isC = req.orderStatus === 'Cancellation Requested';
+                                        const itemReqs = req.items.filter(i => ['Return Requested', 'Cancellation Requested'].includes(i.status));
+
+
+                                        let displayType = 'Request';
+                                        if (isR || isC) {
+                                        displayType = isR ? 'Return' : 'Cancellation';
+                                        } else if (itemReqs.length > 0) {
+                                        displayType = itemReqs[0].status.includes('Return') ? 'Item Return' : 'Item Cancellation';
+                                        }
+                                        %>
+                                        <div class="request-item">
+                                            <span
+                                                class="request-type-badge <%= (displayType.includes('Return')) ? 'badge-return' : 'badge-cancel' %>">
+                                                <%= displayType %> Request
+                                            </span>
+                                            <div style="font-weight: 800; font-size: 12px; color:#111;">
+                                                <%= req.userId?.Name || 'User' %>
                                             </div>
-                                            <% }) %>
-                                                <% } else { %>
-                                                    <div class="empty-state">
-                                                        <i class="bi bi-check2-circle empty-icon"
-                                                            style="color:#10b981"></i>
-                                                        <div class="empty-title">All caught up!</div>
-                                                        <div class="empty-subtitle">No incoming return or cancellation
-                                                            requests</div>
+                                            <div style="font-size: 10px; color: #999;">Order #<%= req.orderId %>
+                                            </div>
+
+                                            <% if (itemReqs.length> 0 && !(isR || isC)) { %>
+                                                <div style="font-size: 9px; color: #666; font-weight: 700;">
+                                                    Items: <%= itemReqs.map(i=> i.name).join(', ') %>
+                                                </div>
+                                                <% } %>
+
+                                                    <div class="request-reason">
+                                                        "<%= req.returnReason || req.cancellationReason || itemReqs[0]?.returnReason || itemReqs[0]?.cancellationReason || 'No reason' %>"
                                                     </div>
-                                                    <% } %>
+
+                                                    <div class="request-btns text-center mt-2">
+                                                        <a href="/admin/orders/details?id=<%= req._id %>"
+                                                            class="btn btn-sm btn-dark w-100 py-1"
+                                                            style="font-size: 10px; font-weight: 800;">
+                                                            REVIEW & ACTION
+                                                        </a>
+                                                    </div>
+                                        </div>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <div class="empty-state">
+                                                    <i class="bi bi-check2-circle empty-icon" style="color:#10b981"></i>
+                                                    <div class="empty-title">All caught up!</div>
+                                                    <div class="empty-subtitle">No incoming return or cancellation
+                                                        requests</div>
+                                                </div>
+                                                <% } %>
                             </div>
                         </div>
                     </div>
@@ -352,23 +372,23 @@
                                                 </div>
                                             </td>
                                             <td style="font-weight: 800; color: #111;">
-                                                <%= new Date(order.createdAt).toLocaleDateString('en-US', {
-                                                    month: 'short' , day: 'numeric' , year: 'numeric' }) %>
+                                                <%= new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short' , day: 'numeric' , year: 'numeric' }) %>
                                             </td>
                                             <td
                                                 style="color:var(--text-secondary); font-size:11px; font-weight:800; text-transform:uppercase;">
                                                 <%= order.paymentMethod %>
                                             </td>
                                             <td>
-                                                <% const s=order.orderStatus.toLowerCase(); let tc='s-pending' ; if
-                                                    (s.includes('deliver')) tc='s-delivered' ; else if
-                                                    (s.includes('ship')) tc='s-shipped' ; else if (s.includes('cancel')
-                                                    && s.includes('req')) tc='s-cancellation-requested' ; else if
-                                                    (s.includes('cancel')) tc='s-canceled' ; else if
-                                                    (s.includes('return') && s.includes('req')) tc='s-return-requested'
-                                                    ; else if (s.includes('return')) tc='s-returned' ; else if
-                                                    (s.includes('paid')) tc='s-paid' ; %>
-                                                    <span class="status-tag <%= tc %>">
+                                                <% const sRaw=order.orderStatus.toLowerCase(); let tCol='#ffc107' ;
+                                                    if(sRaw.includes('pending')) { tCol='#fd7e14' ; } 
+                                                    else if(sRaw.includes('process')) { tCol='#ffc107' ; }
+                                                    else if(sRaw.includes('ship')) { tCol='#0ea5e9' ; } 
+                                                    else if(sRaw.includes('deliver')) { tCol='#22c55e' ; } 
+                                                    else if(sRaw.includes('cancel')) { tCol='#ef4444' ; } 
+                                                    else if(sRaw.includes('return')) { tCol='#f59e0b' ; }
+                                                 %>
+                                                    <span class="status-tag"
+                                                        style="background: <%= tCol %>1a; color: <%= tCol %>; border-color: <%= tCol %>33; border: 1px solid;">
                                                         <%= order.orderStatus %>
                                                     </span>
                                             </td>
@@ -376,8 +396,9 @@
                                                 ₹<%= (order.finalPrice || 0).toLocaleString('en-IN') %>
                                             </td>
                                             <td>
-                                                <a href="/admin/orders/details?id=<%= order._id %>"
-                                                    class="view-link">view</a>
+                                                <a href="/admin/orders/details?id=<%= order._id %>" class="view-btn">
+                                                    <i class="bi bi-eye"></i> View
+                                                </a>
                                             </td>
                                         </tr>
                                         <% }) %>
@@ -399,8 +420,7 @@
 
                     <div class="table-footer">
                         <div class="showing-info">
-                            Showing <%= ((page-1)*5)+1 %>-<%= Math.min(page*5, totalOrdersCount) %> of <%=
-                                        totalOrdersCount %>
+                            Showing <%= totalOrdersCount===0 ? 0 : ((page-1)*4)+1 %>-<%= Math.min(page*4, totalOrdersCount) %> of <%= totalOrdersCount %>
                         </div>
 
                         <div class="pag-nav-group">
@@ -443,6 +463,10 @@
         }
 
         if (searchInput) {
+            // Ensure clear button visibility on load if search exists
+            if (searchInput.value.length > 0) {
+                clearBtn.style.display = 'block';
+            }
             searchInput.oninput = () => {
                 clearBtn.style.display = searchInput.value.length > 0 ? 'block' : 'none';
             };

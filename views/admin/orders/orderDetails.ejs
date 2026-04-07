@@ -4,461 +4,688 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Details | Zyrox Admin</title>
+    <title>Order Management | Zyrox Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        * {
-            box-sizing: border-box;
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+        :root {
+            --bg-page: #f8f9faae;
+            --white: #ffffffa2;
+            --primary: #111318;
+            --accent: #4f46e5;
+            --border: #012d5a;
+            --text-main: #1e293b;
+            --text-light: #64748b;
         }
 
         body {
-            background-color: #080e1a;
-            color: #e2e8f0;
-            font-family: 'DM Sans', sans-serif;
+            background-color: rgba(255, 255, 255, 0.928);
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .admin-layout {
+            display: flex;
             min-height: 100vh;
         }
 
-        /* Subtle grid background */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
-            z-index: 0;
+        .sidebar-space {
+            width: 280px;
+            flex-shrink: 0;
         }
 
-        .page-wrap {
+        .main-container {
+            flex: 1;
+            padding: 2.5rem 3rem;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* Premium Components */
+        .glass-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+        }
+
+        .btn-action {
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-main);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background: #fdfdfd;
+            border-color: #ddd;
+        }
+
+        /* Status Tags */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .s-delivered {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .s-pending {
+            background: #fef9c3;
+            color: #a16207;
+            border: 1px solid #fef08a;
+        }
+
+        .s-processing {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .s-cancelled {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .s-shipped {
+            background: #ccfbf1;
+            color: #0f766e;
+            border: 1px solid #99f6e4;
+        }
+
+        /* Item Display */
+        .product-pic {
+            width: 110px;
+            height: 110px;
+            border-radius: 16px;
+            background: #f9fafb;
+            padding: 8px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .pill-tag {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        .pill-tag b {
+            color: var(--text-main);
+            margin-left: 4px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 900;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-giant {
+            width: 100%;
+            border-radius: 16px;
+            padding: 16px;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-giant-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-giant-primary:hover {
+            background: #000;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-giant-danger {
+            background: #fff1f2;
+            color: #f43f5e;
+            border: 2px solid #fee2e2;
+        }
+
+        .btn-giant-danger:hover {
+            background: #f43f5e;
+            color: #fff;
+            transform: translateY(-3px);
+        }
+
+        /* ── Status Timeline ── */
+        .timeline-track {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .tl-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .tl-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 900;
+            border: 2px solid #e2e8f0;
+            background: #f8fafc;
+            color: #cbd5e1;
+            transition: all 0.3s ease;
+            z-index: 2;
+            position: relative;
+        }
+
+        .tl-dot.done {
+            background: #dcfce7;
+            border-color: #22c55e;
+            color: #15803d;
+        }
+
+        .tl-dot.active {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1d4ed8;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, .15);
+        }
+
+        .tl-label {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-top: 6px;
+            color: #94a3b8;
+        }
+
+        .tl-label.done {
+            color: #15803d;
+        }
+
+        .tl-label.active {
+            color: #1d4ed8;
+        }
+
+        .tl-line {
+            flex: 1;
+            height: 2px;
+            background: #e2e8f0;
+            margin-top: -14px;
+            /* align with dot centre */
             position: relative;
             z-index: 1;
         }
 
-        /* Cards */
-        .card {
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid rgba(99, 102, 241, 0.12);
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
+        .tl-line.done {
+            background: #22c55e;
         }
 
-        /* Status tracker */
-        .tracker-line {
-            position: absolute;
-            top: 7px;
-            left: 8px;
-            right: 8px;
-            height: 1px;
-            background: #1e293b;
-            z-index: 0;
-        }
-
-        .tracker-line-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #6366f1, #06b6d4);
-            transition: width 0.6s ease;
-        }
-
-        /* Buttons */
-        .btn-ghost {
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 10px 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: transparent;
-            color: #94a3b8;
-        }
-
-        .btn-ghost:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: #e2e8f0;
-        }
-
-        .btn-danger {
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 10px;
-            padding: 12px 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: transparent;
-            color: #f87171;
+        /* ── Status Select ── */
+        .status-select {
             width: 100%;
-        }
-
-        .btn-danger:hover {
-            background: rgba(239, 68, 68, 0.08);
-            border-color: rgba(239, 68, 68, 0.5);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #6366f1, #4f46e5);
-            border: none;
-            border-radius: 10px;
-            padding: 12px 24px;
-            font-size: 0.875rem;
-            font-weight: 600;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            background: #f8fafc;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
             cursor: pointer;
-            color: white;
-            transition: all 0.2s;
-            letter-spacing: 0.01em;
+            transition: border-color .2s;
         }
 
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
+        .status-select:focus {
+            outline: none;
+            border-color: #4f46e5;
         }
 
-        /* Tag / Badge */
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            padding: 4px 12px;
-            border-radius: 999px;
-        }
-
-        .badge-delivered {
-            background: rgba(34, 197, 94, 0.1);
-            color: #4ade80;
-            border: 1px solid rgba(34, 197, 94, 0.25);
-        }
-
-        .badge-pending {
-            background: rgba(234, 179, 8, 0.1);
-            color: #facc15;
-            border: 1px solid rgba(234, 179, 8, 0.25);
-        }
-
-        .badge-processing {
-            background: rgba(99, 102, 241, 0.12);
-            color: #a5b4fc;
-            border: 1px solid rgba(99, 102, 241, 0.3);
-        }
-
-        .badge-shipped {
-            background: rgba(6, 182, 212, 0.1);
-            color: #22d3ee;
-            border: 1px solid rgba(6, 182, 212, 0.25);
-        }
-
-        .badge-cancelled {
-            background: rgba(239, 68, 68, 0.1);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.25);
-        }
-
-        .badge-returned {
-            background: rgba(251, 146, 60, 0.1);
-            color: #fb923c;
-            border: 1px solid rgba(251, 146, 60, 0.25);
-        }
-
-        .badge-return-requested {
-            background: rgba(251, 146, 60, 0.1);
-            color: #fb923c;
-            border: 1px solid rgba(251, 146, 60, 0.25);
-        }
-
-        .badge-cancellation-requested {
-            background: rgba(239, 68, 68, 0.1);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.25);
-        }
-
-        /* Spec pill */
-        .spec-pill {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(99, 102, 241, 0.1);
-            border-radius: 8px;
-            padding: 5px 12px;
-            font-size: 0.72rem;
-            color: #64748b;
-            font-family: 'DM Mono', monospace;
-        }
-
-        .spec-pill b {
-            color: #e2e8f0;
-        }
-
-        /* Divider */
-        .divider {
-            border: none;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            margin: 12px 0;
+        .status-select:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            background-color: #f1f5f9;
         }
     </style>
 </head>
 
-<body class="">
-    <div class="flex min-h-screen">
-        <!-- Sidebar -->
-        <div class="fixed h-screen w-72 flex-shrink-0 group">
-            <%- include('../../partials/admin/sidebar', { currentPage: 'orders' , currentUser: admin }) %>
+<body>
+    <div class="admin-layout">
+        <div class="sidebar-space bg-white border-r">
+            <%- include('../../partials/admin/sidebar', { currentPage: 'orders' , currentUser: (typeof admin
+                !=='undefined' ? admin : null) }) %>
         </div>
 
-        <!-- Main Content -->
-        <main class="flex-grow ml-72 p-6 md:p-10 overflow-y-auto w-full">
-            <div class="page-wrap max-w-5xl">
-
-                <!-- Back button -->
-                <button class="btn-ghost mb-8 flex items-center gap-2" onclick="window.location.href='/admin/orders'">
-                    <i class="fas fa-arrow-left text-xs"></i> Back to Orders
-                </button>
-
-                <!-- Page Header -->
-                <div class="flex flex-wrap items-center justify-between gap-4 mb-8">
-                    <div>
-                        <p class="text-xs text-slate-500 uppercase tracking-widest mb-1">Order Reference</p>
-                        <h1 class="text-2xl font-bold tracking-tight text-white font-['DM_Mono']">
-                            #<%= order.orderId %>
-                        </h1>
+        <div class="main-container">
+            <!-- Top Controls -->
+            <div class="flex items-center justify-between mb-8">
+                <a href="/admin/orders" class="btn-action">
+                    <i class="fas fa-arrow-left"></i> BACK TO OVERVIEW
+                </a>
+                <div class="flex items-center gap-4 text-sm font-bold">
+                    <span class="text-slate-400">ORDERED ON</span>
+                    <div class="bg-white border rounded-xl px-4 py-2 shadow-sm font-black">
+                        <%= order?.createdAt ? new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit',month: 'short' , year: 'numeric' , hour: '2-digit' , minute: '2-digit' }) : 'N/A' %>
                     </div>
-                    <% const statusLower=order.orderStatus.toLowerCase(); let badgeClass='badge-pending' ; if
-                        (statusLower==='delivered' ) badgeClass='badge-delivered' ; else if (statusLower==='processing'
-                        ) badgeClass='badge-processing' ; else if (statusLower==='shipped' ) badgeClass='badge-shipped'
-                        ; else if (statusLower==='cancelled' ) badgeClass='badge-cancelled' ; else if
-                        (statusLower==='returned' ) badgeClass='badge-returned' ; else if
-                        (statusLower==='return requested' ) badgeClass='badge-return-requested' ; else if
-                        (statusLower==='cancellation requested' ) badgeClass='badge-cancellation-requested' ; %>
-                        <span class="badge <%= badgeClass %>">
-                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-                            <%= order.orderStatus %>
-                        </span>
                 </div>
+            </div>
 
-                <!-- Main Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-                    <!-- LEFT: Items -->
-                    <div class="lg:col-span-2 space-y-4">
-                        <% if(order.items) { order.items.forEach((item, index)=> { %>
-                            <div class="card overflow-hidden">
-                                <div class="p-5">
-                                    <div class="flex gap-5">
-                                        <!-- Product Image -->
-                                        <div
-                                            class="w-28 h-28 rounded-xl overflow-hidden flex-shrink-0 bg-slate-900 border border-slate-800">
-                                            <img src="<%= item.image %>" alt="<%= item.name %>"
-                                                class="w-full h-full object-cover">
-                                        </div>
-
-                                        <!-- Product Info -->
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex justify-between items-start gap-2">
-                                                <h2 class="text-base font-semibold text-white leading-tight">
-                                                    <%= item.name %>
-                                                </h2>
-                                                <span class="text-base font-bold text-white whitespace-nowrap">₹<%=
-                                                        item.price.toLocaleString('en-IN') %></span>
-                                            </div>
-
-                                            <div class="flex flex-wrap gap-2 mt-3">
-                                                <span class="spec-pill">RAM <b>
-                                                        <%= item.RAM %>
-                                                    </b></span>
-                                                <span class="spec-pill">Storage <b>
-                                                        <%= item.storage %>
-                                                    </b></span>
-                                                <span class="spec-pill">Color <b>
-                                                        <%= item.color %>
-                                                    </b></span>
-                                            </div>
-
-                                            <!-- Admin Action: Accept/Decline Request -->
-                                            <% if (['return requested', 'cancellation requested'
-                                                ].includes(statusLower)) { %>
-                                                <div class="mt-4 flex gap-2">
-                                                    <button class="btn-primary text-xs py-2 px-4"
-                                                        style="background:linear-gradient(135deg,#22c55e,#16a34a)"
-                                                        onclick="handleRequest('<%= order._id %>', 'accept')">
-                                                        <i class="fas fa-check mr-1"></i> Accept Request
-                                                    </button>
-                                                    <button class="btn-danger text-xs py-2 px-4"
-                                                        onclick="handleRequest('<%= order._id %>', 'decline')">
-                                                        <i class="fas fa-times mr-1"></i> Decline Request
-                                                    </button>
-                                                </div>
-                                                <% } %>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <% }) } %>
-
-                                <% if (order.returnReason || order.cancellationReason) { %>
-                                    <div class="card p-5 border-l-4 border-amber-500">
-                                        <p class="text-xs text-amber-400 uppercase tracking-widest font-semibold mb-2">
-                                            Request Information</p>
-                                        <p class="text-sm text-slate-300">
-                                            <span class="text-slate-500">Reason:</span>
-                                            <%= order.returnReason || order.cancellationReason %>
-                                        </p>
-                                    </div>
-                                    <% } %>
+            <!-- Page Header -->
+            <div class="flex items-center justify-between mb-12">
+                <div>
+                    <h1 class="text-4xl font-black tracking-tighter mb-2">Order #<%= order?.orderId %>
+                    </h1>
+                    <div class="flex items-center gap-3">
+                        <% const status=(order?.orderStatus || 'Pending' ).toLowerCase();
+                         let tagClass='s-pending' ;
+                            if(status==='delivered' ) tagClass='s-delivered' ;
+                             else if(status==='shipped' ) tagClass='s-shipped' ; 
+                             else if(status==='processing' ) tagClass='s-processing' ;
+                             else if(status.includes('cancel')) tagClass='s-cancelled' ; %>
+                            <span class="status-badge <%= tagClass %>">
+                                <i class="fas fa-circle text-[6px]"></i>
+                                <%= order?.orderStatus || 'Pending' %>
+                            </span>
+                            <span class="text-slate-400 font-bold text-xs uppercase tracking-widest px-2">| Customer ID: #<%= order?.userId ? order.userId._id.toString().slice(-6) : 'GUEST' %></span>
                     </div>
+                </div>
+            </div>
 
-                    <!-- RIGHT: Sidebar -->
-                    <div class="space-y-4">
-                        <!-- Customer Details -->
-                        <div class="card p-5">
-                            <p class="text-xs text-indigo-400 uppercase tracking-widest font-semibold mb-4">Customer
-                                Info</p>
-                            <div class="flex items-center gap-3 mb-4">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-indigo-400 font-bold">
-                                    <%= order.userId?.Name?.charAt(0).toUpperCase() %>
-                                </div>
-                                <div>
-                                    <p class="text-sm font-bold text-white">
-                                        <%= order.userId?.Name %>
-                                    </p>
-                                    <p class="text-xs text-slate-500">
-                                        <%= order.userId?.Email %>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Shipping Address -->
-                        <div class="card p-5">
-                            <p class="text-xs text-indigo-400 uppercase tracking-widest font-semibold mb-4">Shipping
-                                Address</p>
-                            <div class="space-y-2.5 text-sm">
-                                <div class="flex items-center gap-2.5">
-                                    <i class="far fa-user w-4 text-center text-slate-500 text-xs"></i>
-                                    <span class="font-semibold text-white">
-                                        <%= order.shippingAddress.fullName %>
-                                    </span>
-                                </div>
-                                <div class="flex items-center gap-2.5">
-                                    <i class="fas fa-phone-alt w-4 text-center text-slate-500 text-xs"></i>
-                                    <span class="text-slate-400">
-                                        <%= order.shippingAddress.phone %>
-                                    </span>
-                                </div>
-                                <div class="flex items-center gap-2.5">
-                                    <i class="fas fa-map-marker-alt w-4 text-center text-slate-500 text-xs"></i>
-                                    <span class="text-white">
-                                        <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>
-                                    </span>
-                                </div>
-                                <div class="flex items-start gap-2.5 pt-1 border-t border-slate-800 mt-2">
-                                    <i class="fas fa-home w-4 text-center text-slate-600 text-xs mt-0.5"></i>
-                                    <span class="text-slate-400 text-xs leading-relaxed">
-                                        <%= order.shippingAddress.houseName %>, <%= order.shippingAddress.locality %>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Price Details -->
-                        <div class="card p-5">
-                            <p class="text-xs text-indigo-400 uppercase tracking-widest font-semibold mb-4">Price
-                                Breakdown</p>
-                            <div class="space-y-2.5 text-sm">
-                                <div class="flex justify-between text-slate-400">
-                                    <span>Subtotal</span>
-                                    <span class="text-white font-medium">₹<%= order.subtotal?.toLocaleString('en-IN') %>
-                                            </span>
-                                </div>
-                                <% if (order.discount> 0) { %>
-                                    <div class="flex justify-between text-slate-400">
-                                        <span>Discount</span>
-                                        <span class="text-green-400">-₹<%= order.discount?.toLocaleString('en-IN') %>
-                                                </span>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <!-- Left: Order Composition -->
+                <div class="lg:col-span-8 space-y-8">
+                    <!-- Products -->
+                    <div class="space-y-6">
+                        <% if(order && order.items && order.items.length> 0) { %>
+                            <% order.items.forEach(item=> { %>
+                                <div class="glass-card p-6 flex flex-col md:flex-row gap-8">
+                                    <div class="product-pic flex-shrink-0">
+                                        <img src="<%= item.image %>" class="w-full h-full object-contain" alt="loading...">
                                     </div>
-                                    <% } %>
-                                        <% if (order.couponDiscount> 0) { %>
-                                            <div class="flex justify-between text-slate-400">
-                                                <span>Coupon</span>
-                                                <span class="text-green-400">-₹<%=
-                                                        order.couponDiscount?.toLocaleString('en-IN') %></span>
+                                    <div class="flex-grow">
+                                        <div class="flex justify-between items-start mb-4">
+                                            <div>
+                                                <h3 class="text-xl font-black tracking-tight">
+                                                    <%= item.name %>
+                                                </h3>
+                                                <div class="flex gap-2 mt-2">
+                                                    <span class="pill-tag">RAM <b>
+                                                            <%= item.RAM %>GB
+                                                        </b></span>
+                                                    <span class="pill-tag">STORAGE <b>
+                                                            <%= item.storage %>GB
+                                                        </b></span>
+                                                    <span class="pill-tag">COLOR <b>
+                                                            <%= item.color %>
+                                                        </b></span>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-2xl font-black">₹<%= (item.total ||
+                                                        0).toLocaleString('en-IN') %>
+                                                </p>
+                                                <p
+                                                    class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                                                    QTY: <%= item.quantity %>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <% if (item.status && ['Return Requested', 'Cancellation Requested' ].includes(item.status)) { %>
+                                            <div class="mt-6 p-5 bg-red-50/50 border border-red-100 rounded-3xl">
+                                                <div class="flex items-center justify-between mb-3">
+                                                    <div class="flex items-center gap-3">
+                                                        <div
+                                                            class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                                                            <i class="fas fa-bell-exclamation text-xs"></i>
+                                                        </div>
+                                                        <div>
+                                                            <p
+                                                                class="text-[10px] font-black text-red-800 uppercase tracking-[.2em]">
+                                                                Requested Incident</p>
+                                                            <p class="text-xs font-bold text-red-600">
+                                                                <%= item.status %>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex gap-2">
+                                                        <button
+                                                            onclick="handleItemFlow('<%= order._id %>', '<%= item._id %>', 'accept')"
+                                                            class="px-4 py-2 bg-indigo-900 text-white text-[10px] font-black rounded-xl hover:bg-black transition">Accept</button>
+                                                        <button
+                                                            onclick="handleItemFlow('<%= order._id %>', '<%= item._id %>', 'decline')"
+                                                            class="px-4 py-2 bg-white border border-red-100 text-red-600 text-[10px] font-black rounded-xl hover:bg-red-50 transition">Decline</button>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="px-4 py-3 bg-white/50 rounded-2xl border border-dashed border-red-200">
+                                                    <p class="text-[11px] italic text-slate-600 font-medium">"<%= item.returnReason || item.cancellationReason || 'No specific reason provided' %>"</p>
+                                                </div>
                                             </div>
                                             <% } %>
-                                                <hr class="divider">
-                                                <div class="flex justify-between font-bold text-base">
-                                                    <span class="text-white">Amount</span>
-                                                    <span class="text-indigo-400">₹<%=
-                                                            order.finalPrice?.toLocaleString('en-IN') %></span>
-                                                </div>
-                                                <p class="text-[10px] text-slate-500 mt-2">Payment Method: <b>
-                                                        <%= order.paymentMethod %>
-                                                    </b></p>
+
+                                                <% const tlSteps=['Pending','Processing','Shipped','Delivered']; 
+                                                const tlIcons=['fas fa-clock','fas fa-cog','fas fa-truck','fas fa-check'];
+                                                const terminalItemStatuses=['Cancelled','Returned','Cancellation Requested','Return Requested'];
+                                                const effectiveStatus=terminalItemStatuses.includes(item.status) ? item.status : (item.status || order.orderStatus);
+                                                const curIdx=tlSteps.indexOf(effectiveStatus); %>
+                                                    <div class="timeline-track">
+                                                        <% tlSteps.forEach(function(step, i) { %>
+                                                            <div class="tl-step">
+                                                                <div
+                                                                    class="tl-dot <%= i < curIdx ? 'done' : (i === curIdx ? 'active' : '') %>">
+                                                                    <i class="<%= tlIcons[i] %>"></i>
+                                                                </div>
+                                                                <span
+                                                                    class="tl-label <%= i < curIdx ? 'done' : (i === curIdx ? 'active' : '') %>">
+                                                                    <%= step %>
+                                                                </span>
+                                                            </div>
+                                                            <% if (i < tlSteps.length - 1) { %>
+                                                                <div class="tl-line <%= i < curIdx ? 'done' : '' %>">
+                                                                </div>
+                                                                <% } %>
+                                                                    <% }); %>
+                                                    </div>
+                                    </div>
+                                </div>
+                                <% }) %>
+                                    <% } else { %>
+                                        <div
+                                            class="glass-card p-12 text-center text-slate-400 font-bold uppercase italic tracking-widest">
+                                            No Items in this Order</div>
+                                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Right: Meta Data -->
+                <div class="lg:col-span-4 space-y-8">
+                  
+                       <!-- Update Order Status -->
+                    <% const terminalOrderStatuses=['Cancelled','Returned','Delivered']; 
+                         const isTerminal=terminalOrderStatuses.includes(order?.orderStatus);
+                         const isRequestPending=['Cancellation Requested','Return Requested'].includes(order?.orderStatus);
+                        const canUpdate=!isTerminal && !isRequestPending; 
+                    %>
+                        <div class="glass-card p-8">
+                            <span class="sidebar-title"><i class="fas fa-sliders-h"></i> Update Order Status</span>
+                            <% if (canUpdate) { %>
+                                <div class="space-y-3">
+                                    <select id="statusSelect" class="status-select">
+                                        <option value="Pending" <%=order?.orderStatus==='Pending' ? 'selected' : '' %>>Pending</option>
+                                        <option value="Processing" <%=order?.orderStatus==='Processing' ? 'selected' : '' %>> Processing</option>
+                                        <option value="Shipped" <%=order?.orderStatus==='Shipped' ? 'selected' : '' %> > Shipped</option>
+                                        <option value="Delivered" <%=order?.orderStatus==='Delivered' ? 'selected' : '' %>> Delivered</option>
+                                    </select>
+                                    <button onclick="updateStatus('<%= order._id %>')"
+                                        class="btn-giant btn-giant-primary mt-2">
+                                        <i class="fas fa-save"></i> APPLY STATUS
+                                    </button>
+                                </div>
+                                <% } else { %>
+                                    <div class="text-center py-4">
+                                        <% if (isRequestPending) { %>
+                                            <span
+                                                class="inline-block px-4 py-2 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl text-xs font-black uppercase tracking-wider">
+                                                <i class="fas fa-hourglass-half mr-1"></i> Awaiting Request Action
+                                            </span>
+                                            <p class="text-[10px] text-slate-400 font-bold mt-2">Resolve the pending <%= order.orderStatus %> before changing status.</p>
+                                            <% } else { %>
+                                                <span
+                                                    class="inline-block px-4 py-2 bg-slate-100 border border-slate-200 text-slate-500 rounded-xl text-xs font-black uppercase tracking-wider">
+                                                    <i class="fas fa-lock mr-1"></i> Status Locked — <%= order?.orderStatus %>
+                                                </span>
+                                                <p class="text-[10px] text-slate-400 font-bold mt-2">Terminal status
+                                                    cannot be changed.</p>
+                                                <% } %>
+                                    </div>
+                                    <% } %>
+                        </div>
+
+                        <!-- Admin Actions (Return / Cancel requests) -->
+                        <% if (order?.orderStatus && ['return requested', 'cancellation requested'
+                            ].includes(order.orderStatus.toLowerCase())) { %>
+                            <div class="space-y-4">
+                                <button onclick="handleFlow('<%= order._id %>', 'accept')"
+                                    class="btn-giant btn-giant-primary"><i class="fas fa-shield-check"></i> Accept
+                                    </button>
+                                <button onclick="handleFlow('<%= order._id %>', 'decline')"
+                                    class="btn-giant btn-giant-danger"><i class="fas fa-times-square"></i> Decline
+                                    </button>
                             </div>
+                            <% } %>
+
+                    <!-- Logistics -->
+                    <div class="glass-card p-8">
+                        <span class="sidebar-title"><i class="fas fa-shipping-fast"></i> Logistics & Shipping</span>
+                        <div class="space-y-6 mt-4">
+                            <% if (order?.shippingAddress) { %>
+                                <div class="flex gap-4">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[#444] border">
+                                        <i class="fas fa-user-check text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-black text-slate-400 mb-1 uppercase">Recipient</p>
+                                        <p class="text-sm font-extrabold">
+                                            <%= order.shippingAddress.fullName %>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-4">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-[#444] border">
+                                        <i class="fas fa-map-marked text-xs"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-black text-slate-400 mb-1 uppercase">Destination</p>
+                                        <p class="text-sm font-extrabold tracking-tight">
+                                            <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>
+                                        </p>
+                                        <p class="text-[11px] font-bold text-slate-500 mt-2 leading-relaxed">
+                                            Flat <%= order.shippingAddress.houseName %>(h), <%= order.shippingAddress.locality %>, Pin: <%= order.shippingAddress.pincode %>
+                                        </p>
+                                    </div>
+                                </div>
+                                <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Billing Overview -->
+                    <div class="glass-card p-8">
+                        <span class="sidebar-title"><i class="fas fa-credit-card"></i> Billing Overview</span>
+                        <div class="space-y-4 mt-4">
+                            <div class="flex justify-between items-center text-sm">
+                                <span
+                                    class="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Gateway</span>
+                                <div
+                                    class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg text-xs font-black border border-indigo-100">
+                                    <%= order?.paymentMethod %>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center pt-4 border-t">
+                                <span
+                                    class="text-xs font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
+                                <span class="text-base font-extrabold">₹<%= (order?.subtotal || 0).toLocaleString('en-IN') %></span>
+                            </div>
+                            <% if (order?.discount> 0) { %>
+                                <div class="flex justify-between items-center text-sm text-green-600">
+                                    <span class="text-xs font-black uppercase tracking-widest">Offers</span>
+                                    <span class="font-extrabold">-₹<%= (order.discount || 0).toLocaleString('en-IN') %>
+                                    </span>
+                                </div>
+                                <% } %>
+                                    <div class="flex justify-between items-center pt-6 mt-4 border-t-2 border-dashed">
+                                        <span class="text-sm font-black uppercase tracking-tighter">Settlement</span>
+                                        <span class="text-3xl font-black tracking-tighter text-indigo-600">₹<%=
+                                                (order?.finalPrice || 0).toLocaleString('en-IN') %></span>
+                                    </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
-
-    <!-- Success Toast -->
-    <div id="toast"
-        class="fixed bottom-6 right-6 z-[200] transition-all duration-500 translate-y-20 opacity-0 pointer-events-none">
-        <div
-            class="flex items-center gap-3 bg-slate-900 border border-indigo-500/30 rounded-2xl px-5 py-3.5 shadow-2xl">
-            <div class="w-8 h-8 rounded-full bg-indigo-500/15 flex items-center justify-center flex-shrink-0">
-                <i class="fas fa-check text-indigo-400 text-xs" id="toast-icon"></i>
-            </div>
-            <div>
-                <p class="text-white text-sm font-semibold" id="toast-title">Done</p>
-                <p class="text-slate-400 text-xs" id="toast-msg"></p>
-            </div>
         </div>
     </div>
 
+
+
     <script>
-        // ── Admin Request Management ──
-        function handleRequest(orderId, action) {
-            const url = action === 'accept' ? '/admin/orders/accept-return' : '/admin/orders/decline-return';
-            const title = action === 'accept' ? 'Approve Request?' : 'Decline Request?';
-
-            if (!confirm(title + " Are you sure?")) return;
-
-            fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId })
-            })
-                .then(r => r.json())
-                .then(d => {
-                    if (d.success) {
-                        showToast('Success', d.message, 'fa-check-circle');
-                        setTimeout(() => location.reload(), 1500);
-                    } else {
-                        showToast('Error', d.message, 'fa-exclamation-circle');
-                    }
+        function updateStatus(orderId) {
+            const status = document.getElementById('statusSelect').value;
+            const colorMap = {
+                Pending: '#f59e0b',
+                Processing: '#3b82f6',
+                Shipped: '#0f766e',
+                Delivered: '#16a34a'
+            };
+            Swal.fire({
+                title: `<span style="font-weight:900;letter-spacing:-1px">Set Status: ${status}?</span>`,
+                text: 'This will update the order and all eligible items.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: colorMap[status] || '#111318',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: `YES, MARK ${status.toUpperCase()}`,
+                borderRadius: '20px'
+            }).then(val => {
+                if (!val.isConfirmed) return;
+                fetch('/admin/orders/update-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId, status })
                 })
-                .catch(() => showToast('Error', 'Server connection failed.', 'fa-exclamation-circle'));
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.success) {
+                            Swal.fire({ title: 'UPDATED', text: d.message, icon: 'success', borderRadius: '20px' })
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire({ title: 'FAILED', text: d.message, icon: 'error', borderRadius: '20px' });
+                        }
+                    });
+            });
         }
 
-        // ── Toast ──
-        function showToast(title, msg, icon = 'fa-check') {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-title').textContent = title;
-            document.getElementById('toast-msg').textContent = msg;
-            document.getElementById('toast-icon').className = `fas ${icon} text-indigo-400 text-xs`;
-            t.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                t.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
-            }, 3000);
+        function handleFlow(orderId, action) {
+            const act = action === 'accept' ? 'Authorize' : 'Decline';
+            const color = action === 'accept' ? '#111318' : '#f43f5e';
+            Swal.fire({
+                title: `<span style="font-weight:900; letter-spacing:-1px">${act} This Request?</span>`,
+                text: "Proceed with administrative oversight?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: color,
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: `YES, ${act.toUpperCase()}`,
+                borderRadius: '20px'
+            }).then((val) => {
+                if (val.isConfirmed) {
+                    const url = action === 'accept' ? '/admin/orders/accept-return' : '/admin/orders/decline-return';
+                    fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderId })
+                    })
+                        .then(r => r.json())
+                        .then(d => {
+                            if (d.success) {
+                                Swal.fire({ title: 'COMPLETED', text: d.message, icon: 'success', borderRadius: '20px' }).then(() => location.reload());
+                            } else {
+                                Swal.fire({ title: 'FAILED', text: d.message, icon: 'error', borderRadius: '20px' });
+                            }
+                        });
+                }
+            });
         }
+
+        function handleItemFlow(orderId, itemId, action) {
+            const act = action === 'accept' ? 'Authorize' : 'Decline';
+            const color = action === 'accept' ? '#111318' : '#f43f5e';
+            Swal.fire({
+                title: `<span style="font-weight:900; letter-spacing:-1px">${act} Item Request?</span>`,
+                text: "Process administrative oversight for this product?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: color,
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: `YES, ${act.toUpperCase()}`,
+                borderRadius: '20px'
+            }).then((val) => {
+                if (val.isConfirmed) {
+                    const url = action === 'accept' ? '/admin/orders/accept-item-request' : '/admin/orders/decline-item-request';
+                    fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderId, itemId })
+                    })
+                        .then(r => r.json())
+                        .then(d => {
+                            if (d.success) {
+                                Swal.fire({ title: 'SUCCESS', text: d.message, icon: 'success', borderRadius: '20px' }).then(() => location.reload());
+                            } else {
+                                Swal.fire({ title: 'FAILED', text: d.message, icon: 'error', borderRadius: '20px' });
+                            }
+                        });
+                }
+            });
+        }
+
+
     </script>
 </body>
 

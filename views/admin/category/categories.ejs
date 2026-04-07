@@ -75,10 +75,15 @@
                         </h3>
 
                         <form method="GET" action="/admin/categories" class="filter-form">
-                            <div class="search-wrap">
+                            <div class="search-wrap" style="position: relative;">
                                 <i class="bi bi-search search-icon"></i>
-                                <input type="search" name="search" placeholder="Search categories…"
-                                    value="<%= search || '' %>" autocomplete="off">
+                                <input type="search" name="search" id="categorySearchInput"
+                                    placeholder="Search categories…" value="<%= search || '' %>" autocomplete="off"
+                                    style="padding-right: 30px;"
+                                    oninput="document.getElementById('categoryClearBtn').style.display = this.value.length > 0 ? 'block' : 'none'">
+                                <i class="bi bi-x" id="categoryClearBtn" title="Clear Search"
+                                    style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #999; cursor: pointer; display: <%= search ? 'block' : 'none' %>;"
+                                    onclick="document.getElementById('categorySearchInput').value=''; this.style.display='none'; this.closest('form').submit();"></i>
                             </div>
 
                             <select name="status" class="filter-select" onchange="this.form.submit()">

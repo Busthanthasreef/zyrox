@@ -47,8 +47,11 @@ userRoutes.post("/checkout/place-order", isUserAuthenticated, checkoutController
 userRoutes.get("/order-success/:orderId", isUserAuthenticated, checkoutController.getOrderSuccess);
 
 userRoutes.get("/myOrders",isUserAuthenticated, orderController.getOrdersPage);
-userRoutes.get("/myOrders/:id",isUserAuthenticated, orderController.getOrdersDetailsPage);
+userRoutes.get("/myOrders/details",isUserAuthenticated, orderController.getOrdersDetailsPage);
+userRoutes.get("/myOrders/invoice",isUserAuthenticated, orderController.getInvoicePage);
 userRoutes.post("/cancel-order", isUserAuthenticated, orderController.cancelOrder);
+userRoutes.post("/cancel-item", isUserAuthenticated, orderController.cancelItem);
+userRoutes.post("/return-item", isUserAuthenticated, orderController.returnItem);
 userRoutes.post("/return-order", isUserAuthenticated, orderController.returnOrder);
 
 userRoutes.get("/profile", isUserAuthenticated, profileController.userProfile);

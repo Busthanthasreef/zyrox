@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Invoice | Order #<%= order.orderId %>
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fdfdfd;
+            padding: 40px;
+            color: #111;
+        }
+
+        .invoice-box {
+            max-width: 1000px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border: 1px solid #efefef;
+        }
+
+        .header-line {
+            border-bottom: 2px solid #000;
+            margin-bottom: 25px;
+        }
+
+        .label-text {
+            font-size: 13px;
+            font-weight: 800;
+            color: #000;
+            margin-bottom: 2px;
+        }
+
+        .value-text {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .inv-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        .inv-table th {
+            border-top: 2px solid #444;
+            border-bottom: 2px solid #444;
+            padding: 12px 10px;
+            font-size: 11px;
+            font-weight: 800;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .inv-table td {
+            padding: 15px 10px;
+            font-size: 12px;
+            vertical-align: top;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-row td {
+            border-top: 2px solid #444;
+            border-bottom: 2px solid #444;
+            font-weight: 800;
+            padding: 10px;
+        }
+
+        .grand-total-box {
+            margin-top: 30px;
+            text-align: right;
+        }
+
+        .no-print-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #111;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+            z-index: 100;
+        }
+
+        .no-print-btn:hover {
+            background: #333;
+            transform: translateY(-2px);
+        }
+
+        @media print {
+            .no-print-btn {
+                display: none;
+            }
+
+            body {
+                padding: 0;
+            }
+
+            .invoice-box {
+                border: none;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button onclick="downloadPDF()" class="no-print-btn">
+        <i class="fas fa-file-pdf"></i> Download Official Bill
+    </button>
+
+    <div class="invoice-box" id="invoice">
+        <!-- Top Details -->
+        <div class="flex justify-between items-start mb-8">
+            <div class="w-1/2">
+                <p class="label-text">Order ID:</p>
+                <p class="value-text">
+                    <%= order.orderId %>
+                </p>
+
+                <p class="label-text">Order Date:</p>
+                <p class="value-text">
+                    <%= new Date(order.createdAt).toLocaleDateString('en-GB') %>
+                </p>
+
+                <p class="label-text">Invoice Date:</p>
+                <p class="value-text">
+                    <%= new Date().toLocaleDateString('en-GB') %>
+                </p>
+
+                <p class="label-text">PAN:</p>
+                <p class="value-text">AACCU3841N</p>
+
+                <p class="label-text">CIN:</p>
+                <p class="value-text">U74999UP2019PTC182407</p>
+            </div>
+            <div class="w-1/2">
+                <p class="label-text">Billing Address</p>
+                <p class="value-text" style="line-height: 1.5; font-weight: 500;">
+                    <%= order.shippingAddress.fullName %><br>
+                        <%= order.shippingAddress.houseName %>(h), <%= order.shippingAddress.locality %>,<br>
+                                <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %><br>
+                                        <%= order.shippingAddress.pincode %><br>
+                                            Kerala<br>
+                                            Phone: <%= order.shippingAddress.phone %>
+                </p>
+            </div>
+        </div>
+
+        <!-- Horizontal Line -->
+        <div class="header-line"></div>
+
+        <!-- Items Table -->
+        <table class="inv-table">
+            <thead>
+                <tr>
+                    <th class="text-left" style="width: 45%;">Description</th>
+                    <th>Qty</th>
+                    <th class="text-right">Gross <br> Amount ₹</th>
+                    <th class="text-right">Discounts <br> /Coupons ₹</th>
+                    <th class="text-right">Taxable <br> value ₹</th>
+                    <th class="text-right">IGST ₹</th>
+                    <th class="text-right">Total ₹</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% order.items.forEach(item=> {
+                    const taxable = item.total / 1.18;
+                    const igst = item.total - taxable;
+                    %>
+                    <tr>
+                        <td class="text-left">
+                            <span style="float: left; font-weight: 500; margin-right: 10px;">SAC: 851799</span>
+                            <div style="margin-left: 85px;">
+                                <p style="font-weight: 600; font-size: 13px;">
+                                    <%= item.name %>
+                                </p>
+                                <p style="font-size: 10px; color: #666; margin-top: 4px;">1. [Variant: <%= item.RAM %>
+                                        GB/<%= item.storage %>GB | Color: <%= item.color %>]</p>
+                                <p style="font-size: 10px; font-weight: 800; margin-top: 4px;">IGST: 18.0 %</p>
+                            </div>
+                        </td>
+                        <td class="text-center font-bold">
+                            <%= item.quantity %>
+                        </td>
+                        <td class="text-right">
+                            <%= item.total.toFixed(2) %>
+                        </td>
+                        <td class="text-right">0.00</td>
+                        <td class="text-right">
+                            <%= taxable.toFixed(2) %>
+                        </td>
+                        <td class="text-right">
+                            <%= igst.toFixed(2) %>
+                        </td>
+                        <td class="text-right font-black">
+                            <%= item.total.toFixed(2) %>
+                        </td>
+                    </tr>
+                    <% }) %>
+
+                        <!-- Bottom Summary Row -->
+                        <tr class="summary-row">
+                            <td class="text-center" colspan="1">Total</td>
+                            <td class="text-center">
+                                <%= order.items.reduce((acc, i)=> acc + i.quantity, 0) %>
+                            </td>
+                            <td class="text-right">
+                                <%= order.items.reduce((acc, i)=> acc + i.total, 0).toFixed(2) %>
+                            </td>
+                            <td class="text-right">0.00</td>
+                            <td class="text-right">
+                                <%= (order.items.reduce((acc, i)=> acc + i.total, 0) / 1.18).toFixed(2) %>
+                            </td>
+                            <td class="text-right">
+                                <%= (order.items.reduce((acc, i)=> acc + i.total, 0) - (order.items.reduce((acc, i) =>
+                                    acc + i.total, 0) / 1.18)).toFixed(2) %>
+                            </td>
+                            <td class="text-right">
+                                <%= order.items.reduce((acc, i)=> acc + i.total, 0).toFixed(2) %>
+                            </td>
+                        </tr>
+            </tbody>
+        </table>
+
+        <!-- Grand Total Section -->
+        <div class="grand-total-box flex justify-end items-baseline gap-10">
+            <span style="font-size: 20px; font-weight: 500;">Grand Total</span>
+            <span style="font-size: 24px; font-weight: 900;">₹<%= order.finalPrice.toLocaleString('en-IN') %>.00</span>
+        </div>
+
+        <!-- Authorized Signatory Section -->
+        <div class="flex flex-col items-end mt-12">
+            <p style="font-size: 13px; font-weight: 700; color: #333; margin-bottom: 8px;">Utkrisht Trade Solutions Pvt
+                Ltd</p>
+            <div style="background: #f9fafb; border: 1px solid #eee; padding: 5px;">
+                <img src="https://i.ibb.co/vzVfVfG/signature.png" alt="Signature"
+                    style="max-width: 180px; filter: contrast(1.2);">
+                <!-- Fallback if specific image needed: I will use a placeholder that looks exactly like the blue one in the image -->
+                <div style="width: 180px; height: 60px; position:relative; overflow:hidden;">
+                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" style="height: 100%; width: 100%;">
+                        <path d="M50,100 Q150,50 250,100 T450,100" fill="none" stroke="#2b448a" stroke-width="6" />
+                    </svg>
+                    <p style="position:absolute; bottom:0; right:0; font-size:8px; opacity:0.3;">DIGITALLY SIGNED</p>
+                </div>
+            </div>
+            <p style="font-size: 13px; font-weight: 700; color: #000; margin-top: 10px;">Authorized Signatory</p>
+        </div>
+    </div>
+
+    <!-- FontAwesome for the PDF icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script>
+        function downloadPDF() {
+            const element = document.getElementById('invoice');
+            const opt = {
+                margin: 0.2,
+                filename: 'Zyrox_Tax_Invoice_<%= order.orderId %>.pdf',
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+
+</html>

@@ -9,6 +9,10 @@
     --radius: 12px;
 }
 
+* {
+    box-sizing: border-box;
+}
+
 body {
     background-color: var(--bg-page);
     font-family: 'Inter', sans-serif;
@@ -29,20 +33,23 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: 20px 24px;
+    padding: 16px 22px;
     overflow: hidden;
+    max-height: 100vh;
 }
 
 .top-section {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
+    /* Reduced from 12 */
     flex-shrink: 0;
 }
 
 .page-title {
-    font-size: 24px;
+    font-size: 20px;
+    /* Reduced from 24 */
     font-weight: 800;
     margin: 0;
 }
@@ -51,14 +58,17 @@ body {
 .stat-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    margin-bottom: 14px;
+    gap: 12px;
+    /* Reduced from 14 */
+    margin-bottom: 12px;
+    /* Reduced from 14 */
     flex-shrink: 0;
 }
 
 .stat-card {
     background: var(--white);
-    padding: 14px 18px;
+    padding: 10px 14px;
+    /* Reduced from 14/18 */
     border-radius: 10px;
     border: 1px solid var(--border);
     position: relative;
@@ -66,22 +76,24 @@ body {
 }
 
 .stat-card-title {
-    font-size: 11px;
+    font-size: 10.5px;
+    /* Reduced */
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     display: block;
 }
 
 .stat-card-val {
-    font-size: 20px;
+    font-size: 18px;
+    /* Reduced from 20 */
     font-weight: 800;
     color: var(--text-primary);
-    margin-bottom: 2px;
+    margin-bottom: 0px;
 }
 
 .stat-card-growth {
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 700;
 }
 
@@ -95,10 +107,11 @@ body {
 
 .stat-card-icon {
     position: absolute;
-    top: 14px;
-    right: 14px;
-    font-size: 12px;
+    top: 10px;
+    right: 12px;
+    font-size: 11px;
     color: var(--text-primary);
+    opacity: 0.6;
 }
 
 /* Orders Table Card */
@@ -279,12 +292,43 @@ body {
     background: #fff1f2;
 }
 
-.view-link {
-    font-weight: 800;
-    font-size: 12px;
+.badge-return {
+    color: #0f766e !important;
+    background: #f0fdfa !important;
+}
+
+.badge-cancel {
+    color: #b91c1c !important;
+    background: #fef2f2 !important;
+}
+
+.view-btn {
+    padding: 6px 14px;
+    border: 1px solid #e2e2e0;
+    background: #ffffff;
     color: var(--text-primary);
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
     text-decoration: none;
-    text-transform: lowercase;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.5px;
+}
+
+.view-btn:hover {
+    background: #111318;
+    color: #fff;
+    border-color: #111318;
+    transform: translateY(-1.5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.view-btn i {
+    font-size: 10px;
 }
 
 .table-footer {

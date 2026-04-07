@@ -41,6 +41,22 @@ const orderSchema = new mongoose.Schema(
         color: String,
         storage: Number,
         RAM: Number,
+        status: {
+          type: String,
+          default: "Pending",
+          enum: [
+            "Pending",
+            "Processing",
+            "Shipped",
+            "Delivered",
+            "Cancelled",
+            "Returned",
+            "Return Requested",
+            "Cancellation Requested"
+          ],
+        },
+        cancellationReason: { type: String, default: null },
+        returnReason: { type: String, default: null },
       },
     ],
     shippingAddress: {

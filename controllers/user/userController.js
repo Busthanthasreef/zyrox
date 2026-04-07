@@ -1,6 +1,8 @@
 import userSchema from "../../models/user.js";
 import otpSchema from "../../models/otp.js";
 import cartSchema from "../../models/cart.js";
+import Product from "../../models/product.js";
+import Variant from "../../models/variant.js";
 import * as userService from "../../services/userServices/userService.js"
 import Categories from "../../models/category.js";
 import bcrypt from "bcryptjs";
@@ -31,9 +33,17 @@ const landingPage = async (req, res) => {
       }
     }
 
+    const trendingProducts = await Product.find({ status: 'active', IsDeleted: false }).limit(4);
+    const trendingVariants = [];
+    for (const p of trendingProducts) {
+        const v = await Variant.findOne({ productId: p._id, IsActive: true, IsDeleted: false });
+        if(v) trendingVariants.push({ product: p, variant: v });
+    }
+
     res.render("user/home/landingPage", {
       cartItemCount: totalItems,
       categories,
+      trendingVariants,
       user: req.session.user || null,
       loginSuccess,
     });
@@ -137,6 +147,7 @@ const verifyEmail = async (req, res) => {
     }
 
     const otp = A + B + C + D + E + F;
+    
     const { Name, Email, Phone, Password } = req.session.tempUser;
 
     const validOTP = await otpSchema.findOne({ Email });
@@ -257,18 +268,21 @@ const userSignIn = async (req, res) => {
     if (!isMatch)
       return res.json({ success: false, target: "password", message: "Incorrect Password" });
 
+    const adminSession = req.session.admin;
+    const returnTo = req.session.returnTo || '/';
+
     req.session.regenerate((err) => {
       if (err) return res.json({ success: false, message: "Session error" });
+
+      if (adminSession) {
+        req.session.admin = adminSession;
+      }
 
       req.session.user = {
         _id: user._id,
         Name: user.Name,
         Email: user.Email,
       };
-
-      const returnTo = req.session.returnTo || '/';
-      delete req.session.returnTo;
-
       req.session.save((err) => {
         if (err) return res.json({ success: false, message: "Session save error" });
         res.json({ success: true, message: "Login Successful", returnTo });
@@ -284,11 +298,13 @@ const userSignIn = async (req, res) => {
    LOGOUT
 ========================= */
 const logout = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) return res.redirect("/");
-    res.clearCookie("connect.sid");
-    res.redirect("/");
-  });
+  if (req.session.user) {
+    delete req.session.user;
+  }
+  if (req.session.passport) {
+    delete req.session.passport;
+  }
+  res.redirect("/");
 };
 
 /* =========================

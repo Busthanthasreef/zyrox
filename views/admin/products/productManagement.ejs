@@ -107,10 +107,15 @@
                         <h2 class="panel-title">All Products</h2>
 
                         <form method="GET" action="/admin/products" class="search-bar-group d-flex gap-2 flex-wrap">
-                            <div class="search-input-wrap">
+                            <div class="search-input-wrap" style="position: relative;">
                                 <i class="bi bi-search search-icon-inner"></i>
-                                <input type="search" name="search" placeholder="Search products..." class="search-field"
-                                    value="<%= search || '' %>">
+                                <input type="search" name="search" id="productSearchInput"
+                                    placeholder="Search products..." class="search-field" value="<%= search || '' %>"
+                                    style="padding-right: 30px;"
+                                    oninput="document.getElementById('productClearBtn').style.display = this.value.length > 0 ? 'block' : 'none'">
+                                <i class="bi bi-x" id="productClearBtn" title="Clear Search"
+                                    style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #999; cursor: pointer; display: <%= search ? 'block' : 'none' %>;"
+                                    onclick="document.getElementById('productSearchInput').value=''; this.style.display='none'; this.closest('form').submit();"></i>
                             </div>
 
                             <select name="category" class="filter-select">
