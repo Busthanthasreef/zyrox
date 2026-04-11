@@ -1072,8 +1072,8 @@
                     %>
                     <div class="product-card <%= isInactive ? 'is-inactive' : '' %>">
 
-                      <div class="card-img-wrap"
-                        onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
+                      
+                      <div class="card-img-wrap"  onclick="event.preventDefault(); event.stopPropagation();  window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
                         <% if (product.image && product.image !=='/images/placeholder.png' ) { %>
                           <img src="<%= product.image %>" alt="<%= product.name %>" loading="lazy"
                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">

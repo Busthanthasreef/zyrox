@@ -93,7 +93,6 @@ const orderSchema = new mongoose.Schema(
         "Returned",
         "Return Requested",
         "Cancellation Requested",
-        "Out for Delivery"
       ],
     },
     subtotal: Number,

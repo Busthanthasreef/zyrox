@@ -333,6 +333,8 @@
                         <table class="orders-table">
                             <thead>
                                 <tr>
+
+                                    <th width="8%">SI.NO</th>
                                     <th width="16%">Order ID</th>
                                     <th width="28%">Customer Info</th>
                                     <th width="12%">Order Date</th>
@@ -344,8 +346,11 @@
                             </thead>
                             <tbody>
                                 <% if (orders && orders.length> 0) { %>
-                                    <% orders.forEach((order, index)=> { %>
+                                    <% orders.forEach((order, ind)=> { %>
+
                                         <tr>
+                                            
+                                            <td><%= (page-1)*6 + (ind + 1) %></td>
                                             <td style="font-weight: 800; color:#111;">#<%= order.orderId %>
                                             </td>
                                             <td class="user-td">
@@ -380,15 +385,15 @@
                                             </td>
                                             <td>
                                                 <% const sRaw=order.orderStatus.toLowerCase(); let tCol='#ffc107' ;
-                                                    if(sRaw.includes('pending')) { tCol='#fd7e14' ; } 
-                                                    else if(sRaw.includes('process')) { tCol='#ffc107' ; }
-                                                    else if(sRaw.includes('ship')) { tCol='#0ea5e9' ; } 
-                                                    else if(sRaw.includes('deliver')) { tCol='#22c55e' ; } 
-                                                    else if(sRaw.includes('cancel')) { tCol='#ef4444' ; } 
-                                                    else if(sRaw.includes('return')) { tCol='#f59e0b' ; }
+                                                    if(sRaw.includes('Pending')) { tCol='#fd7e14' ; } 
+                                                    else if(sRaw.includes('Processing')) { tCol='#ffc107' ; }
+                                                    else if(sRaw.includes('Shipped')) { tCol='#0ea5e9' ; } 
+                                                    else if(sRaw.includes('Delivered')) { tCol='#22c55e' ; } 
+                                                    else if(sRaw.includes('Cancelled')) { tCol='##FF0000' ; } 
+                                                    else if(sRaw.includes('Returned')) { tCol='#f59e0b' ; }
                                                  %>
                                                     <span class="status-tag"
-                                                        style="background: <%= tCol %>1a; color: <%= tCol %>; border-color: <%= tCol %>33; border: 1px solid;">
+                                                        style="background: <%= tCol %>1a; color: <%= tCol %>; border-color:' <%= tCol %>33; border: 1px solid';">
                                                         <%= order.orderStatus %>
                                                     </span>
                                             </td>

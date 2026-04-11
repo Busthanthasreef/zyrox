@@ -1088,6 +1088,286 @@
         .back-btn:hover span {
             transform: translateX(-4px);
         }
+
+        /* ─── COUPON MODAL ──────────────────────────── */
+        .coupon-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .65);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn .25s ease;
+        }
+
+        .coupon-modal-overlay.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .coupon-modal {
+            background: #fff;
+            border-radius: 16px;
+            width: 94%;
+            max-width: 460px;
+            max-height: 80vh;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, .4);
+            animation: slideUp .3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .coupon-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 1.4rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .coupon-modal-header .cm-title {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+        }
+
+        .coupon-modal-header .cm-title .cm-icon {
+            width: 32px;
+            height: 32px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #2e7d32;
+        }
+
+        .coupon-modal-header .cm-title h4 {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .coupon-modal-header .cm-title p {
+            margin: 0;
+            font-size: .75rem;
+            color: #888;
+        }
+
+        .coupon-modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #555;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .coupon-modal-close:hover {
+            background: #e0e0e0;
+            color: #222;
+        }
+
+        .coupon-modal-body {
+            padding: 1rem 1.4rem 1.4rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .coupon-modal-body::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .coupon-modal-body::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+
+        .cm-empty {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #888;
+            font-size: .88rem;
+        }
+
+        .cm-empty i {
+            font-size: 2rem;
+            color: #ccc;
+            display: block;
+            margin-bottom: .6rem;
+        }
+
+        /* Individual coupon card */
+        .cm-coupon-card {
+            background: #f0faf0;
+            border: 1.5px solid #c8e6c9;
+            border-radius: 12px;
+            padding: 1rem 1.1rem;
+            margin-bottom: .75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .8rem;
+            transition: transform .15s, box-shadow .15s;
+        }
+
+        .cm-coupon-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(46, 125, 50, .1);
+        }
+
+        .cm-coupon-left {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .cm-coupon-code-row {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            margin-bottom: .4rem;
+            flex-wrap: wrap;
+        }
+
+        .cm-code-badge {
+            display: inline-block;
+            font-family: 'Inter', monospace;
+            font-size: .82rem;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            color: #2e7d32;
+            background: #fff;
+            border: 1.5px dashed #66bb6a;
+            border-radius: 6px;
+            padding: .3rem .7rem;
+        }
+
+        .cm-save-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: .25rem;
+            font-size: .62rem;
+            font-weight: 700;
+            color: #fff;
+            background: #2e7d32;
+            border-radius: 4px;
+            padding: .2rem .5rem;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .cm-coupon-desc {
+            font-size: .8rem;
+            color: #444;
+            margin-bottom: .35rem;
+            line-height: 1.3;
+        }
+
+        .cm-coupon-meta {
+            display: flex;
+            gap: .8rem;
+            flex-wrap: wrap;
+        }
+
+        .cm-coupon-meta span {
+            font-size: .68rem;
+            color: #777;
+            display: flex;
+            align-items: center;
+            gap: .25rem;
+        }
+
+        .cm-coupon-meta span i {
+            font-size: .7rem;
+            color: #2e7d32;
+        }
+
+        .cm-apply-btn {
+            flex-shrink: 0;
+            padding: .5rem 1rem;
+            background: #fff;
+            border: 1.5px solid #2e7d32;
+            border-radius: 8px;
+            color: #2e7d32;
+            font-family: 'Inter', sans-serif;
+            font-size: .76rem;
+            font-weight: 700;
+            letter-spacing: .5px;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .cm-apply-btn:hover {
+            background: #2e7d32;
+            color: #fff;
+        }
+
+        .cm-loading {
+            text-align: center;
+            padding: 2rem;
+            color: #888;
+        }
+
+        .cm-loading .spinner-border {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: #2e7d32;
+        }
+
+        .cm-apply-btn:active {
+            transform: scale(0.95);
+        }
+
+        .cm-coupon-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cm-coupon-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent, rgba(46, 125, 50, 0.08), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .cm-coupon-card:hover::after {
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -1264,30 +1544,25 @@
                                     <div class="radio-dot ms-auto" id="radio-cod"></div>
                                 </div>
 
-                                <!-- Razorpay — DISABLED -->
-                                <div class="payment-option disabled" title="Currently unavailable"
-                                    onclick="selectPayment('Razorpay')">
+                                <!-- Razorpay -->
+                                <div class="payment-option" id="pay-razorpay" onclick="selectPayment('Razorpay')">
                                     <div class="pay-icon" style="background:rgba(100,100,200,.1);color:#7c8ce4;">
                                         <i class="bi bi-lightning-charge-fill"></i>
                                     </div>
                                     <div>
-                                        <div class="pay-name">Razorpay <span class="disabled-label">Unavailable</span>
-                                        </div>
+                                        <div class="pay-name">Razorpay</div>
                                         <div class="pay-desc">UPI, Cards, Net Banking</div>
                                     </div>
                                     <div class="radio-dot ms-auto"></div>
                                 </div>
 
-                                <!-- Wallet — DISABLED -->
-                                <div class="payment-option disabled" title="Currently unavailable"
-                                    onclick="selectPayment('Wallet')">
+                                <!-- Wallet -->
+                                <div class="payment-option" id="pay-wallet" onclick="selectPayment('Wallet')">
                                     <div class="pay-icon" style="background:rgba(244,185,66,.1);color:var(--gold);">
                                         <i class="bi bi-wallet2"></i>
                                     </div>
                                     <div>
-                                        <div class="pay-name">Wallet Payment <span
-                                                class="disabled-label">Unavailable</span>
-                                        </div>
+                                        <div class="pay-name">Wallet</div>
                                         <div class="pay-desc">Use your ZYROX wallet balance</div>
                                     </div>
                                     <div class="radio-dot ms-auto"></div>
@@ -1394,6 +1669,77 @@
             </div><!-- end container -->
         </div><!-- end checkoutPage -->
 
+        <!-- ─── AVAILABLE COUPONS MODAL ─────────────────────────── -->
+        <div class="coupon-modal-overlay" id="couponModalOverlay" onclick="closeCouponModal(event)">
+            <div class="coupon-modal" onclick="event.stopPropagation()">
+                <div class="coupon-modal-header">
+                    <div class="cm-title">
+                        <div class="cm-icon"><i class="bi bi-ticket-perforated-fill"></i></div>
+                        <div>
+                            <h4>Available Coupons</h4>
+                            <p>Best offers for you</p>
+                        </div>
+                    </div>
+                    <button class="coupon-modal-close" onclick="closeCouponModal()">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <div class="coupon-modal-body" id="couponModalBody">
+                    <% if (coupons.length===0) { %>
+                        <div class="cm-empty">
+                            <i class="bi bi-ticket-perforated"></i>
+                            No coupons available right now
+                        </div>
+                        <% } %>
+
+                            <% coupons.forEach(coupon=> { %>
+                                <div class="cm-coupon-card">
+
+                                    <!-- LEFT -->
+                                    <div class="cm-coupon-left">
+
+                                        <!-- CODE + SAVE -->
+                                        <div class="cm-coupon-code-row">
+                                            <span class="cm-code-badge">
+                                                <%= coupon.code %>
+                                            </span>
+
+                                            <span class="cm-save-tag">
+                                                SAVE <%= coupon.discount %>
+                                            </span>
+                                        </div>
+
+                                        <!-- DESCRIPTION -->
+                                        <div class="cm-coupon-desc">
+                                            <%= coupon.description %>
+                                        </div>
+
+                                        <!-- META INFO -->
+                                        <div class="cm-coupon-meta">
+                                            <span>
+                                                <i class="bi bi-cash"></i>
+                                                Min ₹<%= coupon.minPurchase || 0 %>
+                                            </span>
+
+                                            <span>
+                                                <i class="bi bi-clock"></i>
+                                                Valid till <%= coupon.validTill ? coupon.validTill: 'N/A' %>
+                                            </span>
+                                        </div>
+
+                                    </div>
+
+                                    <!-- APPLY BUTTON -->
+                                    <button class="cm-apply-btn" onclick="applyCouponFromModal('<%= coupon.code %>')">
+                                        APPLY
+                                    </button>
+
+                                </div>
+                                <% }) %>
+                </div>
+            </div>
+        </div>
+
         <!-- ─── ADD/EDIT ADDRESS MODAL ─────────────────────────── -->
         <div class="modal fade" id="addAddressModal" tabindex="-1" data-bs-backdrop="static">
             <div class="modal-dialog modal-dialog-centered modal-lg modal-dark">
@@ -1494,6 +1840,7 @@
         </div>
 
         <!-- ─── SCRIPTS ───────────────────────────────────────── -->
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -1504,7 +1851,8 @@
             const PAGE_DATA = {
                 totalAmount: '<%- totalAmount %>',
                 itemCount: '<%- cartItems.length %>',
-                csrfToken: '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>'
+                csrfToken: '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>',
+                razorpayKey: '<%- razorpayKey %>'
             };
 
             let selectedAddressId = '<%= userAddresses.find(a => a.isDefault)?._id || (userAddresses[0]?._id) || "" %>';
@@ -1520,15 +1868,15 @@
             /* ── Payment Selection ─────────────────── */
             function selectPayment(method) {
                 const normalised = method.toLowerCase();
-                if (normalised !== 'cod') return;
-                selectedPayment = 'COD';
+                if (!['cod', 'razorpay', 'wallet'].includes(normalised)) return;
+                selectedPayment = method;
                 document.querySelectorAll('.payment-option:not(.disabled)').forEach(o => o.classList.remove('selected'));
                 document.getElementById('pay-' + normalised)?.classList.add('selected');
             }
 
             /* ── Coupon ─────────────────────────────── */
             function applyCoupon() {
-                const code = document.getElementById('couponInput').value.trim().toUpperCase();
+                const code = document.getElementById('couponInput').value
                 const errEl = document.getElementById('couponError');
                 const okEl = document.getElementById('couponSuccess');
                 errEl.style.display = 'none'; okEl.style.display = 'none';
@@ -1558,7 +1906,27 @@
 
             function toggleCoupons(e) {
                 e.preventDefault();
-                window.location.href = '/coupons';
+                openCouponModal();
+            }
+
+            /* ── Coupon Modal Logic ────────────────────── */
+            function openCouponModal() {
+                const overlay = document.getElementById('couponModalOverlay');
+                overlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeCouponModal(e) {
+                if (e && e.target !== e.currentTarget) return;
+                document.getElementById('couponModalOverlay').classList.remove('show');
+                document.body.style.overflow = '';
+            }
+
+            function applyCouponFromModal(code) {
+                
+                console.log('code',code)
+                document.getElementById('couponInput').value = code;
+                closeCouponModal();
             }
 
             /* ── Place Order ────────────────────────── */
@@ -1578,7 +1946,7 @@
 
                 Swal.fire({
                     title: 'Confirm Order',
-                    text: "Are you sure you want to place this order with Cash on Delivery?",
+                    text: `Are you sure you want to place this order with ${selectedPayment}?`,
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#4f6ef7',
@@ -1588,59 +1956,141 @@
                     color: '#f0f2ff'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        const btn = document.querySelector('.btn-place-order');
-                        btn.disabled = true;
-                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Placing Order…';
+                        if (selectedPayment.toLowerCase() === 'razorpay') {
+                            openRazorpayGateway();
+                        } else {
+                            executePlaceOrder();
+                        }
+                    }
+                });
+            }
 
-                        fetch('/checkout/place-order', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-Token': PAGE_DATA.csrfToken
-                            },
-                            body: JSON.stringify({
-                                addressId: selectedAddressId,
-                                paymentMethod: selectedPayment
-                            })
-                        })
-                            .then(res => {
-                                if (!res.ok && res.headers.get('content-type')?.includes('text/html')) {
-                                    // Likely a redirect to signin — session expired
-                                    window.location.href = '/signin';
-                                    return Promise.reject(new Error('session_expired'));
-                                }
-                                return res.json();
-                            })
-                            .then(data => {
-                                if (data.success) {
-                                    window.location.href = '/order-success/' + data.orderId;
-                                } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Order Failed',
-                                        text: data.message || 'Could not place order. Please try again.',
-                                        background: '#111422',
-                                        color: '#f0f2ff',
-                                        confirmButtonColor: '#4f6ef7'
+            function openRazorpayGateway() {
+                const btn = document.querySelector('.btn-place-order');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Initializing Razorpay…';
+
+                fetch('/checkout/create-razorpay-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': PAGE_DATA.csrfToken
+                    },
+                    body: JSON.stringify({ amount: PAGE_DATA.totalAmount })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.success) {
+                            btn.disabled = false;
+                            btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
+                            return Swal.fire('Error', data.message || 'Error generating order', 'error');
+                        }
+
+                        const options = {
+                            key: PAGE_DATA.razorpayKey,
+                            amount: data.order.amount,
+                            currency: "INR",
+                            name: "ZYROX",
+                            description: "Purchase Checkout",
+                            order_id: data.order.id,
+                            handler: function (response) {
+                                // Verify Payment
+                                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying Payment…';
+                                fetch('/checkout/verify-razorpay', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-Token': PAGE_DATA.csrfToken
+                                    },
+                                    body: JSON.stringify(response)
+                                })
+                                    .then(r => r.json())
+                                    .then(verifyData => {
+                                        if (verifyData.success) {
+                                            executePlaceOrder();
+                                        } else {
+                                            Swal.fire('Error', 'Payment verification failed', 'error');
+                                            btn.disabled = false;
+                                            btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
+                                        }
                                     });
+                            },
+                            prefill: {
+                                name: document.getElementById('addr_fullName')?.value || "",
+                                contact: document.getElementById('addr_phone')?.value || ""
+                            },
+                            theme: {
+                                color: "#4f6ef7"
+                            },
+                            modal: {
+                                ondismiss: function () {
                                     btn.disabled = false;
                                     btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
                                 }
-                            })
-                            .catch(err => {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Network Error',
-                                    text: 'Something went wrong. Please try again.',
-                                    background: '#111422',
-                                    color: '#f0f2ff',
-                                    confirmButtonColor: '#4f6ef7'
-                                });
-                                btn.disabled = false;
-                                btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
+                            }
+                        };
+                        const rzp1 = new window.Razorpay(options);
+                        rzp1.open();
+                    })
+                    .catch(err => {
+                        btn.disabled = false;
+                        btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
+                        Swal.fire('Error', 'Network Error', 'error');
+                    });
+            }
+
+            function executePlaceOrder() {
+                const btn = document.querySelector('.btn-place-order');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Placing Order…';
+
+                fetch('/checkout/place-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': PAGE_DATA.csrfToken
+                    },
+                    body: JSON.stringify({
+                        addressId: selectedAddressId,
+                        paymentMethod: selectedPayment
+                    })
+                })
+                    .then(res => {
+                        if (!res.ok && res.headers.get('content-type')?.includes('text/html')) {
+                            // Likely a redirect to signin — session expired
+                            window.location.href = '/signin';
+                            return Promise.reject(new Error('session_expired'));
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = '/order-success/' + data.orderId;
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Order Failed',
+                                text: data.message || 'Could not place order. Please try again.',
+                                background: '#111422',
+                                color: '#f0f2ff',
+                                confirmButtonColor: '#4f6ef7'
                             });
-                    }
-                });
+                            btn.disabled = false;
+                            btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
+                        }
+                    })
+                    .catch(err => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Network Error',
+                            text: 'Something went wrong. Please try again.',
+                            background: '#111422',
+                            color: '#f0f2ff',
+                            confirmButtonColor: '#4f6ef7'
+                        });
+                        btn.disabled = false;
+                        btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
+                    });
             }
             /* ── Save Address ───────────────────────── */
             const addressModal = new bootstrap.Modal(document.getElementById('addAddressModal'));

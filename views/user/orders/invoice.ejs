@@ -152,10 +152,9 @@
                 <p class="label-text">Billing Address</p>
                 <p class="value-text" style="line-height: 1.5; font-weight: 500;">
                     <%= order.shippingAddress.fullName %><br>
-                        <%= order.shippingAddress.houseName %>(h), <%= order.shippingAddress.locality %>,<br>
-                                <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %><br>
-                                        <%= order.shippingAddress.pincode %><br>
-                                            Kerala<br>
+                        <%= order.shippingAddress.houseName %>(H), <%= order.shippingAddress.locality %>,<br>
+                                <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%=
+                                            order.shippingAddress.pincode %><br>
                                             Phone: <%= order.shippingAddress.phone %>
                 </p>
             </div>
@@ -170,10 +169,9 @@
                 <tr>
                     <th class="text-left" style="width: 45%;">Description</th>
                     <th>Qty</th>
-                    <th class="text-right">Gross <br> Amount ₹</th>
-                    <th class="text-right">Discounts <br> /Coupons ₹</th>
+                    <th class="text-right">Unit Price ₹</th>
                     <th class="text-right">Taxable <br> value ₹</th>
-                    <th class="text-right">IGST ₹</th>
+                    <th class="text-right">IGST (18%) ₹</th>
                     <th class="text-right">Total ₹</th>
                 </tr>
             </thead>
@@ -183,74 +181,74 @@
                     const igst = item.total - taxable;
                     %>
                     <tr>
-                        <td class="text-left">
-                            <span style="float: left; font-weight: 500; margin-right: 10px;">SAC: 851799</span>
-                            <div style="margin-left: 85px;">
-                                <p style="font-weight: 600; font-size: 13px;">
-                                    <%= item.name %>
+                        <td class="text-left font-semibold">
+                            <%= item.name %>
+                                <p class="text-[10px] text-gray-500 font-normal">
+                                    [Variant: <%= item.RAM %>GB/<%= item.storage %>GB | Color: <%= item.color %>]
                                 </p>
-                                <p style="font-size: 10px; color: #666; margin-top: 4px;">1. [Variant: <%= item.RAM %>
-                                        GB/<%= item.storage %>GB | Color: <%= item.color %>]</p>
-                                <p style="font-size: 10px; font-weight: 800; margin-top: 4px;">IGST: 18.0 %</p>
-                            </div>
+                                <p class="text-[10px] text-gray-400 font-normal">SAC: 851799</p>
                         </td>
                         <td class="text-center font-bold">
                             <%= item.quantity %>
                         </td>
                         <td class="text-right">
-                            <%= item.total.toFixed(2) %>
+                            <%= item.price.toFixed(2) %>
                         </td>
-                        <td class="text-right">0.00</td>
                         <td class="text-right">
                             <%= taxable.toFixed(2) %>
                         </td>
                         <td class="text-right">
                             <%= igst.toFixed(2) %>
                         </td>
-                        <td class="text-right font-black">
+                        <td class="text-right font-bold">
                             <%= item.total.toFixed(2) %>
                         </td>
                     </tr>
                     <% }) %>
 
-                        <!-- Bottom Summary Row -->
+                        <!-- Summary rows -->
                         <tr class="summary-row">
-                            <td class="text-center" colspan="1">Total</td>
-                            <td class="text-center">
-                                <%= order.items.reduce((acc, i)=> acc + i.quantity, 0) %>
-                            </td>
-                            <td class="text-right">
-                                <%= order.items.reduce((acc, i)=> acc + i.total, 0).toFixed(2) %>
-                            </td>
-                            <td class="text-right">0.00</td>
-                            <td class="text-right">
-                                <%= (order.items.reduce((acc, i)=> acc + i.total, 0) / 1.18).toFixed(2) %>
-                            </td>
-                            <td class="text-right">
-                                <%= (order.items.reduce((acc, i)=> acc + i.total, 0) - (order.items.reduce((acc, i) =>
-                                    acc + i.total, 0) / 1.18)).toFixed(2) %>
-                            </td>
-                            <td class="text-right">
-                                <%= order.items.reduce((acc, i)=> acc + i.total, 0).toFixed(2) %>
+                            <td colspan="4" class="text-right border-t-2 border-black">Subtotal</td>
+                            <td colspan="2" class="text-right border-t-2 border-black">₹<%= order.subtotal.toFixed(2) %>
                             </td>
                         </tr>
+                        <% if (order.discount> 0) { %>
+                            <tr>
+                                <td colspan="4" class="text-right py-2">Coupon/Discount</td>
+                                <td colspan="2" class="text-right py-2 text-green-600">- ₹<%= order.discount.toFixed(2)
+                                        %>
+                                </td>
+                            </tr>
+                            <% } %>
+                                <tr>
+                                    <td colspan="4" class="text-right py-2">Shipping</td>
+                                    <td colspan="2" class="text-right py-2">
+                                        <%= order.shippingCharge===0 ? 'FREE' : '₹' + order.shippingCharge.toFixed(2) %>
+                                    </td>
+                                </tr>
             </tbody>
         </table>
 
         <!-- Grand Total Section -->
-        <div class="grand-total-box flex justify-end items-baseline gap-10">
-            <span style="font-size: 20px; font-weight: 500;">Grand Total</span>
-            <span style="font-size: 24px; font-weight: 900;">₹<%= order.finalPrice.toLocaleString('en-IN') %>.00</span>
+        <div class="grand-total-box flex justify-end items-center gap-10 mt-6 border-t-2 border-black pt-4">
+            <span class="text-xl font-medium">Grand Total</span>
+            <span class="text-3xl font-black text-blue-900">₹<%= order.finalPrice.toLocaleString('en-IN') %>.00</span>
+        </div>
+
+        <div class="mt-4 text-[11px] text-gray-500">
+            <p><strong>Payment Method:</strong>
+                <%= order.paymentMethod %>
+            </p>
+            <p><strong>Payment Status:</strong>
+                <%= order.paymentStatus %>
+            </p>
+            <p><strong>Amount in Words:</strong> Indian Rupees Only</p>
         </div>
 
         <!-- Authorized Signatory Section -->
-        <div class="flex flex-col items-end mt-12">
-            <p style="font-size: 13px; font-weight: 700; color: #333; margin-bottom: 8px;">Utkrisht Trade Solutions Pvt
-                Ltd</p>
-            <div style="background: #f9fafb; border: 1px solid #eee; padding: 5px;">
-                <img src="https://i.ibb.co/vzVfVfG/signature.png" alt="Signature"
-                    style="max-width: 180px; filter: contrast(1.2);">
-                <!-- Fallback if specific image needed: I will use a placeholder that looks exactly like the blue one in the image -->
+        <div class="flex flex-col items-end mt-8">
+            <p class="text-sm font-bold text-gray-800 mb-2">Zyrox E-Commerce Solutions</p>
+            <div class="border border-gray-100 p-2 bg-gray-50">
                 <div style="width: 180px; height: 60px; position:relative; overflow:hidden;">
                     <svg viewBox="0 0 500 150" preserveAspectRatio="none" style="height: 100%; width: 100%;">
                         <path d="M50,100 Q150,50 250,100 T450,100" fill="none" stroke="#2b448a" stroke-width="6" />
@@ -258,8 +256,9 @@
                     <p style="position:absolute; bottom:0; right:0; font-size:8px; opacity:0.3;">DIGITALLY SIGNED</p>
                 </div>
             </div>
-            <p style="font-size: 13px; font-weight: 700; color: #000; margin-top: 10px;">Authorized Signatory</p>
+            <p class="text-sm font-bold text-black mt-2">Authorized Signatory</p>
         </div>
+    </div>
     </div>
 
     <!-- FontAwesome for the PDF icon -->

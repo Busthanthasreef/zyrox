@@ -837,9 +837,8 @@
                         <span class="total-value" id="summary-total">₹<%= total.toLocaleString('en-IN') %></span>
                     </div>
 
-                    <button class="btn-checkout" id="checkoutBtn" <%=cartItems && cartItems.length> 0 ? '' : 'disabled'
-                        %>
-                        onclick="proceedCheckout()">
+                    <button class="btn-checkout" id="checkoutBtn" onclick="proceedCheckout()" <%=cartItems &&
+                        cartItems.length> 0 ? '' : 'disabled' %>>
                         <i class="fas fa-lock" style="font-size:.68rem;"></i>
                         Proceed to Checkout
                     </button>
@@ -920,14 +919,14 @@
                     return;
                 }
 
-                // ── Stock exceeded or Min Stock requirement (stock - 1 limit) ──
-                const stockLimit = Math.max(0, stock - 1);
+                // ── Stock exceeded ──
+                const stockLimit = stock;
                 if (newQty > stockLimit) {
                     Swal.fire({
                         toast: true, position: 'top-end', icon: 'warning',
                         title: stockLimit === 0
-                            ? 'Min stock requirement reached (must leave 1 in inventory)'
-                            : `Only ${stockLimit} unit${stockLimit > 1 ? 's' : ''} can be added (must leave 1 in inventory)`,
+                            ? 'Out of stock'
+                            : `Only ${stockLimit} unit${stockLimit > 1 ? 's' : ''} available`,
                         showConfirmButton: false, timer: 2500,
                         background: '#12131a', color: '#e8e8f0', iconColor: '#00ff04'
                     });
@@ -940,6 +939,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ variantId, productId, quantity: newQty })
                     });
+
                     const data = await res.json();
 
                     if (!data.success) {
@@ -961,7 +961,7 @@
                     document.getElementById('price-' + variantId).textContent =
                         '₹' + rowPrice.toLocaleString('en-IN');
 
-                    const stockLimit = Math.max(0, state.stock - 1);
+                    const stockLimit = state.stock;
                     document.getElementById('minus-' + variantId).disabled = newQty <= 1;
                     document.getElementById('plus-' + variantId).disabled = newQty >= MAX_QTY || newQty >= stockLimit;
 
@@ -1072,19 +1072,22 @@
 
             function checkOOS() {
                 const rows = document.querySelectorAll('.cart-row');
-                const hasUnavailable = [...rows].some(r => {
+                const hasUnavailableOnCurrentPage = [...rows].some(r => {
                     const adminInactive = r.dataset.adminInactive === 'true';
                     const stock = parseInt(r.dataset.stock, 10);
                     const qty = parseInt(document.getElementById('qty-' + r.dataset.variant)?.textContent || '0', 10);
-                    return adminInactive || stock <= 1 || qty > (stock - 1);
+                    return adminInactive || stock <= 0 || qty > stock;
                 });
-                const isEmpty = rows.length === 0;
+
+                // hasUnavailableItems comes from server-side loadCart
+                const hasGlobalUnavailable = <%= typeof hasUnavailableItems !== 'undefined' ? hasUnavailableItems : false %>;
+                const isEmpty = <%= typeof cartItemCount !== 'undefined' ? (cartItemCount === 0) : true %>;
 
                 const btn = document.getElementById('checkoutBtn');
                 const warn = document.getElementById('oosWarning');
 
-                btn.disabled = hasUnavailable || isEmpty;
-                warn.classList.toggle('show', hasUnavailable);
+                btn.disabled = hasUnavailableOnCurrentPage || hasGlobalUnavailable || isEmpty;
+                warn.classList.toggle('show', hasUnavailableOnCurrentPage || hasGlobalUnavailable);
             }
 
             /* ═══════════════════════════════════════════
@@ -1115,34 +1118,8 @@
             }
 
             function proceedCheckout() {
-                const rows = document.querySelectorAll('.cart-row');
-                const hasAdminInactive = [...rows].some(r => r.dataset.adminInactive === 'true');
-                const hasOOS = [...rows].some(r => {
-                    if (r.dataset.adminInactive === 'true') return false; // already flagged above
-                    const stock = parseInt(r.dataset.stock, 10);
-                    const qty = parseInt(document.getElementById('qty-' + r.dataset.variant)?.textContent || '0', 10);
-                    return stock <= 1 || qty > (stock - 1);
-                });
-                if (hasAdminInactive) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Unavailable Items in Cart',
-                        text: 'One or more products are currently unavailable. Please remove them before checking out.',
-                        confirmButtonColor: '#00ff04',
-                        background: '#12131a', color: '#e8e8f0'
-                    });
-                    return;
-                }
-                if (hasOOS) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Unavailable or Limited Items',
-                        text: 'Please adjust your cart to respect minimum stock requirements before proceeding.',
-                        confirmButtonColor: '#00ff04',
-                        background: '#12131a', color: '#e8e8f0'
-                    });
-                    return;
-                }
+                // If the button is enabled, we allow it. 
+                // Any last-minute OOS will be caught by the backend loadCheckout
                 window.location.href = '/checkout';
             }
 

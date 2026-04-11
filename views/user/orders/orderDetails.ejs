@@ -507,6 +507,8 @@
             style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
             <div style="width: 50%;">
                 <h1>Zyrox mobile store pvt ltd </h1>
+                
+            
                 <p style="font-size: 11px; font-weight: 800; text-transform: uppercase;">Order ID: <span
                         style="font-weight: 600;">
                         <%= order.orderId %>
@@ -669,19 +671,19 @@
             axios.post(endpoint, { orderId: selectedOrder, itemId: selectedItem, reason })
                 .then(res => {
                     if (res.data.success) {
-                        Swal.fire({ title: 'Success', text: res.data.message, icon: 'success', background: '#161b22', color: '#fff' }).then(() => location.reload());
+                        Swal.fire({ title: 'Success', text: res.data.message, icon: 'success',timer:1000,showConfirmButton:false, background: '#161b22', color: '#fff' }).then(() => location.reload());
                     } else {
-                        Swal.fire({ title: 'Error', text: res.data.message, icon: 'error', background: '#161b22', color: '#fff' });
+                        Swal.fire({ title: 'Error', text: res.data.message, icon: 'error',timer:1000,showConfirmButton:false, background: '#161b22', color: '#fff' });
                     }
                 });
         }
 
         function handleCancelEntireOrder() {
             const reasonOptions = {
-                mistake: '🟡 Mistake purchase',
-                better_price: '🔵 Found better price',
-                change_mind: '🟣 Changed my mind',
-                others: '🟢 Others'
+                mistake: 'Mistake purchase',
+                better_price: ' Found better price',
+                change_mind: 'Changed my mind',
+                others: ' Others'
             };
 
             Swal.fire({

@@ -9,6 +9,7 @@ import * as wishlistController from "../controllers/user/wishlistController.js"
 import * as orderController from "../controllers/user/orderController.js"
 import { isUserAuthenticated, isUserGuest } from "../middlewares/auth.js";
 import upload from "../middlewares/multer.js";
+import Coupon from "../models/coupon.js";
 
 const userRoutes = express.Router();
 
@@ -43,8 +44,14 @@ userRoutes.get('/wishlist', isUserAuthenticated, wishlistController.loadWishlist
 
 userRoutes.get("/checkout", isUserAuthenticated, checkoutController.loadCheckout);
 userRoutes.get("/checkout/buy-now", isUserAuthenticated, checkoutController.loadBuyNowCheckout);
+userRoutes.post("/checkout/create-razorpay-order", isUserAuthenticated, checkoutController.createRazorpayOrder);
+userRoutes.post("/checkout/verify-razorpay", isUserAuthenticated, checkoutController.verifyRazorpayPayment);
 userRoutes.post("/checkout/place-order", isUserAuthenticated, checkoutController.placeOrder);
 userRoutes.get("/order-success/:orderId", isUserAuthenticated, checkoutController.getOrderSuccess);
+
+/* COUPONS */
+userRoutes.post("/api/coupon/apply",    isUserAuthenticated, checkoutController.applyCoupon);
+userRoutes.post("/api/coupon/remove",   isUserAuthenticated, checkoutController.removeCoupon);
 
 userRoutes.get("/myOrders",isUserAuthenticated, orderController.getOrdersPage);
 userRoutes.get("/myOrders/details",isUserAuthenticated, orderController.getOrdersDetailsPage);
@@ -89,5 +96,25 @@ userRoutes.post("/resend-reset-otp", userController.resendOtp); // Reusing resen
 userRoutes.get("/new-password", userController.loadNewPassword);
 userRoutes.post("/new-password", userController.resetPassword);
 
+
+/* COUPONS API */
+// userRoutes.get("/api/coupons", isUserAuthenticated, async (req, res) => {
+//     try {
+//         const now = new Date();
+//         const coupons = await Coupon.find({
+//             isActive: true,
+//             validFrom: { $lte: now },
+//             validTill: { $gte: now },
+//             $or: [
+//                 { usageLimit: null },
+//                 { $expr: { $lt: ["$usedCount", "$usageLimit"] } }
+//             ]
+//         }).sort({ createdAt: -1 }).lean();
+//         res.json({ success: true, coupons });
+//     } catch (err) {
+//         console.error("Error fetching coupons:", err);
+//         res.status(500).json({ success: false, message: "Server error" });
+//     }
+// });
 
 export default userRoutes;

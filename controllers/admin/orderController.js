@@ -5,7 +5,7 @@ import Variant from "../../models/variant.js";
 const getOrders = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 4;
+        const limit = 6;
         const skip = (page - 1) * limit;
         const search = req.query.search || "";
 
@@ -179,9 +179,7 @@ const acceptReturn = async (req, res) => {
         const oldStatus = order.orderStatus;
         if (oldStatus === "Return Requested") {
             order.orderStatus = "Returned";
-        } else if (oldStatus === "Cancellation Requested") {
-            order.orderStatus = "Cancelled";
-        } else {
+         } else {
             return res.json({ success: false, message: "No pending request for this order" });
         }
 
@@ -208,7 +206,7 @@ const acceptReturn = async (req, res) => {
             }
         }
 
-        const actionType = oldStatus === "Return Requested" ? "Return" : "Cancellation";
+        const actionType = oldStatus === "Return Requested" ? "Return Request" : " ";
         return res.json({ success: true, message: `${actionType} accepted. Stock has been restored.` });
     } catch (error) {
         console.error("Error in acceptReturn:", error);
@@ -228,8 +226,6 @@ const declineReturn = async (req, res) => {
         const oldStatus = order.orderStatus;
         if (oldStatus === "Return Requested") {
             order.orderStatus = "Delivered";
-        } else if (oldStatus === "Cancellation Requested") {
-            order.orderStatus = "Processing";
         } else {
             return res.json({ success: false, message: "No pending request for this order" });
         }
@@ -242,7 +238,7 @@ const declineReturn = async (req, res) => {
         });
 
         await order.save();
-        const actionType = oldStatus === "Return Requested" ? "Return" : "Cancellation";
+        const actionType = oldStatus === "Return Requested" ? "Return" : " ";
         return res.json({ success: true, message: `${actionType} request declined.` });
     } catch (error) {
         console.error("Error in declineReturn:", error);

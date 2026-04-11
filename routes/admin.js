@@ -3,10 +3,12 @@ import * as adminController from "../controllers/admin/adminController.js";
 import * as costomerController from "../controllers/admin/customerController.js";
 import { isAdminAuthenticated, isAdminGuest } from "../middlewares/auth.js";
 import * as productController from "../controllers/admin/productController.js";
-import * as variantController from "../controllers/admin/variantController.js"
-import * as categoryController from "../controllers/admin/categoryController.js"
-import * as orderController from "../controllers/admin/orderController.js"
+import * as variantController from "../controllers/admin/variantController.js";
+import * as categoryController from "../controllers/admin/categoryController.js";
+import * as orderController from "../controllers/admin/orderController.js";
+import * as couponController from "../controllers/admin/couponController.js";
 import upload from "../middlewares/multer.js";
+
 const adminRoutes = express.Router();
 adminRoutes.get("/", isAdminGuest, adminController.loadLogin);
 adminRoutes.post("/", isAdminGuest, adminController.login);
@@ -30,10 +32,7 @@ adminRoutes.post("/products-add", isAdminAuthenticated, upload.any(), productCon
 adminRoutes.post("/products-edit/:id", isAdminAuthenticated, upload.any(), productController.editProduct);
 adminRoutes.get("/products-delete/:id", isAdminAuthenticated, productController.deleteProduct)
 
-adminRoutes.get('/products/:id/variants-delete/:variantId', isAdminAuthenticated, (req, res, next) => {
-    console.log(`Hitting delete variant route for ID: ${req.params.variantId}`);
-    next();
-}, variantController.deleteVariant);
+adminRoutes.get('/products/:id/variants-delete/:variantId', isAdminAuthenticated,variantController.deleteVariant);
 adminRoutes.get('/products/:id/variants', isAdminAuthenticated, variantController.loadVariantListing);
 adminRoutes.post('/products/:id/variants-add', isAdminAuthenticated, upload.array('images', 5), variantController.addVariant);
 adminRoutes.post('/products/:id/variants-edit/:variantId', isAdminAuthenticated, upload.array('images', 5), variantController.editVariant);
@@ -46,6 +45,11 @@ adminRoutes.post('/orders/accept-return', isAdminAuthenticated, orderController.
 adminRoutes.post('/orders/decline-return', isAdminAuthenticated, orderController.declineReturn);
 adminRoutes.post('/orders/accept-item-request', isAdminAuthenticated, orderController.acceptItemRequest);
 adminRoutes.post('/orders/decline-item-request', isAdminAuthenticated, orderController.declineItemRequest);
+
+adminRoutes.get('/coupons', isAdminAuthenticated, couponController.getCoupons);
+adminRoutes.post('/coupons/add', isAdminAuthenticated, couponController.addCoupon);
+adminRoutes.post('/coupons/edit', isAdminAuthenticated, couponController.editCoupon);
+adminRoutes.delete('/coupons/delete/:id', isAdminAuthenticated, couponController.deleteCoupon);
 
 
 adminRoutes.get("/logout", isAdminAuthenticated, adminController.logout);

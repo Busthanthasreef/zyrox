@@ -44,6 +44,7 @@ const loadCart = async (req, res) => {
         currentPage: 1,
         totalPages: 1,
         cartItemCount: 0,
+        hasUnavailableItems: false,
         user: req.session.user
       });
     }
@@ -61,27 +62,18 @@ const loadCart = async (req, res) => {
 
 
 
-
     /* ================= MAP CART ITEMS ================= */
     const cartItems = paginatedItems.map(item => {
       const prod = item.Product_id;
       const vari = item.Variant_id;
 
-      
-      const isActiveProduct = prod?.IsActive !== false && prod?.status === 'active';
-      const isActiveVariant = vari?.IsActive !== false;
+      const isActiveProduct = prod?.status === 'active' && prod?.IsDeleted !== true;
+      const isActiveVariant = vari?.IsActive !== false && vari?.IsDeleted !== true;
       const isInStock       = (vari?.stock || 0) > 0;
 
-      const product = variantSchema.findOne({productId:prod,_id:vari});
-      console.log(product)
-      
       const isAdminInactive = !isActiveProduct || !isActiveVariant;
       const isAvailable     = isActiveProduct && isActiveVariant && isInStock;
-      const isMinQty = product.stock < prod.quantity ? true: false ;
-      console.log(isMinQty)
-      const isDeleted = productSchema.find({IsDeleted:true});
       
-
       return {
         quantity:        item.Quantity,
         productId:       prod?._id,
@@ -89,7 +81,6 @@ const loadCart = async (req, res) => {
 
         isAvailable,    
         isAdminInactive,
-        isMinQty,
         
         product: {
           name:    prod?.productName,
@@ -103,18 +94,22 @@ const loadCart = async (req, res) => {
       };
     });
 
-    /* ================= SUBTOTAL (ONLY AVAILABLE ITEMS) ================= */
+    /* ================= SUBTOTAL & GLOBAL AVAILABILITY ================= */
     let subtotal = 0;
+    let hasUnavailableItems = false;
 
     cart.Items.forEach(item => {
       const prod = item.Product_id;
       const vari = item.Variant_id;
-      const isActiveProduct = prod?.IsActive !== false && prod?.status === 'active';
-      const isActiveVariant = vari?.IsActive !== false;
-      const isInStock       = (vari?.stock || 0) > 0;
+      
+      const isActiveProduct = prod?.status === 'active' && prod?.IsDeleted !== true;
+      const isActiveVariant = vari?.IsActive !== false && vari?.IsDeleted !== true;
+      const isInStock       = (vari?.stock || 0) >= item.Quantity; // Matching checkout logic
 
       if (isActiveProduct && isActiveVariant && isInStock) {
         subtotal += (vari.price || 0) * item.Quantity;
+      } else {
+        hasUnavailableItems = true;
       }
     });
 
@@ -134,6 +129,7 @@ const loadCart = async (req, res) => {
       currentPage:   page,
       totalPages,
       cartItemCount: totalItems,
+      hasUnavailableItems,
       user:          req.session.user
     });
 
@@ -189,7 +185,7 @@ const addToCart = async (req, res) => {
     }
 
     const canAdd   = MAX_CART_QTY - existingQty;
-    const stockCap = (variant.stock - 1) - existingQty; // 🔥 User requirement: max in cart = stock - 1
+    const stockCap = variant.stock - existingQty; 
     const allowedQty = Math.min(requestedQty, canAdd, stockCap);
 
     if (allowedQty <= 0) {
@@ -235,8 +231,8 @@ const addToCart = async (req, res) => {
       success:      true,
       cartCount:    cartCount,
       newQty:       newQty,
-      limitReached: newQty >= MAX_CART_QTY || newQty >= (variant.stock - 1),
-      canAddMore:   Math.min(MAX_CART_QTY, variant.stock - 1) - newQty,
+      limitReached: newQty >= MAX_CART_QTY || newQty >= variant.stock,
+      canAddMore:   Math.min(MAX_CART_QTY, variant.stock) - newQty,
       message:      "Item added to cart",
     });
 
@@ -267,7 +263,7 @@ const updateQuantity = async (req, res) => {
       return res.status(400).json({ success: false, message: error });
     }
 
-    const maxAllowed = Math.max(0, variant.stock - 1);
+    const maxAllowed = Math.max(0, variant.stock);
     if (newQty > maxAllowed) {
       return res.status(400).json({
         success: false,

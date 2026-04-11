@@ -7,11 +7,20 @@ import Cart from "../models/cart.js";
  * without each controller needing to pass them explicitly.
  */
 const attachLocalCounts = async (req, res, next) => {
+    // ── FLASH MESSAGES / SESSION ALERTS ──────────────────────────
+    res.locals.successMessage = req.session.successMessage || null;
+    res.locals.errorMessage   = req.session.errorMessage || null;
+    res.locals.infoMessage    = req.session.infoMessage || null;
+
+    delete req.session.successMessage;
+    delete req.session.errorMessage;
+    delete req.session.infoMessage;
+    // ──────────────────────────────────────────────────────────────
+
     const userId = req.session?.user?._id;
 
     if (!userId) {
         res.locals.wishlistCount = 0;
-        // Don't override cartItemCount if controller already sets it
         if (res.locals.cartItemCount === undefined) {
             res.locals.cartItemCount = 0;
         }
@@ -26,7 +35,6 @@ const attachLocalCounts = async (req, res, next) => {
 
         res.locals.wishlistCount = wishlist?.Products?.length ?? 0;
 
-        // Only set cartItemCount globally if the controller hasn't set it
         if (res.locals.cartItemCount === undefined) {
             res.locals.cartItemCount = cart?.Items?.length ?? 0;
         }

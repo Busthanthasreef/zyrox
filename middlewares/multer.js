@@ -16,27 +16,27 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (req, file) => {
+  params: (req, file, cb) => {
     let folderName = "zyrox-uploads";
-    
+
     if (file.fieldname === "profileImage") {
       folderName = "zyrox/profile";
-    } else if (file.fieldname === "images" || file.fieldname.startsWith("variantImages")) {
+    } else if (file.fieldname === "images" || file.fieldname.startsWith("variantImages") || file.fieldname.startsWith("newImages")) {
       folderName = "zyrox/products";
     }
 
     const cleanFileName = file.originalname.split(".")[0].replace(/\s+/g, "-");
 
-    return {
+    cb(null, {
       folder: folderName,
       allowed_formats: ["jpg", "jpeg", "png", "webp"],
       public_id: `${Date.now()}-${cleanFileName}`,
-    };
+    });
   },
 });
 
 const upload = multer({
-  storage,
+  storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
 

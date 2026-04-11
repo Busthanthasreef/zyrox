@@ -38,7 +38,7 @@ const getOrdersPage = async (req, res) => {
 
     } catch (error) {
         console.error("Error in getOrdersPage:", error);
-        res.status(500).render('error/500', { message: "ഓർഡറുകൾ ലോഡ് ചെയ്യുന്നതിൽ പിശക് സംഭവിച്ചു." });
+        res.status(500).render('error/500', { message: "error found" });
     }
 };
 
@@ -51,23 +51,26 @@ const cancelOrder = async (req, res) => {
             return res.json({ success: false, message: "Order not found" });
         }
 
-        if (order.orderStatus === 'Delivered') {
-            return res.json({ success: false, message: "Cannot cancel a delivered order" });
+        if (['Delivered', 'Cancelled', 'Returned'].includes(order.orderStatus)) {
+            return res.json({ success: false, message: `Cannot cancel an order that is ${order.orderStatus}` });
         }
 
-        order.orderStatus = 'Cancellation Requested';
+        order.orderStatus = 'Cancelled';
         order.cancellationReason = reason;
 
-        // Sync individual item statuses
-        order.items.forEach(item => {
+        // Restore stock and sync item statuses
+        for (const item of order.items) {
             if (!['Cancelled', 'Returned'].includes(item.status)) {
-                item.status = 'Cancellation Requested';
+                if (item.variant) {
+                    await Variant.findByIdAndUpdate(item.variant, { $inc: { stock: item.quantity } });
+                }
+                item.status = 'Cancelled';
                 item.cancellationReason = reason; 
             }
-        });
+        }
 
         await order.save();
-        res.json({ success: true, message: "Cancellation request submitted for the entire order" });
+        res.json({ success: true, message: "Order cancelled successfully and stock restored." });
     } catch (error) {
         console.error("Error cancelling order:", error);
         res.json({ success: false, message: "Server error" });
@@ -88,32 +91,30 @@ const cancelItem = async (req, res) => {
             return res.json({ success: false, message: "Item not found" });
         }
 
-        if (item.status === 'Delivered') {
-            return res.json({ success: false, message: "Cannot cancel a delivered item" });
+        if (['Delivered', 'Cancelled', 'Returned'].includes(item.status)) {
+            return res.json({ success: false, message: `Cannot cancel an item that is already ${item.status}` });
         }
 
-        // Mark the item as cancellation requested
-        item.status = 'Cancellation Requested';
+        // Restore stock for this item
+        if (item.variant) {
+            await Variant.findByIdAndUpdate(item.variant, { $inc: { stock: item.quantity } });
+        }
+
+        item.status = 'Cancelled';
         item.cancellationReason = reason;
 
-        // Count items that are still "active" (not already cancelled/returned)
-        // If this is the only active item, escalate the order status too
         const terminalStatuses = ['Cancelled', 'Returned'];
-        const activeItems = order.items.filter(
-            i => !terminalStatuses.includes(i.status) && String(i._id) !== String(itemId)
-        );
+        const activeItems = order.items.filter(i => !terminalStatuses.includes(i.status));
 
         if (activeItems.length === 0) {
-            // All remaining items are now being cancelled — update order status as well
-            order.orderStatus = 'Cancellation Requested';
+            order.orderStatus = 'Cancelled';
             order.cancellationReason = reason;
         }
 
         await order.save();
-
-        res.json({ success: true, message: "Item cancellation requested successfully" });
+        res.json({ success: true, message: "Item cancelled successfully and stock restored." });
     } catch (error) {
-        console.error("Error cancelling item:", error);
+        console.error("Error cancelling item:", error); 
         res.json({ success: false, message: "Server error" });
     }
 };
