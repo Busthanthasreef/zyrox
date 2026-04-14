@@ -82,6 +82,7 @@ userRoutes.post("/checkout/create-razorpay-order", isUserAuthenticated, checkout
 userRoutes.post("/checkout/verify-razorpay", isUserAuthenticated, checkoutController.verifyRazorpayPayment);
 userRoutes.post("/checkout/place-order", isUserAuthenticated, checkoutController.placeOrder);
 userRoutes.get("/order-success/:orderId", isUserAuthenticated, checkoutController.getOrderSuccess);
+userRoutes.get("/payment-failed", isUserAuthenticated, checkoutController.getPaymentFailed);
 
 /* COUPONS */
 userRoutes.post("/api/coupon/apply", isUserAuthenticated, checkoutController.applyCoupon);

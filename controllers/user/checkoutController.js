@@ -351,13 +351,25 @@ const placeOrder = async (req, res) => {
                 return res.status(400).json({ success: false, message: "Cart is empty" });
             }
 
-            // Check stock first
+            // Check stock and availability first
             for (const item of cart.Items) {
                 const vari = item.Variant_id;
-                if (!vari || vari.stock < item.Quantity) {
+                const prod = item.Product_id;
+
+                const isActiveProduct = prod?.status === 'active' && prod?.IsDeleted !== true;
+                const isActiveVariant = vari?.IsActive !== false && vari?.IsDeleted !== true;
+
+                if (!prod || !vari || !isActiveProduct || !isActiveVariant) {
+                    return res.status(400).json({
+                        success: false,
+                        message: `Product ${prod?.productName || 'in your cart'} is no longer available.`
+                    });
+                }
+                
+                if (vari.stock < item.Quantity) {
                     return res.status(400).json({ 
                         success: false, 
-                        message: `Insufficient stock for ${item.Product_id?.productName || 'one of the items'}.` 
+                        message: `Insufficient stock for ${prod.productName}.` 
                     });
                 }
             }
@@ -391,7 +403,7 @@ const placeOrder = async (req, res) => {
         const tax = 0;
         const finalPrice = subtotal - discount - couponDiscount + shippingCharge + tax;
 
-        if (paymentMethod === 'COD' && finalPrice > 1000) {
+        if (paymentMethod === 'COD' && finalPrice > 30000) {
             return res.status(400).json({ success: false, message: "Cash on Delivery is not allowed for orders above ₹1,000. Please use Online Payment or Wallet." });
         }
 
@@ -399,7 +411,7 @@ const placeOrder = async (req, res) => {
         if (paymentMethod === 'Wallet') {
             const wallet = await Wallet.findOne({ user_id: userId });
             if (!wallet || wallet.balance < finalPrice) {
-                return res.status(400).json({ success: false, message: "Insufficient wallet balance" });
+                return res.status(400).json({ success: false, message: "no enough wallet balance" });
             }
         }
 
@@ -517,22 +529,33 @@ const createRazorpayOrder = async (req, res) => {
         // RECALCULATE AMOUNT FROM SERVER (Security: don't trust frontend amount)
         let subtotal = 0;
         if (req.session.buyNowItem) {
-            const { variantId, quantity } = req.session.buyNowItem;
+            const { productId, variantId, quantity } = req.session.buyNowItem;
+            const product = await Product.findById(productId);
             const variant = await Variant.findById(variantId);
-            if (!variant || variant.stock < quantity) {
+            
+            const isActiveProduct = product?.status === 'active' && product?.IsDeleted !== true;
+            const isActiveVariant = variant?.IsActive !== false && variant?.IsDeleted !== true;
+            
+            if (!product || !variant || !isActiveProduct || !isActiveVariant || variant.stock < quantity) {
                 return res.status(400).json({ success: false, message: "Product no longer available in this quantity." });
             }
             subtotal = variant.price * quantity;
         } else {
-            const cart = await Cart.findOne({ User_id: userId }).populate('Items.Variant_id');
+            const cart = await Cart.findOne({ User_id: userId }).populate("Items.Product_id").populate("Items.Variant_id");
             if (!cart || cart.Items.length === 0) {
                 return res.status(400).json({ success: false, message: "Cart is empty." });
             }
             for (const item of cart.Items) {
-                if (!item.Variant_id || item.Variant_id.stock < item.Quantity) {
-                    return res.status(400).json({ success: false, message: `Insufficient stock for ${item.Product_id?.productName || 'one of the items'}.` });
+                const prod = item.Product_id;
+                const vari = item.Variant_id;
+
+                const isActiveProduct = prod?.status === 'active' && prod?.IsDeleted !== true;
+                const isActiveVariant = vari?.IsActive !== false && vari?.IsDeleted !== true;
+
+                if (!prod || !vari || !isActiveProduct || !isActiveVariant || vari.stock < item.Quantity) {
+                    return res.status(400).json({ success: false, message: `Product ${prod?.productName || 'in your cart'} is no longer available in this quantity.` });
                 }
-                subtotal += (item.Variant_id.price * item.Quantity);
+                subtotal += (vari.price * item.Quantity);
             }
         }
 
@@ -600,11 +623,39 @@ const removeCoupon = async (req, res) => {
     }
 };
 
+const getPaymentFailed = async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+        const categories = await categorySchema.find({ IsDeleted: false });
+        const cart = await Cart.findOne({ User_id: userId });
+        const cartItemCount = cart ? cart.Items.length : 0;
+
+        // Read failure details from query params (passed when redirecting from frontend)
+        const reason = req.query.reason || null;
+        const orderId = req.query.orderId || null;
+        const totalAmount = req.query.amount || null;
+
+        res.render('user/checkout/paymentFailed', {
+            user: req.session.user,
+            categories,
+            cartItemCount,
+            reason,
+            orderId,
+            totalAmount,
+            currentPage: 'checkout'
+        });
+    } catch (error) {
+        console.error('Error loading payment failed page:', error);
+        res.redirect('/checkout');
+    }
+};
+
 export { 
     loadCheckout, 
     loadBuyNowCheckout, 
     placeOrder, 
     getOrderSuccess, 
+    getPaymentFailed,
     createRazorpayOrder, 
     verifyRazorpayPayment,
     applyCoupon,

@@ -1280,10 +1280,10 @@
                                     </div>
                                     <div>
                                         <div class="pay-name">Cash on Delivery</div>
-                                        <% if (totalAmount>= 50000) { %>
+                                        <% if (totalAmount>= 30000) { %>
                                             <div class="pay-desc"
                                                 style="color:rgba(255, 74, 29, 0.1);color:var(--danger);">
-                                                COD not available for orders above ₹50,000
+                                                COD not available for orders above ₹30,000
                                             </div>
                                             <% } else { %>
                                                 <div class="pay-desc" style="color:var(--accent);">
@@ -1310,7 +1310,7 @@
                                 <% if (typeof walletBalance !=='undefined' ) { %>
                                     <div class="payment-option" id="pay-wallet" onclick="selectPayment('Wallet')">
                                         <div class="pay-icon"
-                                            style="background:rgba(244,185,66,.1);color:var(--danger);">
+                                            style="background:rgba(66, 244, 122, 0.1);color:var(--danger);">
                                             <i class="bi bi-wallet2"></i>
                                         </div>
                                         <div>
@@ -1617,11 +1617,11 @@
         <script>
             /* ── Server-side data injected safely ─── */
             const PAGE_DATA = {
-                totalAmount: <% - JSON.stringify(totalAmount) %>,
-                itemCount: <% - JSON.stringify(cartItems.length) %>,
-                csrfToken: '<%- typeof csrfToken !== "undefined" ? csrfToken : "" %>',
-                razorpayKey: '<%- razorpayKey %>',
-                walletBalance: <% - JSON.stringify(walletBalance || 0) %>
+                totalAmount: <%= totalAmount || 0 %>,
+                itemCount: <%= cartItems ?cartItems.length : 0 %>,
+                    csrfToken: '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>',
+                        razorpayKey: '<%= typeof razorpayKey !== "undefined" ? razorpayKey : "" %>',
+                            walletBalance: <%= typeof walletBalance !== "undefined" ? walletBalance : 0 %>
             };
 
             /* FIX: consistent casing — always store as sent to server */
@@ -1658,11 +1658,11 @@
                     });
                     return;
                 }
-                if (method === 'COD' && PAGE_DATA.totalAmount > 1000) {
+                if (method === 'COD' && PAGE_DATA.totalAmount > 30000) {
                     Swal.fire({
                         icon: 'info',
                         title: 'COD Not Available',
-                        text: 'Cash on Delivery is only available for orders below ₹70,000.',
+                        text: 'Cash on Delivery is only available for orders below ₹30,000.',
                         background: '#111422', color: '#f0f2ff', confirmButtonColor: '#4f6ef7'
                     });
                     return;
@@ -1850,6 +1850,7 @@
                             order_id: data.order.id,
                             handler: function (response) {
                                 setPlaceOrderLoading(true, 'Verifying Payment…');
+                                const orderAmount = data.order.amount / 100;
                                 fetch('/checkout/verify-razorpay', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': PAGE_DATA.csrfToken },
@@ -1860,19 +1861,45 @@
                                         if (verifyData.success) {
                                             executePlaceOrder();
                                         } else {
-                                            Swal.fire({ icon: 'error', title: 'Error', text: 'Payment verification failed', background: '#111422', color: '#f0f2ff', confirmButtonColor: '#4f6ef7' });
-                                            setPlaceOrderLoading(false);
+                                            const params = new URLSearchParams({ reason: 'Payment signature verification failed', amount: orderAmount });
+                                            window.location.href = '/payment-failed?' + params.toString();
                                         }
+                                    })
+                                    .catch(() => {
+                                        window.location.href = '/payment-failed?reason=Network+error+during+verification';
                                     });
                             },
                             prefill: { name: prefillName },
                             theme: { color: '#4f6ef7' },
                             modal: {
-                                ondismiss: function () { setPlaceOrderLoading(false); }
+                                ondismiss: function () {
+                                    setPlaceOrderLoading(false);
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Payment Cancelled',
+                                        text: 'You closed the payment window. Retry or go back to cart?',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Retry Payment',
+                                        cancelButtonText: 'Back to Cart',
+                                        confirmButtonColor: '#4f6ef7',
+                                        cancelButtonColor: '#252a42',
+                                        background: '#111422',
+                                        color: '#f0f2ff'
+                                    }).then(r => { if (!r.isConfirmed) window.location.href = '/cart'; });
+                                }
                             }
                         };
 
                         const rzp = new window.Razorpay(options);
+
+                        rzp.on('payment.failed', function (resp) {
+                            setPlaceOrderLoading(false);
+                            const reason = resp.error?.description || resp.error?.reason || 'Payment was declined';
+                            const amount = (data.order.amount / 100);
+                            const params = new URLSearchParams({ reason, amount });
+                            window.location.href = '/payment-failed?' + params.toString();
+                        });
+
                         rzp.open();
                     })
                     .catch(() => {
