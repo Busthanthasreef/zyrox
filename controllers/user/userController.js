@@ -36,8 +36,8 @@ const landingPage = async (req, res) => {
     const trendingProducts = await Product.find({ status: 'active', IsDeleted: false }).limit(4);
     const trendingVariants = [];
     for (const p of trendingProducts) {
-        const v = await Variant.findOne({ productId: p._id, IsActive: true, IsDeleted: false });
-        if(v) trendingVariants.push({ product: p, variant: v });
+      const v = await Variant.findOne({ productId: p._id, IsActive: true, IsDeleted: false });
+      if (v) trendingVariants.push({ product: p, variant: v });
     }
 
     res.render("user/home/landingPage", {
@@ -147,7 +147,7 @@ const verifyEmail = async (req, res) => {
     }
 
     const otp = A + B + C + D + E + F;
-    
+
     const { Name, Email, Phone, Password } = req.session.tempUser;
 
     const validOTP = await otpSchema.findOne({ Email });
@@ -258,7 +258,7 @@ const userSignIn = async (req, res) => {
       return res.json({ success: false, target: "email", message: "User not found" });
 
     if (!user.isActive)
-      return res.json({ success: false, blocked: true, message: "Your account has been blocked by admin" });
+      return res.json({ success: false, blocked: true, message: "Your account has been Deactivated by admin" });
 
     if (!user.Password)
       return res.json({ success: false, target: "email", message: "This account was created using Google. Please sign in with Google." });
@@ -271,6 +271,7 @@ const userSignIn = async (req, res) => {
     const adminSession = req.session.admin;
     const returnTo = req.session.returnTo || '/';
 
+    
     req.session.regenerate((err) => {
       if (err) return res.json({ success: false, message: "Session error" });
 
@@ -283,6 +284,7 @@ const userSignIn = async (req, res) => {
         Name: user.Name,
         Email: user.Email,
       };
+
       req.session.save((err) => {
         if (err) return res.json({ success: false, message: "Session save error" });
         res.json({ success: true, message: "Login Successful", returnTo });

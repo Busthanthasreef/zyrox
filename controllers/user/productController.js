@@ -61,15 +61,15 @@ const loadProducts = async (req, res) => {
         const userId = req.session.user?._id || req.session.user?.id || null;
 
         const filters = {
-            page:          Math.max(1, parseInt(req.query.page, 10) || 1),
-            sortParam:     req.query.sort   || "",
-            search:        req.query.search || "",
-            brandFilter:   toArray(req.query.brand),
-            ramFilter:     toArray(req.query.ram),
+            page: Math.max(1, parseInt(req.query.page, 10) || 1),
+            sortParam: req.query.sort || "",
+            search: req.query.search || "",
+            brandFilter: toArray(req.query.brand),
+            ramFilter: toArray(req.query.ram),
             storageFilter: toArray(req.query.storage),
-            colorFilter:   toArray(req.query.color),
-            minPrice:      Math.max(parseInt(req.query.minPrice, 10) || PRICE_MIN, PRICE_MIN),
-            maxPrice:      Math.min(parseInt(req.query.maxPrice, 10) || PRICE_MAX, PRICE_MAX),
+            colorFilter: toArray(req.query.color),
+            minPrice: Math.max(parseInt(req.query.minPrice, 10) || PRICE_MIN, PRICE_MIN),
+            maxPrice: Math.min(parseInt(req.query.maxPrice, 10) || PRICE_MAX, PRICE_MAX),
         };
 
         const { products, totalProducts, totalPages, currentPage } =
@@ -84,7 +84,7 @@ const loadProducts = async (req, res) => {
         const wishlistIds = wishlist ? wishlist.Products.map(id => id.toString()) : [];
 
         return res.render("user/products/productPage", {
-            user:          req.session.user || null,
+            user: req.session.user || null,
             userId,
             categories,
             cartItemCount,
@@ -94,14 +94,14 @@ const loadProducts = async (req, res) => {
             currentPage,
             wishlistIds,
             activeFilters: {
-                brands:   filters.brandFilter,
-                rams:     filters.ramFilter,
+                brands: filters.brandFilter,
+                rams: filters.ramFilter,
                 storages: filters.storageFilter,
-                colors:   filters.colorFilter,
+                colors: filters.colorFilter,
                 minPrice: filters.minPrice,
                 maxPrice: filters.maxPrice,
-                sort:     filters.sortParam,
-                search:   filters.search,
+                sort: filters.sortParam,
+                search: filters.search,
             },
             sidebarData,
             cartQuantityMap,
@@ -136,7 +136,7 @@ const loadProductDetails = async (req, res) => {
         const isInWishlist = wishlist ? wishlist.Products.some(p => p.toString() === req.params.id) : false;
 
         return res.render("user/products/productDetails", {
-            user:          req.session.user || null,
+            user: req.session.user || null,
             userId,
             categories,
             cartItemCount,

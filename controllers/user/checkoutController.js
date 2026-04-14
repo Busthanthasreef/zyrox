@@ -5,17 +5,19 @@ import Variant from "../../models/variant.js";
 import Order from "../../models/order.js";
 import categorySchema from "../../models/category.js";
 import couponSchema from "../../models/coupon.js";
-
+import Wallet from "../../models/wallet.js";
+import WalletTransactions from "../../models/walletTransactions.js";
 import { v4 as uuidv4 } from 'uuid';
 import Razorpay from "razorpay";
 import crypto from "crypto";
+
 
 const loadCheckout = async (req, res) => {
     try {
         const userId = req.session.user._id;
         const [categories, userAddresses, cart] = await Promise.all([
-            categorySchema.find({ IsDeleted: false }),
-            Address.find({ userId }),
+            categorySchema.find({ IsDeleted: false }), 
+            Address.find({ userId }), 
             Cart.findOne({ User_id: userId }).populate({
                 path: "Items.Product_id",
                 model: "Product"
@@ -77,17 +79,29 @@ const loadCheckout = async (req, res) => {
         }
 
         const discount = 0;
-        const shippingCharge = subtotal > 500 ? 0 : 50;
+        const shippingCharge = subtotal > 90000 ? 0 : 50;
         const tax = 0; 
         const totalAmount = subtotal - discount - couponDiscount + shippingCharge + tax;
 
-        const coupons = await couponSchema.find({ isActive: true, isDeleted: false });
+        const coupons = await couponSchema.find({ 
+            isActive: true, 
+            isDeleted: false,
+            validFrom: { $lte: new Date() },
+            validTill: { $gte: new Date() },
+            $or: [
+                { usageLimit: null },
+                { $expr: { $lt: ["$usedCount", "$usageLimit"] } }
+            ]
+        });
 
-        const orderId = 'ORD-' + uuidv4().slice(0, 8).toUpperCase();
+        const orderId = 'ORD-' + uuidv4().slice(0, 6).toUpperCase();
+        const wallet = await Wallet.findOne({ user_id: userId });
+        const walletBalance = wallet ? wallet.balance : 0;
 
         res.render("user/checkout/checkout", {
             user: req.session.user,
             categories,
+            walletBalance,
             cartItemCount: cart ? cart.Items.length : 0,
             userAddresses,
             orderId,
@@ -166,13 +180,26 @@ const loadBuyNowCheckout = async (req, res) => {
         const totalAmount = subtotal - discount - couponDiscount + shippingCharge + tax;
         const orderId = 'ORD-' + uuidv4().slice(0, 8).toUpperCase();
 
+        const wallet = await Wallet.findOne({ user_id: userId });
+        const walletBalance = wallet ? wallet.balance : 0;
+
         // Get cart item count for navbar
         const cart = await Cart.findOne({ User_id: userId });
-        const coupons = await couponSchema.find({ isActive: true, isDeleted: false });
+        const coupons = await couponSchema.find({ 
+            isActive: true, 
+            isDeleted: false,
+            validFrom: { $lte: new Date() },
+            validTill: { $gte: new Date() },
+            $or: [
+                { usageLimit: null },
+                { $expr: { $lt: ["$usedCount", "$usageLimit"] } }
+            ]
+        });
 
         res.render("user/checkout/checkout", {
             user: req.session.user,
             categories,
+            walletBalance,
             cartItemCount: cart ? cart.Items.length : 0,
             userAddresses,
             orderId,
@@ -236,6 +263,11 @@ const applyCoupon = async (req, res) => {
             }
         } else {
             discount = coupon.discountValue;
+        }
+
+        // Safety check: Discount cannot be more than subtotal
+        if (discount >= subtotal) {
+            return res.json({ success: false, message: "This coupon provides a discount greater than the order value, which is not allowed." });
         }
 
         req.session.appliedCoupon = {
@@ -358,6 +390,19 @@ const placeOrder = async (req, res) => {
         const shippingCharge = subtotal > 500 ? 0 : 50;
         const tax = 0;
         const finalPrice = subtotal - discount - couponDiscount + shippingCharge + tax;
+
+        if (paymentMethod === 'COD' && finalPrice > 1000) {
+            return res.status(400).json({ success: false, message: "Cash on Delivery is not allowed for orders above ₹1,000. Please use Online Payment or Wallet." });
+        }
+
+        // ── WALLET BALANCE CHECK ───────────────────────────────────────
+        if (paymentMethod === 'Wallet') {
+            const wallet = await Wallet.findOne({ user_id: userId });
+            if (!wallet || wallet.balance < finalPrice) {
+                return res.status(400).json({ success: false, message: "Insufficient wallet balance" });
+            }
+        }
+
         const orderId = 'ORD-' + uuidv4().slice(0, 8).toUpperCase();
 
         const newOrder = new Order({
@@ -387,6 +432,26 @@ const placeOrder = async (req, res) => {
 
         // ── SAVE ORDER ATOMICALLY ──────────────────────────────────────────
         await newOrder.save();
+
+        // ── DEDUCT FROM WALLET (If applicable) ───────────────────────────
+        if (paymentMethod === 'Wallet') {
+            const wallet = await Wallet.findOne({ user_id: userId });
+            wallet.balance -= finalPrice;
+            await wallet.save();
+
+            // Create transaction record
+            const newTransaction = new WalletTransactions({
+                user: userId,
+                Amount: -(finalPrice),
+                Payment_status: "Debited",
+                Wallet_id: wallet._id,
+                Payment_date: new Date(),
+                Payment_time: new Date(),
+                Order_id: newOrder._id,
+                Description: `Paid for order ${newOrder.orderId}`
+            });
+            await newTransaction.save();
+        }
 
         // ── DEDUCT STOCK ONLY AFTER SUCCESSFUL SAVE ───────────────────────
         if (req.session.buyNowItem) {

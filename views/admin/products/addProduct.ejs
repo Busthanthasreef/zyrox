@@ -359,6 +359,11 @@
             display: none;
         }
 
+        .img-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+
         /* ── CROP MODAL ── */
         .crop-modal-overlay {
             display: none;
@@ -1330,13 +1335,10 @@
                 try {
                     const fd = new FormData(this);
 
-                    // Replace file inputs with cropped blobs where available
-                    for (let i = 0; i < 3; i++) {
-                        if (croppedBlobs[i]) {
-                            // Remove the original file entry and add the cropped blob
-                            fd.delete('variantImages[0]'); // name is same for all 3 in original template
-                        }
-                    }
+                    // Unconditionally remove the original file fields so we don't send duplicates
+                    fd.delete('variantImages[0]');
+                    fd.delete('variantImages[]');
+
                     // Re-add all images (cropped if available, original otherwise)
                     for (let i = 0; i < 3; i++) {
                         const fileInput = document.getElementById(`vFile_${i}`);
@@ -1497,16 +1499,21 @@
                 if (!get('description')) { toast('warning', 'Description is required'); return false; }
                 if (!get('category')) { toast('warning', 'Please select a category'); return false; }
 
-                // Image validation: Check if at least one image is selected (either original or cropped)
-                let hasImage = false;
+                // Image validation: Check if ALL 3 images are selected
+                let missingImages = 0;
                 for (let i = 0; i < 3; i++) {
-                    if (document.getElementById(`vFile_${i}`).files.length > 0 || croppedBlobs[i]) {
-                        hasImage = true;
-                        break;
+                    const box = document.getElementById(`vBox_${i}`);
+                    const hasImg = document.getElementById(`vFile_${i}`).files.length > 0 || croppedBlobs[i];
+                    if (!hasImg) {
+                        box.classList.add('img-error');
+                        missingImages++;
+                    } else {
+                        box.classList.remove('img-error');
                     }
                 }
-                if (!hasImage) {
-                    toast('error', 'At least one product image is required');
+
+                if (missingImages > 0) {
+                    toast('error', 'All 3 product images are required');
                     return false;
                 }
 

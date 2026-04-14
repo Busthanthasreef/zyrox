@@ -507,7 +507,7 @@
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     <button class="btn-action-cart"
-                                        onclick="addToCart('<%= product.id %>', '<%= product.variantId %>')"
+                                        onclick="addToCart('<%= product.id %>', '<%= product.variantId %>', event)"
                                         <%=product.stock <=1 ? 'disabled' : '' %>>
                                         <i class="fas fa-cart-plus"></i>
                                         <%= product.stock <=0 ? 'Out of Stock' : (product.stock===1 ? 'Unavailable'
@@ -557,7 +557,11 @@
             });
 
             async function toggleWishlist(productId) {
+                const btn = document.querySelector(`.wishlist-card[id="product-${productId}"] .remove-btn`);
+                const originalHtml = btn.innerHTML;
                 try {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
                     const response = await fetch('/wishlist/toggle', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -582,6 +586,8 @@
                         throw new Error(data.message || 'Something went wrong');
                     }
                 } catch (error) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
                     toast.fire({ icon: 'error', title: error.message });
                 }
             }

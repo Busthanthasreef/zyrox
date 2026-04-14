@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zyrax – My Wallet</title>
+
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/userStyles/profile/profileShared.css">
+
+    <style>
+        :root {
+            --bg-deep: #0c0f1a;
+            --bg-card: #111627;
+
+            --bg-row: #161c30;
+            --accent-green: #00e676;
+            --accent-teal: #00bcd4;
+            --accent-red: #ff4d6d;
+            --accent-gold: #ffd600;
+            --text-primary: #e8eaf6;
+            --text-muted: #7b8fb5;
+            --border: #1e2a45;
+            --nav-bg: #0a0d18;
+            --card-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+            --green-glow: 0 0 18px rgba(0, 230, 118, 0.35);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar-zyrax {
+            background: var(--nav-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 0 1.5rem;
+            height: 58px;
+        }
+
+        .brand-logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.45rem;
+            color: var(--accent-green) !important;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+
+        .brand-logo span {
+            color: var(--text-primary);
+        }
+
+        .nav-link-top {
+            color: var(--text-muted) !important;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0 .9rem !important;
+            transition: color .2s;
+        }
+
+        .nav-link-top:hover {
+            color: var(--accent-green) !important;
+        }
+
+        .search-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.82rem;
+            padding: .38rem 1rem;
+            width: 230px;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .search-bar::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-bar:focus {
+            border-color: var(--accent-green);
+        }
+
+        .nav-icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            padding: .25rem .5rem;
+            transition: color .2s;
+            cursor: pointer;
+        }
+
+        .nav-icon-btn:hover {
+            color: var(--accent-green);
+        }
+
+        /* ── LAYOUT ── */
+        .page-wrapper {
+            display: flex;
+            /* min-height: calc(100vh - 58px); */
+        }
+
+        /* ── MAIN CONTENT ── */
+        .main-content {
+            flex: 1;
+            padding: 2.5rem 2.5rem 3rem;
+            overflow-y: auto;
+        }
+
+        .page-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: .25rem;
+        }
+
+        .page-subtitle {
+            font-size: .82rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        /* ── BALANCE CARD ── */
+        .balance-card {
+            background: linear-gradient(135deg, #0f1d35 0%, #0d1828 50%, #0a1520 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem 2rem 1.75rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 230, 118, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .balance-label {
+            font-size: .7rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: .75rem;
+        }
+
+        .balance-amount {
+            font-family: 'Syne', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -1px;
+            line-height: 1;
+            margin-bottom: 1.25rem;
+        }
+
+        .balance-note {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            font-size: .78rem;
+            color: var(--text-muted);
+        }
+
+        .balance-note i {
+            color: var(--accent-green);
+            font-size: .85rem;
+        }
+
+        .btn-add-money {
+            background: var(--accent-green);
+            color: #000;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: .82rem;
+            border: none;
+            border-radius: 9px;
+            padding: .6rem 1.25rem;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            box-shadow: var(--green-glow);
+            transition: all .2s;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-add-money:hover {
+            background: #00ff85;
+            transform: translateY(-1px);
+            box-shadow: 0 0 28px rgba(0, 230, 118, 0.5);
+        }
+
+        /* ── TRANSACTION SECTION ── */
+        .section-heading {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+        .section-heading i {
+            color: var(--accent-teal);
+            font-size: 1.1rem;
+        }
+
+        /* ── TABLE ── */
+        .txn-table-wrap {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+
+        .txn-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .83rem;
+        }
+
+        .txn-table thead tr {
+            background: var(--bg-row);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .txn-table thead th {
+            padding: .9rem 1.2rem;
+            font-size: .7rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        .txn-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background .15s;
+        }
+
+        .txn-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .txn-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .txn-table tbody td {
+            padding: 1rem 1.2rem;
+            color: var(--text-primary);
+            vertical-align: middle;
+        }
+
+        .txn-date {
+            color: var(--text-muted);
+            font-size: .78rem;
+        }
+
+        .txn-id {
+            font-family: 'DM Mono', monospace;
+            font-size: .78rem;
+            color: var(--text-muted);
+            letter-spacing: .3px;
+        }
+
+        .order-link {
+            color: var(--accent-teal);
+            font-weight: 500;
+            text-decoration: none;
+            font-size: .82rem;
+        }
+
+        .order-link:hover {
+            color: var(--accent-green);
+            text-decoration: underline;
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            padding: .28rem .7rem;
+            border-radius: 6px;
+            font-size: .72rem;
+            font-weight: 600;
+            letter-spacing: .4px;
+        }
+
+        .badge-success {
+            background: rgba(0, 230, 118, 0.12);
+            color: var(--accent-green);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+        }
+
+        .badge-danger {
+            background: rgba(255, 77, 109, 0.12);
+            color: var(--accent-red);
+            border: 1px solid rgba(255, 77, 109, 0.2);
+        }
+
+        .badge-info {
+            background: rgba(0, 188, 212, 0.12);
+            color: var(--accent-teal);
+            border: 1px solid rgba(0, 188, 212, 0.2);
+        }
+
+        .amount-credit {
+            color: var(--accent-green);
+            font-weight: 700;
+        }
+
+        .amount-debit {
+            color: var(--accent-red);
+            font-weight: 700;
+        }
+
+        /* ── PAGINATION ── */
+        .txn-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: .4rem;
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .page-btn {
+            background: var(--bg-row);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 7px;
+            padding: .32rem .8rem;
+            font-size: .78rem;
+            cursor: pointer;
+            transition: all .18s;
+        }
+
+        .page-btn:hover {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .page-btn.active {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: #000;
+            font-weight: 700;
+        }
+
+        /* ── ADD MONEY MODAL ── */
+        .modal-zyrax .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-zyrax .modal-header {
+            border-bottom: 1px solid var(--border);
+            padding: 1.25rem 1.5rem;
+        }
+
+        .modal-zyrax .modal-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+        }
+
+        .modal-zyrax .btn-close {
+            filter: invert(1) opacity(0.5);
+        }
+
+        .modal-zyrax .btn-close:hover {
+            filter: invert(1) opacity(1);
+        }
+
+        .modal-zyrax .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-zyrax .modal-footer {
+            border-top: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+        }
+
+        /* Current Balance display inside modal */
+        .modal-balance-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-row);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: .85rem 1.1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-balance-label {
+            font-size: .78rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .modal-balance-value {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        /* Preset amount chips */
+        .preset-label {
+            font-size: .72rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: .65rem;
+        }
+
+        .preset-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .preset-chip {
+            background: var(--bg-row);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: .82rem;
+            font-weight: 600;
+            padding: .42rem .9rem;
+            cursor: pointer;
+            transition: all .18s;
+            user-select: none;
+        }
+
+        .preset-chip:hover {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            background: rgba(0, 230, 118, 0.06);
+        }
+
+        .preset-chip.selected {
+            border-color: var(--accent-green);
+            background: rgba(0, 230, 118, 0.12);
+            color: var(--accent-green);
+            box-shadow: 0 0 10px rgba(0, 230, 118, 0.2);
+        }
+
+        /* Custom amount input */
+        .amount-input-wrap {
+            position: relative;
+            margin-bottom: .35rem;
+        }
+
+        .amount-input-wrap .rupee-sign {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-green);
+            pointer-events: none;
+        }
+
+        .amount-input {
+            width: 100%;
+            background: var(--bg-row);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Syne', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: .75rem 1rem .75rem 2.2rem;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .amount-input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: .9rem;
+        }
+
+        .amount-input:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.12);
+        }
+
+        .amount-hint {
+            font-size: .73rem;
+            color: var(--text-muted);
+            margin-top: .4rem;
+        }
+
+        /* Confirm button */
+        .btn-confirm-add {
+            width: 100%;
+            background: var(--accent-green);
+            color: #000;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 700;
+            font-size: .9rem;
+            border: none;
+            border-radius: 10px;
+            padding: .75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .5rem;
+            box-shadow: var(--green-glow);
+            transition: all .2s;
+            cursor: pointer;
+            margin-top: 1.25rem;
+        }
+
+        .btn-confirm-add:hover {
+            background: #00ff85;
+            transform: translateY(-1px);
+            box-shadow: 0 0 28px rgba(0, 230, 118, 0.5);
+        }
+
+        .btn-confirm-add:disabled {
+            background: #1a3a2a;
+            color: #3a5a4a;
+            box-shadow: none;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        /* ── SECURE WALLET BANNER ── */
+        .secure-banner {
+            background: linear-gradient(90deg, rgba(0, 188, 212, 0.07) 0%, rgba(0, 230, 118, 0.04) 100%);
+            border: 1px solid rgba(0, 188, 212, 0.18);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-top: 1.75rem;
+            display: flex;
+            align-items: flex-start;
+            gap: .85rem;
+        }
+
+        .secure-banner i {
+            color: var(--accent-teal);
+            font-size: 1.35rem;
+            margin-top: .1rem;
+            flex-shrink: 0;
+        }
+
+        .secure-banner-title {
+            font-weight: 700;
+            font-size: .85rem;
+            color: var(--accent-teal);
+            margin-bottom: .2rem;
+        }
+
+        .secure-banner-text {
+            font-size: .78rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+        }
+
+        /* ── FOOTER ── */
+        .footer-zyrax {
+            background: var(--nav-bg);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2.5rem 1.5rem;
+        }
+
+        .footer-brand {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--accent-green);
+        }
+
+        .footer-brand span {
+            color: var(--text-primary);
+        }
+
+        .footer-tagline {
+            font-size: .8rem;
+            color: var(--text-muted);
+            margin-top: .5rem;
+            line-height: 1.6;
+            max-width: 220px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: .6rem;
+            margin-top: 1.2rem;
+        }
+
+        .social-btn {
+            width: 34px;
+            height: 34px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: .95rem;
+            transition: all .2s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .social-btn:hover {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .footer-col-title {
+            font-family: 'Syne', sans-serif;
+            font-size: .82rem;
+            font-weight: 700;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .footer-link {
+            display: block;
+            font-size: .8rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: .5rem;
+            transition: color .18s;
+        }
+
+        .footer-link:hover {
+            color: var(--accent-green);
+        }
+
+        .footer-divider {
+            border-color: var(--border);
+            margin: 2rem 0 1rem;
+        }
+
+        .footer-copy {
+            font-size: .75rem;
+            color: var(--text-muted);
+        }
+
+
+
+        /* Subtle fade-in animation */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .balance-card {
+            animation: fadeUp .5s ease both;
+        }
+
+        .txn-table-wrap {
+            animation: fadeUp .55s ease .1s both;
+        }
+
+        .secure-banner {
+            animation: fadeUp .55s ease .2s both;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══════════ PAGE WRAPPER ═══════════ -->
+    <div class="page-wrapper">
+
+        <!-- ── SIDEBAR ── -->
+        <%- include('../../partials/user/profileSidebar', { activePage: 'profile' }) %>
+
+
+            <!-- ── MAIN ── -->
+            <main class="main-content">
+
+                <h1 class="page-title">My Wallet</h1>
+                <p class="page-subtitle">Manage your balance, view transaction history, and top-up your account.</p>
+
+                <!-- Balance Card -->
+                <div class="balance-card">
+                    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+                        <div>
+                            <div class="balance-label">Available Balance</div>
+                            <div class="balance-amount">
+                                ₹<%= (wallet && wallet.balance ? wallet.balance : 0).toLocaleString('en-IN', {
+                                    minimumFractionDigits: 2 }) %>
+                            </div>
+                            <div class="balance-note mt-2">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Wallet balance can be used for purchases and refunds.
+                            </div>
+                        </div>
+                        <button class="btn-add-money">
+                            <i class="bi bi-plus-circle-fill"></i> Add Money
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Transaction History -->
+                <div class="section-heading">
+                    <i class="bi bi-clock-history"></i> Transaction History
+                </div>
+
+                <div class="txn-table-wrap">
+                    <table class="txn-table">
+                        <thead>
+                            <tr>
+                                <th>Date &amp; Time</th>
+                                <th>Transaction ID</th>
+                                <th>Order ID</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <% if (transactions && transactions.length> 0) { %>
+                                <% transactions.forEach(txn=> { %>
+                                    <tr>
+                                        <td>
+                                            <div class="fw-500">
+                                                <%= new Date(txn.Payment_date).toLocaleDateString('en-US', {
+                                                    month: 'short' , day: 'numeric' , year: 'numeric' }) %>
+                                            </div>
+                                            <div class="txn-date">
+                                                <%= new Date(txn.Payment_time).toLocaleTimeString('en-US', {
+                                                    hour: '2-digit' , minute: '2-digit' }) %>
+                                            </div>
+                                        </td>
+                                        <td class="txn-id">
+                                            <%= txn._id.toString().substring(0, 12).toUpperCase() %>
+                                        </td>
+                                        <td>
+                                            <% if (txn.Order_id) { %>
+                                                <a href="/myOrders/details?id=<%= txn.Order_id %>"
+                                                    class="order-link">#ORD-<%= txn.Order_id.toString().substring(0,
+                                                        8).toUpperCase() %></a>
+                                                <% } else { %>
+                                                    <span class="text">N/A</span>
+                                                    <% } %>
+                                        </td>
+                                        <td>
+                                            <%= txn.Description %>
+                                        </td>
+                                        <td>
+                                            <% if (txn.Amount> 0) { %>
+                                                <span class="badge-status badge-success"><i
+                                                        class="bi bi-arrow-down-circle"></i> Credit</span>
+                                                <% } else { %>
+                                                    <span class="badge-status badge-danger"><i
+                                                            class="bi bi-arrow-up-circle"></i> Debit</span>
+                                                    <% } %>
+                                        </td>
+                                        <td class="text-end <%= txn.Amount > 0 ? 'amount-credit' : 'amount-debit' %>">
+                                            <%= txn.Amount> 0 ? '+' : '' %>₹<%=
+                                                    Math.abs(txn.Amount).toLocaleString('en-IN', {
+                                                    minimumFractionDigits: 2 }) %>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="6" class="text-center py-5">
+                                                    <div class="text-muted mb-2"><i class="bi bi-wallet2 fs-2"></i>
+                                                    </div>
+                                                    <div class="text-muted">No transactions found.</div>
+                                                </td>
+                                            </tr>
+                                            <% } %>
+                        </tbody>
+                    </table>
+
+                    <!-- Pagination -->
+                    <% if (totalPages> 1) { %>
+                        <div class="txn-pagination">
+                            <% if (currentPage> 1) { %>
+                                <a href="/wallet?page=<%= currentPage - 1 %>"
+                                    class="page-btn text-decoration-none">&#8249; Previous</a>
+                                <% } %>
+
+                                    <% for(let i=1; i <=totalPages; i++) { %>
+                                        <a href="/wallet?page=<%= i %>"
+                                            class="page-btn text-decoration-none <%= currentPage === i ? 'active' : '' %>">
+                                            <%= i %>
+                                        </a>
+                                        <% } %>
+
+                                            <% if (currentPage < totalPages) { %>
+                                                <a href="/wallet?page=<%= currentPage + 1 %>"
+                                                    class="page-btn text-decoration-none">Next &#8250;</a>
+                                                <% } %>
+                        </div>
+                        <% } %>
+                </div>
+
+    </div>
+
+    <!-- Secure Wallet Banner -->
+    <div class="secure-banner">
+        <i class="bi bi-shield-lock-fill"></i>
+        <div>
+            <div class="secure-banner-title">Secure Wallet</div>
+            <div class="secure-banner-text">
+                Your wallet is securely stored using bank-grade encryption and can be used seamlessly during
+                checkout.
+                We never store your card details in plain text.
+            </div>
+        </div>
+    </div>
+
+    </main>
+    </div>
+
+    <!-- ═══════════ ADD MONEY MODAL ═══════════ -->
+    <div class="modal fade modal-zyrax" id="addMoneyModal" tabindex="-1" aria-labelledby="addMoneyModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addMoneyModalLabel">
+                        <i class="bi bi-wallet2 me-2" style="color:var(--accent-green)"></i>Add Money
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- Current Balance -->
+                    <div class="modal-balance-row">
+                        <span class="modal-balance-label">Current Balance</span>
+                        <span class="modal-balance-value">
+                            ₹<%= (wallet && wallet.balance ? wallet.balance : 0).toLocaleString('en-IN', {
+                                minimumFractionDigits: 2 }) %>
+                        </span>
+                    </div>
+                    <!-- Custom Amount Input -->
+                    <div class="preset-label">Enter Amount</div>
+                    <div class="amount-input-wrap">
+                        <span class="rupee-sign">₹</span>
+                        <input type="number" class="amount-input" id="addMoneyInput" placeholder="0.00" min="1"
+                            max="100000" />
+                        <div class="amount-hint">Min ₹1 &nbsp;·&nbsp; Max ₹1,00,000 per transaction</div>
+                    </div>
+
+                    <!-- Preset Chips -->
+                    <div class="preset-label">Quick Select</div>
+                    <div class="preset-chips">
+                        <div class="preset-chip" data-amount="500">₹500</div>
+                        <div class="preset-chip" data-amount="1000">₹1,000</div>
+                        <div class="preset-chip" data-amount="2000">₹2,000</div>
+                        <div class="preset-chip" data-amount="5000">₹5,000</div>
+                        <div class="preset-chip" data-amount="10000">₹10,000</div>
+                    </div>
+
+
+                    <!-- Confirm Button -->
+                    <button class="btn-confirm-add" id="confirmAddBtn" disabled>
+                        <i class="bi bi-plus-circle-fill"></i>
+                        <span id="confirmBtnText">Add Money</span>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ FOOTER ═══════════ -->
+    <footer class="footer-zyrax">
+        <div class="row g-4">
+
+            <!-- Brand col -->
+            <div class="col-12 col-md-3">
+                <div class="footer-brand"><i class="bi bi-hexagon-fill me-1"></i>Zy<span>rax</span></div>
+                <p class="footer-tagline">
+                    Your trusted destination for genuine smartphones from top brands.
+                    Secure payments and exceptional customer service.
+                </p>
+                <div class="footer-social">
+                    <a href="#" class="social-btn"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-btn"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="social-btn"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="social-btn"><i class="bi bi-youtube"></i></a>
+                </div>
+            </div>
+
+            <!-- Shop by Brand -->
+            <div class="col-6 col-md-2 offset-md-1">
+                <div class="footer-col-title">Shop by Brand</div>
+                <a href="#" class="footer-link">Apple iPhones</a>
+                <a href="#" class="footer-link">Samsung Galaxy</a>
+                <a href="#" class="footer-link">Xiaomi Phones</a>
+                <a href="#" class="footer-link">OnePlus Devices</a>
+                <a href="#" class="footer-link">Realme Mobile</a>
+                <a href="#" class="footer-link">Vivo Smartphones</a>
+            </div>
+
+            <!-- Customer Support -->
+            <div class="col-6 col-md-2">
+                <div class="footer-col-title">Customer Support</div>
+                <a href="#" class="footer-link">Contact Us</a>
+                <a href="#" class="footer-link">Track Order</a>
+                <a href="#" class="footer-link">Returns &amp; Refunds</a>
+                <a href="#" class="footer-link">Shipping Info</a>
+                <a href="#" class="footer-link">FAQs</a>
+                <a href="#" class="footer-link">Shipping Info</a>
+            </div>
+
+            <!-- Company Info -->
+            <div class="col-6 col-md-2">
+                <div class="footer-col-title">Company Info</div>
+                <a href="#" class="footer-link">About Us</a>
+                <a href="#" class="footer-link">Careers</a>
+                <a href="#" class="footer-link">Press &amp; Media</a>
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Sitemap</a>
+            </div>
+
+        </div>
+
+        <hr class="footer-divider" />
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="footer-copy">© 2024 Zyrax. All rights reserved.</span>
+            <span class="footer-copy">Made with <i class="bi bi-heart-fill text-danger" style="font-size:.7rem"></i> for
+                mobile enthusiasts.</span>
+        </div>
+    </footer>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Use the key passed from the controller
+        const RAZORPAY_KEY = '<%= razorpayKeyId %>';
+
+        // ── Pagination ──
+        // (Existing pagination logic can be simplified as it's now handled by the server)
+
+        // ── Add Money Modal ──
+        const addMoneyModalEl = document.getElementById('addMoneyModal');
+        const addMoneyModal = new bootstrap.Modal(addMoneyModalEl);
+
+        // Open modal on button click
+        document.querySelector('.btn-add-money').addEventListener('click', () => {
+            addMoneyModal.show();
+        });
+
+        const amountInput = document.getElementById('addMoneyInput');
+        const confirmBtn = document.getElementById('confirmAddBtn');
+        const confirmTxt = document.getElementById('confirmBtnText');
+        const presetChips = document.querySelectorAll('.preset-chip');
+
+        // Preset chip selection
+        presetChips.forEach(chip => {
+            chip.addEventListener('click', function () {
+                presetChips.forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                amountInput.value = this.dataset.amount;
+                updateConfirmBtn(this.dataset.amount);
+            });
+        });
+
+        // Manual input clears chip selection
+        amountInput.addEventListener('input', function () {
+            presetChips.forEach(c => c.classList.remove('selected'));
+            updateConfirmBtn(this.value);
+        });
+
+        function updateConfirmBtn(val) {
+            const amount = parseFloat(val);
+            if (amount >= 1 && amount <= 100000) {
+                confirmBtn.disabled = false;
+                confirmTxt.textContent = `Add ₹${Number(amount).toLocaleString('en-IN')}`;
+            } else {
+                confirmBtn.disabled = true;
+                confirmTxt.textContent = 'Add Money';
+            }
+        }
+
+        // Confirm action with Razorpay
+        confirmBtn.addEventListener('click', async function () {
+            const amount = parseFloat(amountInput.value);
+            if (isNaN(amount) || amount < 1) return;
+
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+            try {
+                // 1. Create order on server
+                const response = await fetch('/wallet/add-money', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount })
+                });
+
+                const data = await response.json();
+                if (!data.success) throw new Error(data.message);
+
+                // 2. Open Razorpay Modal
+                const options = {
+                    key: RAZORPAY_KEY,
+                    amount: data.order.amount,
+                    currency: data.order.currency,
+                    name: "Zyrax",
+                    description: "Wallet Top-up",
+                    order_id: data.order.id,
+                    handler: async function (response) {
+                        try {
+                            // 3. Verify payment on server
+                            const verifyRes = await fetch('/wallet/verify-payment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    amount: amount
+                                })
+                            });
+
+                            const verifyData = await verifyRes.json();
+                            if (verifyData.success) {
+                                addMoneyModal.hide();
+                                await Swal.fire({
+                                    icon: 'success',
+                                    title: 'Payment Successful',
+                                    text: '₹' + amount + ' has been added to your wallet.',
+                                    background: '#111627',
+                                    color: '#fff',
+                                    confirmButtonColor: '#00e676'
+                                });
+                                window.location.reload();
+                            } else {
+                                throw new Error(verifyData.message);
+                            }
+                        } catch (err) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Verification Failed',
+                                text: err.message,
+                                background: '#111627',
+                                color: '#fff'
+                            });
+                        }
+                    },
+                    prefill: {
+                        name: "<%= user && user.Name ? user.Name : '' %>",
+                        email: "<%= user && user.Email ? user.Email : '' %>",
+                        contact: "<%= user && user.Phone_number ? user.Phone_number : '' %>"
+                    },
+                    theme: { color: "#00e676" },
+                    modal: {
+                        ondismiss: function () {
+                            confirmBtn.disabled = false;
+                            confirmBtn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Add Money';
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Something went wrong!',
+                    background: '#111627',
+                    color: '#fff'
+                });
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Add Money';
+            }
+        });
+    </script>
+
+</body>
+
+</html>

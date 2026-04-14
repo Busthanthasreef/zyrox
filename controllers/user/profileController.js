@@ -44,21 +44,15 @@ const userProfile = async (req, res) => {
     }
 
     const isGoogleUser = !!user.googleId;
-    const defaultImage = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.Name)}&background=00ff88&color=000&size=130`;
     const hasPassword = !!user.Password;
     const passwordToast = req.session.passwordAddedToast || null;
     delete req.session.passwordAddedToast;
+    console.log(user.Profile_image)
 
     res.render("user/profile/userProfile", {
-      user: {
-        _id: user._id,
-        Name: user.Name,
-        Email: user.Email,
-        Phone_number: user.Phone_number || "Not provided",
-        Profile_image: user.Profile_image || defaultImage,
-        Department: user.Department || "",
-        createdAt: formatDate(user.createdAt),
-      },
+      user,
+      userProfileImage:user.Profile_image,
+      createdAt: formatDate(user.createdAt),
       isGoogleUser,
       hasPassword,
       passwordToast,
@@ -77,7 +71,6 @@ const loadEditProfile = async (req, res) => {
   try {
     const user = await userSchema.findById(req.session.user._id);
     const isGoogleUser = !!user.googleId;
-    const defaultImage = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.Name)}&background=00ff88&color=000&size=130`;
 
     res.render("user/profile/editProfile", {
       user: {
@@ -85,7 +78,7 @@ const loadEditProfile = async (req, res) => {
         Name: user.Name,
         Email: user.Email,
         Phone_number: user.Phone_number || "",
-        Profile_image: user.Profile_image || defaultImage,
+        Profile_image: user.Profile_image,
       },
       isGoogleUser,
       phoneError: null,
@@ -106,7 +99,7 @@ const editProfile = async (req, res) => {
     const { Name, Email, phoneNumber, removeImage } = req.body;
     const user = await userSchema.findById(req.session.user._id);
     const isGoogleUser = !!user.googleId;
-    const defaultImage = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.Name)}&background=00ff88&color=000&size=130`;
+
 
     // Helper for rendering with error
     const renderError = (errors = {}) => {
@@ -116,7 +109,7 @@ const editProfile = async (req, res) => {
           Name: Name || user.Name,
           Email: Email || user.Email,
           Phone_number: phoneNumber || user.Phone_number,
-          Profile_image: (req.file ? req.file.path : user.Profile_image) || defaultImage,
+          Profile_image: (req.file ? req.file.path : user.Profile_image),
         },
         isGoogleUser,
         phoneError: errors.phoneNumber || null,

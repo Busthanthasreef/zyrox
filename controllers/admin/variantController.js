@@ -105,6 +105,11 @@ const addVariant = async (req, res) => {
         // 📸 Images
         const imageUrls = (req.files || []).map(f => f.path);
 
+        if (imageUrls.length !== 3) {
+            req.session.errorMsg = "Exactly 3 images are required for a variant";
+            return res.redirect(`/admin/products/${productId}/variants`);
+        }
+
         // ⭐ Handle Default Variant
         if (isDefault === "on" || isDefault === true) {
             await VariantSchema.updateMany({ productId }, { IsDefault: false });
@@ -189,6 +194,10 @@ const editVariant = async (req, res) => {
         let imageUrls = variant.images || [];
 
         if (req.files && req.files.length > 0) {
+            if (req.files.length !== 3) {
+                req.session.errorMsg = "Exactly 3 images are required when updating images.";
+                return res.redirect(`/admin/products/${productId}/variants`);
+            }
             imageUrls = req.files.map(f => f.path);
         }
 

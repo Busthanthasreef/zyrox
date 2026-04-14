@@ -1818,12 +1818,25 @@
         function validateVariantForm(form, prefix) {
             let valid = true;
 
-            // 1. At least one image
+            // 1. Exactly three images required
             const slots = [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`];
-            const hasImage = slots.some(id => document.getElementById(id)?.classList.contains('has-image'));
-            if (!hasImage) {
-                slots.forEach(id => document.getElementById(id)?.classList.add('img-error'));
-                document.getElementById(`${prefix}ImgError`)?.classList.add('visible');
+            let missingImages = 0;
+            slots.forEach(id => {
+                const slot = document.getElementById(id);
+                if (!slot?.classList.contains('has-image')) {
+                    slot?.classList.add('img-error');
+                    missingImages++;
+                } else {
+                    slot?.classList.remove('img-error');
+                }
+            });
+
+            if (missingImages > 0) {
+                const imgErr = document.getElementById(`${prefix}ImgError`);
+                if (imgErr) {
+                    imgErr.textContent = "Exactly 3 product images are required.";
+                    imgErr.classList.add('visible');
+                }
                 valid = false;
             }
 

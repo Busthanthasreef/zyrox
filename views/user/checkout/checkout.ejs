@@ -4,15 +4,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ZYROX- checkout</title>
+    <title>ZYROX - Checkout</title>
 
-    <!-- Bootstrap 5 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
@@ -82,64 +78,6 @@
             color: var(--accent);
         }
 
-        .back-link {
-            color: var(--text-2);
-            font-size: .88rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: .35rem;
-            transition: color var(--transition);
-        }
-
-        .back-link:hover {
-            color: var(--accent);
-        }
-
-        .step-badge {
-            font-size: .78rem;
-            font-weight: 600;
-            color: var(--text-3);
-            display: flex;
-            align-items: center;
-            gap: .5rem;
-        }
-
-        .step-badge .step {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: .7rem;
-            font-weight: 700;
-        }
-
-        .step-badge .step.done {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        .step-badge .step.active {
-            background: rgba(79, 110, 247, .2);
-            color: var(--accent);
-            border: 1.5px solid var(--accent);
-        }
-
-        .step-badge .step.idle {
-            background: var(--bg-surface);
-            color: var(--text-3);
-            border: 1.5px solid var(--border);
-        }
-
-        .step-badge .sep {
-            width: 24px;
-            height: 1.5px;
-            background: var(--border);
-        }
-
-        /* ─── PAGE HEADING ───────────────────────── */
         .page-title {
             font-family: 'Inter', sans-serif;
             font-weight: 800;
@@ -168,7 +106,6 @@
         }
 
         .card-dark .card-header-custom .title {
-            font-family: 'Inter', sans-serif;
             font-weight: 700;
             font-size: 1rem;
             color: var(--text-1);
@@ -277,15 +214,22 @@
             color: var(--gold);
         }
 
-        .btn-edit-addr {
-            font-size: .78rem;
+        /* FIX: edit icon button — accessible, keyboard-friendly */
+        .btn-edit-addr-icon {
+            background: transparent;
+            border: none;
             color: var(--text-3);
-            text-decoration: none;
-            transition: color var(--transition);
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: var(--radius-sm);
+            transition: color var(--transition), background var(--transition);
+            font-size: 1rem;
+            line-height: 1;
         }
 
-        .btn-edit-addr:hover {
+        .btn-edit-addr-icon:hover {
             color: var(--accent);
+            background: rgba(79, 110, 247, .08);
         }
 
         .btn-add-addr {
@@ -371,7 +315,6 @@
         }
 
         .item-price-col .price-main {
-            font-family: 'Inter', sans-serif;
             font-weight: 700;
             font-size: .95rem;
             color: var(--text-1);
@@ -425,14 +368,12 @@
         }
 
         .price-row.total .label {
-            font-family: 'Inter', sans-serif;
             font-weight: 700;
             font-size: 1rem;
             color: var(--text-1);
         }
 
         .price-row.total .val {
-            font-family: 'Inter', sans-serif;
             font-weight: 800;
             font-size: 1.15rem;
             color: var(--accent);
@@ -455,6 +396,48 @@
         /* ─── COUPON ─────────────────────────────── */
         .coupon-section {
             padding: 0 1.4rem 1.2rem;
+        }
+
+        /* FIX: Applied coupon state */
+        .coupon-applied-state {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: .6rem;
+            background: rgba(0, 212, 170, .07);
+            border: 1.5px solid rgba(0, 212, 170, .3);
+            border-radius: var(--radius-md);
+            padding: .7rem 1rem;
+        }
+
+        .coupon-applied-state.visible {
+            display: flex;
+        }
+
+        .coupon-applied-info {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .86rem;
+            color: var(--accent-2);
+            font-weight: 600;
+        }
+
+        .btn-remove-coupon {
+            background: transparent;
+            border: 1px solid rgba(255, 77, 109, .4);
+            color: var(--danger);
+            font-size: .75rem;
+            font-weight: 600;
+            padding: .3rem .65rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background var(--transition), border-color var(--transition);
+        }
+
+        .btn-remove-coupon:hover {
+            background: rgba(255, 77, 109, .1);
+            border-color: var(--danger);
         }
 
         .coupon-input-wrap {
@@ -481,12 +464,17 @@
             color: var(--text-1);
             font-size: .86rem;
             font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: .04em;
         }
 
         .coupon-input-wrap input::placeholder {
             color: var(--text-3);
+            text-transform: none;
+            letter-spacing: 0;
         }
 
+        /* FIX: Apply button loading state */
         .btn-apply {
             background: var(--accent);
             color: #fff;
@@ -497,11 +485,22 @@
             font-weight: 600;
             cursor: pointer;
             transition: opacity var(--transition), transform var(--transition);
+            min-width: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .35rem;
         }
 
-        .btn-apply:hover {
+        .btn-apply:hover:not(:disabled) {
             opacity: .88;
             transform: scale(.97);
+        }
+
+        .btn-apply:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .coupon-hint {
@@ -510,6 +509,7 @@
             cursor: pointer;
             margin-top: .5rem;
             display: inline-block;
+            text-decoration: none;
         }
 
         .coupon-hint:hover {
@@ -579,19 +579,33 @@
             margin-left: auto;
         }
 
-        .disabled-label {
-            font-size: .7rem;
+        /* FIX: Wallet balance indicator */
+        .wallet-balance-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .25rem;
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--gold);
+            background: rgba(244, 185, 66, .1);
+            border: 1px solid rgba(244, 185, 66, .2);
+            border-radius: 99px;
+            padding: .15rem .5rem;
+            margin-top: .2rem;
+        }
+
+        .wallet-insufficient {
+            font-size: .72rem;
             color: var(--danger);
             font-weight: 600;
-            margin-left: .4rem;
-            vertical-align: middle;
+            margin-top: .2rem;
         }
 
         /* ─── PLACE ORDER BTN ────────────────────── */
         .btn-place-order {
             width: 100%;
             padding: 1rem;
-            background: #6c8aff 100%;
+            background: #6c8aff;
             border: none;
             border-radius: var(--radius-md);
             color: #fff;
@@ -613,13 +627,18 @@
             background: linear-gradient(135deg, rgba(255, 255, 255, .12), transparent);
         }
 
-        .btn-place-order:hover {
+        .btn-place-order:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(79, 110, 247, .55);
         }
 
-        .btn-place-order:active {
+        .btn-place-order:active:not(:disabled) {
             transform: translateY(0);
+        }
+
+        .btn-place-order:disabled {
+            opacity: .7;
+            cursor: not-allowed;
         }
 
         .btn-place-order .arrow {
@@ -627,7 +646,7 @@
             display: inline-block;
         }
 
-        .btn-place-order:hover .arrow {
+        .btn-place-order:hover:not(:disabled) .arrow {
             transform: translateX(4px);
         }
 
@@ -642,7 +661,6 @@
             color: var(--success);
         }
 
-        /* ─── ORDER COUNT BADGE ──────────────────── */
         .items-count-badge {
             display: inline-flex;
             align-items: center;
@@ -652,7 +670,42 @@
             font-weight: 500;
         }
 
-        /* ─── SCROLLBAR ──────────────────────────── */
+        /* ─── BACK BUTTON ────────────────────────── */
+        /* FIX: replaced margin-left:80% with margin-left:auto */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            margin-left: auto;
+            font-size: 14px;
+            font-weight: 500;
+            color: #fff;
+            background: linear-gradient(135deg, #4f6ef7, #7b8cff);
+            border-radius: 30px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 18px rgba(79, 110, 247, 0.3);
+        }
+
+        .back-btn-wrap {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(79, 110, 247, 0.4);
+            background: linear-gradient(135deg, #3c5df0, #6a7cff);
+            color: #fff;
+        }
+
+        .back-btn:active {
+            transform: scale(0.96);
+        }
+
         ::-webkit-scrollbar {
             width: 5px;
         }
@@ -668,9 +721,9 @@
 
         /* ─── ADDRESS MODAL ──────────────────────── */
         .modal-dark .modal-content {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
+            background: #1c2333;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
         }
 
         .modal-dark .modal-header {
@@ -682,76 +735,7 @@
         }
 
         .modal-dark .modal-title {
-            font-family: 'Inter', sans-serif;
             font-weight: 700;
-        }
-
-        .form-control-dark {
-            background: var(--bg-surface);
-            border: 1.5px solid var(--border);
-            color: var(--text-1);
-            border-radius: var(--radius-sm);
-            padding: .65rem .9rem;
-            font-size: .86rem;
-            width: 100%;
-            outline: none;
-            font-family: 'Inter', sans-serif;
-            transition: border-color var(--transition), box-shadow var(--transition);
-        }
-
-        .form-control-dark::placeholder {
-            color: var(--text-3);
-        }
-
-        .form-control-dark:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-glow);
-        }
-
-        label.form-label-dark {
-            font-size: .8rem;
-            color: var(--text-2);
-            margin-bottom: .3rem;
-            display: block;
-            font-weight: 500;
-        }
-
-        .btn-accent {
-            background: var(--accent);
-            color: #fff;
-            padding: .65rem 1.4rem;
-            border-radius: 12px;
-            font-weight: 500;
-            border: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(79, 110, 247, 0.3);
-        }
-
-        .btn-accent:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(79, 110, 247, 0.4);
-        }
-
-        .btn-save-address {
-            background: #00ff88;
-            color: #111422;
-            padding: .75rem 1.8rem;
-            border-radius: 20px;
-            font-weight: 700;
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        .btn-save-address:hover {
-            background: #00d472;
-            transform: scale(1.03);
-        }
-
-        /* ── MODAL REFINEMENTS ──────────────────── */
-        .modal-dark .modal-content {
-            background: #1c2333;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
         }
 
         .form-section-label {
@@ -844,7 +828,7 @@
             background: rgba(255, 255, 255, 0.08);
         }
 
-        .form-control-dark::placeholder {
+        .input-field-dark::placeholder {
             color: rgba(255, 255, 255, 0.2);
         }
 
@@ -852,241 +836,19 @@
             padding: 2.5rem;
         }
 
-        .btn-outline-muted {
-            background: transparent;
-            color: var(--text-2);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: .65rem 1.2rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: border-color var(--transition), color var(--transition);
-        }
-
-        .btn-outline-muted:hover {
-            border-color: var(--text-2);
-            color: var(--text-1);
-        }
-
-        /* ─── SUCCESS PAGE ───────────────────────── */
-        #successPage {
-            display: none;
-        }
-
-        #successPage.show {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 80vh;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .success-circle {
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            background: rgba(0, 212, 170, .1);
-            border: 2.5px solid var(--accent-2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: var(--accent-2);
-            box-shadow: 0 0 40px rgba(0, 212, 170, .25);
-            animation: pop .55s cubic-bezier(.36, .07, .19, .97) both;
-        }
-
-        @keyframes pop {
-            0% {
-                transform: scale(.4);
-                opacity: 0;
-            }
-
-            70% {
-                transform: scale(1.08);
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .success-confetti {
-            font-size: 2rem;
-            animation: bounce 1.2s ease infinite;
-        }
-
-        @keyframes bounce {
-
-            0%,
-            100% {
-                transform: translateY(0)
-            }
-
-            50% {
-                transform: translateY(-8px)
-            }
-        }
-
-        .success-title {
-            font-family: 'Inter', sans-serif;
-            font-weight: 800;
-            font-size: 2rem;
-            margin: .8rem 0 .3rem;
-        }
-
-        .success-sub {
-            color: var(--text-2);
-            font-size: .95rem;
-            max-width: 400px;
-            line-height: 1.65;
-        }
-
-        .order-id-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: .5rem;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 99px;
-            padding: .5rem 1.1rem;
-            font-size: .82rem;
-            color: var(--text-2);
-            margin-top: 1rem;
-        }
-
-        .order-id-pill strong {
-            color: var(--accent);
-        }
-
-        .success-actions {
-            display: flex;
-            gap: .9rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 1.6rem;
-        }
-
-        .btn-success-primary {
-            background: linear-gradient(135deg, var(--accent), #6c8aff);
-            color: #fff;
-            border: none;
-            border-radius: var(--radius-md);
-            padding: .8rem 1.8rem;
+        .btn-save-address {
+            background: #00ff88;
+            color: #111422;
+            padding: .75rem 1.8rem;
+            border-radius: 20px;
             font-weight: 700;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-            box-shadow: 0 4px 18px rgba(79, 110, 247, .38);
-            transition: transform var(--transition), box-shadow var(--transition);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: .5rem;
-        }
-
-        .btn-success-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(79, 110, 247, .5);
-            color: #fff;
-        }
-
-        .btn-success-outline {
-            background: transparent;
-            color: var(--text-1);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: .8rem 1.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: border-color var(--transition), background var(--transition);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: .5rem;
-        }
-
-        .btn-success-outline:hover {
-            border-color: var(--accent);
-            background: rgba(79, 110, 247, .06);
-            color: var(--text-1);
-        }
-
-        .success-summary-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 1.3rem 1.6rem;
-            max-width: 420px;
-            width: 100%;
-            margin-top: 1.5rem;
-            text-align: left;
-        }
-
-        .success-summary-card .row-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: .85rem;
-            padding: .35rem 0;
-            color: var(--text-2);
-        }
-
-        .success-summary-card .row-item strong {
-            color: var(--text-1);
-        }
-
-        /* ─── RESPONSIVE ─────────────────────────── */
-        @media(max-width:767px) {
-            .page-title {
-                font-size: 1.4rem;
-            }
-
-            .order-item-img {
-                width: 48px;
-                height: 48px;
-            }
-        }
-
-        .contentDiv {
-            margin-top: 50px;
-        }
-
-        /* CSS */
-        .back-btn {
-            display: inline-block;
-            padding: 12px 22px;
-            margin-bottom: 25px;
-            margin-left: 80%;
-            font-size: 15px;
-            font-weight: 500;
-            color: #fff;
-            background: linear-gradient(135deg, #4f6ef7, #7b8cff);
-            border-radius: 30px;
-            text-decoration: none;
-            letter-spacing: 0.5px;
+            border: none;
             transition: all 0.3s ease;
-            box-shadow: 0 6px 18px rgba(79, 110, 247, 0.3);
         }
 
-        .back-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(79, 110, 247, 0.4);
-            background: linear-gradient(135deg, #3c5df0, #6a7cff);
-        }
-
-        .back-btn:active {
-            transform: scale(0.96);
-        }
-
-        .back-btn span {
-            margin-right: 6px;
-            transition: transform 0.3s ease;
-        }
-
-        .back-btn:hover span {
-            transform: translateX(-4px);
+        .btn-save-address:hover {
+            background: #00d472;
+            transform: scale(1.03);
         }
 
         /* ─── COUPON MODAL ──────────────────────────── */
@@ -1099,21 +861,23 @@
             display: none;
             align-items: center;
             justify-content: center;
-            animation: fadeIn .25s ease;
         }
 
         .coupon-modal-overlay.show {
             display: flex;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
+        .coupon-modal {
+            background: #fff;
+            border-radius: 16px;
+            width: 94%;
+            max-width: 460px;
+            max-height: 80vh;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, .4);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp .3s ease;
         }
 
         @keyframes slideUp {
@@ -1126,19 +890,6 @@
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
-        }
-
-        .coupon-modal {
-            background: #fff;
-            border-radius: 16px;
-            width: 94%;
-            max-width: 460px;
-            max-height: 80vh;
-            box-shadow: 0 24px 64px rgba(0, 0, 0, .4);
-            animation: slideUp .3s ease;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
         }
 
         .coupon-modal-header {
@@ -1169,7 +920,6 @@
 
         .coupon-modal-header .cm-title h4 {
             margin: 0;
-            font-family: 'Inter', sans-serif;
             font-size: 1.05rem;
             font-weight: 700;
             color: #1a1a2e;
@@ -1230,7 +980,6 @@
             margin-bottom: .6rem;
         }
 
-        /* Individual coupon card */
         .cm-coupon-card {
             background: #f0faf0;
             border: 1.5px solid #c8e6c9;
@@ -1242,6 +991,8 @@
             justify-content: space-between;
             gap: .8rem;
             transition: transform .15s, box-shadow .15s;
+            position: relative;
+            overflow: hidden;
         }
 
         .cm-coupon-card:hover {
@@ -1335,38 +1086,24 @@
             color: #fff;
         }
 
-        .cm-loading {
-            text-align: center;
-            padding: 2rem;
-            color: #888;
-        }
-
-        .cm-loading .spinner-border {
-            width: 1.5rem;
-            height: 1.5rem;
-            color: #2e7d32;
-        }
-
         .cm-apply-btn:active {
             transform: scale(0.95);
         }
 
-        .cm-coupon-card {
-            position: relative;
-            overflow: hidden;
+        /* ─── RESPONSIVE ─────────────────────────── */
+        @media (max-width: 767px) {
+            .page-title {
+                font-size: 1.4rem;
+            }
+
+            .order-item-img {
+                width: 48px;
+                height: 48px;
+            }
         }
 
-        .cm-coupon-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(120deg, transparent, rgba(46, 125, 50, 0.08), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .cm-coupon-card:hover::after {
-            opacity: 1;
+        .contentDiv {
+            margin-top: 50px;
         }
     </style>
 </head>
@@ -1375,11 +1112,10 @@
 
     <%- include('../../partials/user/navigationbar', { user, cartItemCount, currentPage: 'cart' , categories }) %>
 
-        <!-- ─── MAIN CHECKOUT ──────────────────────────────────── -->
         <div id="checkoutPage" class="contentDiv">
             <div class="container-xl py-4 py-md-5">
 
-                <div class="d-flex align-items-center gap-2 mb-4">
+                <div class="d-flex align-items-center gap-2 mb-3">
                     <h1 class="page-title">Check<span>out</span></h1>
                     <span class="items-count-badge ms-2">
                         <i class="bi bi-bag"></i>
@@ -1387,15 +1123,18 @@
                     </span>
                 </div>
 
-                <!-- HTML -->
-                <a href="/cart" class="back-btn">
-                    ← Back to Cart
-                </a>
+                <!-- FIX: Back button wrapped for flex alignment — no more margin-left:80% -->
+                <div class="back-btn-wrap">
+                    <a href="/cart" class="back-btn">
+                        <i class="bi bi-arrow-left"></i> Back to Cart
+                    </a>
+                </div>
 
                 <div class="row g-4">
 
                     <!-- ── LEFT COLUMN ────────────────────── -->
                     <div class="col-lg-7 d-flex flex-column">
+
                         <!-- ── DELIVERY ADDRESS ────────────── -->
                         <div class="card-dark mb-4">
                             <div class="card-header-custom">
@@ -1405,10 +1144,8 @@
                                 </div>
                             </div>
 
-
-
                             <div class="address-grid" id="addressGrid">
-                                <% userAddresses.forEach(function(addr, idx) { %>
+                                <% userAddresses.forEach(function(addr) { %>
                                     <div class="address-card <%= addr.isDefault ? 'selected' : '' %>"
                                         onclick="selectAddress(this, '<%= addr._id %>')"
                                         data-address-id="<%= addr._id %>">
@@ -1435,20 +1172,23 @@
                                                         <% if (addr.locality) { %>, <%= addr.locality %>
                                                                 <% } %><br />
                                                                     <%= addr.city %>, <%= addr.state %> – <%=
-                                                                                addr.pincode %>
-                                                                                <br />
+                                                                                addr.pincode %><br />
                                                                                 <i class="bi bi-telephone-fill"
                                                                                     style="font-size:.72rem"></i> +91
                                                                                 <%= addr.phone %>
                                                 </p>
                                             </div>
-                                            <button class="btn-edit-addr ms-2" title="Edit Address"
+                                            <% /* FIX: Single accessible button — no more hidden duplicate button */
+                                                const addrSafe=JSON.stringify(addr).replace(/'/g, '&#39;'
+                                                ).replace(/</g, '&lt;' ).replace( />/g, '&gt;');
+                                            %>
+                                            <!-- FIX: accessible role, aria-label, keyboard-friendly -->
+                                            <button class="btn-edit-addr-icon"
+                                                aria-label="Edit address for <%= addr.name %>"
                                                 onclick="event.stopPropagation(); openEditModal(this)"
-                                                data-addr='<%= JSON.stringify(addr) %>' hidden>
+                                                data-addr='<%- addrSafe %>'>
+                                                <i class="bi bi-pencil-square"></i>
                                             </button>
-                                            <i class="bi bi-pencil-square"
-                                                onclick="event.stopPropagation(); openEditModal(this)"
-                                                data-addr='<%= JSON.stringify(addr) %>'></i>
                                         </div>
                                     </div>
                                     <% }) %>
@@ -1517,6 +1257,7 @@
                                     <% }) %>
                             </div>
                         </div>
+
                     </div><!-- end left col -->
 
                     <!-- ── RIGHT COLUMN ───────────────────── -->
@@ -1532,14 +1273,23 @@
                             </div>
                             <div class="payment-list">
 
-                                <!-- Cash on Delivery — ACTIVE -->
-                                <div class="payment-option selected" id="pay-cod" onclick="selectPayment('cod')">
-                                    <div class="pay-icon" style="background:rgba(0,212,170,.12);color:var(--accent-2);">
+                                <!-- Cash on Delivery -->
+                                <div class="payment-option " id="pay-cod" onclick="selectPayment('COD')">
+                                    <div class="pay-icon">
                                         <i class="bi bi-cash-stack"></i>
                                     </div>
                                     <div>
                                         <div class="pay-name">Cash on Delivery</div>
-                                        <div class="pay-desc">Pay when you receive your order</div>
+                                        <% if (totalAmount>= 50000) { %>
+                                            <div class="pay-desc"
+                                                style="color:rgba(255, 74, 29, 0.1);color:var(--danger);">
+                                                COD not available for orders above ₹50,000
+                                            </div>
+                                            <% } else { %>
+                                                <div class="pay-desc" style="color:var(--accent);">
+                                                    Pay when you receive your order
+                                                </div>
+                                                <% } %>
                                     </div>
                                     <div class="radio-dot ms-auto" id="radio-cod"></div>
                                 </div>
@@ -1556,21 +1306,32 @@
                                     <div class="radio-dot ms-auto"></div>
                                 </div>
 
-                                <!-- Wallet -->
-                                <div class="payment-option" id="pay-wallet" onclick="selectPayment('Wallet')">
-                                    <div class="pay-icon" style="background:rgba(244,185,66,.1);color:var(--gold);">
-                                        <i class="bi bi-wallet2"></i>
+                                <!-- Wallet Payment -->
+                                <% if (typeof walletBalance !=='undefined' ) { %>
+                                    <div class="payment-option" id="pay-wallet" onclick="selectPayment('Wallet')">
+                                        <div class="pay-icon"
+                                            style="background:rgba(244,185,66,.1);color:var(--danger);">
+                                            <i class="bi bi-wallet2"></i>
+                                        </div>
+                                        <div>
+                                            <div class="pay-name">Wallet</div>
+                                            <div class="pay-desc">Pay from your Zyrox Wallet</div>
+                                            <div class="wallet-balance-badge">
+                                                Balance: ₹<%= walletBalance.toLocaleString('en-IN') %>
+                                            </div>
+                                            <% if (walletBalance < totalAmount) { %>
+                                                <div class="wallet-insufficient">No Enough Balance to pay total amount
+                                                </div>
+                                                <% } %>
+                                        </div>
+                                        <div class="radio-dot ms-auto"></div>
                                     </div>
-                                    <div>
-                                        <div class="pay-name">Wallet</div>
-                                        <div class="pay-desc">Use your ZYROX wallet balance</div>
-                                    </div>
-                                    <div class="radio-dot ms-auto"></div>
-                                </div>
+                                    <% } %>
+
+
 
                             </div>
                         </div>
-                        <!-- end payment card -->
 
                         <!-- COUPON -->
                         <div class="card-dark mb-4">
@@ -1580,19 +1341,50 @@
                                     Promo Code
                                 </div>
                             </div>
+
                             <div class="coupon-section mt-3">
-                                <div class="coupon-input-wrap">
-                                    <input type="text" id="couponInput" placeholder="Enter coupon code…"
-                                        autocomplete="off" />
-                                    <button class="btn-apply" onclick="applyCoupon()">Apply</button>
-                                </div>
-                                <a href="#" class="coupon-hint" onclick="toggleCoupons(event)">
-                                    <i class="bi bi-ticket-perforated"></i> View all available coupons
-                                </a>
-                                <div id="couponError" class="mt-2"
-                                    style="font-size:.8rem;color:var(--danger);display:none;"></div>
-                                <div id="couponSuccess" class="mt-2"
-                                    style="font-size:.8rem;color:var(--success);display:none;"></div>
+
+                                <% /* Determine if a coupon is already applied server-side */ const
+                                    isCouponApplied=couponDiscount> 0 && appliedCoupon;
+                                    %>
+
+                                    <!-- FIX: Applied coupon state — shown when coupon is active -->
+                                    <div class="coupon-applied-state <%= isCouponApplied ? 'visible' : '' %>"
+                                        id="couponAppliedState">
+                                        <div class="coupon-applied-info">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            <span id="appliedCouponLabel">
+                                                <% if (isCouponApplied) { %>
+                                                    "<%= appliedCoupon %>" applied — ₹<%=
+                                                            couponDiscount.toLocaleString('en-IN') %> off
+                                                            <% } %>
+                                            </span>
+                                        </div>
+                                        <!-- FIX: Remove coupon button -->
+                                        <button class="btn-remove-coupon" onclick="removeCoupon()">
+                                            <i class="bi bi-x-lg"></i> Remove
+                                        </button>
+                                    </div>
+
+                                    <!-- Input row — hidden if coupon already applied -->
+                                    <div id="couponInputRow" style="<%= isCouponApplied ? 'display:none' : '' %>">
+                                        <div class="coupon-input-wrap">
+                                            <!-- FIX: uppercase transform applied via CSS, value trimmed in JS -->
+                                            <input type="text" id="couponInput" placeholder="Enter coupon code…"
+                                                autocomplete="off" />
+                                            <!-- FIX: loading state on button -->
+                                            <button class="btn-apply" id="applyBtn"
+                                                onclick="applyCoupon()">Apply</button>
+                                        </div>
+                                        <a href="#" class="coupon-hint" onclick="toggleCoupons(event)">
+                                            <i class="bi bi-ticket-perforated"></i> View all available coupons
+                                        </a>
+                                    </div>
+
+                                    <div id="couponError" class="mt-2"
+                                        style="font-size:.8rem;color:var(--danger);display:none;"></div>
+                                    <div id="couponSuccess" class="mt-2"
+                                        style="font-size:.8rem;color:var(--success);display:none;"></div>
                             </div>
                         </div>
 
@@ -1640,8 +1432,7 @@
                                                         <div class="price-row total">
                                                             <span class="label">Total Payable</span>
                                                             <span class="val">₹<%= totalAmount.toLocaleString('en-IN')
-                                                                    %>
-                                                            </span>
+                                                                    %></span>
                                                         </div>
                                                         <% if ((discount + couponDiscount)> 0) { %>
                                                             <div class="savings-pill">
@@ -1655,7 +1446,7 @@
                         </div>
 
                         <!-- PLACE ORDER -->
-                        <button class="btn-place-order" onclick="placeOrder()">
+                        <button class="btn-place-order" id="placeOrderBtn" onclick="placeOrder()">
                             Place Order &nbsp;·&nbsp; ₹<%= totalAmount.toLocaleString('en-IN') %>
                                 <span class="arrow">→</span>
                         </button>
@@ -1680,10 +1471,11 @@
                             <p>Best offers for you</p>
                         </div>
                     </div>
-                    <button class="coupon-modal-close" onclick="closeCouponModal()">
+                    <button class="coupon-modal-close" aria-label="Close coupons" onclick="closeCouponModal()">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
+
                 <div class="coupon-modal-body" id="couponModalBody">
                     <% if (coupons.length===0) { %>
                         <div class="cm-empty">
@@ -1692,55 +1484,49 @@
                         </div>
                         <% } %>
 
-                            <% coupons.forEach(coupon=> { %>
+                            <% coupons.forEach(coupon=> {
+                                /* FIX: format validTill date for display */
+                                let validTillDisplay = 'N/A';
+                                if (coupon.validTill) {
+                                try {
+                                validTillDisplay = new Date(coupon.validTill).toLocaleDateString('en-IN', {
+                                day: '2-digit', month: 'short', year: 'numeric'
+                                });
+                                } catch(e) {
+                                validTillDisplay = coupon.validTill;
+                                }
+                                }
+                                /* FIX: format discount label to show ₹ or % using schema fields */
+                                const discountLabel = coupon.discountType === 'percentage'
+                                ? coupon.discountValue + '% off'
+                                : '₹' + Number(coupon.discountValue).toLocaleString('en-IN') + ' off';
+                                %>
                                 <div class="cm-coupon-card">
-
-                                    <!-- LEFT -->
                                     <div class="cm-coupon-left">
-
-                                        <!-- CODE + SAVE -->
                                         <div class="cm-coupon-code-row">
                                             <span class="cm-code-badge">
                                                 <%= coupon.code %>
                                             </span>
-
-                                            <span class="cm-save-tag">
-                                                SAVE <%= coupon.discount %>
-                                            </span>
+                                            <span class="cm-save-tag">SAVE <%= discountLabel %></span>
                                         </div>
-
-                                        <!-- DESCRIPTION -->
                                         <div class="cm-coupon-desc">
                                             <%= coupon.description %>
                                         </div>
-
-                                        <!-- META INFO -->
                                         <div class="cm-coupon-meta">
-                                            <span>
-                                                <i class="bi bi-cash"></i>
-                                                Min ₹<%= coupon.minPurchase || 0 %>
-                                            </span>
-
-                                            <span>
-                                                <i class="bi bi-clock"></i>
-                                                Valid till <%= coupon.validTill ? coupon.validTill: 'N/A' %>
-                                            </span>
+                                            <span><i class="bi bi-cash"></i> Min ₹<%= coupon.minCartValue || 0 %></span>
+                                            <span><i class="bi bi-clock"></i> Valid till <%= validTillDisplay %></span>
                                         </div>
-
                                     </div>
-
-                                    <!-- APPLY BUTTON -->
                                     <button class="cm-apply-btn" onclick="applyCouponFromModal('<%= coupon.code %>')">
                                         APPLY
                                     </button>
-
                                 </div>
                                 <% }) %>
                 </div>
             </div>
         </div>
 
-        <!-- ─── ADD/EDIT ADDRESS MODAL ─────────────────────────── -->
+        <!-- ─── ADD / EDIT ADDRESS MODAL ─────────────────────────── -->
         <div class="modal fade" id="addAddressModal" tabindex="-1" data-bs-backdrop="static">
             <div class="modal-dialog modal-dialog-centered modal-lg modal-dark">
                 <div class="modal-content">
@@ -1748,27 +1534,22 @@
                         <h4 id="modalTitle" class="text-white mb-4">Add New Address</h4>
                         <input type="hidden" id="addr_id">
 
-                        <!-- Address Type Block -->
                         <div class="address-type-group">
                             <span class="form-section-label">Address Type</span>
                             <div class="address-type-radios">
                                 <label class="type-radio-wrap">
-                                    <input type="radio" name="addressType" value="home" checked>
-                                    Home
+                                    <input type="radio" name="addressType" value="home" checked> Home
                                 </label>
                                 <label class="type-radio-wrap">
-                                    <input type="radio" name="addressType" value="work">
-                                    Work
+                                    <input type="radio" name="addressType" value="work"> Work
                                 </label>
                                 <label class="type-radio-wrap">
-                                    <input type="radio" name="addressType" value="other">
-                                    Other
+                                    <input type="radio" name="addressType" value="other"> Other
                                 </label>
                             </div>
                         </div>
 
                         <div class="row g-4">
-                            <!-- Name & Phone -->
                             <div class="col-md-6">
                                 <div class="form-label-top">Full Name</div>
                                 <input type="text" class="input-field-dark" id="addr_fullName"
@@ -1781,8 +1562,6 @@
                                     <input type="text" id="addr_phone" placeholder="10 Digit Number" maxlength="10">
                                 </div>
                             </div>
-
-                            <!-- House & Locality -->
                             <div class="col-md-6">
                                 <div class="form-label-top">House Name / No.</div>
                                 <input type="text" class="input-field-dark" id="addr_line1"
@@ -1792,8 +1571,6 @@
                                 <div class="form-label-top">Locality / Street</div>
                                 <input type="text" class="input-field-dark" id="addr_line2" placeholder="Area / Street">
                             </div>
-
-                            <!-- City, State, Pincode -->
                             <div class="col-md-4">
                                 <div class="form-label-top">City</div>
                                 <input type="text" class="input-field-dark" id="addr_city" placeholder="City">
@@ -1807,29 +1584,22 @@
                                 <input type="text" class="input-field-dark" id="addr_pin" placeholder="6 Digit Code"
                                     maxlength="6">
                             </div>
-
-                            <!-- Country -->
                             <div class="col-12">
                                 <div class="form-label-top">Country</div>
                                 <input type="text" class="input-field-dark" id="addr_country" value="India" readonly>
                             </div>
-
-                            <!-- Default Checkbox -->
                             <div class="col-12 mt-3">
-                                <label class="type-radio-wrap" style="color:rgba(255,255,255,0.6); font-size: .84rem;">
-                                    <input type="checkbox" id="addr_default" style="width:16px; height:16px;">
+                                <label class="type-radio-wrap" style="color:rgba(255,255,255,0.6);font-size:.84rem;">
+                                    <input type="checkbox" id="addr_default" style="width:16px;height:16px;">
                                     Set as default address
                                 </label>
                             </div>
-
-                            <div id="addrError" style="font-size:.8rem;color:#ff5555;display:none; margin-top: 1rem;"
-                                class="col-12">
-                            </div>
+                            <div id="addrError" class="col-12"
+                                style="font-size:.8rem;color:#ff5555;display:none;margin-top:1rem;"></div>
                         </div>
 
-                        <!-- Modal Actions -->
                         <div class="d-flex justify-content-end gap-3 mt-5">
-                            <button class="btn" style="color:#aab0c4; font-weight:600;"
+                            <button class="btn" style="color:#aab0c4;font-weight:600;"
                                 data-bs-dismiss="modal">Cancel</button>
                             <button class="btn btn-save-address" id="saveBtn" onclick="saveAddress()">Save
                                 Address</button>
@@ -1842,21 +1612,32 @@
         <!-- ─── SCRIPTS ───────────────────────────────────────── -->
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
         <script>
-            /* ── Inject EJS server-side data into JS ─── */
+            /* ── Server-side data injected safely ─── */
             const PAGE_DATA = {
-                totalAmount: '<%- totalAmount %>',
-                itemCount: '<%- cartItems.length %>',
-                csrfToken: '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>',
-                razorpayKey: '<%- razorpayKey %>'
+                totalAmount: <% - JSON.stringify(totalAmount) %>,
+                itemCount: <% - JSON.stringify(cartItems.length) %>,
+                csrfToken: '<%- typeof csrfToken !== "undefined" ? csrfToken : "" %>',
+                razorpayKey: '<%- razorpayKey %>',
+                walletBalance: <% - JSON.stringify(walletBalance || 0) %>
             };
 
-            let selectedAddressId = '<%= userAddresses.find(a => a.isDefault)?._id || (userAddresses[0]?._id) || "" %>';
-            let selectedPayment = 'COD';
+            /* FIX: consistent casing — always store as sent to server */
+            let selectedAddressId = '<%- userAddresses.find(a => a.isDefault)?._id || (userAddresses[0]?._id) || "" %>';
+            /* FIX: default logic — COD if allowed, otherwise Razorpay */
+            let selectedPayment = PAGE_DATA.totalAmount > 1000 ? 'Razorpay' : 'COD';
+
+            /* Auto-select Razorpay if COD is disabled */
+            window.addEventListener('DOMContentLoaded', () => {
+                if (PAGE_DATA.totalAmount > 1000) {
+                    const codOpt = document.getElementById('pay-cod');
+                    if (codOpt) codOpt.classList.remove('selected');
+                    const razorOpt = document.getElementById('pay-razorpay');
+                    if (razorOpt) razorOpt.classList.add('selected');
+                }
+            });
 
             /* ── Address Selection ─────────────────── */
             function selectAddress(el, id) {
@@ -1866,21 +1647,57 @@
             }
 
             /* ── Payment Selection ─────────────────── */
+            /* FIX: unified casing — method stored exactly as passed, radio uses lowercase id */
             function selectPayment(method) {
-                const normalised = method.toLowerCase();
-                if (!['cod', 'razorpay', 'wallet'].includes(normalised)) return;
+                if (method === 'Wallet' && PAGE_DATA.walletBalance < PAGE_DATA.totalAmount) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'wallet Not Available',
+                        text: 'no enough balance to pay total amount .',
+                        background: '#111422', color: '#f0f2ff', confirmButtonColor: '#4f6ef7'
+                    });
+                    return;
+                }
+                if (method === 'COD' && PAGE_DATA.totalAmount > 1000) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'COD Not Available',
+                        text: 'Cash on Delivery is only available for orders below ₹70,000.',
+                        background: '#111422', color: '#f0f2ff', confirmButtonColor: '#4f6ef7'
+                    });
+                    return;
+                }
                 selectedPayment = method;
                 document.querySelectorAll('.payment-option:not(.disabled)').forEach(o => o.classList.remove('selected'));
-                document.getElementById('pay-' + normalised)?.classList.add('selected');
+                document.getElementById('pay-' + method.toLowerCase())?.classList.add('selected');
             }
 
-            /* ── Coupon ─────────────────────────────── */
+            /* ── Coupon helpers ─────────────────────── */
+            function setCouponLoading(loading) {
+                const btn = document.getElementById('applyBtn');
+                if (!btn) return;
+                btn.disabled = loading;
+                btn.innerHTML = loading
+                    ? '<span class="spinner-border spinner-border-sm" style="width:14px;height:14px;border-width:2px"></span>'
+                    : 'Apply';
+            }
+
+            /* FIX: trim + uppercase before sending; loading state; no blind setTimeout */
             function applyCoupon() {
-                const code = document.getElementById('couponInput').value
+                const rawCode = document.getElementById('couponInput').value;
+                const code = rawCode.trim().toUpperCase();
                 const errEl = document.getElementById('couponError');
                 const okEl = document.getElementById('couponSuccess');
-                errEl.style.display = 'none'; okEl.style.display = 'none';
-                if (!code) { errEl.textContent = 'Please enter a coupon code.'; errEl.style.display = 'block'; return; }
+                errEl.style.display = 'none';
+                okEl.style.display = 'none';
+
+                if (!code) {
+                    errEl.textContent = 'Please enter a coupon code.';
+                    errEl.style.display = 'block';
+                    return;
+                }
+
+                setCouponLoading(true);
 
                 fetch('/api/coupon/apply', {
                     method: 'POST',
@@ -1892,16 +1709,47 @@
                 })
                     .then(r => r.json())
                     .then(data => {
+                        setCouponLoading(false);
                         if (data.success) {
                             okEl.innerHTML = `<i class="bi bi-check-circle-fill"></i> Coupon applied! You saved ₹${data.discount.toLocaleString('en-IN')}`;
                             okEl.style.display = 'block';
-                            setTimeout(() => location.reload(), 900);
+                            /* Reload after a visible moment so user sees the confirmation */
+                            setTimeout(() => location.reload(), 1200);
                         } else {
                             errEl.textContent = data.message || 'Invalid or expired coupon.';
                             errEl.style.display = 'block';
                         }
                     })
-                    .catch(() => { errEl.textContent = 'Something went wrong. Try again.'; errEl.style.display = 'block'; });
+                    .catch(() => {
+                        setCouponLoading(false);
+                        errEl.textContent = 'Something went wrong. Try again.';
+                        errEl.style.display = 'block';
+                    });
+            }
+
+            /* FIX: remove coupon calls the server, not just a UI toggle */
+            function removeCoupon() {
+                fetch('/api/coupon/remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': PAGE_DATA.csrfToken
+                    }
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Could not remove coupon',
+                                text: data.message || 'Please try again.',
+                                background: '#111422', color: '#f0f2ff', confirmButtonColor: '#4f6ef7'
+                            });
+                        }
+                    })
+                    .catch(() => location.reload());
             }
 
             function toggleCoupons(e) {
@@ -1909,10 +1757,9 @@
                 openCouponModal();
             }
 
-            /* ── Coupon Modal Logic ────────────────────── */
+            /* ── Coupon Modal ──────────────────────── */
             function openCouponModal() {
-                const overlay = document.getElementById('couponModalOverlay');
-                overlay.classList.add('show');
+                document.getElementById('couponModalOverlay').classList.add('show');
                 document.body.style.overflow = 'hidden';
             }
 
@@ -1922,31 +1769,33 @@
                 document.body.style.overflow = '';
             }
 
+            /* FIX: sets the input value AND immediately triggers the apply flow */
             function applyCouponFromModal(code) {
-                
-                console.log('code',code)
-                document.getElementById('couponInput').value = code;
                 closeCouponModal();
+                const inputEl = document.getElementById('couponInput');
+                if (inputEl) {
+                    inputEl.value = code;
+                    applyCoupon();
+                }
             }
 
             /* ── Place Order ────────────────────────── */
-
             function placeOrder() {
                 if (!selectedAddressId) {
                     Swal.fire({
                         icon: 'warning',
                         title: 'Address Required',
                         text: 'Please select a delivery address.',
-                        background: '#111422',
-                        color: '#f0f2ff',
-                        confirmButtonColor: '#4f6ef7'
+                        background: '#111422', color: '#f0f2ff', confirmButtonColor: '#4f6ef7'
                     });
                     return;
                 }
 
+                const paymentLabel = selectedPayment === 'COD' ? 'Cash on Delivery' : selectedPayment;
+
                 Swal.fire({
                     title: 'Confirm Order',
-                    text: `Are you sure you want to place this order with ${selectedPayment}?`,
+                    text: `Place this order with ${paymentLabel}?`,
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#4f6ef7',
@@ -1954,9 +1803,9 @@
                     confirmButtonText: 'Yes, Place Order',
                     background: '#111422',
                     color: '#f0f2ff'
-                }).then((result) => {
+                }).then(result => {
                     if (result.isConfirmed) {
-                        if (selectedPayment.toLowerCase() === 'razorpay') {
+                        if (selectedPayment === 'Razorpay') {
                             openRazorpayGateway();
                         } else {
                             executePlaceOrder();
@@ -1965,43 +1814,45 @@
                 });
             }
 
+            function setPlaceOrderLoading(loading, label) {
+                const btn = document.getElementById('placeOrderBtn');
+                btn.disabled = loading;
+                btn.innerHTML = loading
+                    ? `<span class="spinner-border spinner-border-sm me-2"></span>${label}`
+                    : `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
+            }
+
             function openRazorpayGateway() {
-                const btn = document.querySelector('.btn-place-order');
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Initializing Razorpay…';
+                setPlaceOrderLoading(true, 'Initializing Razorpay…');
 
                 fetch('/checkout/create-razorpay-order', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': PAGE_DATA.csrfToken
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': PAGE_DATA.csrfToken },
                     body: JSON.stringify({ amount: PAGE_DATA.totalAmount })
                 })
                     .then(res => res.json())
                     .then(data => {
                         if (!data.success) {
-                            btn.disabled = false;
-                            btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
-                            return Swal.fire('Error', data.message || 'Error generating order', 'error');
+                            setPlaceOrderLoading(false);
+                            return Swal.fire({ icon: 'error', title: 'Error', text: data.message || 'Error generating order', background: '#111422', color: '#f0f2ff', confirmButtonColor: '#4f6ef7' });
                         }
+
+                        /* FIX: prefill from the selected address card, not the modal inputs */
+                        const selectedCard = document.querySelector('.address-card.selected');
+                        const prefillName = selectedCard?.querySelector('.addr-name')?.textContent?.trim() || '';
 
                         const options = {
                             key: PAGE_DATA.razorpayKey,
                             amount: data.order.amount,
-                            currency: "INR",
-                            name: "ZYROX",
-                            description: "Purchase Checkout",
+                            currency: 'INR',
+                            name: 'ZYROX',
+                            description: 'Purchase Checkout',
                             order_id: data.order.id,
                             handler: function (response) {
-                                // Verify Payment
-                                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying Payment…';
+                                setPlaceOrderLoading(true, 'Verifying Payment…');
                                 fetch('/checkout/verify-razorpay', {
                                     method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-Token': PAGE_DATA.csrfToken
-                                    },
+                                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': PAGE_DATA.csrfToken },
                                     body: JSON.stringify(response)
                                 })
                                     .then(r => r.json())
@@ -2009,55 +1860,40 @@
                                         if (verifyData.success) {
                                             executePlaceOrder();
                                         } else {
-                                            Swal.fire('Error', 'Payment verification failed', 'error');
-                                            btn.disabled = false;
-                                            btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
+                                            Swal.fire({ icon: 'error', title: 'Error', text: 'Payment verification failed', background: '#111422', color: '#f0f2ff', confirmButtonColor: '#4f6ef7' });
+                                            setPlaceOrderLoading(false);
                                         }
                                     });
                             },
-                            prefill: {
-                                name: document.getElementById('addr_fullName')?.value || "",
-                                contact: document.getElementById('addr_phone')?.value || ""
-                            },
-                            theme: {
-                                color: "#4f6ef7"
-                            },
+                            prefill: { name: prefillName },
+                            theme: { color: '#4f6ef7' },
                             modal: {
-                                ondismiss: function () {
-                                    btn.disabled = false;
-                                    btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
-                                }
+                                ondismiss: function () { setPlaceOrderLoading(false); }
                             }
                         };
-                        const rzp1 = new window.Razorpay(options);
-                        rzp1.open();
+
+                        const rzp = new window.Razorpay(options);
+                        rzp.open();
                     })
-                    .catch(err => {
-                        btn.disabled = false;
-                        btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
-                        Swal.fire('Error', 'Network Error', 'error');
+                    .catch(() => {
+                        setPlaceOrderLoading(false);
+                        Swal.fire({ icon: 'error', title: 'Network Error', text: 'Please try again.', background: '#111422', color: '#f0f2ff', confirmButtonColor: '#4f6ef7' });
                     });
             }
 
             function executePlaceOrder() {
-                const btn = document.querySelector('.btn-place-order');
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Placing Order…';
+                setPlaceOrderLoading(true, 'Placing Order…');
 
                 fetch('/checkout/place-order', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': PAGE_DATA.csrfToken
-                    },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': PAGE_DATA.csrfToken },
                     body: JSON.stringify({
                         addressId: selectedAddressId,
-                        paymentMethod: selectedPayment
+                        paymentMethod: selectedPayment   /* FIX: always consistent casing */
                     })
                 })
                     .then(res => {
                         if (!res.ok && res.headers.get('content-type')?.includes('text/html')) {
-                            // Likely a redirect to signin — session expired
                             window.location.href = '/signin';
                             return Promise.reject(new Error('session_expired'));
                         }
@@ -2068,31 +1904,25 @@
                             window.location.href = '/order-success/' + data.orderId;
                         } else {
                             Swal.fire({
-                                icon: 'error',
-                                title: 'Order Failed',
+                                icon: 'error', title: 'Order Failed',
                                 text: data.message || 'Could not place order. Please try again.',
-                                background: '#111422',
-                                color: '#f0f2ff',
-                                confirmButtonColor: '#4f6ef7'
+                                background: '#111422', color: '#f0f2ff', confirmButtonColor: '#4f6ef7'
                             });
-                            btn.disabled = false;
-                            btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
+                            setPlaceOrderLoading(false);
                         }
                     })
                     .catch(err => {
+                        if (err.message === 'session_expired') return;
                         Swal.fire({
-                            icon: 'error',
-                            title: 'Network Error',
+                            icon: 'error', title: 'Network Error',
                             text: 'Something went wrong. Please try again.',
-                            background: '#111422',
-                            color: '#f0f2ff',
-                            confirmButtonColor: '#4f6ef7'
+                            background: '#111422', color: '#f0f2ff', confirmButtonColor: '#4f6ef7'
                         });
-                        btn.disabled = false;
-                        btn.innerHTML = `Place Order &nbsp;·&nbsp; ₹${Number(PAGE_DATA.totalAmount).toLocaleString('en-IN')} <span class="arrow">→</span>`;
+                        setPlaceOrderLoading(false);
                     });
             }
-            /* ── Save Address ───────────────────────── */
+
+            /* ── Address Modal ──────────────────────── */
             const addressModal = new bootstrap.Modal(document.getElementById('addAddressModal'));
 
             function openAddModal() {
@@ -2108,11 +1938,19 @@
                 document.getElementById('addr_pin').value = '';
                 document.getElementById('addr_default').checked = false;
                 document.querySelector('input[name="addressType"][value="home"]').checked = true;
+                document.getElementById('addrError').style.display = 'none';
                 addressModal.show();
             }
 
             function openEditModal(btn) {
-                const addr = JSON.parse(btn.dataset.addr);
+                /* FIX: parse from the button's data-addr (already HTML-safe via EJS escape) */
+                let addr;
+                try {
+                    addr = JSON.parse(btn.getAttribute('data-addr'));
+                } catch (e) {
+                    return;
+                }
+
                 document.getElementById('modalTitle').textContent = 'Edit Address';
                 document.getElementById('saveBtn').textContent = 'Update Address';
                 document.getElementById('addr_id').value = addr._id;
@@ -2124,9 +1962,10 @@
                 document.getElementById('addr_state').value = addr.state || '';
                 document.getElementById('addr_pin').value = addr.pincode || '';
                 document.getElementById('addr_default').checked = !!addr.isDefault;
+                document.getElementById('addrError').style.display = 'none';
 
-                const typeValue = (addr.addressType || 'Home').toLowerCase();
-                const typeRadio = document.querySelector(`input[name="addressType"][value="${typeValue}"]`);
+                const typeVal = (addr.addressType || 'home').toLowerCase();
+                const typeRadio = document.querySelector(`input[name="addressType"][value="${typeVal}"]`);
                 if (typeRadio) typeRadio.checked = true;
 
                 addressModal.show();
@@ -2147,11 +1986,24 @@
                     addressType: addrTypeInput ? addrTypeInput.value : 'home',
                     isDefault: document.getElementById('addr_default').checked
                 };
+
                 const errEl = document.getElementById('addrError');
                 errEl.style.display = 'none';
 
-                if (!fields.name || !fields.phone || !fields.houseName || !fields.locality || !fields.city || !fields.pincode || !fields.state || !fields.country) {
-                    errEl.textContent = 'Absolutely all fields are required.';
+                if (!fields.name || !fields.phone || !fields.houseName || !fields.locality || !fields.city || !fields.pincode || !fields.state) {
+                    errEl.textContent = 'All fields are required.';
+                    errEl.style.display = 'block';
+                    return;
+                }
+
+                if (!/^\d{10}$/.test(fields.phone)) {
+                    errEl.textContent = 'Enter a valid 10-digit phone number.';
+                    errEl.style.display = 'block';
+                    return;
+                }
+
+                if (!/^\d{6}$/.test(fields.pincode)) {
+                    errEl.textContent = 'Enter a valid 6-digit pincode.';
                     errEl.style.display = 'block';
                     return;
                 }
@@ -2178,6 +2030,11 @@
                     })
                     .catch(() => { errEl.textContent = 'Network error.'; errEl.style.display = 'block'; });
             }
+
+            /* ── Keyboard accessibility: close coupon modal on Esc ── */
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeCouponModal();
+            });
         </script>
 </body>
 

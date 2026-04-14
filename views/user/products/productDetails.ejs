@@ -2060,8 +2060,17 @@
             }
             // Wishlist Toggle
             async function toggleWishlistDetail(productId) {
+                const btn = document.getElementById('btnWishlist');
+                const icon = btn.querySelector('i');
+                const text = document.getElementById('wishlistText');
+                const originalIconClass = icon.className;
+                const originalText = text.textContent;
 
                 try {
+                    btn.style.pointerEvents = 'none';
+                    icon.className = 'fas fa-spinner fa-spin';
+                    text.textContent = 'Processing...';
+
                     const response = await fetch('/wishlist/toggle', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -2069,6 +2078,9 @@
                     });
 
                     if (response.status === 401) {
+                        icon.className = originalIconClass;
+                        text.textContent = originalText;
+                        btn.style.pointerEvents = '';
                         return Swal.fire({
                             background: '#141416',
                             color: '#eaeaea',
@@ -2108,6 +2120,10 @@
                     }
                 } catch (err) {
                     console.error("Wishlist Toggle Error:", err);
+                    icon.className = originalIconClass;
+                    text.textContent = originalText;
+                } finally {
+                    btn.style.pointerEvents = '';
                 }
             }
 

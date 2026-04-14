@@ -7,6 +7,7 @@ import * as profileController from "../controllers/user/profileController.js";
 import * as cartController from "../controllers/user/cartController.js"
 import * as wishlistController from "../controllers/user/wishlistController.js"
 import * as orderController from "../controllers/user/orderController.js"
+import * as walletController from "../controllers/user/walletController.js"
 import { isUserAuthenticated, isUserGuest } from "../middlewares/auth.js";
 import upload from "../middlewares/multer.js";
 import Coupon from "../models/coupon.js";
@@ -19,11 +20,11 @@ userRoutes.get("/", userController.landingPage);
 userRoutes.get('/products', productController.loadProducts);
 userRoutes.get('/product/:id', productController.loadProductDetails);
 
-userRoutes.get("/cart",                isUserAuthenticated, cartController.loadCart);
-userRoutes.post("/cart/add",           isUserAuthenticated, cartController.addToCart);
+userRoutes.get("/cart", isUserAuthenticated, cartController.loadCart);
+userRoutes.post("/cart/add", isUserAuthenticated, cartController.addToCart);
 userRoutes.post("/cart/update-quantity", isUserAuthenticated, cartController.updateQuantity);
-userRoutes.post("/cart/remove",        isUserAuthenticated,cartController.removeFromCart);
-userRoutes.post("/cart/clear",         isUserAuthenticated, cartController.clearCart);
+userRoutes.post("/cart/remove", isUserAuthenticated, cartController.removeFromCart);
+userRoutes.post("/cart/clear", isUserAuthenticated, cartController.clearCart);
 
 
 /* SIGNUP */
@@ -37,30 +38,17 @@ userRoutes.post("/resend-otp", userController.resendOtp);
 userRoutes.get("/signin", isUserGuest, userController.loadSignIn);
 userRoutes.post("/signin", isUserGuest, userController.userSignIn);
 
+/* FORGOT PASSWORD */
+userRoutes.post("/forgot-password", isUserGuest, userController.sendResetOtp);
+userRoutes.post("/verify-reset-otp", userController.verifyResetOtp);
+userRoutes.post("/resend-reset-otp", userController.resendOtp); // Reusing resendOtp or creating a specific one if needed
+
+/* RESET PASSWORD */
+userRoutes.get("/new-password", userController.loadNewPassword);
+userRoutes.post("/new-password", userController.resetPassword);
+
 /* PROFILE - PROTECTED ROUTES */
-userRoutes.post('/wishlist/toggle', wishlistController.toggleWishlist);
-userRoutes.get('/wishlist', isUserAuthenticated, wishlistController.loadWishlist);
-
-
-userRoutes.get("/checkout", isUserAuthenticated, checkoutController.loadCheckout);
-userRoutes.get("/checkout/buy-now", isUserAuthenticated, checkoutController.loadBuyNowCheckout);
-userRoutes.post("/checkout/create-razorpay-order", isUserAuthenticated, checkoutController.createRazorpayOrder);
-userRoutes.post("/checkout/verify-razorpay", isUserAuthenticated, checkoutController.verifyRazorpayPayment);
-userRoutes.post("/checkout/place-order", isUserAuthenticated, checkoutController.placeOrder);
-userRoutes.get("/order-success/:orderId", isUserAuthenticated, checkoutController.getOrderSuccess);
-
-/* COUPONS */
-userRoutes.post("/api/coupon/apply",    isUserAuthenticated, checkoutController.applyCoupon);
-userRoutes.post("/api/coupon/remove",   isUserAuthenticated, checkoutController.removeCoupon);
-
-userRoutes.get("/myOrders",isUserAuthenticated, orderController.getOrdersPage);
-userRoutes.get("/myOrders/details",isUserAuthenticated, orderController.getOrdersDetailsPage);
-userRoutes.get("/myOrders/invoice",isUserAuthenticated, orderController.getInvoicePage);
-userRoutes.post("/cancel-order", isUserAuthenticated, orderController.cancelOrder);
-userRoutes.post("/cancel-item", isUserAuthenticated, orderController.cancelItem);
-userRoutes.post("/return-item", isUserAuthenticated, orderController.returnItem);
-userRoutes.post("/return-order", isUserAuthenticated, orderController.returnOrder);
-
+//PROFILE
 userRoutes.get("/profile", isUserAuthenticated, profileController.userProfile);
 userRoutes.get("/profile-edit", isUserAuthenticated, profileController.loadEditProfile);
 userRoutes.post("/profile-edit", isUserAuthenticated, upload.single("profileImage"), profileController.editProfile);
@@ -73,7 +61,7 @@ userRoutes.post("/change-password", isUserAuthenticated, profileController.updat
 userRoutes.get("/add-password", isUserAuthenticated, profileController.changePassword);
 userRoutes.post("/add-password", isUserAuthenticated, profileController.addPassword);
 
-
+//ADDRESS
 userRoutes.get("/address", isUserAuthenticated, addressController.LoadUserAddress);
 userRoutes.get("/address-add", isUserAuthenticated, addressController.loadAddAddress);
 userRoutes.post("/address-add", isUserAuthenticated, addressController.addAddress);
@@ -83,38 +71,43 @@ userRoutes.patch("/address-default/:id", isUserAuthenticated, addressController.
 userRoutes.delete("/address-delete/:id", isUserAuthenticated, addressController.deleteAddress);
 
 
+/*WISHLIST */
+userRoutes.post('/wishlist/toggle', wishlistController.toggleWishlist);
+userRoutes.get('/wishlist', isUserAuthenticated, wishlistController.loadWishlist);
+
+//CHECKOUT
+userRoutes.get("/checkout", isUserAuthenticated, checkoutController.loadCheckout);
+userRoutes.get("/checkout/buy-now", isUserAuthenticated, checkoutController.loadBuyNowCheckout);
+userRoutes.post("/checkout/create-razorpay-order", isUserAuthenticated, checkoutController.createRazorpayOrder);
+userRoutes.post("/checkout/verify-razorpay", isUserAuthenticated, checkoutController.verifyRazorpayPayment);
+userRoutes.post("/checkout/place-order", isUserAuthenticated, checkoutController.placeOrder);
+userRoutes.get("/order-success/:orderId", isUserAuthenticated, checkoutController.getOrderSuccess);
+
+/* COUPONS */
+userRoutes.post("/api/coupon/apply", isUserAuthenticated, checkoutController.applyCoupon);
+userRoutes.post("/api/coupon/remove", isUserAuthenticated, checkoutController.removeCoupon);
+
+
+//ORDERS
+userRoutes.get("/myOrders", isUserAuthenticated, orderController.getOrdersPage);
+userRoutes.get("/myOrders/details", isUserAuthenticated, orderController.getOrdersDetailsPage);
+userRoutes.get("/myOrders/invoice", isUserAuthenticated, orderController.getInvoicePage);
+userRoutes.post("/cancel-order", isUserAuthenticated, orderController.cancelOrder);
+userRoutes.post("/cancel-item", isUserAuthenticated, orderController.cancelItem);
+userRoutes.post("/return-item", isUserAuthenticated, orderController.returnItem);
+userRoutes.post("/return-order", isUserAuthenticated, orderController.returnOrder);
+
+/*WALLET*/
+userRoutes.get('/wallet', isUserAuthenticated, walletController.getWallet);
+userRoutes.post('/wallet/add-money', isUserAuthenticated, walletController.createWalletOrder);
+userRoutes.post('/wallet/verify-payment', isUserAuthenticated, walletController.verifyWalletPayment);
+
+// ,isUserAuthenticated
+
 /* LOGOUT */
 userRoutes.get("/logout", isUserAuthenticated, userController.logout);
 
-/* FORGOT PASSWORD */
-userRoutes.get("/forgot-password", isUserGuest, userController.loadForgotPassword);
-userRoutes.post("/forgot-password", isUserGuest, userController.sendResetOtp);
-userRoutes.post("/verify-reset-otp", userController.verifyResetOtp);
-userRoutes.post("/resend-reset-otp", userController.resendOtp); // Reusing resendOtp or creating a specific one if needed
-
-/* RESET PASSWORD */
-userRoutes.get("/new-password", userController.loadNewPassword);
-userRoutes.post("/new-password", userController.resetPassword);
 
 
-/* COUPONS API */
-// userRoutes.get("/api/coupons", isUserAuthenticated, async (req, res) => {
-//     try {
-//         const now = new Date();
-//         const coupons = await Coupon.find({
-//             isActive: true,
-//             validFrom: { $lte: now },
-//             validTill: { $gte: now },
-//             $or: [
-//                 { usageLimit: null },
-//                 { $expr: { $lt: ["$usedCount", "$usageLimit"] } }
-//             ]
-//         }).sort({ createdAt: -1 }).lean();
-//         res.json({ success: true, coupons });
-//     } catch (err) {
-//         console.error("Error fetching coupons:", err);
-//         res.status(500).json({ success: false, message: "Server error" });
-//     }
-// });
 
 export default userRoutes;

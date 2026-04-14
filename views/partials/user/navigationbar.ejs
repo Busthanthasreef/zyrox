@@ -796,9 +796,9 @@
                 <!-- ── GLOBAL SESSION ALERTS (Swal) ── -->
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
-                        const success = <% - JSON.stringify(successMessage || '') %>;
-                        const error = <% - JSON.stringify(errorMessage || '') %>;
-                        const info = <% - JSON.stringify(infoMessage || '') %>;
+                        const success = <%- JSON.stringify(successMessage || '') %>;
+                        const error = <%- JSON.stringify(errorMessage || '') %>;
+                        const info = <%- JSON.stringify(infoMessage || '') %>;
 
                         if (success) {
                             Swal.fire({

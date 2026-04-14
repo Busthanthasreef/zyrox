@@ -896,6 +896,10 @@
                 const state = cartState[variantId];
                 if (!state) return;
 
+                const btnId = delta > 0 ? `plus-${variantId}` : `minus-${variantId}`;
+                const btn = document.getElementById(btnId);
+                const originalHtml = btn.innerHTML;
+
                 const newQty = state.qty + delta;
 
                 // Lower bound
@@ -934,6 +938,9 @@
                 }
 
                 try {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:10px;height:10px;border-width:2px"></span>';
+
                     const res = await fetch('/cart/update-quantity', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -974,6 +981,9 @@
                         title: 'Network error', showConfirmButton: false, timer: 2000,
                         background: '#12131a', color: '#e8e8f0'
                     });
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
                 }
             }
 
@@ -997,6 +1007,11 @@
 
                 // ❌ Cancel → no reload
                 if (!confirmed.isConfirmed) return;
+
+                const btn = document.querySelector(`#row-${variantId} .remove-btn`);
+                const originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:12px;height:12px;border-width:2px"></span>';
 
                 try {
                     const res = await fetch('/cart/remove', {
@@ -1035,6 +1050,8 @@
                     window.location.reload();
 
                 } catch (err) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
                     Swal.fire({
                         toast: true,
                         position: 'top-end',
@@ -1118,8 +1135,9 @@
             }
 
             function proceedCheckout() {
-                // If the button is enabled, we allow it. 
-                // Any last-minute OOS will be caught by the backend loadCheckout
+                const btn = document.getElementById('checkoutBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
                 window.location.href = '/checkout';
             }
 

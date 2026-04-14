@@ -46,14 +46,15 @@
                         <% if (user) { %>
                             <div class="text-center">
                                 <div class="profile-img-container">
-                                    <img src="<%= user.Profile_image || '/images/default-avatar.png' %>"
-                                        class="profile-img" alt="Profile">
+                                    <img src="<%= userProfileImage || 'https://ui-avatars.com/api/?name=' + user.Name + '&background=random&size=200' %>"
+                                        alt="Profile Image">
+
                                 </div>
                                 <div class="mb-5">
                                     <h4 class="fw-bold mb-1">
                                         <%= user.Name %>
                                     </h4>
-                                    <p class="text-muted small">Member since <%= new
+                                    <p class="text small">Member since <%= new
                                             Date(user.createdAt).toLocaleDateString('en-US', { month: 'long' ,
                                             year: 'numeric' }) %>
                                     </p>
@@ -75,45 +76,50 @@
                                         </p>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="info-box">
-                                        <label>Phone Number</label>
-                                        <p class="mb-0 fw-bold">+91 <%= user.Phone_number %>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="info-box">
-                                        <label>Verification Status</label>
-                                        <p class="mb-0">
-                                            <% if (isGoogleUser) { %>
-                                                <span
-                                                    class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
-                                                    <i class="bi bi-google me-1"></i> Google Verified
-                                                </span>
-                                                <% } else { %>
-                                                    <span
-                                                        class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
-                                                        <i class="bi bi-shield-check me-1"></i> Zyrox Verified
-                                                    </span>
-                                                    <% } %>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="info-box">
-                                        <label>Email Address</label>
-                                        <div class="d-flex align-items-center gap-2 mt-1">
-                                            <div
-                                                class="flex-grow-1 py-2 px-3 bg-dark-subtle rounded border border-secondary-subtle text-dark opacity-75">
-                                                <%= user.Email %>
-                                            </div>
-                                            <%if(isGoogleUser){%>
-                                           <p style="color: yellow;">This acccont is managed by google <br> can't edit</p>
-                                            <%}%>   
+                                <%if(!isGoogleUser){%>
+                                    <div class="col-md-6">
+                                        <div class="info-box">
+                                            <label>Phone Number</label>
+                                            <p class="mb-0 fw-bold">+91 <%= user.Phone_number %>
+                                            </p>
+
                                         </div>
                                     </div>
-                                </div>
+                                    <%}%>
+                                        <div class="col-md-6">
+                                            <div class="info-box">
+                                                <label>Verification Status</label>
+                                                <p class="mb-0">
+                                                    <% if (isGoogleUser) { %>
+                                                        <span
+                                                            class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
+                                                            <i class="bi bi-google me-1"></i> Google Verified
+                                                        </span>
+                                                        <% } else { %>
+                                                            <span
+                                                                class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                                                                <i class="bi bi-shield-check me-1"></i> Zyrox Verified
+                                                            </span>
+                                                            <% } %>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="info-box">
+                                                <label>Email Address</label>
+                                                <div class="d-flex align-items-center gap-2 mt-1">
+                                                    <div
+                                                        class="flex-grow-1 py-2 px-3 bg-dark-subtle rounded border border-secondary-subtle text-dark opacity-75">
+                                                        <%= user.Email %>
+                                                    </div>
+                                                    <%if(isGoogleUser){%>
+                                                        <p style="color: yellow;"><span
+                                                                style="color: rgb(255, 0, 0);">CAN'T EDIT
+                                                            </span><br>This acccont is managed by google </p>
+                                                        <%}%>
+                                                </div>
+                                            </div>
+                                        </div>
                             </div>
 
                             <div class="mt-5 pt-3 border-top border-secondary-subtle">

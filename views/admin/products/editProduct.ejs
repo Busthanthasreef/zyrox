@@ -301,6 +301,11 @@
             pointer-events: none;
         }
 
+        .img-box-edit.img-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+
         .img-slot-badge {
             position: absolute;
             bottom: 6px;
@@ -1043,19 +1048,24 @@
             document.getElementById('editProductForm').addEventListener('submit', async function (e) {
                 e.preventDefault();
 
-                // Image validation
-                let hasImage = false;
+                // Image validation: Check if ALL 3 slots have images
+                let missingImages = 0;
                 for (let i = 0; i < 3; i++) {
                     const box = document.getElementById(`eBox_${i}`);
-                    // If box has class 'has-image' and the input file has a file OR it's an existing image that wasn't removed
-                    if (box && box.classList.contains('has-image')) {
-                        hasImage = true;
-                        break;
+                    if (!box || !box.classList.contains('has-image')) {
+                        box.classList.add('img-error');
+                        missingImages++;
+                    } else {
+                        box.classList.remove('img-error');
                     }
                 }
 
-                if (!hasImage) {
-                    Swal.fire({ icon: 'error', title: 'Image Required', text: 'At least one product image is required.' });
+                if (missingImages > 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Images Required',
+                        text: 'Exactly 3 product images are required. Please upload images for the highlighted slots.'
+                    });
                     return;
                 }
 
@@ -1064,10 +1074,17 @@
                 saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
 
                 const fd = new FormData(this);
-                // Add cropped blobs
+
+                // Remove all natively captured file inputs to prevent duplicates
+                fd.delete('newImages[]');
+
+                // Re-add either the cropped blob or the uncropped file
                 for (let i = 0; i < 3; i++) {
+                    const fileInput = document.getElementById(`eFile_${i}`);
                     if (croppedBlobs[i]) {
                         fd.append('newImages[]', croppedBlobs[i], `crop_${i}.jpg`);
+                    } else if (fileInput && fileInput.files[0]) {
+                        fd.append('newImages[]', fileInput.files[0]);
                     }
                 }
 

@@ -58,9 +58,33 @@ const getProducts = async ({ search, statusFilter, categoryFilter, page, limit }
 
 const createProduct = async (data, files) => {
 
-    const { productName, description, category, status, variants } = data;
+    const { productName, description, category, status } = data;
+
+    if (!productName || !description || !category) {
+        throw new Error("Product name, description, and category are required");
+    }
+
+    // Robust extraction of variants (handles both nested and flat body structures)
+    let variants = data.variants;
+    if (!variants || typeof variants !== 'object') {
+        variants = {};
+        for (const key in data) {
+            if (key.startsWith('variants[')) {
+                const match = key.match(/variants\[(\d+)\]\[(\w+)\]/);
+                if (match) {
+                    const [_, index, field] = match;
+                    if (!variants[index]) variants[index] = {};
+                    variants[index][field] = data[key];
+                }
+            }
+        }
+    }
 
     const v0 = Array.isArray(variants) ? variants[0] : (variants?.["0"] ?? variants);
+
+    if (!v0 || (!v0.color && !v0.price)) {
+        throw new Error("Default variant details (color, price, etc.) are missing or incomplete");
+    }
 
     const existed = await Product.findOne({
         productName: { $regex: `^${productName.trim()}$`, $options: "i" },
@@ -68,12 +92,17 @@ const createProduct = async (data, files) => {
     });
 
     if (existed) {
-        throw new Error("Product already exists");
+        throw new Error("A product with this name already exists");
     }
 
+    // Extract images correctly from files array
     const variantImages = (files || [])
-        .filter(f => f.fieldname.startsWith("variantImages"))
+        .filter(f => f.fieldname === 'variantImages' || f.fieldname === 'variantImages[]' || f.fieldname.startsWith('variantImages'))
         .map(f => f.path);
+
+    if (variantImages.length !== 3) {
+        throw new Error("Exactly 3 product images are required for the default variant");
+    }
 
     const newProduct = await Product.create({
         productName: productName.trim(),
@@ -82,19 +111,26 @@ const createProduct = async (data, files) => {
         status: status || "active",
     });
 
-    await Variant.create({
-        productId: newProduct._id,
-        color: v0.color.trim(),
-        colorCode: v0.colorHex || "#000000",
-        RAM: parseSpec(v0.ram),
-        storage: parseSpec(v0.storage),
-        price: Number(v0.price),
-        stock: Number(v0.stock),
-        SKU: v0.sku?.trim() || "",
-        IsActive: v0.isActive === "true",
-        IsDefault: true,
-        images: variantImages,
-    });
+    try {
+        await Variant.create({
+            productId: newProduct._id,
+            categoryId: category, // Added for convenience
+            color: (v0.color || "Default").trim(),
+            colorCode: v0.colorHex || "#000000",
+            RAM: parseSpec(v0.ram || 0),
+            storage: parseSpec(v0.storage || 0),
+            price: Number(v0.price || 0),
+            stock: Number(v0.stock || 0),
+            SKU: v0.sku?.trim() || `SKU-${Date.now()}`,
+            IsActive: v0.isActive === "true" || v0.isActive === true,
+            IsDefault: true,
+            images: variantImages,
+        });
+    } catch (variantErr) {
+        // Rollback product creation if variant fails
+        await Product.findByIdAndDelete(newProduct._id);
+        throw variantErr;
+    }
 
     return newProduct;
 };
@@ -142,11 +178,15 @@ const updateProduct = async (id, body, files) => {
         sku
     } = body;
 
+    if (!productName || !description) {
+        throw new Error("Product name and description are required");
+    }
+
     await Product.findByIdAndUpdate(id, {
         productName: productName.trim(),
         description: description.trim(),
         categoryId: category,
-        status,
+        status: status || "active",
     });
 
     const defaultVariant = await Variant.findOne({ productId: id, IsDefault: true });
@@ -164,10 +204,18 @@ const updateProduct = async (id, body, files) => {
         if (sku) updates.SKU = sku.trim();
 
         const newImages = (files || [])
-            .filter(f => f.fieldname.startsWith("newImages") || f.fieldname.startsWith("variantImages"))
+            .filter(f => 
+                f.fieldname === 'images' || 
+                f.fieldname === 'images[]' ||
+                f.fieldname.startsWith('newImages') || 
+                f.fieldname.startsWith('variantImages')
+            )
             .map(f => f.path);
 
         if (newImages.length > 0) {
+            if (newImages.length !== 3) {
+                throw new Error("Exactly 3 product images are required. Please upload all 3 images if you are making changes.");
+            }
             updates.images = newImages;
         }
 

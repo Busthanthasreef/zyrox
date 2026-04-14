@@ -1,37 +1,40 @@
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
-import pkg from "multer-storage-cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import dotenv from "dotenv";
-
-// മുമ്പത്തെ എറർ ഒഴിവാക്കാൻ ഈ രീതി ഉപയോഗിക്കുക
-const CloudinaryStorage = pkg.CloudinaryStorage || pkg;
 
 dotenv.config();
 
+// Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Configure Multer Storage for Cloudinary (V4+ API)
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: (req, file, cb) => {
+  params: async (req, file) => {
     let folderName = "zyrox-uploads";
 
     if (file.fieldname === "profileImage") {
       folderName = "zyrox/profile";
-    } else if (file.fieldname === "images" || file.fieldname.startsWith("variantImages") || file.fieldname.startsWith("newImages")) {
+    } else if (
+      file.fieldname === "images" || 
+      file.fieldname.startsWith("variantImages") || 
+      file.fieldname.startsWith("newImages")
+    ) {
       folderName = "zyrox/products";
     }
 
     const cleanFileName = file.originalname.split(".")[0].replace(/\s+/g, "-");
 
-    cb(null, {
+    return {
       folder: folderName,
       allowed_formats: ["jpg", "jpeg", "png", "webp"],
       public_id: `${Date.now()}-${cleanFileName}`,
-    });
+    };
   },
 });
 

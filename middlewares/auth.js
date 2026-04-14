@@ -24,7 +24,7 @@ const isAdminGuest = (req, res, next) => {
 const isUserAuthenticated = (req, res, next) => {
   if (!req.session.user) {
     // Save the page they were trying to visit so we can redirect back after login
-    req.session.returnTo = req.originalUrl;
+    req.session.returnTo = '/';
     return res.redirect("/signin");
   }
   next();

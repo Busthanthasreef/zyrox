@@ -6,11 +6,7 @@ import wishlistSchema  from "../../models/wishlist.js";
 import { validateVariantForCart, MAX_CART_QTY } from "../../services/userServices/productService.js";
 
 
-/* ═══════════════════════════════════════════════════════════════
-   LOAD CART
-   - Paginated list of cart items (4 per page)
-   - Calculates subtotal across ALL items (not just current page)
-═══════════════════════════════════════════════════════════════ */
+
 const loadCart = async (req, res) => {
   try {
     if (!req.session.user) return res.redirect("/signin");
