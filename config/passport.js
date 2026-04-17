@@ -35,6 +35,7 @@ passport.use(
           Name: profile.displayName,
           Email: profile.emails[0].value,
           googleId: profile.id,
+          Profile_image: profile.photos && profile.photos.length > 0 ? profile.photos[0].value : undefined,
           isAdmin: false,
           isActive: true,
           createdAt: new Date(),

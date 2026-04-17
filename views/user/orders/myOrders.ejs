@@ -701,7 +701,8 @@
                 <div class="modal-body">
                     <p class="text-muted small mb-2" id="itemNameText"></p>
                     <label class="form-label text-white small">Reason</label>
-                    <select id="actionReason" class="form-select bg-dark text-white border-secondary mb-3">
+                    <select id="actionReason" class="form-select bg-dark text-white border-secondary mb-3"
+                        onchange="handleReasonChange()">
                         <option value="" selected disabled>Choose reason...</option>
 
                         <optgroup label="Purchase Issues">
@@ -721,9 +722,15 @@
                             <option value="better_price">Found a better price</option>
                             <option value="no_longer_needed">No longer needed</option>
                             <option value="too_difficult">Too difficult to use</option>
-                            <option value="others">Others</option>
+                            <option value="other">Others</option>
                         </optgroup>
                     </select>
+
+                    <div id="otherReasonWrapper" style="display: none;">
+                        <label class="form-label text-white small">Please specify your reason</label>
+                        <textarea id="otherReasonInput" class="form-control bg-dark text-white border-secondary"
+                            rows="3" placeholder="Enter your reason here..."></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer border-secondary">
                     <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
@@ -749,7 +756,14 @@
             }, 0);
         }
 
+        function resetModal() {
+            document.getElementById('actionReason').value = '';
+            document.getElementById('otherReasonWrapper').style.display = 'none';
+            document.getElementById('otherReasonInput').value = '';
+        }
+
         function openItemCancelModal(oId, iId, name) {
+            resetModal();
             selectedOrder = oId; selectedItem = iId; actionType = 'cancel';
             document.getElementById('modalTitle').innerText = 'Cancel Individual Item';
             document.getElementById('itemNameText').innerText = 'Product: ' + name;
@@ -758,6 +772,7 @@
         }
 
         function openItemReturnModal(oId, iId, name) {
+            resetModal();
             selectedOrder = oId; selectedItem = iId; actionType = 'return';
             document.getElementById('modalTitle').innerText = 'Return Individual Item';
             document.getElementById('itemNameText').innerText = 'Product: ' + name;
@@ -765,12 +780,29 @@
             new bootstrap.Modal(document.getElementById('itemActionModal')).show();
         }
 
+        function handleReasonChange() {
+            const reason = document.getElementById('actionReason').value;
+            const otherWrapper = document.getElementById('otherReasonWrapper');
+            if (reason === 'other') {
+                otherWrapper.style.display = 'block';
+            } else {
+                otherWrapper.style.display = 'none';
+            }
+        }
+
         function submitItemAction() {
             const r = document.getElementById('actionReason').value;
             if (!r) return Swal.fire('Error', 'Select reason', 'error');
 
+            let finalReason = r;
+            if (r === 'other') {
+                const otherVal = document.getElementById('otherReasonInput').value.trim();
+                if (!otherVal) return Swal.fire('Error', 'Please provide a reason', 'error');
+                finalReason = otherVal;
+            }
+
             let url = '';
-            let payload = { orderId: selectedOrder, reason: r };
+            let payload = { orderId: selectedOrder, reason: finalReason };
 
             if (actionType === 'cancel') {
                 url = '/cancel-item'; payload.itemId = selectedItem;
@@ -790,6 +822,7 @@
 
         // Global order action
         function openCancelModal(id) {
+            resetModal();
             selectedOrder = id; actionType = 'global_cancel';
             document.getElementById('modalTitle').innerText = 'Cancel Full Order';
             document.getElementById('itemNameText').innerText = 'This will cancel all items in this order.';
@@ -798,6 +831,7 @@
         }
 
         function openReturnModal(id) {
+            resetModal();
             selectedOrder = id; actionType = 'global_return';
             document.getElementById('modalTitle').innerText = 'Return Full Order';
             document.getElementById('itemNameText').innerText = 'This will request a return for all items in this order.';
@@ -808,8 +842,16 @@
         function submitGlobalAction() {
             const r = document.getElementById('actionReason').value;
             if (!r) return Swal.fire('Error', 'Select reason', 'error');
+
+            let finalReason = r;
+            if (r === 'other') {
+                const otherVal = document.getElementById('otherReasonInput').value.trim();
+                if (!otherVal) return Swal.fire('Error', 'Please provide a reason', 'error');
+                finalReason = otherVal;
+            }
+
             const url = actionType === 'global_cancel' ? '/cancel-order' : '/return-order';
-            axios.post(url, { orderId: selectedOrder, reason: r })
+            axios.post(url, { orderId: selectedOrder, reason: finalReason })
                 .then(res => {
                     if (res.data.success) location.reload();
                     else Swal.fire('Error', res.data.message, 'error');

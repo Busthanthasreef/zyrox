@@ -8,6 +8,8 @@ import Categories from "../../models/category.js";
 import bcrypt from "bcryptjs";
 import { sendOtpEmail } from "../../utils/otpController.js";
 import generateOtp from "../../utils/otpGenerator.js";
+import { generateReferralCode, rewardReferrer } from "../../utils/referralHelper.js";
+import Wallet from "../../models/wallet.js";
 
 /* =========================
    LANDING PAGE
@@ -33,10 +35,10 @@ const landingPage = async (req, res) => {
       }
     }
 
-    const trendingProducts = await Product.find({ status: 'active', IsDeleted: false }).limit(4);
+    const trendingProducts = await Product.find({ status: { $ne: 'inactive' }, IsDeleted: { $ne: true } }).limit(4);
     const trendingVariants = [];
     for (const p of trendingProducts) {
-      const v = await Variant.findOne({ productId: p._id, IsActive: true, IsDeleted: false });
+      const v = await Variant.findOne({ productId: p._id, IsActive: { $ne: false }, IsDeleted: { $ne: true } });
       if (v) trendingVariants.push({ product: p, variant: v });
     }
 
@@ -62,6 +64,11 @@ const loadSignUp = (req, res) => {
 
   delete req.session.signupErrors;
   delete req.session.signupData;
+
+  // Referral capture
+  if (req.query.ref) {
+    req.session.referredByCode = req.query.ref;
+  }
 
   res.render("user/auth/signUpPage", {
     nameError: signupErrors.Name || null,
@@ -164,6 +171,17 @@ const verifyEmail = async (req, res) => {
       return res.redirect("/otp-verification");
     }
 
+    // Referral logic
+    let referredBy = null;
+    if (req.session.referredByCode) {
+      const referrer = await userSchema.findOne({ referralCode: req.session.referredByCode });
+      if (referrer) {
+        referredBy = referrer._id;
+      }
+    }
+
+    const referralCode = await generateReferralCode();
+
     const newUser = await userSchema.create({
       Name,
       Email,
@@ -172,7 +190,26 @@ const verifyEmail = async (req, res) => {
       isAdmin: false,
       isActive: true,
       createdAt: new Date(),
+      referralCode,
+      referredBy
     });
+
+    // Create Wallet for new user
+    let newUserWallet = await Wallet.create({
+      user_id: newUser._id,
+      balance: referredBy ? 50 : 0 // Bonus for being referred
+    });
+
+    if (referredBy) {
+      await rewardReferrer(referredBy, newUser._id);
+      
+      // Update referrer's wallet
+      const referrerWallet = await Wallet.findOne({ user_id: referredBy });
+      if (referrerWallet) {
+        referrerWallet.balance += 100; // Reward for referring
+        await referrerWallet.save();
+      }
+    }
 
     await otpSchema.deleteMany({ Email });
     req.session.lastEmail = Email;
@@ -243,7 +280,8 @@ const loadSignIn = (req, res) => {
 
 const userSignIn = async (req, res) => {
   try {
-    const { Email, Password } = req.body;
+    const Email = req.body.email || req.body.Email;
+    const Password = req.body.password || req.body.Password;
     const trimmedEmail = Email ? Email.trim().toLowerCase() : "";
 
     const emailRegex = /^[a-zA-Z0-9+._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

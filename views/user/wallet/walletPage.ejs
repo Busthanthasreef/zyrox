@@ -50,7 +50,7 @@
             font-family: 'DM Sans', sans-serif;
             background: var(--bg-deep);
             color: var(--text-primary);
-            min-height: 100vh;
+            /* min-height: 100vh; */
         }
 
         /* ── NAVBAR ── */
@@ -123,120 +123,170 @@
         /* ── LAYOUT ── */
         .page-wrapper {
             display: flex;
-            /* min-height: calc(100vh - 58px); */
+            min-height: 100vh;
         }
 
         /* ── MAIN CONTENT ── */
         .main-content {
             flex: 1;
-            padding: 2.5rem 2.5rem 3rem;
-            overflow-y: auto;
+            padding: 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-deep);
+            max-width: 1300px;
+            width: 100%;
+        }
+
+        .page-header {
+            margin-bottom: 1.25rem;
         }
 
         .page-title {
             font-family: 'Syne', sans-serif;
-            font-size: 1.6rem;
-            font-weight: 700;
+            font-size: 1.75rem;
+            font-weight: 800;
             color: var(--text-primary);
-            margin-bottom: .25rem;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.5px;
         }
 
         .page-subtitle {
-            font-size: .82rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            margin-bottom: 2rem;
+            max-width: 600px;
         }
 
         /* ── BALANCE CARD ── */
         .balance-card {
-            background: linear-gradient(135deg, #0f1d35 0%, #0d1828 50%, #0a1520 100%);
+            background: linear-gradient(135deg, #151b31 0%, #0d1221 100%);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 2rem 2rem 1.75rem;
-            margin-bottom: 2rem;
+            border-radius: 18px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
             box-shadow: var(--card-shadow);
             position: relative;
             overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .balance-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            border-color: rgba(0, 230, 118, 0.2);
         }
 
         .balance-card::before {
             content: '';
             position: absolute;
-            top: -60px;
-            right: -60px;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(0, 230, 118, 0.08) 0%, transparent 70%);
+            top: -50px;
+            right: -50px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(0, 230, 118, 0.1) 0%, transparent 70%);
             pointer-events: none;
         }
 
+        .balance-main {
+            flex: 1;
+            min-width: 280px;
+        }
+
         .balance-label {
-            font-size: .7rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: 700;
             letter-spacing: 1.5px;
             text-transform: uppercase;
             color: var(--text-muted);
-            margin-bottom: .75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .balance-label i {
+            color: var(--accent-green);
         }
 
         .balance-amount {
             font-family: 'Syne', sans-serif;
-            font-size: 2.8rem;
+            font-size: 2.4rem;
             font-weight: 800;
-            color: var(--text-primary);
+            color: #fff;
             letter-spacing: -1px;
             line-height: 1;
-            margin-bottom: 1.25rem;
-        }
-
-        .balance-note {
+            margin-bottom: 1rem;
             display: flex;
-            align-items: center;
-            gap: .45rem;
-            font-size: .78rem;
-            color: var(--text-muted);
+            align-items: baseline;
+            gap: 0.4rem;
         }
 
-        .balance-note i {
+        .balance-amount .currency-symbol {
+            font-size: 1.4rem;
             color: var(--accent-green);
-            font-size: .85rem;
+            font-weight: 700;
+        }
+
+        .balance-note-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .balance-note-pill i {
+            color: var(--accent-green);
+            font-size: 0.8rem;
         }
 
         .btn-add-money {
             background: var(--accent-green);
             color: #000;
-            font-family: 'DM Sans', sans-serif;
-            font-weight: 700;
-            font-size: .82rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            font-size: 0.9rem;
             border: none;
-            border-radius: 9px;
-            padding: .6rem 1.25rem;
+            border-radius: 12px;
+            padding: 0.85rem 1.75rem;
             display: inline-flex;
             align-items: center;
-            gap: .5rem;
+            gap: 0.6rem;
             box-shadow: var(--green-glow);
-            transition: all .2s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
             white-space: nowrap;
         }
 
         .btn-add-money:hover {
-            background: #00ff85;
-            transform: translateY(-1px);
-            box-shadow: 0 0 28px rgba(0, 230, 118, 0.5);
+            background: #fff;
+            color: #000;
+            transform: scale(1.05);
+            box-shadow: 0 0 35px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-add-money i {
+            font-size: 1.2rem;
         }
 
         /* ── TRANSACTION SECTION ── */
         .section-heading {
             font-family: 'Syne', sans-serif;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 1.25rem;
+            margin: 0.5rem 0 1rem;
             display: flex;
             align-items: center;
-            gap: .5rem;
+            gap: 0.6rem;
         }
 
         .section-heading i {
@@ -244,52 +294,57 @@
             font-size: 1.1rem;
         }
 
-        /* ── TABLE ── */
+        /* ── TABLE (REFINED) ── */
         .txn-table-wrap {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: 16px;
             overflow: hidden;
             box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            min-height: 350px;
+        }
+
+        .txn-table-container {
+            flex-grow: 1;
+            overflow-x: auto;
         }
 
         .txn-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: .83rem;
         }
 
         .txn-table thead tr {
-            background: var(--bg-row);
+            background: rgba(255, 255, 255, 0.02);
             border-bottom: 1px solid var(--border);
         }
 
         .txn-table thead th {
-            padding: .9rem 1.2rem;
-            font-size: .7rem;
-            font-weight: 600;
-            letter-spacing: 1px;
+            padding: 1rem 1.25rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
             text-transform: uppercase;
             color: var(--text-muted);
+            text-align: left;
             white-space: nowrap;
         }
 
         .txn-table tbody tr {
             border-bottom: 1px solid var(--border);
-            transition: background .15s;
-        }
-
-        .txn-table tbody tr:last-child {
-            border-bottom: none;
+            transition: background 0.2s;
         }
 
         .txn-table tbody tr:hover {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .txn-table tbody td {
-            padding: 1rem 1.2rem;
+            padding: 0.85rem 1.25rem;
             color: var(--text-primary);
+            font-size: 0.85rem;
             vertical-align: middle;
         }
 
@@ -730,33 +785,36 @@
     <div class="page-wrapper">
 
         <!-- ── SIDEBAR ── -->
-        <%- include('../../partials/user/profileSidebar', { activePage: 'profile' }) %>
+        <%- include('../../partials/user/profileSidebar', { activePage: 'wallet' }) %>
 
 
             <!-- ── MAIN ── -->
             <main class="main-content">
 
-                <h1 class="page-title">My Wallet</h1>
-                <p class="page-subtitle">Manage your balance, view transaction history, and top-up your account.</p>
+                <header class="page-header">
+                    <h1 class="page-title">My Wallet</h1>
+                    <p class="page-subtitle">Your secure digital wallet for faster checkouts and easy refunds.</p>
+                </header>
 
-                <!-- Balance Card -->
+                <!-- Premium Balance Card -->
                 <div class="balance-card">
-                    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
-                        <div>
-                            <div class="balance-label">Available Balance</div>
-                            <div class="balance-amount">
-                                ₹<%= (wallet && wallet.balance ? wallet.balance : 0).toLocaleString('en-IN', {
-                                    minimumFractionDigits: 2 }) %>
-                            </div>
-                            <div class="balance-note mt-2">
-                                <i class="bi bi-check-circle-fill"></i>
-                                Wallet balance can be used for purchases and refunds.
-                            </div>
+                    <div class="balance-main">
+                        <div class="balance-label">
+                            <i class="bi bi-shield-lock-fill"></i> Available Balance
                         </div>
-                        <button class="btn-add-money">
-                            <i class="bi bi-plus-circle-fill"></i> Add Money
-                        </button>
+                        <div class="balance-amount">
+                            <span class="currency-symbol">₹</span>
+                            <%= (wallet && wallet.balance ? wallet.balance : 0).toLocaleString('en-IN', {
+                                minimumFractionDigits: 2 }) %>
+                        </div>
+                        <div class="balance-note-pill">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Ready for instant transactions & easy refunds</span>
+                        </div>
                     </div>
+                    <button class="btn-add-money">
+                        <i class="bi bi-plus-circle-fill"></i> Add Money
+                    </button>
                 </div>
 
                 <!-- Transaction History -->
@@ -765,74 +823,77 @@
                 </div>
 
                 <div class="txn-table-wrap">
-                    <table class="txn-table">
-                        <thead>
-                            <tr>
-                                <th>Date &amp; Time</th>
-                                <th>Transaction ID</th>
-                                <th>Order ID</th>
-                                <th>Description</th>
-                                <th>Status</th>
-                                <th class="text-end">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <div class="txn-table-container">
+                        <table class="txn-table">
+                            <thead>
+                                <tr>
+                                    <th>Date &amp; Time</th>
+                                    <th>Transaction ID</th>
+                                    <th>Order ID</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
 
-                            <% if (transactions && transactions.length> 0) { %>
-                                <% transactions.forEach(txn=> { %>
-                                    <tr>
-                                        <td>
-                                            <div class="fw-500">
-                                                <%= new Date(txn.Payment_date).toLocaleDateString('en-US', {
-                                                    month: 'short' , day: 'numeric' , year: 'numeric' }) %>
-                                            </div>
-                                            <div class="txn-date">
-                                                <%= new Date(txn.Payment_time).toLocaleTimeString('en-US', {
-                                                    hour: '2-digit' , minute: '2-digit' }) %>
-                                            </div>
-                                        </td>
-                                        <td class="txn-id">
-                                            <%= txn._id.toString().substring(0, 12).toUpperCase() %>
-                                        </td>
-                                        <td>
-                                            <% if (txn.Order_id) { %>
-                                                <a href="/myOrders/details?id=<%= txn.Order_id %>"
-                                                    class="order-link">#ORD-<%= txn.Order_id.toString().substring(0,
-                                                        8).toUpperCase() %></a>
-                                                <% } else { %>
-                                                    <span class="text">N/A</span>
-                                                    <% } %>
-                                        </td>
-                                        <td>
-                                            <%= txn.Description %>
-                                        </td>
-                                        <td>
-                                            <% if (txn.Amount> 0) { %>
-                                                <span class="badge-status badge-success"><i
-                                                        class="bi bi-arrow-down-circle"></i> Credit</span>
-                                                <% } else { %>
-                                                    <span class="badge-status badge-danger"><i
-                                                            class="bi bi-arrow-up-circle"></i> Debit</span>
-                                                    <% } %>
-                                        </td>
-                                        <td class="text-end <%= txn.Amount > 0 ? 'amount-credit' : 'amount-debit' %>">
-                                            <%= txn.Amount> 0 ? '+' : '' %>₹<%=
-                                                    Math.abs(txn.Amount).toLocaleString('en-IN', {
-                                                    minimumFractionDigits: 2 }) %>
-                                        </td>
-                                    </tr>
-                                    <% }) %>
-                                        <% } else { %>
-                                            <tr>
-                                                <td colspan="6" class="text-center py-5">
-                                                    <div class="text-muted mb-2"><i class="bi bi-wallet2 fs-2"></i>
-                                                    </div>
-                                                    <div class="text-muted">No transactions found.</div>
-                                                </td>
-                                            </tr>
-                                            <% } %>
-                        </tbody>
-                    </table>
+                                <% if (transactions && transactions.length> 0) { %>
+                                    <% transactions.forEach(txn=> { %>
+                                        <tr>
+                                            <td>
+                                                <div class="fw-500">
+                                                    <%= new Date(txn.Payment_date).toLocaleDateString('en-US', {
+                                                        month: 'short' , day: 'numeric' , year: 'numeric' }) %>
+                                                </div>
+                                                <div class="txn-date">
+                                                    <%= new Date(txn.Payment_time).toLocaleTimeString('en-US', {
+                                                        hour: '2-digit' , minute: '2-digit' }) %>
+                                                </div>
+                                            </td>
+                                            <td class="txn-id">
+                                                <%= txn._id.toString().substring(0, 12).toUpperCase() %>
+                                            </td>
+                                            <td>
+                                                <% if (txn.Order_id) { %>
+                                                    <a href="/myOrders/details?id=<%= txn.Order_id %>"
+                                                        class="order-link">#ORD-<%= txn.Order_id.toString().substring(0,
+                                                            8).toUpperCase() %></a>
+                                                    <% } else { %>
+                                                        <span class="text">N/A</span>
+                                                        <% } %>
+                                            </td>
+                                            <td>
+                                                <%= txn.Description %>
+                                            </td>
+                                            <td>
+                                                <% if (txn.Amount> 0) { %>
+                                                    <span class="badge-status badge-success"><i
+                                                            class="bi bi-arrow-down-circle"></i> Credit</span>
+                                                    <% } else { %>
+                                                        <span class="badge-status badge-danger"><i
+                                                                class="bi bi-arrow-up-circle"></i> Debit</span>
+                                                        <% } %>
+                                            </td>
+                                            <td
+                                                class="text-end <%= txn.Amount > 0 ? 'amount-credit' : 'amount-debit' %>">
+                                                <%= txn.Amount> 0 ? '+' : '' %>₹<%=
+                                                        Math.abs(txn.Amount).toLocaleString('en-IN', {
+                                                        minimumFractionDigits: 2 }) %>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="6" class="text-center py-5">
+                                                        <div class="text-muted mb-2"><i class="bi bi-wallet2 fs-2"></i>
+                                                        </div>
+                                                        <div class="text-muted">No transactions found.</div>
+                                                    </td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <!-- Pagination -->
                     <% if (totalPages> 1) { %>

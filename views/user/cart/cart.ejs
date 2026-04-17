@@ -517,7 +517,7 @@
             width: 100%;
             margin-top: 16px;
             padding: 13px;
-            background: linear-gradient(135deg, #e09a45);
+            background: linear-gradient(135deg, #e09a45, #d97706);
             border: none;
             border-radius: 9px;
             color: #fff;
@@ -669,6 +669,7 @@
                                         <div class="cart-row <%= isUnavailable ? 'out-of-stock-row' : '' %>"
                                             id="row-<%= item.variantId %>" data-variant="<%= item.variantId %>"
                                             data-product="<%= item.productId %>" data-price="<%= item.product.price %>"
+                                            data-original-price="<%= item.product.originalPrice %>"
                                             data-stock="<%= item.product.stock || 0 %>"
                                             data-admin-inactive="<%= isAdminInactive %>"
                                             style="animation-delay: <%= idx * 0.06 %>s">
@@ -723,7 +724,7 @@
                                                     </span>
                                                     <button class="qty-btn" <%=(isUnavailable || item.quantity>=
                                                         Math.min(3,
-                                                        item.product.stock - 1)) ?
+                                                        item.product.stock)) ?
                                                         'disabled' : '' %>
                                                         onclick="changeQty('<%= item.variantId %>', '<%= item.productId
                                                                 %>',
@@ -756,13 +757,23 @@
                                                             ₹<%= (item.product.price *
                                                                 item.quantity).toLocaleString('en-IN') %>
                                                         </div>
-                                                        <div class="price-unit">₹<%=
-                                                                item.product.price.toLocaleString('en-IN') %> each</div>
-                                                        <% } %>
+
+                                                        <% if (item.product.price < item.product.originalPrice) { %>
+                                                            <div class="price-unit"
+                                                                style="text-decoration: line-through; color: var(--muted); font-size: 0.6rem;">
+                                                                ₹<%= item.product.originalPrice.toLocaleString('en-IN')
+                                                                    %>
+                                                            </div>
+                                                            <% } %>
+
+                                                                <div class="price-unit">₹<%=
+                                                                        item.product.price.toLocaleString('en-IN') %>
+                                                                        each</div>
+                                                                <% } %>
                                             </div>
 
                                             <!-- Remove -->
-                                            <button class="remove-btn"
+                                            <button type="button" class="remove-btn"
                                                 onclick="removeItem('<%= item.variantId %>', '<%= item.productId %>')"
                                                 title="Remove">
                                                 <i class="fas fa-trash-alt"></i>
@@ -837,8 +848,8 @@
                         <span class="total-value" id="summary-total">₹<%= total.toLocaleString('en-IN') %></span>
                     </div>
 
-                    <button class="btn-checkout" id="checkoutBtn" onclick="proceedCheckout()" <%=cartItems &&
-                        cartItems.length> 0 ? '' : 'disabled' %>>
+                    <button type="button" class="btn-checkout" id="checkoutBtn" onclick="proceedCheckout()" <%=cartItems
+                        && cartItems.length> 0 ? '' : 'disabled' %>>
                         <i class="fas fa-lock" style="font-size:.68rem;"></i>
                         Proceed to Checkout
                     </button>
@@ -883,10 +894,11 @@
             document.querySelectorAll('.cart-row').forEach(row => {
                 const vid = row.dataset.variant;
                 const price = parseFloat(row.dataset.price);
+                const originalPrice = parseFloat(row.dataset.originalPrice);
                 const stock = parseInt(row.dataset.stock, 10);
                 const qty = parseInt(document.getElementById('qty-' + vid)?.textContent || '1', 10);
                 const isAdminInactive = row.dataset.adminInactive === 'true';
-                cartState[vid] = { price, stock, qty, isAdminInactive };
+                cartState[vid] = { price, originalPrice, stock, qty, isAdminInactive };
             });
 
             /* ═══════════════════════════════════════════
@@ -968,12 +980,12 @@
                     document.getElementById('price-' + variantId).textContent =
                         '₹' + rowPrice.toLocaleString('en-IN');
 
-                    const stockLimit = state.stock;
+                    const stockLimitLocal = state.stock;
                     document.getElementById('minus-' + variantId).disabled = newQty <= 1;
-                    document.getElementById('plus-' + variantId).disabled = newQty >= MAX_QTY || newQty >= stockLimit;
+                    document.getElementById('plus-' + variantId).disabled = newQty >= MAX_QTY || newQty >= stockLimitLocal;
 
-                    // Recalculate summary
-                    recalcSummary();
+                    // Update summary from server data
+                    recalcSummary(data.subtotal, data.discount, data.total);
 
                 } catch (err) {
                     Swal.fire({
@@ -1068,20 +1080,25 @@
             /* ═══════════════════════════════════════════
                RECALCULATE SUMMARY (client-side)
             ═══════════════════════════════════════════ */
-            function recalcSummary() {
-                let subtotal = 0;
-                // Exclude admin-inactive and out-of-stock items from the total
-                Object.values(cartState).forEach(s => {
-                    if (!s.isAdminInactive && s.price > 0) {
-                        subtotal += s.price * s.qty;
-                    }
-                });
+            function recalcSummary(srvSubtotal, srvDiscount, srvTotal) {
+                let subtotal = srvSubtotal;
+                let discount = srvDiscount;
+                let total = srvTotal;
 
-                const discount = 0;
-                const shipping = 0;
-                const total = subtotal - discount + shipping;
+                if (srvSubtotal === undefined) {
+                    subtotal = 0;
+                    discount = 0;
+                    Object.values(cartState).forEach(s => {
+                        if (!s.isAdminInactive && s.price > 0) {
+                            subtotal += s.originalPrice * s.qty;
+                            discount += (s.originalPrice - s.price) * s.qty;
+                        }
+                    });
+                    total = subtotal - discount;
+                }
 
                 document.getElementById('summary-subtotal').textContent = '₹' + subtotal.toLocaleString('en-IN');
+                document.getElementById('summary-discount').textContent = discount > 0 ? '−₹' + discount.toLocaleString('en-IN') : '₹0.00';
                 document.getElementById('summary-total').textContent = '₹' + total.toLocaleString('en-IN');
 
                 checkOOS();
@@ -1097,8 +1114,8 @@
                 });
 
                 // hasUnavailableItems comes from server-side loadCart
-                const hasGlobalUnavailable = <%= typeof hasUnavailableItems !== 'undefined' ? hasUnavailableItems : false %>;
-                const isEmpty = <%= typeof cartItemCount !== 'undefined' ? (cartItemCount === 0) : true %>;
+                const hasGlobalUnavailable = <%= typeof hasUnavailableItems !== 'undefined' ? (hasUnavailableItems ? 'true' : 'false') : 'false' %>;
+                const isEmpty = <%= typeof cartItemCount !== 'undefined' ? (cartItemCount === 0 ? 'true' : 'false') : 'true' %>;
 
                 const btn = document.getElementById('checkoutBtn');
                 const warn = document.getElementById('oosWarning');

@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zyrox – Offers Management</title>
+    <meta name="description"
+        content="Manage product-specific and category-wide offers, discounts, and promotional campaigns on Zyrox.">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap"
+        rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
+    <style>
+        :root {
+            --bg-light: #f8f9fadb;
+            --accent-orange: #c86b45;
+            --text-main: #333;
+            --card-radius: 20px;
+            --primary-black: #1a1a1a;
+            --border-color: #e5e7eb;
+            --input-focus: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        .main-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 2.5rem;
+            background: white;
+            margin: 1.5rem;
+            border-radius: var(--card-radius);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-section h1 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ── TABLE AESTHETICS ── */
+        .filter-bar {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .search-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .search-wrapper input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        .offer-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .offer-table th {
+            background: #f9f9fb;
+            padding: 1.2rem;
+            font-weight: 600;
+            color: #666;
+            font-size: 0.85rem;
+            text-transform: none;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .offer-table td {
+            padding: 1.2rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f8f8f8;
+        }
+
+        .badge-pill-custom {
+            padding: 0.4rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 1px solid transparent;
+        }
+
+        .badge-category {
+            background: #eef2ff;
+            color: #4f46e5;
+            border-color: #e0e7ff;
+        }
+
+        .badge-product {
+            background: #fff7ed;
+            color: #ea580c;
+            border-color: #ffedd5;
+        }
+
+        .badge-status-active {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .badge-status-inactive {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .btn-add-offer {
+            background: var(--primary-black);
+            color: #fff;
+            padding: 0.7rem 1.8rem;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add-offer:hover {
+            background: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            color: #fff;
+        }
+
+        /* ── MODAL STYLING ── */
+        .modal-content {
+            border-radius: 28px;
+            border: none;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #f1f1f1;
+            padding: 2rem 2.5rem 1rem;
+        }
+
+        .modal-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.75rem;
+        }
+
+        .modal-body {
+            padding: 2rem 2.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-label span {
+            color: #ef4444;
+        }
+
+        .zyrax-input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .zyrax-input {
+            border: 1.5px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            color: #1f2937;
+            transition: all 0.2s;
+            background: #f9fafb;
+        }
+
+        .zyrax-input:focus {
+            background: #fff;
+            border-color: var(--primary-black);
+            box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+            outline: none;
+        }
+
+        .option-card-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .option-card {
+            position: relative;
+            background: #f9fafb;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .option-card:hover {
+            border-color: #d1d5db;
+        }
+
+        .option-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .option-card .radio-indicator {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .option-card input[type="radio"]:checked+.radio-indicator {
+            border-color: var(--primary-black);
+            background: var(--primary-black);
+        }
+
+        .option-card input[type="radio"]:checked+.radio-indicator::after {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .option-card.active {
+            border-color: var(--primary-black);
+            background: #fff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .date-input-wrapper {
+            position: relative;
+        }
+
+        .date-input-wrapper i {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            pointer-events: none;
+        }
+
+        .gray-box {
+            background: #f9fafb;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid #f1f1f1;
+        }
+
+        .btn-submit {
+            background: var(--primary-black);
+            color: white;
+            border: none;
+            padding: 1rem;
+            width: 100%;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: #000;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background: #fff;
+            border-radius: 12px;
+            border: 1.5px solid #e5e7eb;
+        }
+
+        .form-switch .form-check-input {
+            width: 3rem;
+            height: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-switch .form-check-input:checked {
+            background-color: var(--primary-black);
+            border-color: var(--primary-black);
+        }
+
+        .btn-action {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1.5px solid #f1f1f1;
+            background: #fff;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            border-color: var(--primary-black);
+            color: var(--primary-black);
+        }
+
+        .btn-action.delete:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .empty-state {
+            padding: 5rem 2rem;
+            text-align: center;
+            background: white;
+            border-radius: var(--card-radius);
+            margin-top: 2rem;
+            border: 1px dashed #ddd;
+        }
+
+        /* Validation Styles */
+        .zyrax-input.is-invalid {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .zyrax-input.is-invalid+.error-message,
+        .input-group+.error-message,
+        .date-input-wrapper+.error-message {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-wrapper">
+        <%- include('../../partials/admin/sidebar', { currentPage: 'offers' ,currentUser:admin }) %>
+
+            <div class="content-area">
+                <div class="header-section d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1>Offers</h1>
+                        <p class="text-muted">Manage discounts, coupons, and special product offers.</p>
+                    </div>
+                    <button class="btn-add-offer" onclick="openAddModal()">
+                        <i class="bi bi-plus-circle-fill"></i> Add Offer
+                    </button>
+                </div>
+
+                <div class="filter-bar">
+                    <div class="search-wrapper">
+                        <i class="bi bi-search"></i>
+                        <input type="text" placeholder="Search offers by name..." id="offerSearch">
+                    </div>
+                    <div class="d-flex gap-3">
+                        <select class="form-select border-0 shadow-none border-bottom" id="typeFilter"
+                            style="width: 140px; cursor: pointer;" onchange="applyFilters()">
+                            <option value="all">All Types</option>
+                            <option value="product">Product</option>
+                            <option value="category">Category</option>
+                        </select>
+                        <select class="form-select border-0 shadow-none border-bottom" id="statusFilter"
+                            style="width: 140px; cursor: pointer;" onchange="applyFilters()">
+                            <option value="all">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive <%= totalOffers === 0 ? 'd-none' : '' %>" id="offersTableContainer">
+                    <table class="offer-table">
+                        <thead>
+                            <tr>
+                                <th>Offer Details</th>
+                                <th>Type</th>
+                                <th>Discount</th>
+                                <th>Conditions</th>
+                                <th>Validity</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% offers.forEach(offer=> { %>
+                                <tr data-type="<%= offer.offerType %>"
+                                    data-status="<%= offer.isActive ? 'active' : 'inactive' %>">
+                                    <td>
+                                        <div class="fw-600 text-dark">
+                                            <%= offer.offerName %>
+                                        </div>
+                                        <div class="text-muted small">
+                                            <i class="bi bi-tag-fill me-1"></i>
+                                            <%= offer.offerType==='product' ? offer.productId?.productName :
+                                                offer.categoryId?.categoryName %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge-pill-custom <%= offer.offerType === 'category' ? 'badge-category' : 'badge-product' %>">
+                                            <%= offer.offerType.charAt(0).toUpperCase() + offer.offerType.slice(1) %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-dark">
+                                            <%= offer.discountType==='percentage' ? offer.discountValue + '%' : '₹' +
+                                                offer.discountValue %> Off
+                                        </div>
+                                        <div class="text-muted small">
+                                            <%= offer.discountType.charAt(0).toUpperCase() + offer.discountType.slice(1)
+                                                %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <% if(offer.discountType==='flat' ) { %>
+                                            <div class="text-muted small">Min Purchase: <strong>₹<%=
+                                                        offer.minPurchaseAmount %></strong></div>
+                                            <% } else { %>
+                                                <div class="text-muted small">Max Discount: <strong>₹<%=
+                                                            offer.maxDiscountAmount || 'No Limit' %></strong></div>
+                                                <% } %>
+                                    </td>
+                                    <td>
+                                        <div class="small fw-500">
+                                            <%= new Date(offer.startDate).toLocaleDateString('en-US', { month: 'short' ,
+                                                day: '2-digit' , year: 'numeric' }) %>
+                                        </div>
+                                        <div class="text-muted small">to <%= new
+                                                Date(offer.endDate).toLocaleDateString('en-US', { month: 'short' ,
+                                                day: '2-digit' , year: 'numeric' }) %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge-pill-custom <%= offer.isActive ? 'badge-status-active' : 'badge-status-inactive' %>">
+                                            <%= offer.isActive ? 'Active' : 'Inactive' %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <button class="btn-action" onclick="openEditModal('<%= offer._id %>')"
+                                                title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn-action delete" onclick="deleteOffer('<%= offer._id %>')"
+                                                title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                            <div class="form-switch ms-2">
+                                                <input class="form-check-input" type="checkbox" <%=offer.isActive
+                                                    ? 'checked' : '' %> onclick="toggleStatus('<%= offer._id %>')">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="noOffersState" class="empty-state <%= totalOffers === 0 ? '' : 'd-none' %>">
+                    <i class="bi bi-ticket-perforated"
+                        style="font-size: 4rem; color: #e5e7eb; display: block; margin-bottom: 1rem;"></i>
+                    <h3>No Offers Yet</h3>
+                    <p class="text-muted">It looks like you haven't created any offers. Start by adding a new one to
+                        drive more sales!</p>
+                </div>
+            </div>
+    </div>
+
+    <!-- IMPROVED MODAL -->
+    <div class="modal fade" id="zyraxOfferModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Add New Offer</h5>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="offerForm">
+                        <input type="hidden" name="offerId" id="offerId">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="zyrax-input-group">
+                                    <label class="form-label">Offer Name <span>*</span></label>
+                                    <input type="text" name="offerName" id="offerName" class="form-control zyrax-input"
+                                        placeholder="e.g. Summer Sale 2024">
+                                    <div class="error-message" id="error-offerName">Please enter a valid offer name.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Discount Type <span>*</span></label>
+                                <div class="option-card-group">
+                                    <label class="option-card" data-radio-group="discountType">
+                                        <input type="radio" name="discountType" value="percentage" checked
+                                            onclick="toggleValFields()">
+                                        <div class="radio-indicator"></div>
+                                        <span>Percentage (%)</span>
+                                    </label>
+                                    <label class="option-card" data-radio-group="discountType">
+                                        <input type="radio" name="discountType" value="flat"
+                                            onclick="toggleValFields()">
+                                        <div class="radio-indicator"></div>
+                                        <span>Flat Amount (₹)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Apply To <span>*</span></label>
+                                <div class="option-card-group">
+                                    <label class="option-card" data-radio-group="offerType">
+                                        <input type="radio" name="offerType" value="product" checked
+                                            onclick="toggleApplyFields()">
+                                        <div class="radio-indicator"></div>
+                                        <span>Product</span>
+                                    </label>
+                                    <label class="option-card" data-radio-group="offerType">
+                                        <input type="radio" name="offerType" value="category"
+                                            onclick="toggleApplyFields()">
+                                        <div class="radio-indicator"></div>
+                                        <span>Category</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="zyrax-input-group">
+                                    <label class="form-label" id="targetLabel">Select Product <span>*</span></label>
+                                    <select name="targetId" id="targetId" class="form-select zyrax-input">
+                                        <option value="" disabled selected>Choose target...</option>
+                                    </select>
+                                    <div class="error-message" id="error-targetId">Please select a product or category.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="zyrax-input-group">
+                                    <label class="form-label">Discount Value <span>*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-transparent border-end-0" id="unitSymbol"
+                                            style="border-radius: 14px 0 0 14px; border: 1.5px solid #e5e7eb; border-right: none;">%</span>
+                                        <input type="number" name="discountValue" id="discountValue"
+                                            class="form-control zyrax-input" style="border-radius: 0 14px 14px 0;"
+                                            placeholder="0.00" step="0.01" min="0">
+                                    </div>
+                                    <div class="error-message" id="error-discountValue">Discount value must be a
+                                        positive number.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gray-box mb-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Min Purchase Amount (₹)</label>
+                                    <input type="number" name="minPurchaseAmount" id="minPurchaseAmount"
+                                        class="form-control zyrax-input" placeholder="0.00" step="0.01" min="0">
+                                    <div class="error-message" id="error-minPurchaseAmount">Minimum purchase must be
+                                        non-negative.</div>
+                                    <small class="text-muted" style="font-size: 0.75rem;">Minimum spent required to
+                                        apply offer</small>
+                                </div>
+                                <div class="col-md-6" id="maxDiscountWrapper">
+                                    <label class="form-label">Max Discount Amount (₹)</label>
+                                    <input type="number" name="maxDiscountAmount" id="maxDiscountAmount"
+                                        class="form-control zyrax-input" placeholder="0.00" step="0.01" min="0">
+                                    <div class="error-message" id="error-maxDiscountAmount">Max discount must be
+                                        non-negative.</div>
+                                    <small class="text-muted" style="font-size: 0.75rem;">Capped discount for percentage
+                                        offers</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="zyrax-input-group">
+                                    <label class="form-label">Start Date <span>*</span></label>
+                                    <div class="date-input-wrapper">
+                                        <input type="date" name="startDate" id="startDate"
+                                            class="form-control zyrax-input">
+                                        <i class="bi bi-calendar-event"></i>
+                                    </div>
+                                    <div class="error-message" id="error-startDate">Please select a valid start date.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="zyrax-input-group">
+                                    <label class="form-label">End Date <span>*</span></label>
+                                    <div class="date-input-wrapper">
+                                        <input type="date" name="endDate" id="endDate" class="form-control zyrax-input">
+                                        <i class="bi bi-calendar-check"></i>
+                                    </div>
+                                    <div class="error-message" id="error-endDate">Please select a valid end date.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="status-switch mb-4">
+                            <div>
+                                <div class="fw-600">Offer Visibility</div>
+                                <div class="text-muted small">Active offers are applied instantly to targets.</div>
+                            </div>
+                            <div class="form-switch">
+                                <input class="form-check-input" type="checkbox" name="isActive" id="isActive" checked>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-light py-3 flex-grow-1"
+                                style="border-radius: 14px; font-weight: 600;" data-bs-dismiss="modal">Discard</button>
+                            <button type="submit" class="btn-submit py-3 flex-grow-2 mt-0" id="saveBtn">Save
+                                Offer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="offers-data" type="application/json">
+        <%- JSON.stringify({ products, categories, currentOffers: offers }) %>
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const { products, categories, currentOffers } = JSON.parse(document.getElementById('offers-data').textContent);
+        const offerModal = new bootstrap.Modal(document.getElementById('zyraxOfferModal'));
+
+        // Handle Option Card Active States
+        function updateOptionCards() {
+            document.querySelectorAll('.option-card').forEach(card => {
+                const input = card.querySelector('input');
+                if (input.checked) {
+                    card.classList.add('active');
+                } else {
+                    card.classList.remove('active');
+                }
+            });
+        }
+
+        document.querySelectorAll('.option-card input').forEach(input => {
+            input.addEventListener('change', updateOptionCards);
+        });
+
+        // Search and Filter Logic
+        function applyFilters() {
+            const query = document.getElementById('offerSearch').value.toLowerCase();
+            const typeValue = document.getElementById('typeFilter').value;
+            const statusValue = document.getElementById('statusFilter').value;
+            const rows = document.querySelectorAll('.offer-table tbody tr');
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                const rowType = row.dataset.type;
+                const rowStatus = row.dataset.status;
+
+                const matchesSearch = text.includes(query);
+                const matchesType = typeValue === 'all' || rowType === typeValue;
+                const matchesStatus = statusValue === 'all' || rowStatus === statusValue;
+
+                row.style.display = (matchesSearch && matchesType && matchesStatus) ? '' : 'none';
+            });
+
+            const visibleRows = Array.from(rows).filter(r => r.style.display !== 'none');
+            const noOffersState = document.getElementById('noOffersState');
+            const tableContainer = document.getElementById('offersTableContainer');
+
+            if (visibleRows.length === 0) {
+                noOffersState.style.display = 'block';
+                noOffersState.querySelector('h3').textContent = 'No matching offers found';
+                tableContainer.style.display = 'none';
+            } else {
+                noOffersState.style.display = 'none';
+                tableContainer.style.display = 'block';
+            }
+        }
+
+        document.getElementById('offerSearch').addEventListener('input', applyFilters);
+
+        function toggleApplyFields() {
+            const type = document.querySelector('input[name="offerType"]:checked').value;
+            const select = document.getElementById('targetId');
+            const targetLabel = document.getElementById('targetLabel');
+
+            targetLabel.innerHTML = `Select ${type.charAt(0).toUpperCase() + type.slice(1)} <span>*</span>`;
+            select.innerHTML = '<option value="" disabled selected>Choose target...</option>';
+
+            const list = type === 'product' ? products : categories;
+            list.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item._id;
+                opt.textContent = type === 'product' ? item.productName : item.categoryName;
+                select.appendChild(opt);
+            });
+            updateOptionCards();
+        }
+
+        function toggleValFields() {
+            const discType = document.querySelector('input[name="discountType"]:checked').value;
+            const maxDiscInput = document.getElementById('maxDiscountAmount');
+            const unitSymbol = document.getElementById('unitSymbol');
+            const maxDiscWrapper = document.getElementById('maxDiscountWrapper');
+
+            if (discType === 'flat') {
+                maxDiscInput.disabled = true;
+                maxDiscInput.value = '';
+                unitSymbol.textContent = '₹';
+                maxDiscWrapper.style.opacity = '0.5';
+            } else {
+                maxDiscInput.disabled = false;
+                unitSymbol.textContent = '%';
+                maxDiscWrapper.style.opacity = '1';
+            }
+            updateOptionCards();
+        }
+
+        function openAddModal() {
+            clearValidationErrors();
+            document.getElementById('offerForm').reset();
+            document.getElementById('offerId').value = '';
+            document.getElementById('modalTitle').textContent = 'Add New Offer';
+            document.getElementById('saveBtn').textContent = 'Save Offer';
+
+            // Set default radios
+            document.querySelector('input[name="discountType"][value="percentage"]').checked = true;
+            document.querySelector('input[name="offerType"][value="product"]').checked = true;
+
+            toggleApplyFields();
+            toggleValFields();
+            offerModal.show();
+        }
+
+        function openEditModal(offerId) {
+            clearValidationErrors();
+            const data = currentOffers.find(o => o._id === offerId);
+            if (!data) return;
+            document.getElementById('modalTitle').textContent = 'Edit Offer';
+            document.getElementById('saveBtn').textContent = 'Update Offer';
+            document.getElementById('offerId').value = data._id;
+            document.getElementById('offerName').value = data.offerName;
+
+            document.querySelector(`input[name="discountType"][value="${data.discountType}"]`).checked = true;
+            document.querySelector(`input[name="offerType"][value="${data.offerType}"]`).checked = true;
+
+            toggleApplyFields();
+
+            const targetId = data.offerType === 'product'
+                ? (data.productId?._id || data.productId)
+                : (data.categoryId?._id || data.categoryId);
+
+            document.getElementById('targetId').value = targetId;
+            document.getElementById('discountValue').value = data.discountValue;
+            document.getElementById('minPurchaseAmount').value = data.minPurchaseAmount || 0;
+            document.getElementById('maxDiscountAmount').value = data.maxDiscountAmount || '';
+
+            document.getElementById('startDate').value = new Date(data.startDate).toISOString().split('T')[0];
+            document.getElementById('endDate').value = new Date(data.endDate).toISOString().split('T')[0];
+            document.getElementById('isActive').checked = data.isActive;
+
+            toggleValFields();
+            offerModal.show();
+        }
+
+        function clearValidationErrors() {
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+        }
+
+        function showFieldError(fieldId, message) {
+            const input = document.getElementById(fieldId);
+            const errorDiv = document.getElementById(`error-${fieldId}`);
+            if (input) {
+                input.classList.add('is-invalid');
+                if (errorDiv) {
+                    errorDiv.textContent = message;
+                    errorDiv.style.display = 'block';
+                }
+            }
+        }
+
+        document.getElementById('offerForm').onsubmit = async (e) => {
+            e.preventDefault();
+            clearValidationErrors();
+
+            let isValid = true;
+            const offerName = document.getElementById('offerName').value.trim();
+            const targetId = document.getElementById('targetId').value;
+            const discountValue = parseFloat(document.getElementById('discountValue').value);
+            const startDateVal = document.getElementById('startDate').value;
+            const endDateVal = document.getElementById('endDate').value;
+            const discountType = document.querySelector('input[name="discountType"]:checked').value;
+
+            if (!offerName) {
+                showFieldError('offerName', 'Offer name is required.');
+                isValid = false;
+            } else if (offerName.length < 3) {
+                showFieldError('offerName', 'Offer name must be at least 3 characters.');
+                isValid = false;
+            }
+
+            if (!targetId) {
+                showFieldError('targetId', 'Please select a product or category.');
+                isValid = false;
+            }
+
+            if (isNaN(discountValue) || discountValue <= 0) {
+                showFieldError('discountValue', 'Discount value must be greater than zero.');
+                isValid = false;
+            } else if (discountType === 'percentage' && discountValue > 100) {
+                showFieldError('discountValue', 'Percentage cannot exceed 100%.');
+                isValid = false;
+            }
+
+            if (!startDateVal) {
+                showFieldError('startDate', 'Start date is required.');
+                isValid = false;
+            }
+
+            if (!endDateVal) {
+                showFieldError('endDate', 'End date is required.');
+                isValid = false;
+            } else if (startDateVal && new Date(endDateVal) < new Date(startDateVal)) {
+                showFieldError('endDate', 'End date cannot be earlier than start date.');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const formData = new FormData(e.target);
+            const body = Object.fromEntries(formData);
+            body.isActive = document.getElementById('isActive').checked;
+
+            if (body.offerType === 'product') {
+                body.productId = body.targetId;
+            } else {
+                body.categoryId = body.targetId;
+            }
+
+            const isEdit = !!body.offerId;
+            const url = isEdit ? `/admin/offers/edit/${body.offerId}` : (body.offerType === 'product' ? '/admin/offers/add-product' : '/admin/offers/add-category');
+            const method = isEdit ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const result = await res.json();
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: result.message,
+                        confirmButtonColor: '#1a1a1a',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
+                } else {
+                    if (result.errors) {
+                        Object.keys(result.errors).forEach(key => {
+                            const fieldId = (key === 'productId' || key === 'categoryId') ? 'targetId' : key;
+                            showFieldError(fieldId, result.errors[key]);
+                        });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Oops...', text: result.message, confirmButtonColor: '#1a1a1a' });
+                    }
+                }
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.' });
+            }
+        };
+
+        async function toggleStatus(id) {
+            try {
+                const res = await fetch(`/admin/offers/toggle/${id}`, { method: 'PATCH' });
+                const data = await res.json();
+                if (!data.success) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                    location.reload();
+                }
+            } catch (err) {
+                location.reload();
+            }
+        }
+
+        async function deleteOffer(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action will permanently delete the offer.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#1a1a1a',
+                cancelButtonColor: '#f3f4f6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const res = await fetch(`/admin/offers/delete/${id}`, { method: 'DELETE' });
+                    const resData = await res.json();
+                    if (resData.success) {
+                        Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Offer has been removed.', timer: 1000, showConfirmButton: false }).then(() => location.reload());
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

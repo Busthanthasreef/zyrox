@@ -767,7 +767,7 @@
       transform: none;
     }
 
-  
+
 
     .empty-state {
       grid-column: 1 / -1;
@@ -866,7 +866,7 @@
 
   <%- include('../../partials/user/navigationbar', { user, cartItemCount, currentPage: 'products' , categories }) %>
 
-    <% const PRICE_MAX_VAL=219999; const PRICE_MIN_VAL=0; const curMax=(activeFilters.maxPrice &&
+    <% const PRICE_MAX_VAL=999999; const PRICE_MIN_VAL=0; const curMax=(activeFilters.maxPrice &&
       parseInt(activeFilters.maxPrice) < PRICE_MAX_VAL) ? parseInt(activeFilters.maxPrice) : PRICE_MAX_VAL; const
       curMin=(activeFilters.minPrice && parseInt(activeFilters.minPrice)> PRICE_MIN_VAL)
       ? parseInt(activeFilters.minPrice) : PRICE_MIN_VAL;
@@ -1054,7 +1054,7 @@
                                     <% } %>
                           </div>
 
-                         
+
                 </form>
               </div>
             </aside>
@@ -1072,8 +1072,9 @@
                     %>
                     <div class="product-card <%= isInactive ? 'is-inactive' : '' %>">
 
-                      
-                      <div class="card-img-wrap"  onclick="event.preventDefault(); event.stopPropagation();  window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
+
+                      <div class="card-img-wrap"
+                        onclick="event.preventDefault(); event.stopPropagation();  window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
                         <% if (product.image && product.image !=='/images/placeholder.png' ) { %>
                           <img src="<%= product.image %>" alt="<%= product.name %>" loading="lazy"
                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
@@ -1086,8 +1087,8 @@
                             </div>
                             <% } %>
 
-                              <% if (!isInactive && product.oldPrice && product.price < product.oldPrice) { %>
-                                <span class="card-badge badge-sale">-<%= disc(product.price, product.oldPrice) %>%
+                              <% if (!isInactive && product.originalPrice && product.price < product.originalPrice) { %>
+                                <span class="card-badge badge-sale">-<%= disc(product.price, product.originalPrice) %>%
                                     OFF</span>
                                 <% } else if (!isInactive && product.badge) { const bl=product.badge.toLowerCase(); let
                                   bc='badge-best' ; if (bl==='new' ) bc='badge-new' ; if (bl==='hot' ) bc='badge-hot' ;
@@ -1132,8 +1133,8 @@
 
                         <div class="card-footer">
                           <div class="card-price-col">
-                            <% if (!isInactive && product.oldPrice) { %>
-                              <span class="card-price-old">&#8377;<%= product.oldPrice.toLocaleString('en-IN') %>
+                            <% if (!isInactive && product.originalPrice && product.price < product.originalPrice) { %>
+                              <span class="card-price-old">&#8377;<%= product.originalPrice.toLocaleString('en-IN') %>
                               </span>
                               <% } %>
                                 <% if (!isInactive && product.stock===0) { %>
@@ -1164,7 +1165,7 @@
                                         <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"></i>
                                       </button>
                                     </div>
-                                    
+
                                     <% } else { %>
                                       <div style="display:flex; gap:8px; width:100%; height:40px;">
                                         <button class="btn-view" style="flex:1;"
@@ -1179,7 +1180,7 @@
                                           <i class="far fa-heart"></i>
                                         </button>
                                       </div>
-                                     
+
                                       <% } %>
                               </div>
                               <% } %>
@@ -1236,7 +1237,7 @@
         <script>
           const cartQuantities = JSON.parse(document.getElementById('cartQtyData').value || '{}');
           const MAX_QTY = parseInt('<%= MAX_CART_QTY %>', 10);
-          const JS_PRICE_MAX = 219999;
+          const JS_PRICE_MAX = 999999;
           const JS_MIN_GAP = 5000;
 
           function handlePriceSubmit() {
@@ -1274,7 +1275,7 @@
 
 
 
-        
+
           function showLimitSwal(remaining, stockLimit = 3) {
             const isFull = remaining <= 0;
             const limitVal = Math.min(MAX_QTY, stockLimit);
@@ -1335,10 +1336,10 @@
                   background: 'black', color: "white", iconColor: data.action === 'added' ? 'green' : 'red'
                 });
 
-                setTimeout(()=>{
+                setTimeout(() => {
                   window.location.reload();
 
-                },1000)
+                }, 1000)
               }
             } catch (err) {
               console.error("Wishlist Toggle Error:", err);

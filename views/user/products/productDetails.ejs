@@ -20,7 +20,8 @@
             --bg: #0b0c0e;
             --bg-card: #141416;
             --bg-raised: #1c1c1f;
-            --accent: #6366f1;
+            --accentt: #6366f1;
+            --accent: #04ff00;
             --accent-lt: rgba(99, 102, 241, .15);
             --accent-glow: rgba(99, 102, 241, .25);
             --green: #10b981;
@@ -247,7 +248,7 @@
         }
 
         .thumb:hover::after {
-            background: var(--accent-lt);
+            background: var(--accentt-lt);
         }
 
         .thumb img {
@@ -264,8 +265,8 @@
         }
 
         .thumb.active {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 1px var(--accent-glow);
+            border-color: var(--accentt);
+            box-shadow: 0 0 0 1px var(--accentt-glow);
         }
 
         .thumb.active img {
@@ -294,7 +295,7 @@
             max-height: 88vh;
             object-fit: contain;
             border-radius: var(--radius);
-            box-shadow: 0 0 80px var(--accent-glow);
+            box-shadow: 0 0 80px var(--accentt-glow);
             animation: fsIn .25s ease;
         }
 
@@ -359,7 +360,7 @@
             font-size: .68rem;
             font-weight: 700;
             letter-spacing: 2px;
-            color: var(--accent);
+            color: var(--accentt);
             text-transform: uppercase;
         }
 
@@ -470,7 +471,7 @@
             font-size: .65rem;
             font-weight: 700;
             letter-spacing: 1.5px;
-            color: var(--accent);
+            color: var(--accentt);
             text-transform: uppercase;
             margin-bottom: 10px;
         }
@@ -498,14 +499,14 @@
 
         .v-chip:hover:not(.v-disabled) {
             border-color: var(--accent);
-            color: var(--accent);
+            color: var(--accentt);
             background: var(--accent-lt);
         }
 
         .v-chip.v-selected {
-            border-color: var(--accent);
+            border-color: var(--accentt);
             background: var(--accent-lt);
-            color: var(--accent);
+            color: var(--accentt);
             font-weight: 700;
             box-shadow: 0 0 0 1px var(--accent-glow);
         }
@@ -540,12 +541,12 @@
         }
 
         .v-color-wrap:hover:not(.v-disabled) {
-            border-color: var(--accent);
-            color: var(--accent);
+            border-color: var(--accentt);
+            color: var(--accentt);
         }
 
         .v-color-wrap.v-selected {
-            border-color: var(--accent);
+            border-color: var(--accentt);
             background: var(--accent-lt);
             color: var(--text);
             font-weight: 600;
@@ -688,9 +689,9 @@
         }
 
         .btn-cart {
-            border: 1.5px solid var(--accent);
+            border: 1.5px solid var(--accentt);
             background: transparent;
-            color: var(--accent);
+            color: var(--accentt);
         }
 
         .btn-cart:hover:not(:disabled) {
@@ -700,7 +701,7 @@
 
         .btn-buy {
             border: none;
-            background: var(--accent);
+            background: var(--accentt);
             color: #fff;
         }
 
@@ -750,7 +751,7 @@
 
         .trust-item i {
             font-size: 1.1rem;
-            color: var(--accent);
+            color: var(--accentt);
             flex-shrink: 0;
         }
 
@@ -849,7 +850,7 @@
         }
 
         .related-card:hover {
-            border-color: var(--accent);
+            border-color: var(--accentt);
             transform: translateY(-4px);
             box-shadow: 0 12px 32px rgba(0, 0, 0, .4);
         }
@@ -1126,7 +1127,7 @@
                         <% } %>
 
                             <!-- ═══ QUANTITY ═══ -->
-                            <div class="qty-row" id="qtyBlock" <%- variant.stock <=1 ? 'style="display:none"' : '' %>>
+                            <div class="qty-row" id="qtyBlock" <%- variant.stock < 1 ? 'style="display:none"' : '' %>>
                                 <span class="qty-label">Qty</span>
                                 <div class="qty-ctrl">
                                     <button class="qty-btn" id="qtyMinus" onclick="changeQty(-1)" aria-label="Decrease">
@@ -1144,16 +1145,14 @@
 
                             <!-- ═══ ACTIONS ═══ -->
                             <div class="action-row">
-                                <button class="btn-cart" id="btnAddToCart" <%- variant.stock===0 ? 'disabled' : '' %>
+                                <button type="button" class="btn-cart" id="btnAddToCart" <%- variant.stock===0
+                                    ? 'disabled' : '' %>
                                     data-pid="<%= variant.productId._id %>"
                                         data-vid="<%= variant._id %>"
                                             onclick="addToCart()">
                                             <i class="fas fa-cart-plus"></i> Add to Cart
                                 </button>
-                                <button class="btn-buy" id="btnBuyNow" <%- variant.stock<=1 ? 'disabled' : '' %>
-                                    data-pid="<%= variant.productId._id %>"
-                                        data-vid="<%= variant._id %>"
-                                            onclick="buyNow()">
+                                <button type="button" class="btn-buy" id="btnBuyNow" onclick="buyNow()" <%- variant.stock <=0 ? 'disabled' : '' %> data-pid="<%= variant.productId._id %>" data-vid="<%= variant._id %>">
                                             <i class="fas fa-bolt"></i> Buy Now
                                 </button>
                             </div>
@@ -1472,7 +1471,7 @@
                 if (zoomActive) onZoomLeave();
 
                 initZoom();
-            });;
+            });
 
             // ── Fullscreen on click ─────────────────────────────────────────────
             mainImgWrap.addEventListener('click', () => openFullscreen(currentImgIdx));
@@ -1735,11 +1734,9 @@
                     return;
                 }
 
-                // User requirement: stock <= 1 means can't add to cart
-                if (match.stock <= 1) {
-                    variantMsgText.textContent = match.stock === 1
-                        ? 'This item is currently unavailable for purchase (minimum stock requirement).'
-                        : 'This variant is currently out of stock. Check back soon.';
+                // Allow purchase if at least 1 is in stock
+                if (match.stock <= 0) {
+                    variantMsgText.textContent = 'This variant is currently out of stock. Check back soon.';
                     variantMsg.classList.add('show', 'msg-stock');
                     setActionsDisabled(true);
                     updatePriceUI(match);
@@ -1930,8 +1927,8 @@
                     icon: 'warning',
                     title: isHard ? 'Cart Limit Reached' : 'Added to Cart',
                     html: isHard
-                        ? `<span style="color:var(--text-dim)">You already have the maximum of <strong style="color:var(--accent)">${MAX_CART_QTY}</strong> units in your cart.</span>`
-                        : `<span style="color:var(--text-dim)">You can still add <strong style="color:var(--accent)">${canAddMore}</strong> more unit${canAddMore === 1 ? '' : 's'}.</span>`,
+                        ? `<span style="color:var(--text-dim)">You already have the maximum of <strong style="color:var(--accentt)">${MAX_CART_QTY}</strong> units in your cart.</span>`
+                        : `<span style="color:var(--text-dim)">You can still add <strong style="color:var(--accentt)">${canAddMore}</strong> more unit${canAddMore === 1 ? '' : 's'}.</span>`,
                     confirmButtonText: 'View Cart',
                     showCancelButton: true,
                     cancelButtonText: 'Continue Shopping',

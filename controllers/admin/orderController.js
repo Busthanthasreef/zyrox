@@ -1,6 +1,8 @@
 import Order from "../../models/order.js";
 import User from "../../models/user.js";
 import Variant from "../../models/variant.js";
+import Wallet from "../../models/wallet.js";
+import WalletTransactions from "../../models/walletTransactions.js";
 
 const getOrders = async (req, res) => {
     try {
@@ -158,8 +160,35 @@ const updateOrderStatus = async (req, res) => {
             });
         }
         
+        // ── WALLET REFUND LOGIC (Full Order Manual Update) ─────────────────
+        if (['Cancelled', 'Returned'].includes(status) && order.paymentStatus === 'Paid' && (order.paymentMethod === 'Online' || order.paymentMethod === 'Wallet')) {
+            const refundAmount = order.finalPrice;
+            const userId = order.userId;
+
+            let wallet = await Wallet.findOne({ user_id: userId });
+            if (!wallet) {
+                wallet = await Wallet.create({ user_id: userId, balance: 0 });
+            }
+
+            wallet.balance += refundAmount;
+            await wallet.save();
+
+            const newTransaction = new WalletTransactions({
+                user: userId,
+                Amount: refundAmount,
+                Payment_status: "Success",
+                Wallet_id: wallet._id,
+                Payment_date: new Date(),
+                Payment_time: new Date(),
+                Order_id: order._id,
+                Description: `Refund for order ${status} manually by Admin (Order #${order.orderId})`
+            });
+            await newTransaction.save();
+            order.paymentStatus = 'Refunded';
+        }
+        
         await order.save();
-        res.json({ success: true, message: "Order status updated successfully" });
+        res.json({ success: true, message: "Order status updated and refund processed if applicable." });
     } catch (error) {
         console.error("Error in updateOrderStatus:", error);
         res.json({ success: false, message: "Internal Server Error" });
@@ -193,12 +222,8 @@ const acceptReturn = async (req, res) => {
         await order.save();
 
         // Restore stock only for items that are transition to a terminal state right now
-        // This avoids double-restoring stock for items already cancelled individually
         for (const item of order.items) {
-            // We only restore stock if we just updated its status to 'Cancelled' or 'Returned'
             if (item.status === order.orderStatus && item.variant) {
-                // To be extra safe, we could check if we restored stock before, but status check is reliable here
-                // assuming only terminal states restore stock.
                 await Variant.findByIdAndUpdate(
                     item.variant,
                     { $inc: { stock: item.quantity } }
@@ -206,8 +231,41 @@ const acceptReturn = async (req, res) => {
             }
         }
 
+        // ── WALLET REFUND LOGIC ──────────────────────────────────────────
+        // If payment was already made, refund the total amount to wallet
+        if (order.paymentStatus === 'Paid' && (order.paymentMethod === 'Online' || order.paymentMethod === 'Wallet')) {
+            const refundAmount = order.finalPrice;
+            const userId = order.userId;
+
+            // Find or create wallet
+            let wallet = await Wallet.findOne({ user_id: userId });
+            if (!wallet) {
+                wallet = await Wallet.create({ user_id: userId, balance: 0 });
+            }
+
+            // Update balance
+            wallet.balance += refundAmount;
+            await wallet.save();
+
+            // Create transaction record
+            const newTransaction = new WalletTransactions({
+                user: userId,
+                Amount: refundAmount,
+                Payment_status: "Success",
+                Wallet_id: wallet._id,
+                Payment_date: new Date(),
+                Payment_time: new Date(),
+                Order_id: order._id,
+                Description: `Refund for Returned Order #${order.orderId}`
+            });
+            await newTransaction.save();
+
+            order.paymentStatus = 'Refunded';
+            await order.save();
+        }
+
         const actionType = oldStatus === "Return Requested" ? "Return Request" : " ";
-        return res.json({ success: true, message: `${actionType} accepted. Stock has been restored.` });
+        return res.json({ success: true, message: `${actionType} accepted. Stock restored and refund credited to wallet if applicable.` });
     } catch (error) {
         console.error("Error in acceptReturn:", error);
         return res.json({ success: false, message: "Internal Server Error" });
@@ -281,7 +339,56 @@ const acceptItemRequest = async (req, res) => {
         }
 
         await order.save();
-        res.json({ success: true, message: "Item request authorized and stock restored." });
+
+        // ── WALLET REFUND LOGIC (ITEM LEVEL) ──────────────────────────────
+        // If payment was already made, refund the item's proportional amount
+        if (order.paymentStatus === 'Paid' && (order.paymentMethod === 'Online' || order.paymentMethod === 'Wallet')) {
+            const userId = order.userId;
+            
+            // Calculate proportional refund
+            // item.total - proportional coupon discount
+            let refundAmount = item.total;
+            if (order.couponDiscount > 0 && order.subtotal > 0) {
+                const proportion = item.total / order.subtotal;
+                const itemCouponDiscount = order.couponDiscount * proportion;
+                refundAmount = item.total - itemCouponDiscount;
+            }
+
+            // Find or create wallet
+            let wallet = await Wallet.findOne({ user_id: userId });
+            if (!wallet) {
+                wallet = await Wallet.create({ user_id: userId, balance: 0 });
+            }
+
+            // Update balance
+            wallet.balance += refundAmount;
+            await wallet.save();
+
+            // Create transaction record
+            const newTransaction = new WalletTransactions({
+                user: userId,
+                Amount: refundAmount,
+                Payment_status: "Success",
+                Wallet_id: wallet._id,
+                Payment_date: new Date(),
+                Payment_time: new Date(),
+                Order_id: order._id,
+                Description: `Refund for ${item.status} item: ${item.name} in Order #${order.orderId}`
+            });
+            await newTransaction.save();
+
+            // If it was the last item and all items are terminal, we might want to mark the payment as Refunded
+            // but usually partial refund is still 'Paid' or 'Partially Refunded'. 
+            // For now, if all items are terminal, mark the order payment as Refunded.
+            const terminalStatuses = ['Cancelled', 'Returned'];
+            const allItemsTerminal = order.items.every(i => terminalStatuses.includes(i.status));
+            if (allItemsTerminal) {
+                order.paymentStatus = 'Refunded';
+                await order.save();
+            }
+        }
+
+        res.json({ success: true, message: "Item request authorized, stock restored, and refund credited to wallet if applicable." });
     } catch (error) {
         console.error("Error in acceptItemRequest:", error);
         res.json({ success: false, message: "Server error" });

@@ -6,7 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Zyrox – Coupons</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
   <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
   <style>
@@ -300,8 +301,15 @@
     }
 
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .modal-body {
@@ -400,8 +408,13 @@
       transition: .2s;
     }
 
-    input:checked + .switch-track { background: var(--brand); }
-    input:checked + .switch-track::before { transform: translateX(18px); }
+    input:checked+.switch-track {
+      background: var(--brand);
+    }
+
+    input:checked+.switch-track::before {
+      transform: translateX(18px);
+    }
 
     .modal-footer-bar {
       display: flex;
@@ -426,8 +439,14 @@
       transition: background .15s;
     }
 
-    .btn-save:hover { background: var(--brand-dark); }
-    .btn-save:disabled { opacity: .65; cursor: not-allowed; }
+    .btn-save:hover {
+      background: var(--brand-dark);
+    }
+
+    .btn-save:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
 
     .btn-cancel {
       border: 1px solid var(--border);
@@ -458,709 +477,733 @@
 
 <body>
 
-  <%- include('../../partials/admin/sidebar', { currentPage: 'coupons', currentUser: user }) %>
+  <%- include('../../partials/admin/sidebar', { currentPage: 'coupons' , currentUser: user }) %>
 
-  <main class="main">
-    <div class="d-flex align-items-start justify-content-between mb-4">
-      <div>
-        <h1 class="page-title">Coupons</h1>
-        <p class="page-subtitle">Manage and organize your discount codes and promotions.</p>
-      </div>
-      <button class="btn-add" onclick="openModal()">
-        <i class="bi bi-plus-circle-fill"></i> Add Coupon
-      </button>
-    </div>
-
-    <div class="card-main">
-      <div class="search-wrap">
-        <form action="/admin/coupons" method="GET" class="w-100 d-flex justify-content-center">
-          <input type="text" name="search" class="search-input" placeholder="Search coupons by code..."
-            value="<%= search %>" />
-        </form>
+    <main class="main">
+      <div class="d-flex align-items-start justify-content-between mb-4">
+        <div>
+          <h1 class="page-title">Coupons</h1>
+          <p class="page-subtitle">Manage and organize your discount codes and promotions.</p>
+        </div>
+        <button class="btn-add" onclick="openModal()">
+          <i class="bi bi-plus-circle-fill"></i> Add Coupon
+        </button>
       </div>
 
-      <div style="overflow-x:auto;">
-        <table class="coupon-table">
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Discount</th>
-              <th>Min / Max</th>
-              <th>Usage</th>
-              <th>Expiry</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (coupons && coupons.length > 0) { %>
-              <% coupons.forEach(coupon => { %>
-                <%
-                  const usagePercent = coupon.usageLimit ? (coupon.usedCount / coupon.usageLimit) * 100 : 0;
-                  const barColor = usagePercent > 80 ? 'low' : '';
-                  /* Safely encode coupon data for data attribute */
-                  const couponJson = JSON.stringify(coupon).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
-                %>
-                <tr>
-                  <td><span class="code-active"><%= coupon.code %></span></td>
-                  <td>
-                    <div class="discount-name">
-                      <%= coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue %> OFF
-                    </div>
-                    <div class="discount-type">
-                      <%= coupon.discountType.charAt(0).toUpperCase() + coupon.discountType.slice(1) %>
-                    </div>
-                  </td>
-                  <td>
-                    <span class="small text-muted">Min: ₹<%= coupon.minCartValue %></span><br>
-                    <span class="small text-muted">Max: <%= coupon.maxDiscount ? '₹' + coupon.maxDiscount : 'Unlimited' %></span>
-                  </td>
-                  <td>
-                    <div class="progress-wrap">
-                      <div class="progress-bar-bg">
-                        <div class="progress-fill <%= barColor %>"
-                          style="width: <%= coupon.usageLimit ? usagePercent : 0 %>%"></div>
-                      </div>
-                      <span class="usage-text">
-                        <%= coupon.usedCount %>/<%= coupon.usageLimit || '∞' %>
-                      </span>
-                    </div>
-                  </td>
-                  <td>
-                    <%= new Date(coupon.validTill).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) %>
-                  </td>
-                  <td>
-                    <span class="badge-status <%= coupon.isActive ? 'badge-active' : '' %>"
-                      style="background-color: <%= coupon.isActive ? '' : 'rgba(255,0,0,0.15)' %>; color: <%= coupon.isActive ? '' : '#c32222' %>">
-                      <%= coupon.isActive ? 'Active' : 'Inactive' %>
-                    </span>
-                  </td>
-                  <td>
-                    <div class="action-btns">
-                      <!-- FIX: use data-coupon attribute instead of inline JSON in onclick to prevent XSS/quoting issues -->
-                      <button class="action-btn" title="Edit" data-coupon="<%= couponJson %>" onclick="editCoupon(this)">
-                        <i class="bi bi-pencil"></i>
-                      </button>
-                      <button class="action-btn delete-btn" title="Delete" onclick="deleteCoupon('<%= coupon._id %>')">
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              <% }) %>
-            <% } else { %>
+      <div class="card-main">
+        <div class="search-wrap">
+          <form action="/admin/coupons" method="GET" class="w-100 d-flex justify-content-center">
+            <input type="text" name="search" class="search-input" placeholder="Search coupons by code..."
+              value="<%= search %>" />
+          </form>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="coupon-table">
+            <thead>
               <tr>
-                <td colspan="7" class="text-center py-4 text-muted">No coupons found.</td>
+                <th>Code</th>
+                <th>Discount</th>
+                <th>Min / Max</th>
+                <th>Usage</th>
+                <th>Expiry</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            <% } %>
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              <% if (coupons && coupons.length> 0) { %>
+                <% coupons.forEach(coupon=> { %>
+                  <% const usagePercent=coupon.usageLimit ? (coupon.usedCount / coupon.usageLimit) * 100 : 0; const
+                    barColor=usagePercent> 80 ? 'low' : '';
+                    /* Safely encode coupon data for data attribute */
+                    const couponJson =
+                    JSON.stringify(coupon).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+                    %>
+                    <tr>
+                      <td><span class="code-active">
+                          <%= coupon.code %>
+                        </span></td>
+                      <td>
+                        <div class="discount-name">
+                          <%= coupon.discountType==='percentage' ? coupon.discountValue + '%' : '₹' +
+                            coupon.discountValue %> OFF
+                        </div>
+                        <div class="discount-type">
+                          <%= coupon.discountType.charAt(0).toUpperCase() + coupon.discountType.slice(1) %>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="small text-muted">Min: ₹<%= coupon.minCartValue %></span><br>
+                        <span class="small text-muted">Max: <%= coupon.maxDiscount ? '₹' + coupon.maxDiscount
+                            : 'Unlimited' %></span>
+                      </td>
+                      <td>
+                        <div class="progress-wrap">
+                          <div class="progress-bar-bg">
+                            <div class="progress-fill <%= barColor %>"
+                              style="width: <%= coupon.usageLimit ? usagePercent : 0 %>%"></div>
+                          </div>
+                          <span class="usage-text">
+                            <%= coupon.usedCount %>/<%= coupon.usageLimit || '∞' %>
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <%= new Date(coupon.validTill).toLocaleDateString('en-US', { month: 'short' , day: '2-digit' ,
+                          year: 'numeric' }) %>
+                      </td>
+                      <td>
+                        <span class="badge-status <%= coupon.isActive ? 'badge-active' : '' %>"
+                          style="background-color: <%= coupon.isActive ? '' : 'rgba(255,0,0,0.15)' %>; color: <%= coupon.isActive ? '' : '#c32222' %>">
+                          <%= coupon.isActive ? 'Active' : 'Inactive' %>
+                        </span>
+                      </td>
+                      <td>
+                        <div class="action-btns">
+                          <!-- FIX: use data-coupon attribute instead of inline JSON in onclick to prevent XSS/quoting issues -->
+                          <button class="action-btn" title="Edit" data-coupon='<%- couponJson %>'
+                            onclick="editCoupon(this)">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                          <button class="action-btn delete-btn" title="Delete"
+                            onclick="deleteCoupon('<%= coupon._id %>')">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <% }) %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="7" class="text-center py-4 text-muted">No coupons found.</td>
+                        </tr>
+                        <% } %>
+            </tbody>
+          </table>
+        </div>
 
-      <div class="table-footer">
-        <span class="showing-text small text-muted">Showing <%= coupons.length %> coupons</span>
-        <div class="pagination-wrap d-flex gap-1">
-          <% if (currentPage > 1) { %>
-            <a href="/admin/coupons?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-btn">
-              <i class="bi bi-chevron-left"></i>
-            </a>
-          <% } %>
-          <% for (let i = 1; i <= totalPages; i++) { %>
-            <a href="/admin/coupons?page=<%= i %>&search=<%= search %>"
-              class="page-btn <%= i === currentPage ? 'active' : '' %>">
-              <%= i %>
-            </a>
-          <% } %>
-          <% if (currentPage < totalPages) { %>
-            <a href="/admin/coupons?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-btn">
-              <i class="bi bi-chevron-right"></i>
-            </a>
-          <% } %>
+        <div class="table-footer">
+          <span class="showing-text small text-muted">Showing <%= coupons.length %> coupons</span>
+          <div class="pagination-wrap d-flex gap-1">
+            <% if (currentPage> 1) { %>
+              <a href="/admin/coupons?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-btn">
+                <i class="bi bi-chevron-left"></i>
+              </a>
+              <% } %>
+                <% for (let i=1; i <=totalPages; i++) { %>
+                  <a href="/admin/coupons?page=<%= i %>&search=<%= search %>"
+                    class="page-btn <%= i === currentPage ? 'active' : '' %>">
+                    <%= i %>
+                  </a>
+                  <% } %>
+                    <% if (currentPage < totalPages) { %>
+                      <a href="/admin/coupons?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-btn">
+                        <i class="bi bi-chevron-right"></i>
+                      </a>
+                      <% } %>
+          </div>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
 
-  <!-- ══════════════════════════════════════════
+    <!-- ══════════════════════════════════════════
        COUPON MODAL
   ══════════════════════════════════════════ -->
-  <div id="couponModal" class="modal-overlay" onclick="handleOverlayClick(event)">
-    <div class="modal-box">
-      <form id="couponForm" novalidate>
-        <!-- Hidden field to store coupon _id when editing -->
-        <input type="hidden" id="couponId">
+    <div id="couponModal" class="modal-overlay" onclick="handleOverlayClick(event)">
+      <div class="modal-box">
+        <form id="couponForm" novalidate>
+          <!-- Hidden field to store coupon _id when editing -->
+          <input type="hidden" id="couponId">
 
-        <div class="modal-header d-flex justify-content-between align-items-center p-4 border-bottom">
-          <div>
-            <div class="modal-header-title fw-bold" id="modalTitle">Add New Coupon</div>
-            <div class="modal-header-sub text-muted" style="font-size:.8rem;">
-              Fill in the details to create a new discount coupon.
-            </div>
-          </div>
-          <button type="button" class="btn border-0" onclick="closeModal()">
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <!-- ── Left Panel ── -->
-          <div class="modal-left">
-            <h6 class="fw-bold mb-3">General Information</h6>
-
-            <div class="form-group">
-              <label class="form-label">Description <span class="text-danger">*</span></label>
-              <input type="text" class="form-control-custom" placeholder="e.g. Summer Sale 2024"
-                id="f_description" name="description" />
-            </div>
-
-            <div class="row gx-3">
-              <div class="col-6">
-                <div class="form-group">
-                  <label class="form-label">Coupon Code <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control-custom" placeholder="e.g. SUM-003"
-                    id="f_code" name="code" />
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="form-group">
-                  <label class="form-label">Discount Type <span class="text-danger">*</span></label>
-                  <select class="form-control-custom" id="f_discountType" name="discountType">
-                    <option value="percentage">Percentage (%)</option>
-                    <option value="flat">Fixed Amount (₹)</option>
-                  </select>
-                </div>
+          <div class="modal-header d-flex justify-content-between align-items-center p-4 border-bottom">
+            <div>
+              <div class="modal-header-title fw-bold" id="modalTitle">Add New Coupon</div>
+              <div class="modal-header-sub text-muted" style="font-size:.8rem;">
+                Fill in the details to create a new discount coupon.
               </div>
             </div>
-
-            <div class="form-group">
-              <label class="form-label">Discount Value <span class="text-danger">*</span></label>
-              <input type="number" class="form-control-custom" placeholder="0"
-                id="f_discountValue" name="discountValue" min="0" />
-            </div>
-
-            <div class="row gx-3">
-              <div class="col-6">
-                <div class="form-group">
-                  <label class="form-label">Min Purchase (₹)</label>
-                  <input type="number" class="form-control-custom" placeholder="0"
-                    id="f_minCartValue" name="minCartValue" value="0" min="0" />
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="form-group">
-                  <label class="form-label">
-                    Max Discount (₹)
-                    <button type="button" class="unlimited-toggle checked" id="unlimitedToggle"
-                      title="Toggle unlimited" onclick="toggleUnlimited()"></button>
-                  </label>
-                  <!-- FIX: give this input a name so FormData picks it up correctly -->
-                  <input type="text" class="form-control-custom" id="f_maxDiscount" name="maxDiscount"
-                    value="Unlimited" readonly placeholder="e.g. 500" />
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Usage Limit (Global)</label>
-              <input type="number" class="form-control-custom" id="f_usageLimit" name="usageLimit"
-                placeholder="Optional" min="1" />
-              <small class="text-muted" style="font-size:.7rem;">Leave empty for unlimited global uses.</small>
-            </div>
+            <button type="button" class="btn border-0" onclick="closeModal()">
+              <i class="bi bi-x-lg"></i>
+            </button>
           </div>
 
-          <!-- ── Right Panel ── -->
-          <div class="modal-right">
-            <h6 class="fw-bold mb-1">Schedule</h6>
-            <p class="text-muted small mb-4">Set validity period.</p>
+          <div class="modal-body">
+            <!-- ── Left Panel ── -->
+            <div class="modal-left">
+              <h6 class="fw-bold mb-3">General Information</h6>
 
-            <div class="form-group">
-              <label class="form-label">Start Date <span class="text-danger">*</span></label>
-              <input type="date" class="form-control-custom" id="f_validFrom" name="validFrom" />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">End Date <span class="text-danger">*</span></label>
-              <input type="date" class="form-control-custom" id="f_validTill" name="validTill" />
-            </div>
-
-            <hr class="my-4" />
-
-            <div class="d-flex align-items-center justify-content-between">
-              <div>
-                <div class="fw-bold small">Active Status</div>
-                <div class="text-muted" style="font-size:.7rem;">Enable or disable coupon</div>
+              <div class="form-group">
+                <label class="form-label">Description <span class="text-danger">*</span></label>
+                <input type="text" class="form-control-custom" placeholder="e.g. Summer Sale 2024" id="f_description"
+                  name="description" />
               </div>
-              <label class="switch">
-                <input type="checkbox" id="f_isActive" name="isActive" checked />
-                <span class="switch-track"></span>
-              </label>
+
+              <div class="row gx-3">
+                <div class="col-6">
+                  <div class="form-group">
+                    <label class="form-label">Coupon Code <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control-custom" placeholder="e.g. SUM-003" id="f_code" name="code" />
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="form-group">
+                    <label class="form-label">Discount Type <span class="text-danger">*</span></label>
+                    <select class="form-control-custom" id="f_discountType" name="discountType">
+                      <option value="percentage">Percentage (%)</option>
+                      <option value="flat">Fixed Amount (₹)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Discount Value <span class="text-danger">*</span></label>
+                <input type="number" class="form-control-custom" placeholder="0" id="f_discountValue"
+                  name="discountValue" min="0" />
+              </div>
+
+              <div class="row gx-3">
+                <div class="col-6">
+                  <div class="form-group">
+                    <label class="form-label">Min Purchase (₹)</label>
+                    <input type="number" class="form-control-custom" placeholder="0" id="f_minCartValue"
+                      name="minCartValue" value="0" min="0" />
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="form-group">
+                    <label class="form-label">
+                      Max Discount (₹)
+                      <button type="button" class="unlimited-toggle checked" id="unlimitedToggle"
+                        title="Toggle unlimited" onclick="toggleUnlimited()"></button>
+                    </label>
+                    <!-- FIX: give this input a name so FormData picks it up correctly -->
+                    <input type="text" class="form-control-custom" id="f_maxDiscount" name="maxDiscount"
+                      value="Unlimited" readonly placeholder="e.g. 500" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Usage Limit (Global)</label>
+                <input type="number" class="form-control-custom" id="f_usageLimit" name="usageLimit"
+                  placeholder="Optional" min="1" />
+                <small class="text-muted" style="font-size:.7rem;">Leave empty for unlimited global uses.</small>
+              </div>
+            </div>
+
+            <!-- ── Right Panel ── -->
+            <div class="modal-right">
+              <h6 class="fw-bold mb-1">Schedule</h6>
+              <p class="text-muted small mb-4">Set validity period.</p>
+
+              <div class="form-group">
+                <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control-custom" id="f_validFrom" name="validFrom" />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">End Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control-custom" id="f_validTill" name="validTill" />
+              </div>
+
+              <hr class="my-4" />
+
+              <div class="d-flex align-items-center justify-content-between">
+                <div>
+                  <div class="fw-bold small">Active Status</div>
+                  <div class="text-muted" style="font-size:.7rem;">Enable or disable coupon</div>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="f_isActive" name="isActive" checked />
+                  <span class="switch-track"></span>
+                </label>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="modal-footer-bar">
-          <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
-          <button type="submit" class="btn-save" id="submitBtn">
-            <i class="bi bi-check2-circle me-1"></i> Save Coupon
-          </button>
-        </div>
-      </form>
+          <div class="modal-footer-bar">
+            <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn-save" id="submitBtn">
+              <i class="bi bi-check2-circle me-1"></i> Save Coupon
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <script>
-    /* ================================================================
-       ZYROX Admin — Coupon Page (FIXED)
-       Bugs fixed:
-         1. discType / discVal / minCart ReferenceError in validateForm()
-         2. maxDiscount field-name missing → FormData couldn't read it
-         3. XSS-safe coupon data via data-coupon attribute on edit button
-         4. Cross-validation variable scoping corrected throughout
-         5. validFrom past-date check added for new coupons
-         6. showError/clearError use name attribute consistently
-    ================================================================ */
+    <script>
+      /* ================================================================
+         ZYROX Admin — Coupon Page (FIXED)
+         Bugs fixed:
+           1. discType / discVal / minCart ReferenceError in validateForm()
+           2. maxDiscount field-name missing → FormData couldn't read it
+           3. XSS-safe coupon data via data-coupon attribute on edit button
+           4. Cross-validation variable scoping corrected throughout
+           5. validFrom past-date check added for new coupons
+           6. showError/clearError use name attribute consistently
+      ================================================================ */
 
-    /* ── Constants ───────────────────────────────────────────── */
-    const CODE_REGEX = /^[A-Z0-9_-]{3,20}$/;
+      /* ── Constants ───────────────────────────────────────────── */
+      const CODE_REGEX = /^[A-Z0-9_-]{3,20}$/;
 
-    /* ── DOM refs ────────────────────────────────────────────── */
-    const modal      = document.getElementById('couponModal');
-    const form       = document.getElementById('couponForm');
-    const modalTitle = document.getElementById('modalTitle');
+      /* ── DOM refs ────────────────────────────────────────────── */
+      const modal = document.getElementById('couponModal');
+      const form = document.getElementById('couponForm');
+      const modalTitle = document.getElementById('modalTitle');
 
-    /* State */
-    let unlimited   = true;   // tracks maxDiscount toggle
-    let isEditMode  = false;   // true when editing existing coupon
+      /* State */
+      let unlimited = true;   // tracks maxDiscount toggle
+      let isEditMode = false;   // true when editing existing coupon
 
-    /* ================================================================
-       HELPER: get today's date at midnight (local)
-    ================================================================ */
-    function todayMidnight() {
-      const d = new Date();
-      d.setHours(0, 0, 0, 0);
-      return d;
-    }
-
-    /* ================================================================
-       ERROR DISPLAY HELPERS
-       All helpers work by field name, looking up [name="..."] on form.
-    ================================================================ */
-    function showError(fieldName, message) {
-      /* For maxDiscount we use the id directly since the name may change */
-      const el = fieldName === 'maxDiscount'
-        ? document.getElementById('f_maxDiscount')
-        : form.querySelector(`[name="${fieldName}"]`);
-      if (!el) return;
-
-      el.classList.add('field-invalid');
-
-      /* Remove old error if any */
-      const old = form.querySelector(`.field-error[data-for="${fieldName}"]`);
-      if (old) old.remove();
-
-      const errEl = document.createElement('div');
-      errEl.className = 'field-error';
-      errEl.dataset.for = fieldName;
-      errEl.innerHTML = `<i class="bi bi-exclamation-circle-fill" style="font-size:.7rem;flex-shrink:0"></i>${message}`;
-      el.parentNode.insertBefore(errEl, el.nextSibling);
-    }
-
-    function clearError(fieldName) {
-      const el = fieldName === 'maxDiscount'
-        ? document.getElementById('f_maxDiscount')
-        : form.querySelector(`[name="${fieldName}"]`);
-      if (el) el.classList.remove('field-invalid');
-
-      const errEl = form.querySelector(`.field-error[data-for="${fieldName}"]`);
-      if (errEl) errEl.remove();
-    }
-
-    function clearAllErrors() {
-      form.querySelectorAll('.field-error').forEach(e => e.remove());
-      form.querySelectorAll('.form-control-custom').forEach(el => {
-        el.classList.remove('field-invalid');
-      });
-    }
-
-    /* ================================================================
-       VALIDATION RULES
-       Each rule: array of { test(value, formValues), msg }
-       test returns true = VALID.
-       formValues = { description, code, discountType, discountValue,
-                      minCartValue, usageLimit, validFrom, validTill }
-    ================================================================ */
-    function getFormValues() {
-      return {
-        description:   form.querySelector('[name="description"]').value,
-        code:          form.querySelector('[name="code"]').value,
-        discountType:  form.querySelector('[name="discountType"]').value,
-        discountValue: form.querySelector('[name="discountValue"]').value,
-        minCartValue:  form.querySelector('[name="minCartValue"]').value,
-        usageLimit:    form.querySelector('[name="usageLimit"]').value,
-        validFrom:     form.querySelector('[name="validFrom"]').value,
-        validTill:     form.querySelector('[name="validTill"]').value,
-        maxDiscount:   document.getElementById('f_maxDiscount').value,
-      };
-    }
-
-    const RULES = {
-      description: [
-        { test: v => v.trim().length > 0,   msg: 'Description is required.' },
-        { test: v => v.trim().length >= 5,   msg: 'Description must be at least 5 characters.' },
-        { test: v => v.trim().length <= 120, msg: 'Description must be 120 characters or fewer.' }
-      ],
-      code: [
-        { test: v => v.trim().length > 0,          msg: 'Coupon code is required.' },
-        { test: v => CODE_REGEX.test(v.trim()),     msg: 'Code must be 3–20 characters: uppercase letters, digits, hyphens or underscores only.' }
-      ],
-      discountType: [
-        { test: v => ['percentage', 'flat'].includes(v), msg: 'Please select a valid discount type.' }
-      ],
-      discountValue: [
-        { test: v => v.trim() !== '',                       msg: 'Discount value is required.' },
-        { test: v => !isNaN(v) && Number(v) > 0,           msg: 'Discount value must be a positive number.' },
-        { test: (v, fv) => fv.discountType !== 'percentage' || Number(v) <= 100,
-                                                             msg: 'Percentage discount cannot exceed 100%.' }
-      ],
-      minCartValue: [
-        { test: v => v === '' || (!isNaN(v) && Number(v) >= 0), msg: 'Min purchase must be 0 or greater.' }
-      ],
-      usageLimit: [
-        { test: v => v === '' || (!isNaN(v) && Number.isInteger(Number(v)) && Number(v) >= 1),
-          msg: 'Usage limit must be a whole number ≥ 1, or leave empty for unlimited.' }
-      ],
-      validFrom: [
-        { test: v => v.trim() !== '',       msg: 'Start date is required.' },
-        { test: v => !isNaN(Date.parse(v)), msg: 'Enter a valid start date.' }
-      ],
-      validTill: [
-        { test: v => v.trim() !== '',       msg: 'End date is required.' },
-        { test: v => !isNaN(Date.parse(v)), msg: 'Enter a valid end date.' },
-        { test: (v, fv) => !fv.validFrom || new Date(v) > new Date(fv.validFrom),
-          msg: 'End date must be after the start date.' },
-        { test: v => new Date(v) >= todayMidnight(), msg: 'End date cannot be in the past.' }
-      ]
-    };
-
-    /* ================================================================
-       FULL FORM VALIDATION  (called on submit)
-       FIX: all cross-validation variables declared at the top of scope
-    ================================================================ */
-    function validateForm() {
-      clearAllErrors();
-      const fv   = getFormValues();
-      let valid  = true;
-
-      /* ── Rule-based field tests ── */
-      for (const [name, rules] of Object.entries(RULES)) {
-        const val = fv[name] || '';
-        for (const { test, msg } of rules) {
-          if (!test(val, fv)) {
-            showError(name, msg);
-            valid = false;
-            break; // only show first error per field
-          }
-        }
+      /* ================================================================
+         HELPER: get today's date at midnight (local)
+      ================================================================ */
+      function todayMidnight() {
+        const d = new Date();
+        d.setHours(0, 0, 0, 0);
+        return d;
       }
 
-      /* ── maxDiscount — only validate when not unlimited ── */
-      if (!unlimited) {
-        const mdVal = fv.maxDiscount.trim();
-        if (mdVal === '' || isNaN(mdVal) || Number(mdVal) <= 0) {
-          showError('maxDiscount', 'Enter a valid maximum discount amount greater than 0.');
+      /* ================================================================
+         ERROR DISPLAY HELPERS
+         All helpers work by field name, looking up [name="..."] on form.
+      ================================================================ */
+      function showError(fieldName, message) {
+        /* For maxDiscount we use the id directly since the name may change */
+        const el = fieldName === 'maxDiscount'
+          ? document.getElementById('f_maxDiscount')
+          : form.querySelector(`[name="${fieldName}"]`);
+        if (!el) return;
+
+        el.classList.add('field-invalid');
+
+        /* Remove old error if any */
+        const old = form.querySelector(`.field-error[data-for="${fieldName}"]`);
+        if (old) old.remove();
+
+        const errEl = document.createElement('div');
+        errEl.className = 'field-error';
+        errEl.dataset.for = fieldName;
+        errEl.innerHTML = `<i class="bi bi-exclamation-circle-fill" style="font-size:.7rem;flex-shrink:0"></i>${message}`;
+        el.parentNode.insertBefore(errEl, el.nextSibling);
+      }
+
+      function clearError(fieldName) {
+        const el = fieldName === 'maxDiscount'
+          ? document.getElementById('f_maxDiscount')
+          : form.querySelector(`[name="${fieldName}"]`);
+        if (el) el.classList.remove('field-invalid');
+
+        const errEl = form.querySelector(`.field-error[data-for="${fieldName}"]`);
+        if (errEl) errEl.remove();
+      }
+
+      function clearAllErrors() {
+        form.querySelectorAll('.field-error').forEach(e => e.remove());
+        form.querySelectorAll('.form-control-custom').forEach(el => {
+          el.classList.remove('field-invalid');
+        });
+      }
+
+      /* ================================================================
+         VALIDATION RULES
+         Each rule: array of { test(value, formValues), msg }
+         test returns true = VALID.
+         formValues = { description, code, discountType, discountValue,
+                        minCartValue, usageLimit, validFrom, validTill }
+      ================================================================ */
+      function getFormValues() {
+        return {
+          description: form.querySelector('[name="description"]').value,
+          code: form.querySelector('[name="code"]').value,
+          discountType: form.querySelector('[name="discountType"]').value,
+          discountValue: form.querySelector('[name="discountValue"]').value,
+          minCartValue: form.querySelector('[name="minCartValue"]').value,
+          usageLimit: form.querySelector('[name="usageLimit"]').value,
+          validFrom: form.querySelector('[name="validFrom"]').value,
+          validTill: form.querySelector('[name="validTill"]').value,
+          maxDiscount: document.getElementById('f_maxDiscount').value,
+        };
+      }
+
+      const RULES = {
+        description: [
+          { test: v => v.trim().length > 0, msg: 'Description is required.' },
+          { test: v => v.trim().length >= 5, msg: 'Description must be at least 5 characters.' },
+          { test: v => v.trim().length <= 120, msg: 'Description must be 120 characters or fewer.' }
+        ],
+        code: [
+          { test: v => v.trim().length > 0, msg: 'Coupon code is required.' },
+          { test: v => CODE_REGEX.test(v.trim()), msg: 'Code must be 3–20 characters: uppercase letters, digits, hyphens or underscores only.' }
+        ],
+        discountType: [
+          { test: v => ['percentage', 'flat'].includes(v), msg: 'Please select a valid discount type.' }
+        ],
+        discountValue: [
+          { test: v => v.trim() !== '', msg: 'Discount value is required.' },
+          { test: v => !isNaN(v) && Number(v) > 0, msg: 'Discount value must be a positive number.' },
+          {
+            test: (v, fv) => fv.discountType !== 'percentage' || Number(v) <= 100,
+            msg: 'Percentage discount cannot exceed 100%.'
+          }
+        ],
+        minCartValue: [
+          { test: v => v === '' || (!isNaN(v) && Number(v) >= 0), msg: 'Min purchase must be 0 or greater.' }
+        ],
+        usageLimit: [
+          {
+            test: v => v === '' || (!isNaN(v) && Number.isInteger(Number(v)) && Number(v) >= 1),
+            msg: 'Usage limit must be a whole number ≥ 1, or leave empty for unlimited.'
+          }
+        ],
+        validFrom: [
+          { test: v => v.trim() !== '', msg: 'Start date is required.' },
+          { test: v => !isNaN(Date.parse(v)), msg: 'Enter a valid start date.' }
+        ],
+        validTill: [
+          { test: v => v.trim() !== '', msg: 'End date is required.' },
+          { test: v => !isNaN(Date.parse(v)), msg: 'Enter a valid end date.' },
+          {
+            test: (v, fv) => !fv.validFrom || new Date(v) > new Date(fv.validFrom),
+            msg: 'End date must be after the start date.'
+          },
+          { test: v => new Date(v) >= todayMidnight(), msg: 'End date cannot be in the past.' }
+        ]
+      };
+
+      /* ================================================================
+         FULL FORM VALIDATION  (called on submit)
+         FIX: all cross-validation variables declared at the top of scope
+      ================================================================ */
+      function validateForm() {
+        clearAllErrors();
+        const fv = getFormValues();
+        let valid = true;
+
+        /* ── Rule-based field tests ── */
+        for (const [name, rules] of Object.entries(RULES)) {
+          const val = fv[name] || '';
+          for (const { test, msg } of rules) {
+            if (!test(val, fv)) {
+              showError(name, msg);
+              valid = false;
+              break; // only show first error per field
+            }
+          }
+        }
+
+        /* ── maxDiscount — only validate when not unlimited ── */
+        if (!unlimited) {
+          const mdVal = fv.maxDiscount.trim();
+          if (mdVal === '' || isNaN(mdVal) || Number(mdVal) <= 0) {
+            showError('maxDiscount', 'Enter a valid maximum discount amount greater than 0.');
+            valid = false;
+          }
+        }
+
+        /* ── Cross-field: declare ALL vars here so none are out of scope ── */
+        const discType = fv.discountType;
+        const discVal = Number(fv.discountValue);
+        const minCart = Number(fv.minCartValue) || 0;
+        const maxDisc = unlimited ? null : Number(fv.maxDiscount);
+
+        /* Flat discount must be less than min cart value */
+        if (discType === 'flat' && minCart > 0 && discVal >= minCart) {
+          /* Only add error if discountValue didn't already have one */
+          if (!form.querySelector('.field-error[data-for="discountValue"]')) {
+            showError('discountValue', 'Flat discount value must be less than the minimum cart value.');
+          }
           valid = false;
         }
-      }
 
-      /* ── Cross-field: declare ALL vars here so none are out of scope ── */
-      const discType = fv.discountType;
-      const discVal  = Number(fv.discountValue);
-      const minCart  = Number(fv.minCartValue) || 0;
-      const maxDisc  = unlimited ? null : Number(fv.maxDiscount);
-
-      /* Flat discount must be less than min cart value */
-      if (discType === 'flat' && minCart > 0 && discVal >= minCart) {
-        /* Only add error if discountValue didn't already have one */
-        if (!form.querySelector('.field-error[data-for="discountValue"]')) {
-          showError('discountValue', 'Flat discount value must be less than the minimum cart value.');
+        /* maxDiscount (when set) cannot exceed discount value for flat type */
+        if (!unlimited && maxDisc !== null && discType === 'flat' && maxDisc > discVal) {
+          if (!form.querySelector('.field-error[data-for="maxDiscount"]')) {
+            showError('maxDiscount', 'Max discount cannot exceed the flat discount value.');
+          }
+          valid = false;
         }
-        valid = false;
+
+        return valid;
       }
 
-      /* maxDiscount (when set) cannot exceed discount value for flat type */
-      if (!unlimited && maxDisc !== null && discType === 'flat' && maxDisc > discVal) {
-        if (!form.querySelector('.field-error[data-for="maxDiscount"]')) {
-          showError('maxDiscount', 'Max discount cannot exceed the flat discount value.');
-        }
-        valid = false;
-      }
+      /* ================================================================
+         SINGLE FIELD VALIDATION (real-time on blur/change)
+      ================================================================ */
+      function validateField(fieldName) {
+        const rules = RULES[fieldName];
+        if (!rules) return;
+        const fv = getFormValues();
+        const val = fv[fieldName] || '';
 
-      return valid;
-    }
-
-    /* ================================================================
-       SINGLE FIELD VALIDATION (real-time on blur/change)
-    ================================================================ */
-    function validateField(fieldName) {
-      const rules = RULES[fieldName];
-      if (!rules) return;
-      const fv  = getFormValues();
-      const val = fv[fieldName] || '';
-
-      clearError(fieldName);
-      for (const { test, msg } of rules) {
-        if (!test(val, fv)) {
-          showError(fieldName, msg);
-          return;
-        }
-      }
-    }
-
-    /* Attach real-time listeners after DOM is ready */
-    document.addEventListener('DOMContentLoaded', () => {
-      Object.keys(RULES).forEach(name => {
-        const el = form.querySelector(`[name="${name}"]`);
-        if (!el) return;
-        el.addEventListener('blur',   () => validateField(name));
-        el.addEventListener('change', () => validateField(name));
-      });
-
-      /* maxDiscount inline validation */
-      document.getElementById('f_maxDiscount').addEventListener('blur', () => {
-        if (!unlimited) {
-          clearError('maxDiscount');
-          const v = document.getElementById('f_maxDiscount').value.trim();
-          if (v === '' || isNaN(v) || Number(v) <= 0) {
-            showError('maxDiscount', 'Enter a valid maximum discount amount greater than 0.');
+        clearError(fieldName);
+        for (const { test, msg } of rules) {
+          if (!test(val, fv)) {
+            showError(fieldName, msg);
+            return;
           }
         }
+      }
+
+      /* Attach real-time listeners after DOM is ready */
+      document.addEventListener('DOMContentLoaded', () => {
+        Object.keys(RULES).forEach(name => {
+          const el = form.querySelector(`[name="${name}"]`);
+          if (!el) return;
+          el.addEventListener('blur', () => validateField(name));
+          el.addEventListener('change', () => validateField(name));
+        });
+
+        /* maxDiscount inline validation */
+        document.getElementById('f_maxDiscount').addEventListener('blur', () => {
+          if (!unlimited) {
+            clearError('maxDiscount');
+            const v = document.getElementById('f_maxDiscount').value.trim();
+            if (v === '' || isNaN(v) || Number(v) <= 0) {
+              showError('maxDiscount', 'Enter a valid maximum discount amount greater than 0.');
+            }
+          }
+        });
+
+        /* Cross-validate validTill when validFrom changes */
+        form.querySelector('[name="validFrom"]')?.addEventListener('change', () => {
+          validateField('validFrom');
+          if (form.querySelector('[name="validTill"]').value) validateField('validTill');
+        });
+
+        /* Auto uppercase + strip spaces on code input */
+        form.querySelector('[name="code"]').addEventListener('input', function () {
+          const pos = this.selectionStart;
+          this.value = this.value.toUpperCase().replace(/\s/g, '');
+          this.setSelectionRange(pos, pos);
+        });
       });
 
-      /* Cross-validate validTill when validFrom changes */
-      form.querySelector('[name="validFrom"]')?.addEventListener('change', () => {
-        validateField('validFrom');
-        if (form.querySelector('[name="validTill"]').value) validateField('validTill');
-      });
+      /* ================================================================
+         MODAL OPEN / CLOSE
+      ================================================================ */
+      function openModal(editMode = false) {
+        if (!editMode) {
+          form.reset();
+          clearAllErrors();
+          modalTitle.innerText = 'Add New Coupon';
+          document.getElementById('couponId').value = '';
+          unlimited = true;
+          isEditMode = false;
+          updateUnlimitedUI();
+        }
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
 
-      /* Auto uppercase + strip spaces on code input */
-      form.querySelector('[name="code"]').addEventListener('input', function () {
-        const pos = this.selectionStart;
-        this.value = this.value.toUpperCase().replace(/\s/g, '');
-        this.setSelectionRange(pos, pos);
-      });
-    });
-
-    /* ================================================================
-       MODAL OPEN / CLOSE
-    ================================================================ */
-    function openModal(editMode = false) {
-      if (!editMode) {
-        form.reset();
+      function closeModal() {
+        modal.classList.remove('open');
+        document.body.style.overflow = '';
         clearAllErrors();
-        modalTitle.innerText = 'Add New Coupon';
-        document.getElementById('couponId').value = '';
-        unlimited  = true;
-        isEditMode = false;
+      }
+
+      function handleOverlayClick(e) {
+        if (e.target.id === 'couponModal') closeModal();
+      }
+
+      document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+      /* ================================================================
+         UNLIMITED TOGGLE
+      ================================================================ */
+      function toggleUnlimited() {
+        unlimited = !unlimited;
         updateUnlimitedUI();
       }
-      modal.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
 
-    function closeModal() {
-      modal.classList.remove('open');
-      document.body.style.overflow = '';
-      clearAllErrors();
-    }
-
-    function handleOverlayClick(e) {
-      if (e.target.id === 'couponModal') closeModal();
-    }
-
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-    /* ================================================================
-       UNLIMITED TOGGLE
-    ================================================================ */
-    function toggleUnlimited() {
-      unlimited = !unlimited;
-      updateUnlimitedUI();
-    }
-
-    function updateUnlimitedUI() {
-      const btn = document.getElementById('unlimitedToggle');
-      const inp = document.getElementById('f_maxDiscount');
-      if (unlimited) {
-        btn.classList.add('checked');
-        inp.value    = 'Unlimited';
-        inp.readOnly = true;
-        inp.removeAttribute('name'); // don't send 'Unlimited' string to server
-        clearError('maxDiscount');
-      } else {
-        btn.classList.remove('checked');
-        if (inp.value === 'Unlimited') inp.value = '';
-        inp.readOnly = false;
-        inp.setAttribute('name', 'maxDiscount');
-        inp.placeholder = 'e.g. 500';
-        inp.focus();
-      }
-    }
-
-    /* ================================================================
-       EDIT COUPON
-       FIX: reads from data-coupon attribute — no XSS risk from inline onclick
-    ================================================================ */
-    function editCoupon(btn) {
-      let coupon;
-      try {
-        coupon = JSON.parse(btn.dataset.coupon);
-      } catch (e) {
-        Swal.fire('Error', 'Could not load coupon data.', 'error');
-        return;
-      }
-
-      openModal(true);
-      clearAllErrors();
-      isEditMode = true;
-      modalTitle.innerText = 'Edit Coupon';
-
-      document.getElementById('couponId').value = coupon._id || '';
-      form.querySelector('[name="code"]').value          = coupon.code          || '';
-      form.querySelector('[name="description"]').value   = coupon.description   || '';
-      form.querySelector('[name="discountType"]').value  = coupon.discountType  || 'percentage';
-      form.querySelector('[name="discountValue"]').value = coupon.discountValue || '';
-      form.querySelector('[name="minCartValue"]').value  = coupon.minCartValue  ?? 0;
-      form.querySelector('[name="usageLimit"]').value    = coupon.usageLimit    || '';
-
-      form.querySelector('[name="validFrom"]').value = coupon.validFrom
-        ? new Date(coupon.validFrom).toISOString().split('T')[0] : '';
-      form.querySelector('[name="validTill"]').value = coupon.validTill
-        ? new Date(coupon.validTill).toISOString().split('T')[0] : '';
-
-      document.getElementById('f_isActive').checked = !!coupon.isActive;
-
-      if (coupon.maxDiscount) {
-        unlimited = false;
-        const mdInp = document.getElementById('f_maxDiscount');
-        mdInp.value = coupon.maxDiscount;
-        mdInp.setAttribute('name', 'maxDiscount');
-      } else {
-        unlimited = true;
-      }
-      updateUnlimitedUI();
-    }
-
-    /* ================================================================
-       DELETE COUPON
-    ================================================================ */
-    async function deleteCoupon(id) {
-      const result = await Swal.fire({
-        title: 'Delete this coupon?',
-        text: 'This action cannot be undone.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#D84E2B',
-        cancelButtonColor: '#6B7280',
-        confirmButtonText: 'Yes, delete it!'
-      });
-      if (!result.isConfirmed) return;
-
-      const btn = document.querySelector(`button[onclick*="deleteCoupon('${id}')"]`);
-      const originalHtml = btn ? btn.innerHTML : '';
-      if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:13px;height:13px;border-width:2px"></span>';
-      }
-
-      try {
-        const res  = await fetch(`/admin/coupons/delete/${id}`, { method: 'DELETE' });
-        const data = await res.json();
-        if (data.success) {
-          Swal.fire('Deleted!', 'Coupon has been deleted.', 'success')
-            .then(() => location.reload());
+      function updateUnlimitedUI() {
+        const btn = document.getElementById('unlimitedToggle');
+        const inp = document.getElementById('f_maxDiscount');
+        if (unlimited) {
+          btn.classList.add('checked');
+          inp.value = 'Unlimited';
+          inp.readOnly = true;
+          inp.removeAttribute('name'); // don't send 'Unlimited' string to server
+          clearError('maxDiscount');
         } else {
-          if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
-          Swal.fire('Error!', data.message || 'Failed to delete.', 'error');
+          btn.classList.remove('checked');
+          if (inp.value === 'Unlimited') inp.value = '';
+          inp.readOnly = false;
+          inp.setAttribute('name', 'maxDiscount');
+          inp.placeholder = 'e.g. 500';
+          inp.focus();
         }
-      } catch {
-        if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
-        Swal.fire('Error!', 'Network error. Please try again.', 'error');
-      }
-    }
-
-    /* ================================================================
-       FORM SUBMIT
-    ================================================================ */
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-
-      if (!validateForm()) {
-        const firstErr = form.querySelector('.field-error');
-        firstErr?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
       }
 
-      const submitBtn = document.getElementById('submitBtn');
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" style="width:13px;height:13px;border-width:2px"></span> Saving…';
+      /* ================================================================
+         EDIT COUPON
+         FIX: reads from data-coupon attribute — no XSS risk from inline onclick
+      ================================================================ */
+      function editCoupon(btn) {
+        let coupon;
 
-      /* Build payload */
-      const fv = getFormValues();
-      const payload = {
-        description:   fv.description.trim(),
-        code:          fv.code.trim().toUpperCase(),
-        discountType:  fv.discountType,
-        discountValue: Number(fv.discountValue),
-        minCartValue:  Number(fv.minCartValue) || 0,
-        usageLimit:    fv.usageLimit ? Number(fv.usageLimit) : undefined,
-        validFrom:     fv.validFrom,
-        validTill:     fv.validTill,
-        isActive:      document.getElementById('f_isActive').checked
-      };
+        try {
+          coupon = JSON.parse(btn.getAttribute('data-coupon'));
+        } catch (err) {
+          console.error(err);
+          Swal.fire('Error', 'Invalid coupon data', 'error');
+          return;
+        }
 
-      if (!unlimited && fv.maxDiscount && fv.maxDiscount !== 'Unlimited') {
-        payload.maxDiscount = Number(fv.maxDiscount);
+        openModal(true);
+        clearAllErrors();
+        isEditMode = true;
+
+        modalTitle.innerText = 'Edit Coupon';
+
+        // set hidden id
+        document.getElementById('couponId').value = coupon._id || '';
+
+        // fill fields
+        form.querySelector('[name="code"]').value = coupon.code || '';
+        form.querySelector('[name="description"]').value = coupon.description || '';
+        form.querySelector('[name="discountType"]').value = coupon.discountType || 'percentage';
+        form.querySelector('[name="discountValue"]').value = coupon.discountValue || '';
+        form.querySelector('[name="minCartValue"]').value = coupon.minCartValue ?? 0;
+        form.querySelector('[name="usageLimit"]').value = coupon.usageLimit || '';
+
+        // dates
+        form.querySelector('[name="validFrom"]').value =
+          coupon.validFrom ? new Date(coupon.validFrom).toISOString().split('T')[0] : '';
+
+        form.querySelector('[name="validTill"]').value =
+          coupon.validTill ? new Date(coupon.validTill).toISOString().split('T')[0] : '';
+
+        // active toggle
+        document.getElementById('f_isActive').checked = !!coupon.isActive;
+
+        // max discount logic
+        const maxInput = document.getElementById('f_maxDiscount');
+
+        if (coupon.maxDiscount) {
+          unlimited = false;
+          maxInput.value = coupon.maxDiscount;
+          maxInput.setAttribute('name', 'maxDiscount');
+        } else {
+          unlimited = true;
+        }
+
+        updateUnlimitedUI();
       }
-
-      if (isEditMode) {
-        payload.couponId = document.getElementById('couponId').value;
-      }
-
-      const endpoint = isEditMode ? '/admin/coupons/edit' : '/admin/coupons/add';
-
-      try {
-        const res    = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+      /* ================================================================
+         DELETE COUPON
+      ================================================================ */
+      async function deleteCoupon(id) {
+        const result = await Swal.fire({
+          title: 'Delete this coupon?',
+          text: 'This action cannot be undone.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#D84E2B',
+          cancelButtonColor: '#6B7280',
+          confirmButtonText: 'Yes, delete it!'
         });
-        const result = await res.json();
+        if (!result.isConfirmed) return;
 
-        if (result.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Saved!',
-            text: result.message || 'Coupon saved successfully.',
-            confirmButtonColor: '#D84E2B'
-          }).then(() => location.reload());
-        } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Could not save',
-            text: result.message || 'Something went wrong.',
-            confirmButtonColor: '#D84E2B'
-          });
+        const btn = document.querySelector(`button[onclick*="deleteCoupon('${id}')"]`);
+        const originalHtml = btn ? btn.innerHTML : '';
+        if (btn) {
+          btn.disabled = true;
+          btn.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:13px;height:13px;border-width:2px"></span>';
         }
-      } catch {
-        Swal.fire('Error!', 'Network error. Please try again.', 'error');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Save Coupon';
+
+        try {
+          const res = await fetch(`/admin/coupons/delete/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (data.success) {
+            Swal.fire('Deleted!', 'Coupon has been deleted.', 'success')
+              .then(() => location.reload());
+          } else {
+            if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+            Swal.fire('Error!', data.message || 'Failed to delete.', 'error');
+          }
+        } catch {
+          if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+          Swal.fire('Error!', 'Network error. Please try again.', 'error');
+        }
       }
-    });
-  </script>
+
+      /* ================================================================
+         FORM SUBMIT
+      ================================================================ */
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+
+        if (!validateForm()) {
+          const firstErr = form.querySelector('.field-error');
+          firstErr?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" style="width:13px;height:13px;border-width:2px"></span> Saving…';
+
+        /* Build payload */
+        const fv = getFormValues();
+        const payload = {
+          description: fv.description.trim(),
+          code: fv.code.trim().toUpperCase(),
+          discountType: fv.discountType,
+          discountValue: Number(fv.discountValue),
+          minCartValue: Number(fv.minCartValue) || 0,
+          usageLimit: fv.usageLimit ? Number(fv.usageLimit) : undefined,
+          validFrom: fv.validFrom,
+          validTill: fv.validTill,
+          isActive: document.getElementById('f_isActive').checked
+        };
+
+        if (!unlimited && fv.maxDiscount && fv.maxDiscount !== 'Unlimited') {
+          payload.maxDiscount = Number(fv.maxDiscount);
+        }
+
+        if (isEditMode) {
+          payload.couponId = document.getElementById('couponId').value;
+        }
+
+        const endpoint = isEditMode ? '/admin/coupons/edit' : '/admin/coupons/add';
+
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const result = await res.json();
+
+          if (result.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Saved!',
+              text: result.message || 'Coupon saved successfully.',
+              confirmButtonColor: '#D84E2B'
+            }).then(() => location.reload());
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Could not save',
+              text: result.message || 'Something went wrong.',
+              confirmButtonColor: '#D84E2B'
+            });
+          }
+        } catch {
+          Swal.fire('Error!', 'Network error. Please try again.', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Save Coupon';
+        }
+      });
+    </script>
 </body>
+
 </html>

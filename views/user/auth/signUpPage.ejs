@@ -26,7 +26,7 @@
             <!-- Full Name -->
             <div class="mb-3">
                 <label class="form-label">Full Name</label>
-                <input type="text" id="fullName" name="Name" class="form-control" placeholder="Enter Full Name"
+                <input type="text" id="fullName" name="name" class="form-control" placeholder="Enter Full Name"
                     value="<%= typeof Name !== 'undefined' ? Name : '' %>" >
             </div>
             <p style="color:red; font-size: small;" id="nameError">
@@ -36,8 +36,8 @@
             <!-- Email -->
             <div class="mb-3">
                 <label class="form-label">Email</label>
-                <input type="email" id="Email" name="Email" class="form-control" placeholder="Enter your Email Address"
-                    value="<%= typeof Email !== 'undefined' ? Email : '' %>">
+                <input type="email" id="Email" name="email" class="form-control" placeholder="Enter your Email Address"
+                    value="<%= typeof Email !== 'undefined' ? Email : '' %>"  >
             </div>
 
             <!-- Email Error -->
@@ -47,8 +47,9 @@
             <!-- Phone Number -->
             <div class="mb-3">
                 <label class="form-label">Phone Number</label>
-                <input type="tel" id="Phone" name="Phone" class="form-control" placeholder="Enter your Phone Number"
-                    value="<%= (typeof Phone !== 'undefined' && Phone !== '') ? (Phone.includes('+91') ? Phone : '+91' + Phone) : '+91' %>">
+                <input type="tel" id="Phone" name="phone" class="form-control" placeholder="Enter your Phone Number"
+                    value="<%= (typeof Phone !== 'undefined' && Phone !== '') ? (Phone.includes('+91') ? Phone : '+91' + Phone) : '+91' %>"
+                      >
             </div>
             <p style="color:red; font-size: small;" id="phoneError">
                 <%= typeof phoneError !=='undefined' && phoneError ? phoneError : '' %>
@@ -59,9 +60,9 @@
             <div class="mb-3">
                 <label class="form-label">Password</label>
                 <div class="password-wrapper">
-                    <input type="password" id="Password" name="Password" class="form-control"
-                        placeholder="Enter your password"
-                        value="<%= typeof Password !== 'undefined' ? Password : '' %>">
+                    <input type="password" id="Password" name="password" class="form-control"
+                        placeholder="Enter your password" value="<%= typeof Password !== 'undefined' ? Password : '' %>"
+                         >
                     <div class="password-toggle-icon" id="togglePassword">
                         <i class="bi bi-eye-slash"></i>
                     </div>
@@ -164,7 +165,7 @@
                 const phoneValue = document.getElementById("Phone").value.trim();
                 const passwordValue = document.getElementById("Password").value.trim();
                 const confirmPasswordValue = document.getElementById("confirmPassword").value.trim();
-                 
+
 
                 const nameRegex = /^[a-zA-Z.]$/;
                 const emailRegex = /^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
@@ -181,7 +182,7 @@
                 phoneError.textContent = "";
                 passError.textContent = "";
 
-            
+
 
                 // // Empty field validation
                 if (!Name && !emailValue && !passwordValue && !confirmPasswordValue) {

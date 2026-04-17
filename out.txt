@@ -1,0 +1,20 @@
+- POCO M6 PLUS 5G
+  Category: xiaomi Active: true Deleted: false
+  Active Variants: 1
+  Product status: active isDeleted: false
+- Iphone 18 pro max
+  Category: apple Active: true Deleted: false
+  Active Variants: 1
+  Product status: active isDeleted: true
+- VIVO T2x 5G (sajad)
+  Category: vivo Active: true Deleted: false
+  Active Variants: 1
+  Product status: active isDeleted: false
+- I PHONE 18 PRO MAX
+  Category: samsung Active: true Deleted: false
+  Active Variants: 1
+  Product status: active isDeleted: false
+- HONOR X7c 5G
+  Category: honor Active: true Deleted: false
+  Active Variants: 1
+  Product status: active isDeleted: false

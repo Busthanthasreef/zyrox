@@ -24,8 +24,9 @@
                 <label for="email">Email</label>
 
                 <div class="input-wrapper">
-                    <input id="email" class="inputFields" type="email" name="Email"
-                        placeholder="Enter your Email Address" value="<%= typeof Email !== 'undefined' ? Email : '' %>">
+                    <input id="email" class="inputFields" type="email" name="email"
+                        placeholder="Enter your Email Address" autocomplete="email"
+                        value="<%= typeof Email !== 'undefined' ? Email : '' %>">
                 </div>
 
                 <!-- Frontend validation -->
@@ -49,8 +50,8 @@
                 </div>
 
                 <div class="input-wrapper">
-                    <input type="password" class="inputFields" id="password" name="Password"
-                        placeholder="Enter your Password" required>
+                    <input type="password" class="inputFields" id="password" name="password"
+                        placeholder="Enter your Password" autocomplete="current-password">
                     <div class="password-toggle-icon" id="togglePassword">
                         <i class="bi bi-eye-slash"></i>
                     </div>

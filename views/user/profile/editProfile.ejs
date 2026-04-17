@@ -64,7 +64,7 @@
                                         <div class="form-group">
                                             <label>Full Name</label>
                                             <input type="text" name="Name" class="form-control" value="<%= user.Name %>"
-                                                required>
+                                                required autocomplete="name">
                                             <% if(nameError) { %>
                                                 <p class="text-danger small mt-1 mb-0">
                                                     <%= nameError %>
@@ -80,7 +80,8 @@
                                                 <span
                                                     class="input-group-text bg-transparent border-secondary text-white-50">+91</span>
                                                 <input type="text" name="phoneNumber" class="form-control"
-                                                    value="<%= user.Phone_number || '' %>" maxlength="10">
+                                                    value="<%= user.Phone_number || '' %>" maxlength="10"
+                                                    autocomplete="tel">
                                             </div>
                                             <% if(phoneError) { %>
                                                 <p class="text-danger small mt-1 mb-0">
@@ -95,7 +96,8 @@
                                             <label>Email Address</label>
                                             <div class="d-flex gap-2">
                                                 <input type="email" name="Email" class="form-control"
-                                                    value="<%= user.Email %>" <%=isGoogleUser ? 'disabled' : '' %>>
+                                                    value="<%= user.Email %>" <%=isGoogleUser ? 'disabled' : '' %>
+                                                autocomplete="email">
                                                 <% if (!isGoogleUser) { %>
                                                     <a href="/edit-email"
                                                         class="btn btn-custom change-pass-btn px-3">Update</a>

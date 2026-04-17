@@ -1,10 +1,12 @@
 import productSchema from "../../models/product.js";
 import categorySchema from "../../models/category.js";
 import variantSchema from "../../models/variant.js";
+import { calculateBestOffer, applyOffer } from "../../utils/offerHelper.js";
+import Offer from "../../models/offer.js";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const PRICE_MIN = 0;
-const PRICE_MAX = 219999;
+const PRICE_MAX = 999999;
 const ITEMS_PER_PAGE = 8;
 
 export const MAX_CART_QTY = 3;
@@ -15,11 +17,11 @@ export const validateVariantForCart = async (productId, variantId) => {
         .findOne({ _id: variantId, productId, IsDeleted: { $ne: true } })
         .populate("productId");
 
-    if (!variant || !variant.productId)      return { error: "Product not found." };
-    if (variant.productId.IsDeleted)          return { error: "Product no longer available." };
+    if (!variant || !variant.productId) return { error: "Product not found." };
+    if (variant.productId.IsDeleted) return { error: "Product no longer available." };
     if (variant.productId.status !== "active") return { error: "Product is currently unavailable." };
-    if (variant.IsActive === false)            return { error: "This variant is currently unavailable." };
-    if (variant.stock <= 0)                    return { error: "This variant is out of stock." };
+    if (variant.IsActive === false) return { error: "This variant is currently unavailable." };
+    if (variant.stock <= 0) return { error: "This variant is out of stock." };
 
     return { variant };
 };
@@ -36,8 +38,8 @@ export const getSidebarData = async (categories) => {
         activeCategories.map(async (c) => {
             const count = await productSchema.countDocuments({
                 categoryId: c._id,          // ✅ FIXED: was `category` — wrong field name
-                IsDeleted:  { $ne: true },
-                status:     "active",
+                IsDeleted: { $ne: true },
+                status: "active",
             });
             return { name: c.categoryName, count };
         })
@@ -54,13 +56,13 @@ export const getSidebarData = async (categories) => {
         .find({
             productId: { $in: activeProductIds },
             IsDeleted: { $ne: true },
-            IsActive:  { $ne: false },
+            IsActive: { $ne: false },
         })
         .select("color RAM storage")
         .lean();
 
-    const colors   = [...new Set(allVariants.map((v) => v.color).filter(Boolean))].sort();
-    const rams     = [...new Set(allVariants.map((v) => v.RAM).filter(Boolean))].sort((a, b) => a - b);
+    const colors = [...new Set(allVariants.map((v) => v.color).filter(Boolean))].sort();
+    const rams = [...new Set(allVariants.map((v) => v.RAM).filter(Boolean))].sort((a, b) => a - b);
     const storages = [...new Set(allVariants.map((v) => v.storage).filter(Boolean))].sort((a, b) => a - b);
 
     return { brands, colors, rams, storages };
@@ -69,15 +71,15 @@ export const getSidebarData = async (categories) => {
 // ── Product Listing ───────────────────────────────────────────────────────────
 export const getFilteredProducts = async ({ categories, filters }) => {
     const {
-        page          = 1,
-        sortParam     = "",
-        search        = "",
-        brandFilter   = [],
-        ramFilter     = [],
+        page = 1,
+        sortParam = "",
+        search = "",
+        brandFilter = [],
+        ramFilter = [],
         storageFilter = [],
-        colorFilter   = [],
-        minPrice      = PRICE_MIN,
-        maxPrice      = PRICE_MAX,
+        colorFilter = [],
+        minPrice = PRICE_MIN,
+        maxPrice = PRICE_MAX,
     } = filters;
 
     // Only active, non-deleted categories
@@ -87,15 +89,18 @@ export const getFilteredProducts = async ({ categories, filters }) => {
 
     // Base product query
     const productQuery = {
-        IsDeleted:  { $ne: true },
-        status:     "active",
-        categoryId: { $in: activeCatIds },
+        IsDeleted: { $ne: true },
+        status: "active",
     };
+
+    if (activeCatIds.length > 0) {
+        productQuery.categoryId = { $in: activeCatIds };
+    }
 
     // Search filter
     if (search) {
         productQuery.productName = {
-            $regex:   search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+            $regex: search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
             $options: "i",
         };
     }
@@ -108,20 +113,20 @@ export const getFilteredProducts = async ({ categories, filters }) => {
         productQuery.categoryId = { $in: filteredCatIds };
     }
 
-    const rawProducts  = await productSchema.find(productQuery).lean();
-    const productIds   = rawProducts.map((p) => p._id);
+    const rawProducts = await productSchema.find(productQuery).lean();
+    const productIds = rawProducts.map((p) => p._id);
 
     // Variant query with price + attribute filters
     const variantQuery = {
         productId: { $in: productIds },
         IsDeleted: { $ne: true },
-        IsActive:  { $ne: false },
-        price:     { $gte: minPrice, $lte: maxPrice },
+        IsActive: { $ne: false },
+        price: { $gte: minPrice, $lte: maxPrice },
     };
 
-    if (ramFilter.length > 0)     variantQuery.RAM     = { $in: ramFilter.map((r) => parseInt(r, 10)) };
+    if (ramFilter.length > 0) variantQuery.RAM = { $in: ramFilter.map((r) => parseInt(r, 10)) };
     if (storageFilter.length > 0) variantQuery.storage = { $in: storageFilter.map((s) => parseInt(s, 10)) };
-    if (colorFilter.length > 0)   variantQuery.color   = { $in: colorFilter };
+    if (colorFilter.length > 0) variantQuery.color = { $in: colorFilter };
 
     const variants = await variantSchema.find(variantQuery).lean();
 
@@ -134,42 +139,48 @@ export const getFilteredProducts = async ({ categories, filters }) => {
     });
 
     // Build display list — one card per product
-    let products = rawProducts
+    let products = await Promise.all(rawProducts
         .filter((p) => variantsByProduct[p._id.toString()]?.length > 0)
-        .map((p) => {
-            const pid           = p._id.toString();
-            const pVariants     = variantsByProduct[pid];
+        .map(async (p) => {
+            const pid = p._id.toString();
+            const pVariants = variantsByProduct[pid];
             const displayVariant = pVariants.find((v) => v.IsDefault) || pVariants[0];
-            const brandObj      = categories.find((c) => c._id.toString() === p.categoryId?.toString());
+            const brandObj = categories.find((c) => c._id.toString() === p.categoryId?.toString());
+
+            // Calculate Offer
+            const bestOffer = await calculateBestOffer(p._id, p.categoryId, displayVariant.price);
+            const discountedPrice = applyOffer(displayVariant.price, bestOffer);
 
             return {
-                id:        pid,
-                name:      p.productName,
-                brand:     brandObj ? brandObj.categoryName : "Generic",
-                image:     displayVariant.images?.length > 0 ? displayVariant.images[0] : "/images/placeholder.png",
-                ram:       displayVariant.RAM,
-                storage:   displayVariant.storage,
-                color:     displayVariant.color,
-                price:     displayVariant.price,
-                oldPrice:  displayVariant.oldPrice || null,
-                stock:     displayVariant.stock,
-                rating:    p.rating || 0,
-                badge:     p.badge  || null,
+                id: pid,
+                name: p.productName,
+                brand: brandObj ? brandObj.categoryName : "Generic",
+                image: displayVariant.images?.length > 0 ? displayVariant.images[0] : "/images/placeholder.png",
+                ram: displayVariant.RAM,
+                storage: displayVariant.storage,
+                color: displayVariant.color,
+                price: discountedPrice, // Show the discounted price
+                originalPrice: displayVariant.price, // Keep original
+                hasOffer: !!bestOffer,
+                offerDiscount: bestOffer ? bestOffer.discountPercentage : 0,
+                stock: displayVariant.stock,
+                rating: p.rating || 0,
+                badge: p.badge || null,
                 variantId: displayVariant._id.toString(),
-                status:    p.status || "active",
+                status: p.status || "active",
             };
-        });
+        }));
 
     // Sort
-    if (sortParam === "price_asc")  products.sort((a, b) => a.price - b.price);
+    if (sortParam === "price_asc") products.sort((a, b) => a.price - b.price);
     if (sortParam === "price_desc") products.sort((a, b) => b.price - a.price);
-    if (sortParam === "name_asc")   products.sort((a, b) => a.name.localeCompare(b.name));
-    if (sortParam === "name_desc")  products.sort((a, b) => b.name.localeCompare(a.name));
+    if (sortParam === "name_asc") products.sort((a, b) => a.name.localeCompare(b.name));
+    if (sortParam === "name_desc") products.sort((a, b) => b.name.localeCompare(a.name));
 
     // Paginate
-    const totalProducts     = products.length;
-    const totalPages        = Math.ceil(totalProducts / ITEMS_PER_PAGE) || 1;
-    const currentPage       = Math.min(Math.max(parseInt(page, 10) || 1, 1), totalPages);
+    const totalProducts = products.length;
+    const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE) || 1;
+    const currentPage = Math.min(Math.max(parseInt(page, 10) || 1, 1), totalPages);
     const paginatedProducts = products.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
@@ -180,8 +191,8 @@ export const getFilteredProducts = async ({ categories, filters }) => {
 
 // ── Product Details ───────────────────────────────────────────────────────────
 export const getProductDetails = async (productId, variantIdReq) => {
-    const safeProductId = productId     && /^[a-f\d]{24}$/i.test(productId)     ? productId     : null;
-    const safeVariantId = variantIdReq  && /^[a-f\d]{24}$/i.test(variantIdReq)  ? variantIdReq  : null;
+    const safeProductId = productId && /^[a-f\d]{24}$/i.test(productId) ? productId : null;
+    const safeVariantId = variantIdReq && /^[a-f\d]{24}$/i.test(variantIdReq) ? variantIdReq : null;
 
     if (!safeProductId) return null;
 
@@ -191,8 +202,8 @@ export const getProductDetails = async (productId, variantIdReq) => {
     const variant = await variantSchema
         .findOne(variantQuery)
         .populate({
-            path:     "productId",
-            model:    "Product",
+            path: "productId",
+            model: "Product",
             populate: { path: "categoryId", model: "Categories" },
         })
         .lean();
@@ -211,12 +222,17 @@ export const getProductDetails = async (productId, variantIdReq) => {
         .find({ productId: safeProductId, IsDeleted: { $ne: true } })
         .lean();
 
+    // Calculate Offer for the main variant
+    const bestOffer = await calculateBestOffer(variant.productId._id, variant.productId.categoryId._id, variant.price);
+    variant.discountedPrice = applyOffer(variant.price, bestOffer);
+    variant.bestOffer = bestOffer;
+
     const relatedProductsRaw = await productSchema
         .find({
             categoryId: category._id,
-            _id:        { $ne: safeProductId },
-            IsDeleted:  { $ne: true },
-            status:     "active",
+            _id: { $ne: safeProductId },
+            IsDeleted: { $ne: true },
+            status: "active",
         })
         .limit(4)
         .lean();
@@ -228,6 +244,11 @@ export const getProductDetails = async (productId, variantIdReq) => {
                     (await variantSchema.findOne({ productId: p._id, IsDeleted: { $ne: true }, IsDefault: true }).lean()) ||
                     (await variantSchema.findOne({ productId: p._id, IsDeleted: { $ne: true } }).lean());
                 if (!v) return null;
+
+                const pOffer = await calculateBestOffer(p._id, p.categoryId, v.price);
+                v.discountedPrice = applyOffer(v.price, pOffer);
+                v.bestOffer = pOffer;
+
                 return { ...p, displayVariant: v };
             })
         )

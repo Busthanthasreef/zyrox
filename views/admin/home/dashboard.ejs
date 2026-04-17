@@ -306,7 +306,7 @@
                                                 </span>
                                             </div>
                                             <div class="progress-bar-wrap">
-                                                <div class="progress-bar-fill" style="width: '<%= cat.percent %>%'">
+                                                <div class="progress-bar-fill" style="width: <%= cat.percent %>%">
                                                 </div>
                                             </div>
                                         </div>
@@ -381,9 +381,7 @@
         // Revenue chart
         const ctx = document.getElementById('revenueChart').getContext('2d');
 
-        const revenueData = typeof dashboardChartData !== 'undefined'
-            ? dashboardChartData
-            : [0, 1200, 2000, 1500, 3000, 4500, 3800, 5000, 6000, 7500, 9000, 9800];
+        const revenueData = <% - typeof dashboardChartData !== 'undefined' ? JSON.stringify(dashboardChartData) : JSON.stringify([0, 1200, 2000, 1500, 3000, 4500, 3800, 5000, 6000, 7500, 9000, 9800]) %>;
 
         new Chart(ctx, {
             type: 'line',

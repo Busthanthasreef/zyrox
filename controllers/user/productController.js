@@ -9,7 +9,7 @@ import {
     MAX_CART_QTY,
 } from "../../services/userServices/productService.js";
 
-const PRICE_MAX = 219999;
+const PRICE_MAX = 999999;
 const PRICE_MIN = 0;
 
 // ── Helper: parse array query params ─────────────────────────────────────────

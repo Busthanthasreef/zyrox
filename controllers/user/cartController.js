@@ -4,6 +4,7 @@ import categorySchema  from "../../models/category.js";
 import variantSchema   from "../../models/variant.js";
 import wishlistSchema  from "../../models/wishlist.js";
 import { validateVariantForCart, MAX_CART_QTY } from "../../services/userServices/productService.js";
+import { calculateBestOffer, applyOffer } from "../../utils/offerHelper.js";
 
 
 
@@ -59,7 +60,7 @@ const loadCart = async (req, res) => {
 
 
     /* ================= MAP CART ITEMS ================= */
-    const cartItems = paginatedItems.map(item => {
+    const cartItems = await Promise.all(paginatedItems.map(async (item) => {
       const prod = item.Product_id;
       const vari = item.Variant_id;
 
@@ -70,6 +71,14 @@ const loadCart = async (req, res) => {
       const isAdminInactive = !isActiveProduct || !isActiveVariant;
       const isAvailable     = isActiveProduct && isActiveVariant && isInStock;
       
+      const originalPrice = vari?.price || 0;
+      let discountedPrice = originalPrice;
+      
+      if (isAvailable) {
+        const bestOffer = await calculateBestOffer(prod._id, prod.categoryId, originalPrice);
+        discountedPrice = bestOffer ? applyOffer(originalPrice, bestOffer) : originalPrice;
+      }
+
       return {
         quantity:        item.Quantity,
         productId:       prod?._id,
@@ -81,20 +90,22 @@ const loadCart = async (req, res) => {
         product: {
           name:    prod?.productName,
           image:   vari?.images?.[0] || "/images/placeholder.png",
-          price:   isAvailable ? (vari?.price || 0) : 0,
+          originalPrice: originalPrice,
+          price:   discountedPrice, // This is what the UI uses for row total
           color:   vari?.color,
           ram:     vari?.RAM,
           storage: vari?.storage,
           stock:   vari?.stock || 0,
         }
       };
-    });
+    }));
 
     /* ================= SUBTOTAL & GLOBAL AVAILABILITY ================= */
     let subtotal = 0;
+    let totalOfferDiscount = 0;
     let hasUnavailableItems = false;
 
-    cart.Items.forEach(item => {
+    for (const item of cart.Items) {
       const prod = item.Product_id;
       const vari = item.Variant_id;
       
@@ -103,13 +114,18 @@ const loadCart = async (req, res) => {
       const isInStock       = (vari?.stock || 0) >= item.Quantity; // Matching checkout logic
 
       if (isActiveProduct && isActiveVariant && isInStock) {
-        subtotal += (vari.price || 0) * item.Quantity;
+        const originalPrice = vari.price || 0;
+        const bestOffer = await calculateBestOffer(prod._id, prod.categoryId, originalPrice);
+        const discountedPrice = bestOffer ? applyOffer(originalPrice, bestOffer) : originalPrice;
+        
+        subtotal += originalPrice * item.Quantity;
+        totalOfferDiscount += (originalPrice - discountedPrice) * item.Quantity;
       } else {
         hasUnavailableItems = true;
       }
-    });
+    }
 
-    const discount   = 0;
+    const discount   = totalOfferDiscount;
     const shipping   = 0;
     const total      = subtotal - discount + shipping;
     const totalPages = Math.ceil(totalItems / limit);
@@ -291,23 +307,36 @@ const updateQuantity = async (req, res) => {
     cart.Items[itemIndex].Quantity = newQty;
     await cart.save();
 
-    // Recalculate full subtotal
+    // Recalculate full subtotal and discount
     const populatedCart = await cartSchema
       .findOne({ User_id: userId })
-      .populate("Items.Variant_id");
+      .populate("Items.Variant_id")
+      .populate("Items.Product_id");
 
     let subtotal = 0;
-    populatedCart.Items.forEach(item => {
-      if (item.Variant_id) subtotal += item.Variant_id.price * item.Quantity;
-    });
+    let totalOfferDiscount = 0;
+    
+    for (const item of populatedCart.Items) {
+      const prod = item.Product_id;
+      const vari = item.Variant_id;
+      if (prod && vari) {
+        const originalPrice = vari.price || 0;
+        const bestOffer = await calculateBestOffer(prod._id, prod.categoryId, originalPrice);
+        const discountedPrice = bestOffer ? applyOffer(originalPrice, bestOffer) : originalPrice;
+        
+        subtotal += originalPrice * item.Quantity;
+        totalOfferDiscount += (originalPrice - discountedPrice) * item.Quantity;
+      }
+    }
 
     res.json({
       success:     true,
       message:     "Quantity updated",
       newQuantity: newQty,
-      rowTotal:    variant.price * newQty,
+      rowTotal:    (subtotal / populatedCart.Items.length), // Placeholder, UI handles row total
       subtotal,
-      total:       subtotal  // add shipping/discount logic here if needed
+      discount:    totalOfferDiscount,
+      total:       subtotal - totalOfferDiscount
     });
 
   } catch (error) {

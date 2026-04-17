@@ -7,6 +7,7 @@ import * as variantController from "../controllers/admin/variantController.js";
 import * as categoryController from "../controllers/admin/categoryController.js";
 import * as orderController from "../controllers/admin/orderController.js";
 import * as couponController from "../controllers/admin/couponController.js";
+import * as offerController from "../controllers/admin/offerController.js";
 import upload from "../middlewares/multer.js";
 
 const adminRoutes = express.Router();
@@ -50,6 +51,20 @@ adminRoutes.get('/coupons', isAdminAuthenticated, couponController.getCoupons);
 adminRoutes.post('/coupons/add', isAdminAuthenticated, couponController.addCoupon);
 adminRoutes.post('/coupons/edit', isAdminAuthenticated, couponController.editCoupon);
 adminRoutes.delete('/coupons/delete/:id', isAdminAuthenticated, couponController.deleteCoupon);
+
+// Offer Routes
+adminRoutes.get('/offers', isAdminAuthenticated, offerController.getOffers);
+adminRoutes.post('/offers/add-product', isAdminAuthenticated, offerController.addProductOffer);
+adminRoutes.post('/offers/add-category', isAdminAuthenticated, offerController.addCategoryOffer);
+adminRoutes.put('/offers/edit/:id', isAdminAuthenticated, offerController.editOffer);
+adminRoutes.patch('/offers/toggle/:id', isAdminAuthenticated, offerController.toggleOfferStatus);
+adminRoutes.delete('/offers/delete/:id', isAdminAuthenticated, offerController.deleteOffer);
+
+// Sales Report
+import * as salesReportController from "../controllers/admin/salesReportController.js";
+adminRoutes.get('/sales-report', isAdminAuthenticated, salesReportController.getSalesReport);
+adminRoutes.get('/sales-report/export/excel', isAdminAuthenticated, salesReportController.exportExcel);
+adminRoutes.get('/sales-report/export/pdf', isAdminAuthenticated, salesReportController.exportPDF);
 
 
 adminRoutes.get("/logout", isAdminAuthenticated, adminController.logout);

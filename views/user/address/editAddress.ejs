@@ -62,7 +62,7 @@
                                     <div class="form-group">
                                         <label>Full Name</label>
                                         <input type="text" name="name" class="form-control" value="<%= address.name %>"
-                                            required>
+                                            required autocomplete="name">
                                         <% if (errors.name) { %>
                                             <p class="text-danger small mt-1">
                                                 <%= errors.name %>
@@ -79,7 +79,7 @@
                                                 class="input-group-text bg-transparent border-secondary text-white-50">+91</span>
                                             <input type="text" name="phone" class="form-control"
                                                 value="<%= address.phone ? address.phone.replace('+91', '').trim() : '' %>"
-                                                maxlength="10" required>
+                                                maxlength="10" required autocomplete="tel">
                                         </div>
                                         <% if (errors.phone) { %>
                                             <p class="text-danger small mt-1">
@@ -93,7 +93,7 @@
                                     <div class="form-group">
                                         <label>House Name / No.</label>
                                         <input type="text" name="houseName" class="form-control"
-                                            value="<%= address.houseName %>" required>
+                                            value="<%= address.houseName %>" required autocomplete="address-line1">
                                         <% if (errors.houseName) { %>
                                             <p class="text-danger small mt-1">
                                                 <%= errors.houseName %>
@@ -106,7 +106,7 @@
                                     <div class="form-group">
                                         <label>Locality / Street</label>
                                         <input type="text" name="locality" class="form-control"
-                                            value="<%= address.locality %>" required>
+                                            value="<%= address.locality %>" required autocomplete="address-line2">
                                         <% if (errors.locality) { %>
                                             <p class="text-danger small mt-1">
                                                 <%= errors.locality %>
@@ -119,7 +119,7 @@
                                     <div class="form-group">
                                         <label>City</label>
                                         <input type="text" name="city" class="form-control" value="<%= address.city %>"
-                                            required>
+                                            required autocomplete="address-level2">
                                         <% if (errors.city) { %>
                                             <p class="text-danger small mt-1">
                                                 <%= errors.city %>
@@ -132,7 +132,7 @@
                                     <div class="form-group">
                                         <label>State</label>
                                         <input type="text" name="state" class="form-control"
-                                            value="<%= address.state %>" required>
+                                            value="<%= address.state %>" required autocomplete="address-level1">
                                         <% if (errors.state) { %>
                                             <p class="text-danger small mt-1">
                                                 <%= errors.state %>
@@ -145,7 +145,8 @@
                                     <div class="form-group">
                                         <label>Pincode</label>
                                         <input type="text" name="pincode" class="form-control"
-                                            value="<%= address.pincode %>" maxlength="6" required>
+                                            value="<%= address.pincode %>" maxlength="6" required
+                                            autocomplete="postal-code">
                                         <% if (errors.pincode) { %>
                                             <p class="text-danger small mt-1">
                                                 <%= errors.pincode %>

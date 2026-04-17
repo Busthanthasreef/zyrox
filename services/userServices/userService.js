@@ -6,10 +6,15 @@ import otpSchema from "../../models/otp.js";
 
 const userSignUpService = async (bodyData) => {
 
-    const trimmedName = bodyData.Name ? bodyData.Name.trim() : "";
-    const trimmedEmail = bodyData.Email ? bodyData.Email.trim().toLowerCase() : "";
-    const trimmedPhone = bodyData.Phone ? bodyData.Phone.trim() : "";
-    const trimmedPassword = bodyData.Password ? bodyData.Password.trim() : "";
+    const name = bodyData.name || bodyData.Name;
+    const email = bodyData.email || bodyData.Email;
+    const phone = bodyData.phone || bodyData.Phone;
+    const password = bodyData.password || bodyData.Password;
+
+    const trimmedName = name ? name.trim() : "";
+    const trimmedEmail = email ? email.trim().toLowerCase() : "";
+    const trimmedPhone = phone ? phone.trim() : "";
+    const trimmedPassword = password ? password.trim() : "";
     const confirmPassword = bodyData.confirmPassword ? bodyData.confirmPassword.trim() : "";
 
     const emailRegex = /^[a-zA-Z0-9+._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
