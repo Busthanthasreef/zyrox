@@ -48,6 +48,10 @@
             margin: 1.5rem;
             border-radius: var(--card-radius);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
         }
 
         .header-section h1 {
@@ -55,6 +59,10 @@
             font-weight: 800;
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
+        }
+
+        .header-section {
+            flex-shrink: 0;
         }
 
         /* ── TABLE AESTHETICS ── */
@@ -68,6 +76,7 @@
             gap: 1.5rem;
             margin-bottom: 2rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            flex-shrink: 0;
         }
 
         .search-wrapper {
@@ -82,6 +91,25 @@
             outline: none;
             width: 100%;
             font-size: 0.9rem;
+        }
+
+        .table-responsive {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .table-responsive::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
         }
 
         .offer-table {
@@ -388,7 +416,7 @@
     <%- include('../../partials/admin/sidebar', { currentPage: 'offers' ,currentUser:admin }) %>
 
         <main class="admin-main">
-            <div class="main-content">
+            <div class="content-area">
                 <div class="header-section d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h1>Offers</h1>

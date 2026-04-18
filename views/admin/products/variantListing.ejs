@@ -56,8 +56,11 @@
         .main-content {
             flex: 1;
             padding: 2rem 2.4rem;
-            min-height: 100vh;
+            height: 100vh;
             max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
 
         .page-title {
@@ -66,6 +69,7 @@
             color: var(--text);
             letter-spacing: -0.4px;
             margin-bottom: 1.6rem;
+            flex-shrink: 0;
         }
 
         /* Product Card */
@@ -80,6 +84,7 @@
             box-shadow: var(--shadow);
             margin-bottom: 1.5rem;
             animation: fadeUp 0.35s ease both;
+            flex-shrink: 0;
         }
 
         .product-thumb {
@@ -169,6 +174,7 @@
             gap: 1rem;
             margin-bottom: 1.2rem;
             flex-wrap: wrap;
+            flex-shrink: 0;
         }
 
         .btn-add-variant {
@@ -202,6 +208,29 @@
             box-shadow: var(--shadow);
             overflow: hidden;
             animation: fadeUp 0.4s ease 0.1s both;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .table-responsive {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .table-responsive::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
         }
 
         .variants-table {

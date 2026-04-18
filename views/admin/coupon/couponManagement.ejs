@@ -48,13 +48,20 @@
     .admin-main {
       flex: 1;
       height: 100vh;
-      overflow-y: auto;
+      overflow: hidden;
       padding: 36px;
+      display: flex;
+      flex-direction: column;
     }
 
     .main-content {
       max-width: 1200px;
       margin: 0 auto;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     .page-title {
@@ -97,6 +104,10 @@
       border: 1px solid var(--border);
       box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
       overflow: hidden;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
     }
 
     .search-wrap {
@@ -104,6 +115,7 @@
       display: flex;
       justify-content: center;
       border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
 
     .search-input {
@@ -244,6 +256,7 @@
       padding: 14px 20px;
       border-top: 1px solid var(--border);
       background: #FAFAFA;
+      flex-shrink: 0;
     }
 
     .page-btn {
@@ -504,7 +517,7 @@
             </form>
           </div>
 
-          <div style="overflow-x:auto;">
+          <div style="flex: 1; overflow-y: auto; overflow-x: auto; min-height: 0;">
             <table class="coupon-table">
               <thead>
                 <tr>
