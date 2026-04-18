@@ -28,7 +28,6 @@ const getFilterDates = (filterType, customStart, customEnd) => {
             endDate = moment().endOf('day').toDate();
         }
     } else {
-        // default to all time loosely
          startDate = new Date(0);
          endDate = new Date();
     }
@@ -36,30 +35,44 @@ const getFilterDates = (filterType, customStart, customEnd) => {
     return { startDate, endDate };
 };
 
-const getSalesData = async (startDate, endDate) => {
+const getSalesData = async (startDate, endDate, page = 1, limit = 10) => {
     const query = {
-        orderStatus: "Delivered",
+        orderStatus: { $nin: ["Cancelled", "Returned", "Cancellation Requested", "Return Requested"] },
+        paymentStatus: { $ne: "Failed" },
         createdAt: {
             $gte: startDate,
             $lte: endDate
         }
     };
     
-    const orders = await Order.find(query).populate('userId').sort({ createdAt: -1 });
-    
-    let totalSalesAmount = 0;
-    let totalDiscounts = 0;
-    
-    orders.forEach(order => {
-        totalSalesAmount += (order.finalPrice || 0);
-        totalDiscounts += (order.discount || 0) + (order.couponDiscount || 0);
-    });
+    const totalsData = await Order.aggregate([
+        { $match: query },
+        { 
+            $group: { 
+                _id: null, 
+                totalSales: { $sum: "$finalPrice" },
+                totalDiscount: { $sum: "$discount" },
+                count: { $sum: 1 }
+            } 
+        }
+    ]);
+
+    const totals = totalsData[0] || { totalSales: 0, totalDiscount: 0, count: 0 };
+
+    const skip = (page - 1) * limit;
+    const orders = await Order.find(query)
+        .populate('userId')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
     
     return {
         orders,
-        totalSalesAmount,
-        totalDiscounts,
-        totalOrders: orders.length
+        totalSalesAmount: totals.totalSales,
+        totalDiscounts: totals.totalDiscount,
+        totalOrders: totals.count,
+        currentPage: page,
+        totalPages: Math.ceil(totals.count / limit)
     };
 };
 
@@ -68,12 +81,13 @@ export const getSalesReport = async (req, res) => {
         const filterType = req.query.filterType || 'daily';
         const customStart = req.query.startDate;
         const customEnd = req.query.endDate;
+        const page = parseInt(req.query.page) || 1;
         
         const { startDate, endDate } = getFilterDates(filterType, customStart, customEnd);
-        const data = await getSalesData(startDate, endDate);
+        const data = await getSalesData(startDate, endDate, page, 10);
         
         res.render("admin/salesReport/index", {
-            currentUser: req.session.admin || { Name: 'Admin', Email: 'admin@zyrox.com' },
+            currentUser: req.session.admin,
             data,
             filterType,
             customStart,
@@ -89,7 +103,7 @@ export const exportExcel = async (req, res) => {
     try {
         const { filterType, startDate: customStart, endDate: customEnd } = req.query;
         const { startDate, endDate } = getFilterDates(filterType, customStart, customEnd);
-        const data = await getSalesData(startDate, endDate);
+        const data = await getSalesData(startDate, endDate, 1, 1000000);
         
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Sales Report');
@@ -110,7 +124,7 @@ export const exportExcel = async (req, res) => {
                 date: moment(order.createdAt).format('YYYY-MM-DD HH:mm'),
                 customer: order.userId ? order.userId.Name || order.userId.Email : 'Guest',
                 amount: order.subtotal || 0,
-                discount: (order.discount || 0) + (order.couponDiscount || 0),
+                discount: order.discount || 0,
                 finalPrice: order.finalPrice || 0,
                 payment: order.paymentMethod || 'N/A'
             });
@@ -136,7 +150,7 @@ export const exportPDF = async (req, res) => {
     try {
         const { filterType, startDate: customStart, endDate: customEnd } = req.query;
         const { startDate, endDate } = getFilterDates(filterType, customStart, customEnd);
-        const data = await getSalesData(startDate, endDate);
+        const data = await getSalesData(startDate, endDate, 1, 1000000);
         
         const doc = new PDFDocument({ margin: 30, size: 'A4' });
         
@@ -145,20 +159,17 @@ export const exportPDF = async (req, res) => {
         
         doc.pipe(res);
         
-        // Header
         doc.fontSize(20).text('Zyrox - Sales Report', { align: 'center' });
         doc.moveDown();
         doc.fontSize(10).text(`Period: ${moment(startDate).format('YYYY-MM-DD')} to ${moment(endDate).format('YYYY-MM-DD')}`, { align: 'center' });
         doc.moveDown(2);
         
-        // Summary
         doc.fontSize(14).text('Summary', { underline: true });
         doc.fontSize(12).text(`Total Orders: ${data.totalOrders}`);
         doc.text(`Total Sales: Rs. ${data.totalSalesAmount.toLocaleString()}`);
         doc.text(`Total Discount: Rs. ${data.totalDiscounts.toLocaleString()}`);
         doc.moveDown(2);
         
-        // Table Header
         const tableTop = 250;
         let y = tableTop;
         
@@ -174,19 +185,18 @@ export const exportPDF = async (req, res) => {
         doc.moveTo(30, y - 5).lineTo(560, y - 5).stroke();
         
         doc.font('Helvetica');
-        // Table Rows
         data.orders.forEach((order, i) => {
             if (y > 750) {
                 doc.addPage();
                 y = 50;
             }
-            doc.text(order.orderId.substring(0, 10), 30, y);
+            doc.text(order.orderId.substring(0, 15), 30, y);
             doc.text(moment(order.createdAt).format('MM-DD-YYYY'), 120, y);
             
             const custName = order.userId ? (order.userId.Name || 'User').substring(0, 15) : 'N/A';
             doc.text(custName, 210, y);
             
-            const disc = (order.discount || 0) + (order.couponDiscount || 0);
+            const disc = order.discount || 0;
             doc.text(disc.toString(), 340, y);
             
             doc.text(order.finalPrice ? order.finalPrice.toString() : '0', 420, y);

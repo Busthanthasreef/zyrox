@@ -10,44 +10,128 @@
     <link rel="stylesheet" href="/adminStyles/orders/orders.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        /* ════════════════════════════════════════════
+   Zyrox Admin — Orders Page Styles
+   Color system & typography matched to
+   categories.css — layout/structure unchanged
+════════════════════════════════════════════ */
+
+        /* ── CSS Variables (identical to category page) ── */
+        :root {
+            --bg: #f5f6fa;
+            --surface: #ffffff;
+            --surface2: #f0f0f0;
+            --border: #e8eaf0;
+            --accent: #eb8525;
+            --accent-soft: rgba(124, 110, 245, 0.12);
+            --accent-glow: rgba(124, 110, 245, 0.3);
+            --text-primary: #000000;
+            --text-secondary: #000000;
+            --text-muted: #000000;
+            --white: #ffffff;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            --orange: #f97316;
+            --radius: 14px;
+            --radius-sm: 8px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* ── Layout ── */
+        .d-flex {
+            display: flex;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 28px 32px;
+            min-height: 100vh;
+        }
+
+        /* ── Page Header ── */
+        .top-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 22px;
+            color: var(--text-primary);
+        }
+
+        /* ── Bell ── */
         .bell-container {
             position: relative;
         }
 
         .bell-icon {
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--text-primary);
-            position: relative;
+            width: 38px;
+            height: 38px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
             display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--text-secondary);
+            transition: border-color 0.2s, color 0.2s;
+            position: relative;
+        }
+
+        .bell-icon:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .bell-badge {
             position: absolute;
-            top: -2px;
-            right: -2px;
-            background: #ef4444;
-            color: white;
-            width: 14px;
-            height: 14px;
+            top: -4px;
+            right: -4px;
+            background: var(--danger);
+            color: #fff;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
+            font-size: 9px;
+            font-weight: 800;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 9px;
-            font-weight: 800;
-            border: 2px solid var(--white);
+            border: 2px solid var(--bg);
         }
 
+        /* ── Requests Dropdown ── */
         .requests-dropdown {
             position: absolute;
-            top: 40px;
+            top: 46px;
             right: 0;
             width: 340px;
-            background: #fff;
+            background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: var(--radius);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             z-index: 1000;
             display: none;
             overflow: hidden;
@@ -58,71 +142,84 @@
         }
 
         .dropdown-header {
-            padding: 12px 16px;
-            border-bottom: 1px solid #f1f1f1;
-            font-weight: 800;
-            font-size: 13px;
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--border);
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
             color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 7px;
         }
 
         .request-list {
-            max-height: 400px;
+            max-height: 380px;
             overflow-y: auto;
         }
 
         .request-item {
             padding: 14px 16px;
-            border-bottom: 1px solid #f9f9f9;
-        }
-
-        .request-btns {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .req-btn {
-            flex: 1;
-            padding: 6px;
-            border-radius: 6px;
-            border: 0;
-            font-size: 10px;
-            font-weight: 800;
-            color: white;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .req-btn:hover {
-            opacity: 0.8;
-        }
-
-        .req-btn-accept {
-            background: #10b981;
-        }
-
-        .req-btn-decline {
-            background: #ef4444;
-        }
-
-        .request-reason {
-            font-size: 11px;
-            color: #666;
-            margin-top: 4px;
-            line-height: 1.4;
-            font-weight: 500;
+            border-bottom: 1px solid var(--border);
         }
 
         .request-type-badge {
             font-size: 9px;
             font-weight: 800;
             text-transform: uppercase;
-            padding: 2px 6px;
+            letter-spacing: 0.8px;
+            padding: 3px 7px;
             border-radius: 4px;
             display: inline-block;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
+        .badge-return {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        .badge-cancel {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+
+        .request-item>div[style*="font-weight: 800"] {
+            color: var(--text-primary) !important;
+            font-size: 13px !important;
+        }
+
+        .request-item>div[style*="color: #999"] {
+            color: var(--text-muted) !important;
+            font-size: 11px !important;
+        }
+
+        .request-reason {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        /* Review & Action button */
+        .request-btns .btn.btn-sm.btn-dark {
+            background: var(--accent-soft) !important;
+            border: 1px solid var(--accent) !important;
+            color: var(--accent) !important;
+            font-size: 10px !important;
+            font-weight: 800 !important;
+            border-radius: var(--radius-sm) !important;
+            letter-spacing: 0.5px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .request-btns .btn.btn-sm.btn-dark:hover {
+            background: var(--accent) !important;
+            color: #fff !important;
+        }
+
+        /* Empty state (dropdown) */
         .empty-state {
             padding: 40px 20px;
             text-align: center;
@@ -130,37 +227,154 @@
 
         .empty-icon {
             font-size: 32px;
-            color: #d1d5db;
-            margin-bottom: 12px;
             display: block;
+            margin-bottom: 10px;
+            opacity: 0.25;
         }
 
         .empty-title {
-            font-size: 13px;
-            font-weight: 800;
+            font-family: 'Sora', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 4px;
         }
 
         .empty-subtitle {
-            font-size: 11px;
-            color: #9ca3af;
+            font-size: 12px;
+            color: var(--text-muted);
             font-weight: 500;
         }
 
-        /* New Search Components */
+        /* ── Stat Grid ── */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .stat-card-title {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card-val {
+            font-family: 'Sora', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+
+        .stat-card-growth {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .stat-card-growth.pos {
+            color: var(--success);
+        }
+
+        .stat-card-growth.neg {
+            color: var(--danger);
+        }
+
+        .stat-card-growth.neu {
+            color: var(--text-muted);
+        }
+
+        .stat-card-icon {
+            position: absolute;
+            right: 16px;
+            bottom: 14px;
+            font-size: 36px;
+            opacity: 0.06;
+            color: var(--accent);
+        }
+
+        /* ── Orders Card (Table Container) ── */
+        .orders-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        /* ── Card Header / Toolbar ── */
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            background: transparent;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        /* ── Search Area ── */
         .search-area-wrapper {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
-            max-width: 420px;
+            flex-wrap: wrap;
         }
 
         .search-pill {
-            flex: 1;
             position: relative;
             display: flex;
             align-items: center;
+        }
+
+        .search-pill>.bi-search {
+            position: absolute;
+            left: 11px;
+            font-size: 13px;
+            color: black;
+            pointer-events: none;
+        }
+
+        .search-pill-input {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            padding: 8px 32px 8px 32px;
+            width: 240px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-pill-input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-pill-input::placeholder {
+            color: var(--text-muted);
         }
 
         .search-clear-btn {
@@ -169,44 +383,377 @@
             top: 50%;
             transform: translateY(-50%);
             font-size: 16px;
-            color: #999;
+            color: var(--text-muted);
             cursor: pointer;
             display: none;
+            transition: color 0.15s;
         }
 
         .search-clear-btn:hover {
-            color: #334155;
+            color: var(--text-primary);
         }
 
         .search-btn {
-            background: #111318;
+            background: var(--accent);
             color: #fff;
-            border: 0;
-            border-radius: 8px;
-            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 8px 18px;
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
             cursor: pointer;
-            transition: 0.2s;
             white-space: nowrap;
             height: 38px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: opacity 0.2s;
         }
 
         .search-btn:hover {
-            background: #222;
+            opacity: 0.85;
+        }
+
+        /* ── Table Area ── */
+        .table-area {
+            overflow-x: auto;
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .orders-table thead tr {
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .orders-table th {
+            padding: 13px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            text-align: left;
+        }
+
+        .orders-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        .orders-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .orders-table tbody tr:hover {
+            background: var(--surface2);
+        }
+
+        .orders-table td {
+            padding: 14px 16px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            vertical-align: middle;
+        }
+
+        /* SI.No */
+        .orders-table td:first-child {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* Order ID column */
+        .orders-table td:nth-child(2) {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700 !important;
+            color: var(--accent) !important;
+        }
+
+        /* Customer name */
+        .name {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .email {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Date column */
+        .orders-table td:nth-child(4) {
+            font-weight: 600 !important;
+            color: var(--text-secondary) !important;
+            font-size: 12px !important;
+        }
+
+        /* Payment method column */
+        .orders-table td:nth-child(5) {
+            color: var(--text-muted) !important;
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Final price column */
+        .orders-table td:nth-child(7) {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700 !important;
+            font-size: 14px !important;
+            color: var(--text-primary) !important;
+        }
+
+        /* User cell */
+        .user-td {
+            min-width: 200px;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border);
+        }
+
+        .user-avatar-init {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            border: 2px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'Sora', sans-serif;
+            flex-shrink: 0;
+        }
+
+        .user-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        /* ── Status Tags ── */
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* Dynamic color injection via inline style from EJS is kept,
+   but we override with sensible defaults per keyword */
+        .status-tag[style*="#fd7e14"],
+        /* Pending */
+        .status-tag[style*="fd7e14"] {
+            background: rgba(249, 115, 22, 0.12) !important;
+            color: #f97316 !important;
+            border: 1px solid rgba(249, 115, 22, 0.25) !important;
+        }
+
+        .status-tag[style*="#ffc107"],
+        /* Processing */
+        .status-tag[style*="ffc107"] {
+            background: rgba(234, 179, 8, 0.12) !important;
+            color: #eab308 !important;
+            border: 1px solid rgba(234, 179, 8, 0.25) !important;
+        }
+
+        .status-tag[style*="#0ea5e9"],
+        /* Shipped */
+        .status-tag[style*="0ea5e9"] {
+            background: rgba(14, 165, 233, 0.12) !important;
+            color: #0ea5e9 !important;
+            border: 1px solid rgba(14, 165, 233, 0.25) !important;
+        }
+
+        .status-tag[style*="#22c55e"],
+        /* Delivered */
+        .status-tag[style*="22c55e"] {
+            background: rgba(34, 197, 94, 0.12) !important;
+            color: #22c55e !important;
+            border: 1px solid rgba(34, 197, 94, 0.25) !important;
+        }
+
+        .status-tag[style*="#FF0000"],
+        /* Cancelled */
+        .status-tag[style*="FF0000"],
+        .status-tag[style*="#ef4444"],
+        .status-tag[style*="ef4444"] {
+            background: rgba(239, 68, 68, 0.12) !important;
+            color: #ef4444 !important;
+            border: 1px solid rgba(239, 68, 68, 0.25) !important;
+        }
+
+        .status-tag[style*="#f59e0b"],
+        /* Returned */
+        .status-tag[style*="f59e0b"] {
+            background: rgba(245, 158, 11, 0.12) !important;
+            color: #f59e0b !important;
+            border: 1px solid rgba(245, 158, 11, 0.25) !important;
+        }
+
+        /* Return/Cancel Requested — purple accent */
+        .status-tag[style*="#7c6ef5"],
+        .status-tag[style*="7c6ef5"] {
+            background: var(--accent-soft) !important;
+            color: var(--accent) !important;
+            border: 1px solid var(--accent-glow) !important;
+        }
+
+        /* ── View Button ── */
+        .view-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 12px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .view-btn:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ── Table Footer / Pagination ── */
+        .table-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .showing-info {
+            font-size: 12px;
+            color: black;
+        }
+
+        .pag-nav-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .p-nav-link,
+        .p-num {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .p-nav-link:hover:not(.disabled),
+        .p-num:hover:not(.active) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .p-num.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .p-nav-link.disabled {
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        /* ── Empty Table Row ── */
+        .table-empty-row td {
+            text-align: center;
+            padding: 60px 0;
+        }
+
+        .table-empty-row .empty-state {
+            display: inline-block;
+        }
+
+        .table-empty-row .empty-icon {
+            font-size: 36px;
+            opacity: 0.25;
+            margin-bottom: 12px;
+        }
+
+        .table-empty-row .empty-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            font-family: 'Sora', sans-serif;
+        }
+
+        .table-empty-row .empty-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
         }
     </style>
 </head>
 
-<body>
+<body class="admin-body">
+    <%- include('../../partials/admin/sidebar', { currentPage: 'orders' ,currentUser:user }) %>
 
-    <div class="d-flex">
-
-        <!-- Sidebar -->
-        <%- include('../../partials/admin/sidebar', { currentPage: 'orders' ,currentUser:user }) %>
-
-            <!-- Main Content -->
-            <main class="main-content">
+        <main class="admin-main">
+            <div class="main-content">
 
                 <!-- Page Header -->
                 <div class="top-section">
@@ -228,14 +775,16 @@
                                     <% returnRequests.forEach(req=> {
                                         const isR = req.orderStatus === 'Return Requested';
                                         const isC = req.orderStatus === 'Cancellation Requested';
-                                        const itemReqs = req.items.filter(i => ['Return Requested', 'Cancellation Requested'].includes(i.status));
+                                        const itemReqs = req.items.filter(i => ['Return Requested', 'Cancellation
+                                        Requested'].includes(i.status));
 
 
                                         let displayType = 'Request';
                                         if (isR || isC) {
                                         displayType = isR ? 'Return' : 'Cancellation';
                                         } else if (itemReqs.length > 0) {
-                                        displayType = itemReqs[0].status.includes('Return') ? 'Item Return' : 'Item Cancellation';
+                                        displayType = itemReqs[0].status.includes('Return') ? 'Item Return' : 'Item
+                                        Cancellation';
                                         }
                                         %>
                                         <div class="request-item">
@@ -246,17 +795,19 @@
                                             <div style="font-weight: 800; font-size: 12px; color:#111;">
                                                 <%= req.userId?.Name || 'User' %>
                                             </div>
-                                            <div style="font-size: 10px; color: #999;">Order #<%= req.orderId %>
+                                            <div style="font-size: 10px; color: #000000;">Order #<%= req.orderId %>
                                             </div>
 
                                             <% if (itemReqs.length> 0 && !(isR || isC)) { %>
-                                                <div style="font-size: 9px; color: #666; font-weight: 700;">
+                                                <div style="font-size: 9px; color: #000000; font-weight: 700;">
                                                     Items: <%= itemReqs.map(i=> i.name).join(', ') %>
                                                 </div>
                                                 <% } %>
 
                                                     <div class="request-reason">
-                                                        "<%= req.returnReason || req.cancellationReason || itemReqs[0]?.returnReason || itemReqs[0]?.cancellationReason || 'No reason' %>"
+                                                        "<%= req.returnReason || req.cancellationReason ||
+                                                            itemReqs[0]?.returnReason || itemReqs[0]?.cancellationReason
+                                                            || 'No reason' %>"
                                                     </div>
 
                                                     <div class="request-btns text-center mt-2">
@@ -302,7 +853,7 @@
                         <div class="stat-card-val">
                             <%= stats.pendingOrders %>
                         </div>
-                        <div class="stat-card-growth neu" style="color:#71717a">Watch out!</div>
+                        <div class="stat-card-growth neu" style="color:#000000">Watch out!</div>
                         <div class="stat-card-icon"><i class="bi bi-clock-history"></i></div>
                     </div>
                     <div class="stat-card">
@@ -349,8 +900,10 @@
                                     <% orders.forEach((order, ind)=> { %>
 
                                         <tr>
-                                            
-                                            <td><%= (page-1)*6 + (ind + 1) %></td>
+
+                                            <td>
+                                                <%= (page-1)*6 + (ind + 1) %>
+                                            </td>
                                             <td style="font-weight: 800; color:#111;">#<%= order.orderId %>
                                             </td>
                                             <td class="user-td">
@@ -377,7 +930,8 @@
                                                 </div>
                                             </td>
                                             <td style="font-weight: 800; color: #111;">
-                                                <%= new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short' , day: 'numeric' , year: 'numeric' }) %>
+                                                <%= new Date(order.createdAt).toLocaleDateString('en-US', {
+                                                    month: 'short' , day: 'numeric' , year: 'numeric' }) %>
                                             </td>
                                             <td
                                                 style="color:var(--text-secondary); font-size:11px; font-weight:800; text-transform:uppercase;">
@@ -385,13 +939,12 @@
                                             </td>
                                             <td>
                                                 <% const sRaw=order.orderStatus.toLowerCase(); let tCol='#ffc107' ;
-                                                    if(sRaw.includes('Pending')) { tCol='#fd7e14' ; } 
-                                                    else if(sRaw.includes('Processing')) { tCol='#ffc107' ; }
-                                                    else if(sRaw.includes('Shipped')) { tCol='#0ea5e9' ; } 
-                                                    else if(sRaw.includes('Delivered')) { tCol='#22c55e' ; } 
-                                                    else if(sRaw.includes('Cancelled')) { tCol='##FF0000' ; } 
-                                                    else if(sRaw.includes('Returned')) { tCol='#f59e0b' ; }
-                                                 %>
+                                                    if(sRaw.includes('Pending')) { tCol='#fd7e14' ; } else
+                                                    if(sRaw.includes('Processing')) { tCol='#ffc107' ; } else
+                                                    if(sRaw.includes('Shipped')) { tCol='#0ea5e9' ; } else
+                                                    if(sRaw.includes('Delivered')) { tCol='#22c55e' ; } else
+                                                    if(sRaw.includes('Cancelled')) { tCol='##FF0000' ; } else
+                                                    if(sRaw.includes('Returned')) { tCol='#f59e0b' ; } %>
                                                     <span class="status-tag"
                                                         style="background: <%= tCol %>1a; color: <%= tCol %>; border-color:' <%= tCol %>33; border: 1px solid';">
                                                         <%= order.orderStatus %>
@@ -425,7 +978,8 @@
 
                     <div class="table-footer">
                         <div class="showing-info">
-                            Showing <%= totalOrdersCount===0 ? 0 : ((page-1)*4)+1 %>-<%= Math.min(page*4, totalOrdersCount) %> of <%= totalOrdersCount %>
+                            Showing <%= totalOrdersCount===0 ? 0 : ((page-1)*4)+1 %>-<%= Math.min(page*4,
+                                    totalOrdersCount) %> of <%= totalOrdersCount %>
                         </div>
 
                         <div class="pag-nav-group">
@@ -445,58 +999,57 @@
                                     </a>
                         </div>
                     </div>
-                </div>
-            </main>
-    </div>
+                </div><!-- end main-content -->
+        </main><!-- end admin-main -->
 
-    <script>
-        const bell = document.getElementById('bellToggle');
-        const dropdown = document.getElementById('requestsDropdown');
-        if (bell) {
-            bell.onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle('show'); };
-        }
-        window.onclick = () => dropdown.classList.remove('show');
-
-        // Search Input Functionality
-        const searchInput = document.getElementById('searchInput');
-        const clearBtn = document.getElementById('clearBtn');
-
-        if (clearBtn) {
-            clearBtn.onclick = () => {
-                window.location.href = '/admin/orders';
-            };
-        }
-
-        if (searchInput) {
-            // Ensure clear button visibility on load if search exists
-            if (searchInput.value.length > 0) {
-                clearBtn.style.display = 'block';
+        <script>
+            const bell = document.getElementById('bellToggle');
+            const dropdown = document.getElementById('requestsDropdown');
+            if (bell) {
+                bell.onclick = (e) => { e.stopPropagation(); dropdown.classList.toggle('show'); };
             }
-            searchInput.oninput = () => {
-                clearBtn.style.display = searchInput.value.length > 0 ? 'block' : 'none';
-            };
-        }
+            window.onclick = () => dropdown.classList.remove('show');
 
-        function handleRequest(orderId, action) {
-            const url = action === 'accept' ? '/admin/orders/accept-return' : '/admin/orders/decline-return';
-            Swal.fire({
-                title: 'Confirm Operation',
-                text: `${action.charAt(0).toUpperCase() + action.slice(1)} this request permanently?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: action === 'accept' ? '#10b981' : '#ef4444',
-                confirmButtonText: 'Yes, proceed'
-            }).then((res) => {
-                if (res.isConfirmed) {
-                    fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId }) })
-                        .then(r => r.json()).then(d => {
-                            if (d.success) location.reload();
-                            else Swal.fire('Error', d.message, 'error');
-                        });
+            // Search Input Functionality
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearBtn');
+
+            if (clearBtn) {
+                clearBtn.onclick = () => {
+                    window.location.href = '/admin/orders';
+                };
+            }
+
+            if (searchInput) {
+                // Ensure clear button visibility on load if search exists
+                if (searchInput.value.length > 0) {
+                    clearBtn.style.display = 'block';
                 }
-            });
-        }
-    </script>
+                searchInput.oninput = () => {
+                    clearBtn.style.display = searchInput.value.length > 0 ? 'block' : 'none';
+                };
+            }
+
+            function handleRequest(orderId, action) {
+                const url = action === 'accept' ? '/admin/orders/accept-return' : '/admin/orders/decline-return';
+                Swal.fire({
+                    title: 'Confirm Operation',
+                    text: `${action.charAt(0).toUpperCase() + action.slice(1)} this request permanently?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: action === 'accept' ? '#10b981' : '#ef4444',
+                    confirmButtonText: 'Yes, proceed'
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId }) })
+                            .then(r => r.json()).then(d => {
+                                if (d.success) location.reload();
+                                else Swal.fire('Error', d.message, 'error');
+                            });
+                    }
+                });
+            }
+        </script>
 </body>
 
 </html>

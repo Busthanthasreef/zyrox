@@ -84,12 +84,11 @@
     </style>
 </head>
 
-<body>
-    <div class="layout-wrapper">
+<body class="admin-body">
+    <%- include('../../partials/admin/sidebar', { currentPage: 'products' , currentUser: admin }) %>
 
-        <%- include('../../partials/admin/sidebar', { currentPage: 'products' , currentUser: admin }) %>
-
-            <main class="main-content flex-grow-1">
+        <main class="admin-main">
+            <div class="main-content">
 
                 <div class="page-header d-flex justify-content-between align-items-center">
                     <div>
@@ -271,38 +270,38 @@
                         </nav>
                     </div>
 
-                </div>
-            </main>
-    </div>
+                </div><!-- end panel -->
+            </div><!-- end main-content -->
+        </main><!-- end admin-main -->
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        function confirmDelete(id) {
-            Swal.fire({
-                title: "Delete product?",
-                text: "This action can't be undone.",
-                icon: "warning",
-                width: "720px",
-                padding: "1.5em",
-                showCancelButton: true,
-                confirmButtonText: "Delete",
-                cancelButtonText: "Cancel",
-                confirmButtonColor: "#ff4d4f",
-                cancelButtonColor: "#6c757d",
-                customClass: {
-                    popup: 'rounded-4',
-                    confirmButton: 'px-3',
-                    cancelButton: 'px-3'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = `/admin/products-delete/${id}`;
-                }
-            });
-        }
-    </script>
+        <script>
+            function confirmDelete(id) {
+                Swal.fire({
+                    title: "Delete product?",
+                    text: "This action can't be undone.",
+                    icon: "warning",
+                    width: "720px",
+                    padding: "1.5em",
+                    showCancelButton: true,
+                    confirmButtonText: "Delete",
+                    cancelButtonText: "Cancel",
+                    confirmButtonColor: "#ff4d4f",
+                    cancelButtonColor: "#6c757d",
+                    customClass: {
+                        popup: 'rounded-4',
+                        confirmButton: 'px-3',
+                        cancelButton: 'px-3'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `/admin/products-delete/${id}`;
+                    }
+                });
+            }
+        </script>
 </body>
 
 </html>

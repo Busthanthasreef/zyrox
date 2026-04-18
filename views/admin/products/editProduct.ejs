@@ -656,470 +656,469 @@
             border-radius: 8px;
             border: none;
             background: var(--primary);
-            color: #fff;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background .15s;
-        }
 
-        .btn-save:hover {
-            background: #1d4ed8;
-        }
+            .btn-save:hover {
+                background: #1d4ed8;
+            }
     </style>
 </head>
 
-<body>
+<body class="admin-body">
 
-    <%- include('../../partials/admin/sidebar', { currentPage: 'products' , currentUser: admin }) %>
+    <%- include('../../partials/admin/sidebar', { currentPage: 'products' , currentUser: typeof admin !=='undefined' ?
+        admin : user }) %>
 
-        <div class="main-wrap">
+        <main class="admin-main">
+            <div class="main-content">
 
-            <div class="topbar">
-                <span class="topbar-title">Product Management</span>
-                <span class="topbar-sep"><i class="bi bi-chevron-right" style="font-size:.75rem"></i></span>
-                <span class="topbar-sub">Edit Product</span>
-            </div>
+                <div class="topbar">
+                    <span class="topbar-title">Product Management</span>
+                    <span class="topbar-sep"><i class="bi bi-chevron-right" style="font-size:.75rem"></i></span>
+                    <span class="topbar-sub">Edit Product</span>
+                </div>
 
-            <div class="page-body">
-                <form id="editProductForm" action="/admin/products-edit/<%= product._id %>" method="POST"
-                    enctype="multipart/form-data">
+                <div class="page-body">
+                    <form id="editProductForm" action="/admin/products-edit/<%= product._id %>" method="POST"
+                        enctype="multipart/form-data">
 
-                    <!-- Basic Information -->
-                    <div class="panel">
-                        <div class="panel-title">
-                            <i class="bi bi-info-circle me-2 text-primary"></i>Basic Information
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Product Name</label>
-                            <input type="text" name="productName" class="form-control" placeholder="Enter product name"
-                                value="<%= product.productName %>" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control"
-                                placeholder="Describe this product..."><%= product.description %></textarea>
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-6">
-                                <label class="form-label">Category</label>
-                                <select name="category" class="form-select">
-                                    <option value="">Select a category</option>
-                                    <% if (typeof categories !=='undefined' ) { %>
-                                        <% categories.forEach(cat=> { %>
-                                            <option value="<%= cat._id %>" <%=product.categoryId &&
-                                                product.categoryId._id?.toString()===cat._id.toString() ? 'selected'
-                                                : '' %>>
-                                                <%= cat.categoryName %>
-                                            </option>
-                                            <% }) %>
-                                                <% } %>
-                                </select>
+                        <!-- Basic Information -->
+                        <div class="panel">
+                            <div class="panel-title">
+                                <i class="bi bi-info-circle me-2 text-primary"></i>Basic Information
                             </div>
-                            <div class="col-6">
-                                <label class="form-label">Status</label>
-                                <select name="status" class="form-select">
-                                    <option value="active" <%=product.status==='active' ? 'selected' : '' %>>Active
-                                    </option>
-                                    <option value="inactive" <%=product.status==='inactive' ? 'selected' : '' %>
-                                        >Inactive</option>
-                                </select>
+
+                            <div class="mb-3">
+                                <label class="form-label">Product Name</label>
+                                <input type="text" name="productName" class="form-control"
+                                    placeholder="Enter product name" value="<%= product.productName %>" required>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Default Variant Section -->
-                    <div class="panel">
-                        <div class="panel-title">
-                            <i class="bi bi-layers me-2 text-primary"></i>Default Variant Specs
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control"
+                                    placeholder="Describe this product..."><%= product.description %></textarea>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Color <span class="text-danger">*</span></label>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="color-swatch" id="colorSwatch"
-                                    style="background: <%= defaultVariant && defaultVariant.colorHex ? defaultVariant.colorHex : '#3b82f6' %>">
-                                    <input type="color" id="colorPicker" name="colorHex"
-                                        value="<%= defaultVariant && defaultVariant.colorHex ? defaultVariant.colorHex : '#3b82f6' %>"
-                                        oninput="onPickerChange(this.value)">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="form-label">Category</label>
+                                    <select name="category" class="form-select">
+                                        <option value="">Select a category</option>
+                                        <% if (typeof categories !=='undefined' ) { %>
+                                            <% categories.forEach(cat=> { %>
+                                                <option value="<%= cat._id %>" <%=product.categoryId &&
+                                                    product.categoryId._id?.toString()===cat._id.toString() ? 'selected'
+                                                    : '' %>>
+                                                    <%= cat.categoryName %>
+                                                </option>
+                                                <% }) %>
+                                                    <% } %>
+                                    </select>
                                 </div>
-                                <input type="text" class="form-control" id="colorName" name="color"
-                                    placeholder="e.g. Midnight Black"
-                                    value="<%= defaultVariant ? defaultVariant.color : '' %>"
-                                    oninput="onNameChange(this.value)">
-                            </div>
-                            <p class="form-hint" style="font-size: 11.5px; color: #9ca3af; margin-top: 5px;">Pick a
-                                color or type a name — they'll sync automatically.</p>
-                        </div>
-
-                        <div class="row g-3">
-                            <div class="col-6">
-                                <label class="form-label">RAM (GB)</label>
-                                <input type="number" name="ram" class="form-control"
-                                    value="<%= defaultVariant ? defaultVariant.RAM : '' %>">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">Storage (GB)</label>
-                                <input type="number" name="storage" class="form-control"
-                                    value="<%= defaultVariant ? defaultVariant.storage : '' %>">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">Price (₹)</label>
-                                <input type="number" name="price" class="form-control"
-                                    value="<%= defaultVariant ? defaultVariant.price : '' %>">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">Stock</label>
-                                <input type="number" name="stock" class="form-control"
-                                    value="<%= defaultVariant ? defaultVariant.stock : '' %>">
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">SKU</label>
-                                <input type="text" name="sku" class="form-control"
-                                    value="<%= defaultVariant ? defaultVariant.SKU : '' %>">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Product Images -->
-                    <div class="panel">
-                        <div class="panel-title">
-                            <i class="bi bi-images me-2 text-primary"></i>Product Images
-                        </div>
-                        <p class="img-hint">You can upload up to 3 images for the default variant. Leave empty to keep
-                            existing.</p>
-                        <div class="img-grid-edit">
-                            <% for(let i=0; i < 3; i++) { %>
-                                <div class="img-box-edit" id="eBox_<%= i %>">
-                                    <i class="bi bi-camera upload-icon"></i>
-                                    <span class="upload-label">
-                                        <%= i===0 ? 'Primary' : 'Extra ' + i %>
-                                    </span>
-                                    <span class="img-slot-badge">#<%= i + 1 %></span>
-
-                                    <img class="img-preview" id="ePreview_<%= i %>" src="" alt="">
-
-                                    <!-- Lightbox preview button -->
-                                    <button type="button" class="preview-btn"
-                                        onclick="event.stopPropagation(); openLightbox(<%= i %>)" title="Preview image">
-                                        <i class="bi bi-zoom-in"></i>
-                                    </button>
-                                    <!-- Remove button -->
-                                    <button type="button" class="remove-btn"
-                                        onclick="event.stopPropagation(); removeImgSlot(<%= i %>)" title="Remove image">
-                                        <i class="bi bi-x"></i>
-                                    </button>
-                                    <!-- Crop/edit button -->
-                                    <button type="button" class="crop-edit-btn"
-                                        onclick="event.stopPropagation(); openCropModal(<%= i %>)"
-                                        title="Crop & resize">
-                                        <i class="bi bi-crop"></i>
-                                    </button>
-
-                                    <input type="file" name="newImages[]" accept="image/*" id="eFile_<%= i %>"
-                                        onchange="onFileSelected(this, <%= i %>)">
+                                <div class="col-6">
+                                    <label class="form-label">Status</label>
+                                    <select name="status" class="form-select">
+                                        <option value="active" <%=product.status==='active' ? 'selected' : '' %>>Active
+                                        </option>
+                                        <option value="inactive" <%=product.status==='inactive' ? 'selected' : '' %>
+                                            >Inactive</option>
+                                    </select>
                                 </div>
-                                <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Default Variant Section -->
+                        <div class="panel">
+                            <div class="panel-title">
+                                <i class="bi bi-layers me-2 text-primary"></i>Default Variant Specs
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Color <span class="text-danger">*</span></label>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="color-swatch" id="colorSwatch"
+                                        style="background: <%= defaultVariant && defaultVariant.colorHex ? defaultVariant.colorHex : '#3b82f6' %>">
+                                        <input type="color" id="colorPicker" name="colorHex"
+                                            value="<%= defaultVariant && defaultVariant.colorHex ? defaultVariant.colorHex : '#3b82f6' %>"
+                                            oninput="onPickerChange(this.value)">
+                                    </div>
+                                    <input type="text" class="form-control" id="colorName" name="color"
+                                        placeholder="e.g. Midnight Black"
+                                        value="<%= defaultVariant ? defaultVariant.color : '' %>"
+                                        oninput="onNameChange(this.value)">
+                                </div>
+                                <p class="form-hint" style="font-size: 11.5px; color: #9ca3af; margin-top: 5px;">Pick a
+                                    color or type a name — they'll sync automatically.</p>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="form-label">RAM (GB)</label>
+                                    <input type="number" name="ram" class="form-control"
+                                        value="<%= defaultVariant ? defaultVariant.RAM : '' %>">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Storage (GB)</label>
+                                    <input type="number" name="storage" class="form-control"
+                                        value="<%= defaultVariant ? defaultVariant.storage : '' %>">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Price (₹)</label>
+                                    <input type="number" name="price" class="form-control"
+                                        value="<%= defaultVariant ? defaultVariant.price : '' %>">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Stock</label>
+                                    <input type="number" name="stock" class="form-control"
+                                        value="<%= defaultVariant ? defaultVariant.stock : '' %>">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">SKU</label>
+                                    <input type="text" name="sku" class="form-control"
+                                        value="<%= defaultVariant ? defaultVariant.SKU : '' %>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Images -->
+                        <div class="panel">
+                            <div class="panel-title">
+                                <i class="bi bi-images me-2 text-primary"></i>Product Images
+                            </div>
+                            <p class="img-hint">You can upload up to 3 images for the default variant. Leave empty to
+                                keep
+                                existing.</p>
+                            <div class="img-grid-edit">
+                                <% for(let i=0; i < 3; i++) { %>
+                                    <div class="img-box-edit" id="eBox_<%= i %>">
+                                        <i class="bi bi-camera upload-icon"></i>
+                                        <span class="upload-label">
+                                            <%= i===0 ? 'Primary' : 'Extra ' + i %>
+                                        </span>
+                                        <span class="img-slot-badge">#<%= i + 1 %></span>
+
+                                        <img class="img-preview" id="ePreview_<%= i %>" src="" alt="">
+
+                                        <!-- Lightbox preview button -->
+                                        <button type="button" class="preview-btn"
+                                            onclick="event.stopPropagation(); openLightbox(<%= i %>)"
+                                            title="Preview image">
+                                            <i class="bi bi-zoom-in"></i>
+                                        </button>
+                                        <!-- Remove button -->
+                                        <button type="button" class="remove-btn"
+                                            onclick="event.stopPropagation(); removeImgSlot(<%= i %>)"
+                                            title="Remove image">
+                                            <i class="bi bi-x"></i>
+                                        </button>
+                                        <!-- Crop/edit button -->
+                                        <button type="button" class="crop-edit-btn"
+                                            onclick="event.stopPropagation(); openCropModal(<%= i %>)"
+                                            title="Crop & resize">
+                                            <i class="bi bi-crop"></i>
+                                        </button>
+
+                                        <input type="file" name="newImages[]" accept="image/*" id="eFile_<%= i %>"
+                                            onchange="onFileSelected(this, <%= i %>)">
+                                    </div>
+                                    <% } %>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-discard" onclick="confirmDiscard()">Discard</button>
+                            <button type="submit" class="btn-save" id="saveBtn">
+                                <i class="bi bi-check2 me-1"></i> Save Changes
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+            <!-- ══ CROP MODAL ══ -->
+            <div class="crop-modal-overlay" id="cropModalOverlay">
+                <div class="crop-modal">
+                    <div class="crop-modal-header">
+                        <div class="crop-modal-title"><i class="bi bi-crop"></i> Crop & Resize</div>
+                        <button class="crop-modal-close" onclick="closeCropModal()"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                    <div class="crop-canvas-wrap">
+                        <img id="cropImg" src="" alt="">
+                    </div>
+                    <div class="crop-toolbar">
+                        <div class="crop-ratio-group">
+                            <button type="button" class="crop-ratio-btn active" data-ratio="NaN"
+                                onclick="setRatio(NaN, this)">Free</button>
+                            <button type="button" class="crop-ratio-btn" data-ratio="1"
+                                onclick="setRatio(1, this)">1:1</button>
+                            <button type="button" class="crop-ratio-btn" data-ratio="1.33"
+                                onclick="setRatio(4/3, this)">4:3</button>
+                        </div>
+                        <button type="button" class="crop-tool-btn" onclick="cropperInst && cropperInst.rotate(-90)"><i
+                                class="bi bi-arrow-counterclockwise"></i></button>
+                        <button type="button" class="crop-tool-btn" onclick="cropperInst && cropperInst.rotate(90)"><i
+                                class="bi bi-arrow-clockwise"></i></button>
+
+                        <div class="crop-actions">
+                            <button type="button" class="btn-crop-cancel" onclick="closeCropModal()">Cancel</button>
+                            <button type="button" class="btn-crop-apply" onclick="applyCrop()">Apply</button>
                         </div>
                     </div>
-
-                    <div class="form-actions">
-                        <button type="button" class="btn-discard" onclick="confirmDiscard()">Discard</button>
-                        <button type="submit" class="btn-save" id="saveBtn">
-                            <i class="bi bi-check2 me-1"></i> Save Changes
-                        </button>
-                    </div>
-
-                </form>
-            </div>
-        </div>
-
-        <!-- ══ CROP MODAL ══ -->
-        <div class="crop-modal-overlay" id="cropModalOverlay">
-            <div class="crop-modal">
-                <div class="crop-modal-header">
-                    <div class="crop-modal-title"><i class="bi bi-crop"></i> Crop & Resize</div>
-                    <button class="crop-modal-close" onclick="closeCropModal()"><i class="bi bi-x-lg"></i></button>
-                </div>
-                <div class="crop-canvas-wrap">
-                    <img id="cropImg" src="" alt="">
-                </div>
-                <div class="crop-toolbar">
-                    <div class="crop-ratio-group">
-                        <button type="button" class="crop-ratio-btn active" data-ratio="NaN"
-                            onclick="setRatio(NaN, this)">Free</button>
-                        <button type="button" class="crop-ratio-btn" data-ratio="1"
-                            onclick="setRatio(1, this)">1:1</button>
-                        <button type="button" class="crop-ratio-btn" data-ratio="1.33"
-                            onclick="setRatio(4/3, this)">4:3</button>
-                    </div>
-                    <button type="button" class="crop-tool-btn" onclick="cropperInst && cropperInst.rotate(-90)"><i
-                            class="bi bi-arrow-counterclockwise"></i></button>
-                    <button type="button" class="crop-tool-btn" onclick="cropperInst && cropperInst.rotate(90)"><i
-                            class="bi bi-arrow-clockwise"></i></button>
-
-                    <div class="crop-actions">
-                        <button type="button" class="btn-crop-cancel" onclick="closeCropModal()">Cancel</button>
-                        <button type="button" class="btn-crop-apply" onclick="applyCrop()">Apply</button>
-                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- ══ LIGHTBOX ══ -->
-        <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
-            <button class="lightbox-close" onclick="closeLightbox()"><i class="bi bi-x-lg"></i></button>
-            <img class="lightbox-img" id="lightboxImg" src="" alt="">
-            <div class="lightbox-label" id="lightboxLabel"></div>
-        </div>
+            <!-- ══ LIGHTBOX ══ -->
+            <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+                <button class="lightbox-close" onclick="closeLightbox()"><i class="bi bi-x-lg"></i></button>
+                <img class="lightbox-img" id="lightboxImg" src="" alt="">
+                <div class="lightbox-label" id="lightboxLabel"></div>
+            </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 
-        <script>
-            /* ── STATE ── */
-            const originalSrcs = ['', '', ''];
-            const croppedBlobs = [null, null, null];
-            const removedSlots = [false, false, false];
+            <script>
+                /* ── STATE ── */
+                const originalSrcs = ['', '', ''];
+                const croppedBlobs = [null, null, null];
+                const removedSlots = [false, false, false];
 
-            let cropperInst = null;
-            let activeCropSlot = -1;
+                let cropperInst = null;
+                let activeCropSlot = -1;
 
-            const COLOR_MAP = {
-                "#ff0000": "Red", "#00ff00": "Green", "#0000ff": "Blue", "#ffff00": "Yellow", "#ff00ff": "Magenta",
-                "#00ffff": "Cyan", "#000000": "Black", "#ffffff": "White", "#808080": "Gray", "#ffa500": "Orange",
-                "#800080": "Purple", "#a52a2a": "Brown", "#ffc0cb": "Pink", "#40e0d0": "Turquoise", "#000080": "Navy",
-                "#808000": "Olive", "#008000": "Dark Green", "#800000": "Maroon", "#ff6347": "Tomato", "#4682b4": "Steel Blue",
-                "#d2691e": "Chocolate", "#f5f5dc": "Beige", "#dc143c": "Crimson", "#1e90ff": "Dodger Blue",
-                "#228b22": "Forest Green", "#daa520": "Goldenrod", "#ff69b4": "Hot Pink", "#cd5c5c": "Indian Red",
-                "#32cd32": "Lime Green", "#9370db": "Medium Purple", "#191970": "Midnight Blue", "#ff4500": "Orange Red",
-                "#da70d6": "Orchid", "#bc8f8f": "Rosy Brown", "#4169e1": "Royal Blue", "#fa8072": "Salmon",
-                "#2e8b57": "Sea Green", "#87ceeb": "Sky Blue", "#6a5acd": "Slate Blue", "#008080": "Teal",
-                "#ee82ee": "Violet", "#9acd32": "Yellow Green", "#b8860b": "Dark Goldenrod", "#e9967a": "Dark Salmon",
-                "#c0c0c0": "Silver", "#cd7f32": "Bronze", "#b87333": "Copper"
-            };
+                const COLOR_MAP = {
+                    "#ff0000": "Red", "#00ff00": "Green", "#0000ff": "Blue", "#ffff00": "Yellow", "#ff00ff": "Magenta",
+                    "#00ffff": "Cyan", "#000000": "Black", "#ffffff": "White", "#808080": "Gray", "#ffa500": "Orange",
+                    "#800080": "Purple", "#a52a2a": "Brown", "#ffc0cb": "Pink", "#40e0d0": "Turquoise", "#000080": "Navy",
+                    "#808000": "Olive", "#008000": "Dark Green", "#800000": "Maroon", "#ff6347": "Tomato", "#4682b4": "Steel Blue",
+                    "#d2691e": "Chocolate", "#f5f5dc": "Beige", "#dc143c": "Crimson", "#1e90ff": "Dodger Blue",
+                    "#228b22": "Forest Green", "#daa520": "Goldenrod", "#ff69b4": "Hot Pink", "#cd5c5c": "Indian Red",
+                    "#32cd32": "Lime Green", "#9370db": "Medium Purple", "#191970": "Midnight Blue", "#ff4500": "Orange Red",
+                    "#da70d6": "Orchid", "#bc8f8f": "Rosy Brown", "#4169e1": "Royal Blue", "#fa8072": "Salmon",
+                    "#2e8b57": "Sea Green", "#87ceeb": "Sky Blue", "#6a5acd": "Slate Blue", "#008080": "Teal",
+                    "#ee82ee": "Violet", "#9acd32": "Yellow Green", "#b8860b": "Dark Goldenrod", "#e9967a": "Dark Salmon",
+                    "#c0c0c0": "Silver", "#cd7f32": "Bronze", "#b87333": "Copper"
+                };
 
-            function hexToRgb(hex) {
-                const bigint = parseInt(hex.substring(1), 16);
-                return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
-            }
+                function hexToRgb(hex) {
+                    const bigint = parseInt(hex.substring(1), 16);
+                    return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+                }
 
-            function getNearestColorName(hex) {
-                const h = hex.toLowerCase();
-                if (COLOR_MAP[h]) return COLOR_MAP[h];
+                function getNearestColorName(hex) {
+                    const h = hex.toLowerCase();
+                    if (COLOR_MAP[h]) return COLOR_MAP[h];
 
-                const target = hexToRgb(h);
-                let nearestName = hex;
-                let minDistance = Infinity;
+                    const target = hexToRgb(h);
+                    let nearestName = hex;
+                    let minDistance = Infinity;
 
-                for (const [mapHex, mapName] of Object.entries(COLOR_MAP)) {
-                    const rgb = hexToRgb(mapHex);
-                    const dist = Math.pow(target.r - rgb.r, 2) + Math.pow(target.g - rgb.g, 2) + Math.pow(target.b - rgb.b, 2);
-                    if (dist < minDistance) {
-                        minDistance = dist;
-                        nearestName = mapName;
+                    for (const [mapHex, mapName] of Object.entries(COLOR_MAP)) {
+                        const rgb = hexToRgb(mapHex);
+                        const dist = Math.pow(target.r - rgb.r, 2) + Math.pow(target.g - rgb.g, 2) + Math.pow(target.b - rgb.b, 2);
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            nearestName = mapName;
+                        }
+                    }
+                    return nearestName;
+                }
+
+                function onPickerChange(hex) {
+                    document.getElementById('colorSwatch').style.background = hex;
+                    document.getElementById('colorName').value = getNearestColorName(hex);
+                }
+
+                function onNameChange(val) {
+                    const key = val.trim().toLowerCase();
+                    const foundEntry = Object.entries(COLOR_MAP).find(([hex, name]) => name.toLowerCase() === key);
+
+                    if (foundEntry) {
+                        document.getElementById('colorPicker').value = foundEntry[0];
+                        document.getElementById('colorSwatch').style.background = foundEntry[0];
+                    } else if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(val.trim())) {
+                        const hexStr = val.trim();
+                        document.getElementById('colorPicker').value = hexStr;
+                        document.getElementById('colorSwatch').style.background = hexStr;
+                        const nearest = getNearestColorName(hexStr);
+                        if (nearest && nearest.toLowerCase() !== val.trim().toLowerCase()) {
+                            document.getElementById('colorName').value = nearest;
+                        }
                     }
                 }
-                return nearestName;
-            }
 
-            function onPickerChange(hex) {
-                document.getElementById('colorSwatch').style.background = hex;
-                document.getElementById('colorName').value = getNearestColorName(hex);
-            }
-
-            function onNameChange(val) {
-                const key = val.trim().toLowerCase();
-                const foundEntry = Object.entries(COLOR_MAP).find(([hex, name]) => name.toLowerCase() === key);
-
-                if (foundEntry) {
-                    document.getElementById('colorPicker').value = foundEntry[0];
-                    document.getElementById('colorSwatch').style.background = foundEntry[0];
-                } else if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(val.trim())) {
-                    const hexStr = val.trim();
-                    document.getElementById('colorPicker').value = hexStr;
-                    document.getElementById('colorSwatch').style.background = hexStr;
-                    const nearest = getNearestColorName(hexStr);
-                    if (nearest && nearest.toLowerCase() !== val.trim().toLowerCase()) {
-                        document.getElementById('colorName').value = nearest;
-                    }
-                }
-            }
-
-            // Sync on load just in case hex matches but name is missing format
-            window.addEventListener('DOMContentLoaded', () => {
-                const currentName = document.getElementById('colorName').value;
-                if (currentName) onNameChange(currentName);
-            });
+                // Sync on load just in case hex matches but name is missing format
+                window.addEventListener('DOMContentLoaded', () => {
+                    const currentName = document.getElementById('colorName').value;
+                    if (currentName) onNameChange(currentName);
+                });
 
     /* ── INITIALIZE EXISTING IMAGES ── */
     <% if (defaultVariant && defaultVariant.images) { %>
         <% defaultVariant.images.forEach((img, idx) => {
-                if (idx < 3) { %>
-                    (function () {
-                        const src = '<%= img %>';
-                        const box = document.getElementById('eBox_<%= idx %>');
-                        const prev = document.getElementById('ePreview_<%= idx %>');
-                        if (box && prev) {
-                            prev.src = src;
-                            box.classList.add('has-image');
-                            originalSrcs[<%= idx %>] = src;
-                        }
-                    })();
+                    if (idx < 3) { %>
+                        (function () {
+                            const src = '<%= img %>';
+                            const box = document.getElementById('eBox_<%= idx %>');
+                            const prev = document.getElementById('ePreview_<%= idx %>');
+                            if (box && prev) {
+                                prev.src = src;
+                                box.classList.add('has-image');
+                                originalSrcs[<%= idx %>] = src;
+                            }
+                        })();
         <% }
-            }) %>
+                }) %>
     <% } %>
 
-                /* ── FILE SELECTION ── */
-                function onFileSelected(input, idx) {
-                    const file = input.files[0];
-                    if (!file) return;
+                    /* ── FILE SELECTION ── */
+                    function onFileSelected(input, idx) {
+                        const file = input.files[0];
+                        if (!file) return;
 
-                    const reader = new FileReader();
-                    reader.onload = e => {
-                        originalSrcs[idx] = e.target.result;
-                        croppedBlobs[idx] = null;
-                        removedSlots[idx] = false;
-                        document.getElementById(`ePreview_${idx}`).src = e.target.result;
-                        document.getElementById(`eBox_${idx}`).classList.add('has-image');
-                        openCropModal(idx);
-                    };
-                    reader.readAsDataURL(file);
-                }
-
-            function removeImgSlot(idx) {
-                document.getElementById(`ePreview_${idx}`).src = '';
-                document.getElementById(`eBox_${idx}`).classList.remove('has-image');
-                document.getElementById(`eFile_${idx}`).value = '';
-                originalSrcs[idx] = '';
-                croppedBlobs[idx] = null;
-                removedSlots[idx] = true;
-            }
-
-            /* ── CROP LOGIC ── */
-            function openCropModal(idx) {
-                if (!originalSrcs[idx]) return;
-                activeCropSlot = idx;
-                const cropImg = document.getElementById('cropImg');
-                cropImg.src = originalSrcs[idx];
-                document.getElementById('cropModalOverlay').classList.add('active');
-
-                if (cropperInst) cropperInst.destroy();
-                setTimeout(() => {
-                    cropperInst = new Cropper(cropImg, { viewMode: 1, autoCropArea: 0.8 });
-                }, 100);
-            }
-
-            function closeCropModal() {
-                document.getElementById('cropModalOverlay').classList.remove('active');
-                if (cropperInst) cropperInst.destroy();
-                cropperInst = null;
-            }
-
-            function applyCrop() {
-                if (!cropperInst) return;
-                const canvas = cropperInst.getCroppedCanvas({ width: 800, height: 800 });
-                canvas.toBlob(blob => {
-                    croppedBlobs[activeCropSlot] = blob;
-                    document.getElementById(`ePreview_${activeCropSlot}`).src = URL.createObjectURL(blob);
-                    closeCropModal();
-                }, 'image/jpeg', 0.9);
-            }
-
-            function setRatio(r, btn) {
-                document.querySelectorAll('.crop-ratio-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                if (cropperInst) cropperInst.setAspectRatio(r);
-            }
-
-            /* ── LIGHTBOX ── */
-            function openLightbox(idx) {
-                const src = document.getElementById(`ePreview_${idx}`).src;
-                if (!src) return;
-                document.getElementById('lightboxImg').src = src;
-                document.getElementById('lightboxOverlay').classList.add('active');
-            }
-            function closeLightbox() { document.getElementById('lightboxOverlay').classList.remove('active'); }
-
-            /* ── FORM SUBMIT ── */
-            document.getElementById('editProductForm').addEventListener('submit', async function (e) {
-                e.preventDefault();
-
-                // Image validation: Check if ALL 3 slots have images
-                let missingImages = 0;
-                for (let i = 0; i < 3; i++) {
-                    const box = document.getElementById(`eBox_${i}`);
-                    if (!box || !box.classList.contains('has-image')) {
-                        box.classList.add('img-error');
-                        missingImages++;
-                    } else {
-                        box.classList.remove('img-error');
+                        const reader = new FileReader();
+                        reader.onload = e => {
+                            originalSrcs[idx] = e.target.result;
+                            croppedBlobs[idx] = null;
+                            removedSlots[idx] = false;
+                            document.getElementById(`ePreview_${idx}`).src = e.target.result;
+                            document.getElementById(`eBox_${idx}`).classList.add('has-image');
+                            openCropModal(idx);
+                        };
+                        reader.readAsDataURL(file);
                     }
+
+                function removeImgSlot(idx) {
+                    document.getElementById(`ePreview_${idx}`).src = '';
+                    document.getElementById(`eBox_${idx}`).classList.remove('has-image');
+                    document.getElementById(`eFile_${idx}`).value = '';
+                    originalSrcs[idx] = '';
+                    croppedBlobs[idx] = null;
+                    removedSlots[idx] = true;
                 }
 
-                if (missingImages > 0) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Images Required',
-                        text: 'Exactly 3 product images are required. Please upload images for the highlighted slots.'
-                    });
-                    return;
+                /* ── CROP LOGIC ── */
+                function openCropModal(idx) {
+                    if (!originalSrcs[idx]) return;
+                    activeCropSlot = idx;
+                    const cropImg = document.getElementById('cropImg');
+                    cropImg.src = originalSrcs[idx];
+                    document.getElementById('cropModalOverlay').classList.add('active');
+
+                    if (cropperInst) cropperInst.destroy();
+                    setTimeout(() => {
+                        cropperInst = new Cropper(cropImg, { viewMode: 1, autoCropArea: 0.8 });
+                    }, 100);
                 }
 
-                const saveBtn = document.getElementById('saveBtn');
-                saveBtn.disabled = true;
-                saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+                function closeCropModal() {
+                    document.getElementById('cropModalOverlay').classList.remove('active');
+                    if (cropperInst) cropperInst.destroy();
+                    cropperInst = null;
+                }
 
-                const fd = new FormData(this);
+                function applyCrop() {
+                    if (!cropperInst) return;
+                    const canvas = cropperInst.getCroppedCanvas({ width: 800, height: 800 });
+                    canvas.toBlob(blob => {
+                        croppedBlobs[activeCropSlot] = blob;
+                        document.getElementById(`ePreview_${activeCropSlot}`).src = URL.createObjectURL(blob);
+                        closeCropModal();
+                    }, 'image/jpeg', 0.9);
+                }
 
-                // Remove all natively captured file inputs to prevent duplicates
-                fd.delete('newImages[]');
+                function setRatio(r, btn) {
+                    document.querySelectorAll('.crop-ratio-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    if (cropperInst) cropperInst.setAspectRatio(r);
+                }
 
-                // Re-add either the cropped blob or the uncropped file
-                for (let i = 0; i < 3; i++) {
-                    const fileInput = document.getElementById(`eFile_${i}`);
-                    if (croppedBlobs[i]) {
-                        fd.append('newImages[]', croppedBlobs[i], `crop_${i}.jpg`);
-                    } else if (fileInput && fileInput.files[0]) {
-                        fd.append('newImages[]', fileInput.files[0]);
+                /* ── LIGHTBOX ── */
+                function openLightbox(idx) {
+                    const src = document.getElementById(`ePreview_${idx}`).src;
+                    if (!src) return;
+                    document.getElementById('lightboxImg').src = src;
+                    document.getElementById('lightboxOverlay').classList.add('active');
+                }
+                function closeLightbox() { document.getElementById('lightboxOverlay').classList.remove('active'); }
+
+                /* ── FORM SUBMIT ── */
+                document.getElementById('editProductForm').addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    // Image validation: Check if ALL 3 slots have images
+                    let missingImages = 0;
+                    for (let i = 0; i < 3; i++) {
+                        const box = document.getElementById(`eBox_${i}`);
+                        if (!box || !box.classList.contains('has-image')) {
+                            box.classList.add('img-error');
+                            missingImages++;
+                        } else {
+                            box.classList.remove('img-error');
+                        }
                     }
-                }
 
-                try {
-                    const resp = await fetch(this.action, {
-                        method: 'POST',
-                        body: fd,
-                        headers: { 'Accept': 'application/json' }
-                    });
-                    const data = await resp.json();
-                    if (data.success) {
-                        Swal.fire({ icon: 'success', title: 'Success', text: data.message, timer: 1500, showConfirmButton: false })
-                            .then(() => window.location.href = '/admin/products');
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                    if (missingImages > 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Images Required',
+                            text: 'Exactly 3 product images are required. Please upload images for the highlighted slots.'
+                        });
+                        return;
+                    }
+
+                    const saveBtn = document.getElementById('saveBtn');
+                    saveBtn.disabled = true;
+                    saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+
+                    const fd = new FormData(this);
+
+                    // Remove all natively captured file inputs to prevent duplicates
+                    fd.delete('newImages[]');
+
+                    // Re-add either the cropped blob or the uncropped file
+                    for (let i = 0; i < 3; i++) {
+                        const fileInput = document.getElementById(`eFile_${i}`);
+                        if (croppedBlobs[i]) {
+                            fd.append('newImages[]', croppedBlobs[i], `crop_${i}.jpg`);
+                        } else if (fileInput && fileInput.files[0]) {
+                            fd.append('newImages[]', fileInput.files[0]);
+                        }
+                    }
+
+                    try {
+                        const resp = await fetch(this.action, {
+                            method: 'POST',
+                            body: fd,
+                            headers: { 'Accept': 'application/json' }
+                        });
+                        const data = await resp.json();
+                        if (data.success) {
+                            Swal.fire({ icon: 'success', title: 'Success', text: data.message, timer: 1500, showConfirmButton: false })
+                                .then(() => window.location.href = '/admin/products');
+                        } else {
+                            Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                            saveBtn.disabled = false;
+                            saveBtn.innerHTML = '<i class="bi bi-check2 me-1"></i> Save Changes';
+                        }
+                    } catch (err) {
+                        Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong' });
                         saveBtn.disabled = false;
                         saveBtn.innerHTML = '<i class="bi bi-check2 me-1"></i> Save Changes';
                     }
-                } catch (err) {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong' });
-                    saveBtn.disabled = false;
-                    saveBtn.innerHTML = '<i class="bi bi-check2 me-1"></i> Save Changes';
-                }
-            });
+                });
 
-            function confirmDiscard() {
-                Swal.fire({
-                    title: 'Discard?',
-                    text: 'Unsaved changes will be lost',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, discard'
-                }).then(res => { if (res.isConfirmed) window.location.href = '/admin/products'; });
-            }
-        </script>
+                function confirmDiscard() {
+                    Swal.fire({
+                        title: 'Discard?',
+                        text: 'Unsaved changes will be lost',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, discard'
+                    }).then(res => { if (res.isConfirmed) window.location.href = '/admin/products'; });
+                }
+            </script>
 </body>
 
 </html>

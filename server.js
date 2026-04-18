@@ -8,31 +8,26 @@ import authRoutes from "./routes/auth.js"
 import errorHandler from "./middlewares/error.js"; 
 import passport from "./config/passport.js"
 import attachLocalCounts from "./middlewares/locals.js";
-
+import nocache from "nocache";
 
 const app = express();
-connectDB();
+
+// Database Connection
+await connectDB();
 
 app.set("view engine","ejs");
-app.use((req, res, next) => {
-  res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
-  res.set("Pragma", "no-cache");
-  res.set("Expires", "0");
-  next();
-});
+app.use(nocache());
+
 app.use(session({
-    secret: process.env.SESSION_SECRET||'zxcvbnm1234567',
+    secret: process.env.SESSION_SECRET || 'zxcvbnm1234567',
     resave: false,
     saveUninitialized: false,
     name: "session",
     cookie: {
-       
-        
-        
         secure: process.env.NODE_ENV === "production", 
         maxAge: 1000 * 60 * 60 * 24 
     }
-}))
+}));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -44,7 +39,8 @@ app.use(attachLocalCounts);
 app.use("/admin", adminRoutes);
 app.use("/", userRoutes);
 app.use("/auth", authRoutes);
+
 app.use(errorHandler);
     
-
-app.listen(2999 ,() => console.log(`Server running on port 2999`));
+const PORT = process.env.PORT || 2999;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

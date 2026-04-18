@@ -1865,12 +1865,16 @@
                                         if (verifyData.success) {
                                             executePlaceOrder();
                                         } else {
-                                            const params = new URLSearchParams({ reason: 'Payment signature verification failed', amount: orderAmount });
+                                            const params = new URLSearchParams({ 
+                                                reason: 'Payment signature verification failed', 
+                                                amount: orderAmount,
+                                                isBuyNow: '<%= isBuyNow %>'
+                                            });
                                             window.location.href = '/payment-failed?' + params.toString();
                                         }
                                     })
                                     .catch(() => {
-                                        window.location.href = '/payment-failed?reason=Network+error+during+verification';
+                                        window.location.href = '/payment-failed?reason=Network+error+during+verification&isBuyNow=<%= isBuyNow %>';
                                     });
                             },
                             prefill: { name: prefillName },
@@ -1900,7 +1904,11 @@
                             setPlaceOrderLoading(false);
                             const reason = resp.error?.description || resp.error?.reason || 'Payment was declined';
                             const amount = (data.order.amount / 100);
-                            const params = new URLSearchParams({ reason, amount });
+                            const params = new URLSearchParams({ 
+                                reason, 
+                                amount,
+                                isBuyNow: '<%= isBuyNow %>'
+                            });
                             window.location.href = '/payment-failed?' + params.toString();
                         });
 

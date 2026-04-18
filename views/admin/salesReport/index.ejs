@@ -11,248 +11,408 @@
     <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
     <style>
         :root {
-            --bg: #0b0c0e;
-            --bg-card: #141416;
-            --border: rgba(255, 255, 255, .08);
-            --accent: #6366f1;
-            --text: #f1f5f9;
-            --muted: #94a3b8;
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --accent: #4361ee;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
             --green: #10b981;
-            --radius: 12px;
+            --amber: #f59e0b;
+            --radius-lg: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        body {
+        .report-content {
+            padding: 24px 32px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
             background: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
         }
 
-        .page-wrapper {
-            margin-left: var(--sidebar-width, 260px);
-            padding: 30px;
+        /* ── SECTION TITLES ── */
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
         }
 
-        .card {
+        /* ── CARDS ── */
+        .content-card {
             background: var(--bg-card);
-            border-radius: var(--radius);
+            border-radius: var(--radius-lg);
             border: 1px solid var(--border);
-            padding: 24px;
-            margin-bottom: 24px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
         }
 
+        /* ── STAT GRID ── */
         .stat-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-shrink: 0;
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, .02);
+            background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 20px;
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: var(--transition);
         }
 
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 5px;
-            color: var(--green);
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -5px rgba(0, 0, 0, 0.05);
         }
 
         .stat-title {
-            font-size: .85rem;
-            color: var(--muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        /* ── TABLE ── */
+        .table-wrap {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            margin-bottom: 10px;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
         }
 
         .table {
-            color: var(--text);
-            vertical-align: middle;
+            margin: 0;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .table thead th {
-            border-bottom: 1px solid var(--border);
-            color: var(--muted);
-            font-size: .8rem;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
             text-transform: uppercase;
-            border-top: none;
-        }
-
-        .table td {
+            padding: 12px 20px;
             border-bottom: 1px solid var(--border);
-            font-size: .9rem;
-            background: transparent !important;
-            color: var(--text) !important;
         }
 
-        .table tbody tr:hover td {
-            background: rgba(255, 255, 255, .01) !important;
+        .table tbody td {
+            padding: 12px 20px;
+            font-size: 0.875rem;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
         }
 
+        /* ── BUTTONS ── */
         .btn-xy {
             border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.8rem;
             font-weight: 600;
-            padding: 10px 20px;
-            font-size: .85rem;
-            text-decoration: none;
+            border: none;
+            transition: var(--transition);
         }
 
-        .btn-dl-pdf {
-            background: #e63946;
-            border: none;
+        .btn-pdf {
+            background: #ffe4e6;
+            color: #e11d48;
+        }
+
+        .btn-pdf:hover {
+            background: #e11d48;
             color: white;
         }
 
-        .btn-dl-excel {
-            background: #10b981;
-            border: none;
+        .btn-excel {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .btn-excel:hover {
+            background: #166534;
             color: white;
         }
 
+        .btn-primary-xy {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* ── FILTER ── */
         .filter-form {
             display: flex;
-            gap: 15px;
+            flex-wrap: wrap;
+            gap: 12px;
             align-items: flex-end;
         }
 
-        .form-control,
-        .form-select {
-            background: rgba(255, 255, 255, .05);
-            border: 1px solid var(--border);
-            color: white;
-            border-radius: 6px;
+        .form-label-xy {
+            font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
         }
 
-        .form-control:focus,
-        .form-select:focus {
-            background: rgba(255, 255, 255, .08);
-            color: white;
-            border-color: var(--accent);
-            box-shadow: none;
+        .form-control-xy,
+        .form-select-xy {
+            background: #fdfdfd;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 7px 10px;
+            font-size: 0.8rem;
+            color: var(--text-main);
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 991px) {
+            .report-content {
+                padding: 16px;
+            }
         }
     </style>
 </head>
 
-<body>
+<body class="admin-body">
     <%- include('../../partials/admin/sidebar', { currentPage: 'sales-report' , currentUser }) %>
-        <div class="page-wrapper">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="m-0 fw-bold">Sales Report</h2>
-                <div class="d-flex gap-2">
-                    <a href="#" onclick="downloadFile('excel')" class="btn btn-xy btn-dl-excel"><i
-                            class="bi bi-file-earmark-excel"></i> Excel</a>
-                    <a href="#" onclick="downloadFile('pdf')" class="btn btn-xy btn-dl-pdf"><i
-                            class="bi bi-file-earmark-pdf"></i> PDF</a>
-                </div>
-            </div>
 
-            <div class="card">
-                <form class="filter-form" method="GET" action="/admin/sales-report" id="salesFilterForm">
+        <main class="admin-main">
+            <div class="report-content">
+                <header class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <label class="form-label" style="font-size: .8rem; color: var(--muted);">Filter Type</label>
-                        <select name="filterType" id="filterType" class="form-select" onchange="toggleCustomDates()">
-                            <option value="daily" <%=filterType==='daily' ? 'selected' : '' %>>Daily</option>
-                            <option value="weekly" <%=filterType==='weekly' ? 'selected' : '' %>>Weekly</option>
-                            <option value="monthly" <%=filterType==='monthly' ? 'selected' : '' %>>Monthly</option>
-                            <option value="yearly" <%=filterType==='yearly' ? 'selected' : '' %>>Yearly</option>
-                            <option value="custom" <%=filterType==='custom' ? 'selected' : '' %>>Custom Date Range
-                            </option>
-                        </select>
+                        <h2 class="page-title m-0">Sales Report</h2>
+                        <p class="text-muted small m-0">Performance overview.</p>
                     </div>
-                    <div id="customDates" style="display: <%= filterType === 'custom' ? 'flex' : 'none' %>; gap: 15px;">
+                    <div class="d-flex gap-2">
+                        <button onclick="downloadFile('excel')" class="btn btn-xy btn-excel">
+                            <i class="bi bi-file-earmark-excel"></i> Excel
+                        </button>
+                        <button onclick="downloadFile('pdf')" class="btn btn-xy btn-pdf">
+                            <i class="bi bi-file-earmark-pdf"></i> PDF
+                        </button>
+                    </div>
+                </header>
+
+                <div class="content-card">
+                    <form class="filter-form" method="GET" action="/admin/sales-report" id="salesFilterForm">
                         <div>
-                            <label class="form-label" style="font-size: .8rem; color: var(--muted);">Start Date</label>
-                            <input type="date" name="startDate" id="startDate" class="form-control"
-                                value="<%= customStart || '' %>">
+                            <label class="form-label-xy">Period</label>
+                            <select name="filterType" id="filterType" class="form-select-xy"
+                                onchange="toggleCustomDates()">
+                                <option value="daily" <%=filterType==='daily' ? 'selected' : '' %>>Today</option>
+                                <option value="weekly" <%=filterType==='weekly' ? 'selected' : '' %>>This Week</option>
+                                <option value="monthly" <%=filterType==='monthly' ? 'selected' : '' %>>This Month
+                                </option>
+                                <option value="yearly" <%=filterType==='yearly' ? 'selected' : '' %>>This Year</option>
+                                <option value="custom" <%=filterType==='custom' ? 'selected' : '' %>>Custom Range
+                                </option>
+                            </select>
+                        </div>
+                        <div id="customDates"
+                            style="display: <%= filterType === 'custom' ? 'flex' : 'none' %>; gap: 10px;">
+                            <div>
+                                <label class="form-label-xy">Start Date</label>
+                                <input type="date" name="startDate" id="startDate" class="form-control-xy"
+                                    value="<%= customStart || '' %>">
+                            </div>
+                            <div>
+                                <label class="form-label-xy">End Date</label>
+                                <input type="date" name="endDate" id="endDate" class="form-control-xy"
+                                    value="<%= customEnd || '' %>">
+                            </div>
                         </div>
                         <div>
-                            <label class="form-label" style="font-size: .8rem; color: var(--muted);">End Date</label>
-                            <input type="date" name="endDate" id="endDate" class="form-control"
-                                value="<%= customEnd || '' %>">
+                            <button type="submit" class="btn btn-xy btn-primary-xy">Generate</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">Gross Revenue</div>
+                        <div class="stat-value" style="color: var(--accent);">₹<%=
+                                data.totalSalesAmount.toLocaleString() %>
                         </div>
                     </div>
-                    <div>
-                        <button type="submit" class="btn btn-primary btn-xy">Generate Report</button>
+                    <div class="stat-card">
+                        <div class="stat-title">Orders</div>
+                        <div class="stat-value" style="color: var(--green);">
+                            <%= data.totalOrders %>
+                        </div>
                     </div>
-                </form>
-            </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Discounts</div>
+                        <div class="stat-value" style="color: var(--amber);">₹<%= data.totalDiscounts.toLocaleString()
+                                %>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="stat-grid mb-4">
-                <div class="stat-card">
-                    <div class="stat-title">Total Sales Revenue</div>
-                    <div class="stat-value">₹<%= data.totalSalesAmount.toLocaleString() %>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Total Orders (Delivered)</div>
-                    <div class="stat-value" style="color: var(--accent);">
-                        <%= data.totalOrders %>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-title">Total Discounts Given</div>
-                    <div class="stat-value" style="color: #f59e0b;">₹<%= data.totalDiscounts.toLocaleString() %>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card" style="overflow-x: auto;">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Date</th>
-                            <th>Customer</th>
-                            <th>Discount</th>
-                            <th>Final Price</th>
-                            <th>Payment Method</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (data.orders.length> 0) { %>
-                            <% data.orders.forEach(order=> { %>
+                <div class="table-wrap">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
                                 <tr>
-                                    <td><span style="font-family: monospace;">
-                                            <%= order.orderId %>
-                                        </span></td>
-                                    <td>
-                                        <%= new Date(order.createdAt).toLocaleDateString() %>
-                                    </td>
-                                    <td>
-                                        <%= order.userId ? order.userId.Name || order.userId.Email : 'User' %>
-                                    </td>
-                                    <td style="color: #f59e0b;">₹<%= (order.discount || 0) + (order.couponDiscount || 0)
-                                            %>
-                                    </td>
-                                    <td style="color: var(--green); font-weight: 600;">₹<%= order.finalPrice %>
-                                    </td>
-                                    <td><span class="badge bg-secondary">
-                                            <%= order.paymentMethod %>
-                                        </span></td>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>view</th>
+                                    <th>Status</th>
+                                    <th>Savings</th>
+                                    <th>Final Price</th>
+                                    <th>Payment</th>
                                 </tr>
-                                <% }) %>
-                                    <% } else { %>
+                            </thead>
+                            <tbody>
+                                <% if (data.orders && data.orders.length> 0) { %>
+                                    <% data.orders.forEach(order=> { %>
                                         <tr>
-                                            <td colspan="6" class="text-center py-4" style="color: var(--muted);">No
-                                                sales found for this period.</td>
+                                            <td class="fw-bold">#<%= order.orderId %>
+                                            </td>
+                                            <td>
+                                                <%= new Date(order.createdAt).toLocaleDateString('en-GB') %>
+                                            </td>
+                                            <td>
+                                                <div class="fw-semibold text-truncate" style="max-width: 140px;">
+                                                    <%= order.userId ? order.userId.Name : 'Guest' %>
+                                                </div>
+                                                <div class="small text-muted text-truncate" style="max-width: 140px;">
+                                                    <%= order.userId ? order.userId.Email : '' %>
+                                                </div>
+                                            </td>
+                                            <td><a href="/admin/orders/details?id=<%= order._id%>">view</a></td>
+                                            <td>
+                                                <span class="status-badge 
+                                            <%= order.orderStatus === 'Delivered' ? 'bg-success-subtle text-success border border-success' : 
+                                                order.orderStatus === 'Shipped' ? 'bg-primary-subtle text-primary border border-primary' : 
+                                                'bg-warning-subtle text-warning border border-warning' %>">
+                                                    <%= order.orderStatus %>
+                                                </span>
+                                            </td>
+                                            <td class="text-danger fw-bold">- ₹<%= (order.discount ||
+                                                    0).toLocaleString() %>
+                                            </td>
+                                            <td class="fw-bold text-success">₹<%= order.finalPrice.toLocaleString() %>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="badge border <%= order.paymentMethod === 'COD' ? 'bg-light text-dark' : 'bg-primary-subtle text-primary' %>"
+                                                    style="font-size: 0.6rem;">
+                                                    <%= order.paymentMethod %>
+                                                </span>
+                                            </td>
                                         </tr>
-                                        <% } %>
-                    </tbody>
-                </table>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="8" class="text-center py-5 text-muted">No data
+                                                        available
+                                                        for the selected period.</td>
+                                                </tr>
+                                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <% if (data.totalPages> 1) { %>
+                    <div class="d-flex justify-content-center mt-3 mb-2">
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                <% if (data.currentPage> 1) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#"
+                                            onclick="changePage(<%= data.currentPage - 1 %>)">Prev</a>
+                                    </li>
+                                    <% } %>
+
+                                        <% for(let i=1; i <=data.totalPages; i++) { %>
+                                            <li class="page-item <%= data.currentPage === i ? 'active' : '' %>">
+                                                <a class="page-link" href="#" onclick="changePage(<%= i %>)">
+                                                    <%= i %>
+                                                </a>
+                                            </li>
+                                            <% } %>
+
+                                                <% if (data.currentPage < data.totalPages) { %>
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="#"
+                                                            onclick="changePage(<%= data.currentPage + 1 %>)">Next</a>
+                                                    </li>
+                                                    <% } %>
+                            </ul>
+                        </nav>
+                    </div>
+                    <% } %>
             </div>
-        </div>
+        </main>
 
         <script>
+            function changePage(page) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('page', page);
+                window.location.href = url.toString();
+            }
+
             function toggleCustomDates() {
                 const filterType = document.getElementById('filterType').value;
                 const customDates = document.getElementById('customDates');
-                if (filterType === 'custom') {
-                    customDates.style.display = 'flex';
-                } else {
-                    customDates.style.display = 'none';
-                }
+                customDates.style.display = filterType === 'custom' ? 'flex' : 'none';
             }
 
             function downloadFile(type) {

@@ -989,992 +989,1013 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" />
 </head>
 
-<body>
-    <div class="sidebar-wrapper">
-        <%- include('../../partials/admin/sidebar', { currentPage: 'products' , currentUser: user }) %>
-    </div>
+<body class="admin-body">
+    <%- include('../../partials/admin/sidebar', { currentPage: 'products' , currentUser: typeof admin !=='undefined' ?
+        admin : user }) %>
 
-    <div class="main-content">
-        <h1 class="page-title">Variant Management</h1>
+        <main class="admin-main">
+            <div class="main-content">
+                <h1 class="page-title">Variant Management</h1>
 
-        <!-- Product Summary Card -->
-        <div class="product-card">
-            <div class="product-thumb">
-                <% if (typeof defaultVariant !=='undefined' && defaultVariant?.images && defaultVariant.images.length>
-                    0) { %>
-                    <img src="<%= defaultVariant.images[0] %>" alt="<%= product.productName %>" />
-                    <% } else { %>
-                        <span class="product-thumb-placeholder"><i class="bi bi-box-seam"></i></span>
+                <!-- Product Summary Card -->
+                <div class="product-card">
+                    <div class="product-thumb">
+                        <% if (typeof defaultVariant !=='undefined' && defaultVariant?.images &&
+                            defaultVariant.images.length>
+                            0) { %>
+                            <img src="<%= defaultVariant.images[0] %>" alt="<%= product.productName %>" />
+                            <% } else { %>
+                                <span class="product-thumb-placeholder"><i class="bi bi-box-seam"></i></span>
+                                <% } %>
+                    </div>
+                    <div class="product-info">
+                        <div class="name">
+                            <%= product.productName %>
+                        </div>
+                        <div class="brand"><i class="bi bi-geo-alt-fill"></i>
+                            <%= product.categoryId?.categoryName || 'N/A' %>
+                        </div>
+                    </div>
+                    <div class="stat-divider">
+                        <div class="stat-pill">
+                            <div class="lbl">Total Variants</div>
+                            <div class="val">
+                                <%= typeof totalVariants !=='undefined' ? totalVariants : 0 %>
+                            </div>
+                        </div>
+                        <div class="stat-pill">
+                            <div class="lbl">Active</div>
+                            <div class="val green">
+                                <%= typeof activeVariants !=='undefined' ? activeVariants : 0 %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="toolbar">
+                    <div></div>
+                    <button class="btn-add-variant" onclick="openAddModal()">
+                        <i class="bi bi-plus-circle-fill"></i> Add Variant
+                    </button>
+                </div>
+
+                <!-- Table Card -->
+                <div class="table-card">
+                    <% if (successMsg || errorMsg) { %>
+                        <script>
+                            Swal.fire({
+                                toast: true,
+                                position: "top",
+                                icon: '<%= successMsg ? "success" : "error" %>',
+                                title: '<%= successMsg || errorMsg %>',
+                                confirmButtonColor: '#1a1d23',
+                                timer: 1900,
+                                showConfirmButton: false
+                            });
+                        </script>
                         <% } %>
-            </div>
-            <div class="product-info">
-                <div class="name">
-                    <%= product.productName %>
-                </div>
-                <div class="brand"><i class="bi bi-geo-alt-fill"></i>
-                    <%= product.categoryId?.categoryName || 'N/A' %>
-                </div>
-            </div>
-            <div class="stat-divider">
-                <div class="stat-pill">
-                    <div class="lbl">Total Variants</div>
-                    <div class="val">
-                        <%= typeof totalVariants !=='undefined' ? totalVariants : 0 %>
-                    </div>
-                </div>
-                <div class="stat-pill">
-                    <div class="lbl">Active</div>
-                    <div class="val green">
-                        <%= typeof activeVariants !=='undefined' ? activeVariants : 0 %>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Toolbar -->
-        <div class="toolbar">
-            <div></div>
-            <button class="btn-add-variant" onclick="openAddModal()">
-                <i class="bi bi-plus-circle-fill"></i> Add Variant
-            </button>
-        </div>
-
-        <!-- Table Card -->
-        <div class="table-card">
-            <% if (successMsg || errorMsg) { %>
-                <script>
-                    Swal.fire({
-                        toast: true,
-                        position: "top",
-                        icon: '<%= successMsg ? "success" : "error" %>',
-                        title: '<%= successMsg || errorMsg %>',
-                        confirmButtonColor: '#1a1d23',
-                        timer: 1900,
-                        showConfirmButton: false
-                    });
-                </script>
-                <% } %>
-
-                    <div class="table-responsive">
-                        <table class="variants-table">
-                            <thead>
-                                <tr>
-                                    <th>Image</th>
-                                    <th>Description</th>
-                                    <th>SKU</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                    <th>Stock</th>
-                                    <th>Availability</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% if (typeof variants !=='undefined' && variants.length> 0) {
-                                    const sortedVariants = [...variants].sort((a, b) => (b.IsDefault ? 1 : 0) -
-                                    (a.IsDefault ? 1 : 0));
-                                    sortedVariants.forEach(function(variant) {
-                                    const isActiveVariant = !!variant.IsActive;
-                                    const variantData = JSON.stringify({
-                                    _id: variant._id,
-                                    color: variant.color || '',
-                                    colorCode: variant.colorCode || '#000000',
-                                    storage: variant.storage || '',
-                                    RAM: variant.RAM || '',
-                                    price: variant.price || 0,
-                                    stock: variant.stock !== undefined ? variant.stock : 0,
-                                    SKU: variant.SKU || '',
-                                    isActive: isActiveVariant,
-                                    isDefault: !!variant.IsDefault,
-                                    images: variant.images || []
-                                    }); %>
-                                    <tr>
-                                        <td style="text-align:center;">
-                                            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;">
-                                                <div
-                                                    style="width:38px;height:38px;border-radius:8px;overflow:hidden;background:#f3f4f6;border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-                                                    <% if (variant.images && variant.images.length> 0) { %>
-                                                        <img src="<%= variant.images[0] %>"
-                                                            style="width:100%;height:100%;object-fit:cover;" alt="">
-                                                        <% } else { %>
-                                                            <i class="bi bi-image"
-                                                                style="color:#ccc;font-size:1rem;"></i>
-                                                            <% } %>
-                                                </div>
-                                                <% if (variant.IsDefault) { %>
-                                                    <span class="default-badge"><i class="bi bi-star-fill"
-                                                            style="font-size:0.6rem;"></i> Default</span>
-                                                    <% } %>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="variant-attrs"><span style="color:black;">Color</span> : <%=
-                                                    variant.color %>
-                                            </div>
-                                            <div class="variant-attrs">
-                                                <% if (variant.RAM) { %><span style="color:black;">RAM</span> : <%=
-                                                        variant.RAM %>GB &nbsp;<% } %>
-                                                            <br>
-                                                            <% if (variant.storage) { %><span
-                                                                    style="color:black;">Storage</span> : <%=
-                                                                    variant.storage %>&nbsp;GB<% } %>
-                                            </div>
-                                        </td>
-                                        <td><span class="sku-code">
-                                                <%= variant.SKU || 'N/A' %>
-                                            </span></td>
-                                        <td><span class="price">₹<%= variant.price ?
-                                                    variant.price.toLocaleString('en-IN') : '0' %></span></td>
-                                        <td>
-                                            <% if (isActiveVariant) { %>
-                                                <span class="status-badge active">Active</span>
-                                                <% } else { %>
-                                                    <span class="status-badge inactive">Inactive</span>
-                                                    <% } %>
-                                        </td>
-                                        <td><span class="stock-num">
-                                                <%= variant.stock !==undefined ? variant.stock : 0 %>
-                                            </span></td>
-                                        <td>
-                                            <% if (variant.stock> 9) { %>
-                                                <span class="stock-status instock">In Stock</span>
-                                                <% } else if (variant.stock> 0) { %>
-                                                    <span class="stock-status lowstock">Low Stock</span>
-                                                    <% } else { %>
-                                                        <span class="stock-status outstock">Out of Stock</span>
-                                                        <% } %>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <button class="btn-edit" title="Edit"
-                                                    data-variant="<%- encodeURIComponent(variantData) %>"
-                                                    onclick="openEditModalFromBtn(this)">
-                                                    <i class="bi bi-pencil"></i>
-                                                </button>
-                                                <button class="btn-edit" title="Delete" style="color:var(--red)"
-                                                    onclick="deleteVariant('<%= variant._id %>', '<%= product._id %>')">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <% }); %>
-                                        <% } else { %>
+                            <div class="table-responsive">
+                                <table class="variants-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Image</th>
+                                            <th>Description</th>
+                                            <th>SKU</th>
+                                            <th>Price</th>
+                                            <th>Status</th>
+                                            <th>Stock</th>
+                                            <th>Availability</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% if (typeof variants !=='undefined' && variants.length> 0) {
+                                            const sortedVariants = [...variants].sort((a, b) => (b.IsDefault ? 1 : 0) -
+                                            (a.IsDefault ? 1 : 0));
+                                            sortedVariants.forEach(function(variant) {
+                                            const isActiveVariant = !!variant.IsActive;
+                                            const variantData = JSON.stringify({
+                                            _id: variant._id,
+                                            color: variant.color || '',
+                                            colorCode: variant.colorCode || '#000000',
+                                            storage: variant.storage || '',
+                                            RAM: variant.RAM || '',
+                                            price: variant.price || 0,
+                                            stock: variant.stock !== undefined ? variant.stock : 0,
+                                            SKU: variant.SKU || '',
+                                            isActive: isActiveVariant,
+                                            isDefault: !!variant.IsDefault,
+                                            images: variant.images || []
+                                            }); %>
                                             <tr>
-                                                <td colspan="8">
-                                                    <div class="empty-state">
-                                                        <i class="bi bi-layers"></i>
-                                                        <p style="font-weight:600;color:var(--text);">No variants found
-                                                        </p>
-                                                        <p style="font-size:0.82rem;">Add your first variant to get
-                                                            started.</p>
+                                                <td style="text-align:center;">
+                                                    <div
+                                                        style="display:flex;flex-direction:column;align-items:center;gap:5px;">
+                                                        <div
+                                                            style="width:38px;height:38px;border-radius:8px;overflow:hidden;background:#f3f4f6;border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                                                            <% if (variant.images && variant.images.length> 0) { %>
+                                                                <img src="<%= variant.images[0] %>"
+                                                                    style="width:100%;height:100%;object-fit:cover;"
+                                                                    alt="">
+                                                                <% } else { %>
+                                                                    <i class="bi bi-image"
+                                                                        style="color:#ccc;font-size:1rem;"></i>
+                                                                    <% } %>
+                                                        </div>
+                                                        <% if (variant.IsDefault) { %>
+                                                            <span class="default-badge"><i class="bi bi-star-fill"
+                                                                    style="font-size:0.6rem;"></i> Default</span>
+                                                            <% } %>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="variant-attrs"><span style="color:black;">Color</span> :
+                                                        <%= variant.color %>
+                                                    </div>
+                                                    <div class="variant-attrs">
+                                                        <% if (variant.RAM) { %><span style="color:black;">RAM</span> :
+                                                            <%= variant.RAM %>GB &nbsp;<% } %>
+                                                                    <br>
+                                                                    <% if (variant.storage) { %><span
+                                                                            style="color:black;">Storage</span> : <%=
+                                                                            variant.storage %>&nbsp;GB<% } %>
+                                                    </div>
+                                                </td>
+                                                <td><span class="sku-code">
+                                                        <%= variant.SKU || 'N/A' %>
+                                                    </span></td>
+                                                <td><span class="price">₹<%= variant.price ?
+                                                            variant.price.toLocaleString('en-IN') : '0' %></span></td>
+                                                <td>
+                                                    <% if (isActiveVariant) { %>
+                                                        <span class="status-badge active">Active</span>
+                                                        <% } else { %>
+                                                            <span class="status-badge inactive">Inactive</span>
+                                                            <% } %>
+                                                </td>
+                                                <td><span class="stock-num">
+                                                        <%= variant.stock !==undefined ? variant.stock : 0 %>
+                                                    </span></td>
+                                                <td>
+                                                    <% if (variant.stock> 9) { %>
+                                                        <span class="stock-status instock">In Stock</span>
+                                                        <% } else if (variant.stock> 0) { %>
+                                                            <span class="stock-status lowstock">Low Stock</span>
+                                                            <% } else { %>
+                                                                <span class="stock-status outstock">Out of Stock</span>
+                                                                <% } %>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <button class="btn-edit" title="Edit"
+                                                            data-variant="<%- encodeURIComponent(variantData) %>"
+                                                            onclick="openEditModalFromBtn(this)">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                        <button class="btn-edit" title="Delete" style="color:var(--red)"
+                                                            onclick="deleteVariant('<%= variant._id %>', '<%= product._id %>')">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
                                                     </div>
                                                 </td>
                                             </tr>
-                                            <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <% if (typeof totalVariants !=='undefined' && totalVariants> 5) { %>
-                        <div class="pagination-bar">
-                            <div class="pagination-info">
-                                Showing <%= typeof startItem !=='undefined' ? startItem : 1 %>–<%= typeof endItem
-                                        !=='undefined' ? endItem : Math.min(5, totalVariants) %> of <%= totalVariants %>
-                                            variants
-                            </div>
-                            <div class="page-btns">
-                                <button class="page-btn" <%=(typeof currentPage !=='undefined' && currentPage <=1)
-                                    ? 'disabled' : '' %> onclick="goToPage(<%= (typeof currentPage !=='undefined' ?
-                                        currentPage - 1 : 1) %>)">
-                                        <i class="bi bi-chevron-left"></i>
-                                </button>
-                                <% if (typeof totalPages !=='undefined' ) { %>
-                                    <% for (let i=1; i <=totalPages; i++) { %>
-                                        <% if (i===1 || i===totalPages || (typeof currentPage !=='undefined' &&
-                                            Math.abs(i - currentPage) <=1)) { %>
-                                            <button
-                                                class="page-btn <%= (typeof currentPage !== 'undefined' && currentPage === i) ? 'active' : '' %>"
-                                                onclick="goToPage(<%= i %>)">
-                                                <%= i %>
-                                            </button>
-                                            <% } else if ((i===2 && typeof currentPage !=='undefined' && currentPage> 3)
-                                                || (i === totalPages - 1 && typeof currentPage !== 'undefined' &&
-                                                currentPage < totalPages - 2)) { %>
-                                                    <span
-                                                        style="padding:0 4px;color:var(--muted);font-size:0.85rem;">…</span>
+                                            <% }); %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="8">
+                                                            <div class="empty-state">
+                                                                <i class="bi bi-layers"></i>
+                                                                <p style="font-weight:600;color:var(--text);">No
+                                                                    variants found
+                                                                </p>
+                                                                <p style="font-size:0.82rem;">Add your first variant to
+                                                                    get
+                                                                    started.</p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
                                                     <% } %>
-                                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <% if (typeof totalVariants !=='undefined' && totalVariants> 5) { %>
+                                <div class="pagination-bar">
+                                    <div class="pagination-info">
+                                        Showing <%= typeof startItem !=='undefined' ? startItem : 1 %>–<%= typeof
+                                                endItem !=='undefined' ? endItem : Math.min(5, totalVariants) %> of <%=
+                                                    totalVariants %>
+                                                    variants
+                                    </div>
+                                    <div class="page-btns">
+                                        <button class="page-btn" <%=(typeof currentPage !=='undefined' && currentPage
+                                            <=1) ? 'disabled' : '' %> onclick="goToPage(<%= (typeof currentPage
+                                                !=='undefined' ? currentPage - 1 : 1) %>)">
+                                                <i class="bi bi-chevron-left"></i>
+                                        </button>
+                                        <% if (typeof totalPages !=='undefined' ) { %>
+                                            <% for (let i=1; i <=totalPages; i++) { %>
+                                                <% if (i===1 || i===totalPages || (typeof currentPage !=='undefined' &&
+                                                    Math.abs(i - currentPage) <=1)) { %>
+                                                    <button
+                                                        class="page-btn <%= (typeof currentPage !== 'undefined' && currentPage === i) ? 'active' : '' %>"
+                                                        onclick="goToPage(<%= i %>)">
+                                                        <%= i %>
+                                                    </button>
+                                                    <% } else if ((i===2 && typeof currentPage !=='undefined' &&
+                                                        currentPage> 3)
+                                                        || (i === totalPages - 1 && typeof currentPage !== 'undefined'
+                                                        &&
+                                                        currentPage < totalPages - 2)) { %>
+                                                            <span
+                                                                style="padding:0 4px;color:var(--muted);font-size:0.85rem;">…</span>
                                                             <% } %>
-                                                                <button class="page-btn" <%=(typeof currentPage
-                                                                    !=='undefined' && currentPage>= totalPages) ?
-                                                                    'disabled' : '' %> onclick="goToPage(<%= (typeof
-                                                                        currentPage !=='undefined' ? currentPage + 1 :
-                                                                        1) %>)">
-                                                                        <i class="bi bi-chevron-right"></i>
-                                                                </button>
+                                                                <% } %>
+                                                                    <% } %>
+                                                                        <button class="page-btn" <%=(typeof currentPage
+                                                                            !=='undefined' && currentPage>= totalPages)
+                                                                            ?
+                                                                            'disabled' : '' %> onclick="goToPage(<%=
+                                                                                (typeof currentPage !=='undefined' ?
+                                                                                currentPage + 1 : 1) %>)">
+                                                                                <i class="bi bi-chevron-right"></i>
+                                                                        </button>
+                                    </div>
+                                </div>
+                                <% } %>
+                </div>
+        </main>
+
+
+        <!-- ══ ADD VARIANT MODAL ══ -->
+        <div class="modal-overlay" id="addModal" onclick="handleOverlayClick(event,'addModal')">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <span class="modal-title">Add Variant</span>
+                    <button class="modal-close" onclick="closeModal('addModal')"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <form id="addVariantForm"
+                    action="/admin/products/<%= typeof product !== 'undefined' ? product._id : '' %>/variants-add"
+                    method="POST" enctype="multipart/form-data" onsubmit="return validateVariantForm(this, 'add')">
+
+                    <input type="file" class="file-input-hidden" id="addFile0" name="images" accept="image/*"
+                        onchange="handleImageSelect(this,'addSlot0')" hidden>
+                    <input type="file" class="file-input-hidden" id="addFile1" name="images" accept="image/*"
+                        onchange="handleImageSelect(this,'addSlot1')" hidden>
+                    <input type="file" class="file-input-hidden" id="addFile2" name="images" accept="image/*"
+                        onchange="handleImageSelect(this,'addSlot2')" hidden>
+
+                    <!-- Image Upload Slots -->
+                    <div class="img-upload-row">
+                        <div class="img-upload-slot" id="addSlot0" onclick="triggerFileInput('addFile0',event)">
+                            <i class="bi bi-camera upload-icon"></i>
+                            <span class="upload-label">Image 1</span>
+                            <img class="preview-img" src="" alt="">
+                            <button type="button" class="remove-img" onclick="removeImg('addSlot0','addFile0',event)"><i
+                                    class="bi bi-x"></i></button>
+                        </div>
+                        <div class="img-upload-slot" id="addSlot1" onclick="triggerFileInput('addFile1',event)">
+                            <i class="bi bi-camera upload-icon"></i>
+                            <span class="upload-label">Image 2</span>
+                            <img class="preview-img" src="" alt="">
+                            <button type="button" class="remove-img" onclick="removeImg('addSlot1','addFile1',event)"><i
+                                    class="bi bi-x"></i></button>
+                        </div>
+                        <div class="img-upload-slot" id="addSlot2" onclick="triggerFileInput('addFile2',event)">
+                            <i class="bi bi-camera upload-icon"></i>
+                            <span class="upload-label">Image 3</span>
+                            <img class="preview-img" src="" alt="">
+                            <button type="button" class="remove-img" onclick="removeImg('addSlot2','addFile2',event)"><i
+                                    class="bi bi-x"></i></button>
+                        </div>
+                    </div>
+                    <!-- Image section error (shown below slots) -->
+                    <span class="img-section-error" id="addImgError">
+                        <i class="bi bi-exclamation-circle-fill"></i> At least one product image is required.
+                    </span>
+
+                    <div class="form-grid">
+                        <!-- Color -->
+                        <div class="form-group full">
+                            <label class="form-label">Color <span style="color:var(--red)">*</span></label>
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <input type="color" name="colorCode" id="addColorPicker"
+                                    style="width:46px;height:38px;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px;"
+                                    oninput="updateColorValue(this.value,'addColorValue','addColorPicker')">
+                                <input type="text" name="color" id="addColorValue" class="form-input"
+                                    placeholder="e.g. Midnight Black"
+                                    oninput="handleColorInput(this.value,'addColorPicker','addColorValue'); clearError(this, 'addColorError')">
+                            </div>
+                            <span class="field-error" id="addColorError">
+                                <i class="bi bi-exclamation-circle-fill"></i> Color name is required.
+                            </span>
+                        </div>
+
+                        <!-- RAM -->
+                        <div class="form-group">
+                            <label class="form-label">RAM (GB) <span style="color:var(--red)">*</span></label>
+                            <input type="number" name="RAM" id="addRAM" class="form-input" placeholder="e.g. 8" min="1"
+                                oninput="clearError(this, 'addRAMError')">
+                            <span class="field-error" id="addRAMError">
+                                <i class="bi bi-exclamation-circle-fill"></i> RAM is required and must be at least 1
+                                GB.
+                            </span>
+                        </div>
+
+                        <!-- Storage -->
+                        <div class="form-group">
+                            <label class="form-label">Storage (GB) <span style="color:var(--red)">*</span></label>
+                            <input type="number" name="storage" id="addStorage" class="form-input"
+                                placeholder="e.g. 128" min="1" oninput="clearError(this, 'addStorageError')">
+                            <span class="field-error" id="addStorageError">
+                                <i class="bi bi-exclamation-circle-fill"></i> Storage is required and must be at
+                                least 1 GB.
+                            </span>
+                        </div>
+
+                        <!-- Stock -->
+                        <div class="form-group">
+                            <label class="form-label">Stock <span style="color:var(--red)">*</span></label>
+                            <input type="number" name="stock" id="addStock" class="form-input" placeholder="0" min="0"
+                                value="0" oninput="clearError(this, 'addStockError')">
+                            <span class="field-error" id="addStockError">
+                                <i class="bi bi-exclamation-circle-fill"></i> Stock quantity is required (minimum
+                                0).
+                            </span>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="form-group">
+                            <label class="form-label">Price <span style="color:var(--red)">*</span></label>
+                            <div class="input-prefix" id="addPriceWrapper">
+                                <span>₹</span>
+                                <input type="number" name="price" id="addPrice" placeholder="0.00" min="1" step="0.01"
+                                    value=""
+                                    oninput="clearError(this, 'addPriceError'); clearWrapperError('addPriceWrapper')">
+                            </div>
+                            <span class="field-error" id="addPriceError">
+                                <i class="bi bi-exclamation-circle-fill"></i> Price is required and must be greater
+                                than 0.
+                            </span>
+                        </div>
+
+                        <!-- SKU -->
+                        <div class="form-group full">
+                            <label class="form-label">SKU <span style="color:var(--red)">*</span></label>
+                            <input type="text" name="SKU" id="addSKU" class="form-input" placeholder="e.g. PRD-BLK-128"
+                                oninput="clearError(this, 'addSKUError')">
+                            <span class="field-error" id="addSKUError">
+                                <i class="bi bi-exclamation-circle-fill"></i> SKU code is required.
+                            </span>
+                        </div>
+
+                        <!-- Default toggle -->
+                        <div class="form-group full">
+                            <label class="form-label">Set as Default Variant</label>
+                            <div class="status-row">
+                                <div class="status-label"><i class="bi bi-star-fill me-2"
+                                        style="color:#f59e0b;font-size:0.85rem;"></i> Mark as default</div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="isDefault" id="addDefaultToggle">
+                                    <div class="toggle-track"></div>
+                                </label>
                             </div>
                         </div>
-                        <% } %>
-        </div>
-    </div>
 
-
-    <!-- ══ ADD VARIANT MODAL ══ -->
-    <div class="modal-overlay" id="addModal" onclick="handleOverlayClick(event,'addModal')">
-        <div class="modal-box">
-            <div class="modal-header">
-                <span class="modal-title">Add Variant</span>
-                <button class="modal-close" onclick="closeModal('addModal')"><i class="bi bi-x-lg"></i></button>
-            </div>
-            <form id="addVariantForm"
-                action="/admin/products/<%= typeof product !== 'undefined' ? product._id : '' %>/variants-add"
-                method="POST" enctype="multipart/form-data" onsubmit="return validateVariantForm(this, 'add')">
-
-                <input type="file" class="file-input-hidden" id="addFile0" name="images" accept="image/*"
-                    onchange="handleImageSelect(this,'addSlot0')" hidden>
-                <input type="file" class="file-input-hidden" id="addFile1" name="images" accept="image/*"
-                    onchange="handleImageSelect(this,'addSlot1')" hidden>
-                <input type="file" class="file-input-hidden" id="addFile2" name="images" accept="image/*"
-                    onchange="handleImageSelect(this,'addSlot2')" hidden>
-
-                <!-- Image Upload Slots -->
-                <div class="img-upload-row">
-                    <div class="img-upload-slot" id="addSlot0" onclick="triggerFileInput('addFile0',event)">
-                        <i class="bi bi-camera upload-icon"></i>
-                        <span class="upload-label">Image 1</span>
-                        <img class="preview-img" src="" alt="">
-                        <button type="button" class="remove-img" onclick="removeImg('addSlot0','addFile0',event)"><i
-                                class="bi bi-x"></i></button>
-                    </div>
-                    <div class="img-upload-slot" id="addSlot1" onclick="triggerFileInput('addFile1',event)">
-                        <i class="bi bi-camera upload-icon"></i>
-                        <span class="upload-label">Image 2</span>
-                        <img class="preview-img" src="" alt="">
-                        <button type="button" class="remove-img" onclick="removeImg('addSlot1','addFile1',event)"><i
-                                class="bi bi-x"></i></button>
-                    </div>
-                    <div class="img-upload-slot" id="addSlot2" onclick="triggerFileInput('addFile2',event)">
-                        <i class="bi bi-camera upload-icon"></i>
-                        <span class="upload-label">Image 3</span>
-                        <img class="preview-img" src="" alt="">
-                        <button type="button" class="remove-img" onclick="removeImg('addSlot2','addFile2',event)"><i
-                                class="bi bi-x"></i></button>
-                    </div>
-                </div>
-                <!-- Image section error (shown below slots) -->
-                <span class="img-section-error" id="addImgError">
-                    <i class="bi bi-exclamation-circle-fill"></i> At least one product image is required.
-                </span>
-
-                <div class="form-grid">
-                    <!-- Color -->
-                    <div class="form-group full">
-                        <label class="form-label">Color <span style="color:var(--red)">*</span></label>
-                        <div style="display:flex; gap:10px; align-items:center;">
-                            <input type="color" name="colorCode" id="addColorPicker"
-                                style="width:46px;height:38px;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px;"
-                                oninput="updateColorValue(this.value,'addColorValue','addColorPicker')">
-                            <input type="text" name="color" id="addColorValue" class="form-input"
-                                placeholder="e.g. Midnight Black"
-                                oninput="handleColorInput(this.value,'addColorPicker','addColorValue'); clearError(this, 'addColorError')">
-                        </div>
-                        <span class="field-error" id="addColorError">
-                            <i class="bi bi-exclamation-circle-fill"></i> Color name is required.
-                        </span>
-                    </div>
-
-                    <!-- RAM -->
-                    <div class="form-group">
-                        <label class="form-label">RAM (GB) <span style="color:var(--red)">*</span></label>
-                        <input type="number" name="RAM" id="addRAM" class="form-input" placeholder="e.g. 8" min="1"
-                            oninput="clearError(this, 'addRAMError')">
-                        <span class="field-error" id="addRAMError">
-                            <i class="bi bi-exclamation-circle-fill"></i> RAM is required and must be at least 1 GB.
-                        </span>
-                    </div>
-
-                    <!-- Storage -->
-                    <div class="form-group">
-                        <label class="form-label">Storage (GB) <span style="color:var(--red)">*</span></label>
-                        <input type="number" name="storage" id="addStorage" class="form-input" placeholder="e.g. 128"
-                            min="1" oninput="clearError(this, 'addStorageError')">
-                        <span class="field-error" id="addStorageError">
-                            <i class="bi bi-exclamation-circle-fill"></i> Storage is required and must be at least 1 GB.
-                        </span>
-                    </div>
-
-                    <!-- Stock -->
-                    <div class="form-group">
-                        <label class="form-label">Stock <span style="color:var(--red)">*</span></label>
-                        <input type="number" name="stock" id="addStock" class="form-input" placeholder="0" min="0"
-                            value="0" oninput="clearError(this, 'addStockError')">
-                        <span class="field-error" id="addStockError">
-                            <i class="bi bi-exclamation-circle-fill"></i> Stock quantity is required (minimum 0).
-                        </span>
-                    </div>
-
-                    <!-- Price -->
-                    <div class="form-group">
-                        <label class="form-label">Price <span style="color:var(--red)">*</span></label>
-                        <div class="input-prefix" id="addPriceWrapper">
-                            <span>₹</span>
-                            <input type="number" name="price" id="addPrice" placeholder="0.00" min="1" step="0.01"
-                                value=""
-                                oninput="clearError(this, 'addPriceError'); clearWrapperError('addPriceWrapper')">
-                        </div>
-                        <span class="field-error" id="addPriceError">
-                            <i class="bi bi-exclamation-circle-fill"></i> Price is required and must be greater than 0.
-                        </span>
-                    </div>
-
-                    <!-- SKU -->
-                    <div class="form-group full">
-                        <label class="form-label">SKU <span style="color:var(--red)">*</span></label>
-                        <input type="text" name="SKU" id="addSKU" class="form-input" placeholder="e.g. PRD-BLK-128"
-                            oninput="clearError(this, 'addSKUError')">
-                        <span class="field-error" id="addSKUError">
-                            <i class="bi bi-exclamation-circle-fill"></i> SKU code is required.
-                        </span>
-                    </div>
-
-                    <!-- Default toggle -->
-                    <div class="form-group full">
-                        <label class="form-label">Set as Default Variant</label>
-                        <div class="status-row">
-                            <div class="status-label"><i class="bi bi-star-fill me-2"
-                                    style="color:#f59e0b;font-size:0.85rem;"></i> Mark as default</div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" name="isDefault" id="addDefaultToggle">
-                                <div class="toggle-track"></div>
-                            </label>
+                        <!-- Status toggle -->
+                        <div class="form-group full">
+                            <label class="form-label">Status</label>
+                            <div class="status-row">
+                                <div class="status-label"><span class="status-dot" id="addStatusDot"></span> Active
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="isActive" id="addStatusToggle" checked
+                                        onchange="syncStatusDot('addStatusDot',this)">
+                                    <div class="toggle-track"></div>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Status toggle -->
-                    <div class="form-group full">
-                        <label class="form-label">Status</label>
-                        <div class="status-row">
-                            <div class="status-label"><span class="status-dot" id="addStatusDot"></span> Active</div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" name="isActive" id="addStatusToggle" checked
-                                    onchange="syncStatusDot('addStatusDot',this)">
-                                <div class="toggle-track"></div>
-                            </label>
-                        </div>
+                    <div class="modal-footer-btns">
+                        <button type="button" class="btn-cancel" onclick="closeModal('addModal')">Cancel</button>
+                        <button type="submit" class="btn-save"><i class="bi bi-plus-circle me-1"></i>Add
+                            Variant</button>
                     </div>
-                </div>
-
-                <div class="modal-footer-btns">
-                    <button type="button" class="btn-cancel" onclick="closeModal('addModal')">Cancel</button>
-                    <button type="submit" class="btn-save"><i class="bi bi-plus-circle me-1"></i>Add Variant</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-
-    <!-- ══ EDIT VARIANT MODAL ══ -->
-    <div class="modal-overlay" id="editModal" onclick="handleOverlayClick(event,'editModal')">
-        <div class="modal-box">
-            <div class="modal-header">
-                <span class="modal-title">Edit Variant</span>
-                <button class="modal-close" onclick="closeModal('editModal')"><i class="bi bi-x-lg"></i></button>
-            </div>
-            <form id="editVariantForm" action="" method="POST" enctype="multipart/form-data"
-                onsubmit="return validateVariantForm(this, 'edit')">
-                <input type="hidden" name="_method" value="PUT">
-
-                <div class="img-upload-row">
-                    <div class="img-upload-slot" id="editSlot0" onclick="triggerFileInput('editFile0',event)">
-                        <i class="bi bi-camera upload-icon"></i>
-                        <span class="upload-label">Image 1</span>
-                        <img class="preview-img" src="" alt="">
-                        <button type="button" class="remove-img" onclick="removeImg('editSlot0','editFile0',event)"><i
-                                class="bi bi-x"></i></button>
-                    </div>
-                    <div class="img-upload-slot" id="editSlot1" onclick="triggerFileInput('editFile1',event)">
-                        <i class="bi bi-camera upload-icon"></i>
-                        <span class="upload-label">Image 2</span>
-                        <img class="preview-img" src="" alt="">
-                        <button type="button" class="remove-img" onclick="removeImg('editSlot1','editFile1',event)"><i
-                                class="bi bi-x"></i></button>
-                    </div>
-                    <div class="img-upload-slot" id="editSlot2" onclick="triggerFileInput('editFile2',event)">
-                        <i class="bi bi-camera upload-icon"></i>
-                        <span class="upload-label">Image 3</span>
-                        <img class="preview-img" src="" alt="">
-                        <button type="button" class="remove-img" onclick="removeImg('editSlot2','editFile2',event)"><i
-                                class="bi bi-x"></i></button>
-                    </div>
-                </div>
-                <span class="img-section-error" id="editImgError">
-                    <i class="bi bi-exclamation-circle-fill"></i> At least one product image is required.
-                </span>
-
-                <input type="file" class="file-input-hidden" id="editFile0" name="images" accept="image/*"
-                    onchange="handleImageSelect(this,'editSlot0')" hidden>
-                <input type="file" class="file-input-hidden" id="editFile1" name="images" accept="image/*"
-                    onchange="handleImageSelect(this,'editSlot1')" hidden>
-                <input type="file" class="file-input-hidden" id="editFile2" name="images" accept="image/*"
-                    onchange="handleImageSelect(this,'editSlot2')" hidden>
-
-                <div class="form-grid">
-                    <!-- Color -->
-                    <div class="form-group full">
-                        <label class="form-label">Color <span style="color:var(--red)">*</span></label>
-                        <div style="display:flex; gap:10px; align-items:center;">
-                            <input type="color" name="colorCode" id="editColorPicker"
-                                style="width:46px;height:38px;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px;"
-                                oninput="updateColorValue(this.value,'editColorValue','editColorPicker')">
-                            <input type="text" name="color" id="editColorValue" class="form-input"
-                                placeholder="e.g. Midnight Black"
-                                oninput="handleColorInput(this.value,'editColorPicker','editColorValue'); clearError(this, 'editColorError')">
-                        </div>
-                        <span class="field-error" id="editColorError">
-                            <i class="bi bi-exclamation-circle-fill"></i> Color name is required.
-                        </span>
-                    </div>
-
-                    <!-- RAM -->
-                    <div class="form-group">
-                        <label class="form-label">RAM (GB) <span style="color:var(--red)">*</span></label>
-                        <input type="number" name="RAM" id="editRAM" class="form-input" placeholder="e.g. 8" min="1"
-                            oninput="clearError(this, 'editRAMError')">
-                        <span class="field-error" id="editRAMError">
-                            <i class="bi bi-exclamation-circle-fill"></i> RAM is required and must be at least 1 GB.
-                        </span>
-                    </div>
-
-                    <!-- Storage -->
-                    <div class="form-group">
-                        <label class="form-label">Storage (GB) <span style="color:var(--red)">*</span></label>
-                        <input type="number" name="storage" id="editStorage" class="form-input" placeholder="e.g. 128"
-                            min="1" oninput="clearError(this, 'editStorageError')">
-                        <span class="field-error" id="editStorageError">
-                            <i class="bi bi-exclamation-circle-fill"></i> Storage is required and must be at least 1 GB.
-                        </span>
-                    </div>
-
-                    <!-- Stock -->
-                    <div class="form-group">
-                        <label class="form-label">Stock <span style="color:var(--red)">*</span></label>
-                        <input type="number" name="stock" id="editStock" class="form-input" min="0"
-                            oninput="clearError(this, 'editStockError')">
-                        <span class="field-error" id="editStockError">
-                            <i class="bi bi-exclamation-circle-fill"></i> Stock quantity is required (minimum 0).
-                        </span>
-                    </div>
-
-                    <!-- Price -->
-                    <div class="form-group">
-                        <label class="form-label">Price <span style="color:var(--red)">*</span></label>
-                        <div class="input-prefix" id="editPriceWrapper">
-                            <span>₹</span>
-                            <input type="number" name="price" id="editPrice" placeholder="0.00" min="1" step="0.01"
-                                oninput="clearError(this, 'editPriceError'); clearWrapperError('editPriceWrapper')">
-                        </div>
-                        <span class="field-error" id="editPriceError">
-                            <i class="bi bi-exclamation-circle-fill"></i> Price is required and must be greater than 0.
-                        </span>
-                    </div>
-
-                    <!-- SKU -->
-                    <div class="form-group full">
-                        <label class="form-label">SKU <span style="color:var(--red)">*</span></label>
-                        <input type="text" name="SKU" id="editSKU" class="form-input" placeholder="e.g. PRD-BLK-128"
-                            oninput="clearError(this, 'editSKUError')">
-                        <span class="field-error" id="editSKUError">
-                            <i class="bi bi-exclamation-circle-fill"></i> SKU code is required.
-                        </span>
-                    </div>
-
-                    <!-- Default toggle -->
-                    <div class="form-group full">
-                        <label class="form-label">Set as Default Variant</label>
-                        <div class="status-row">
-                            <div class="status-label"><i class="bi bi-star-fill me-2"
-                                    style="color:#f59e0b;font-size:0.85rem;"></i> Mark as default</div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" name="isDefault" id="editDefaultToggle">
-                                <div class="toggle-track"></div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Status toggle -->
-                    <div class="form-group full">
-                        <label class="form-label">Status</label>
-                        <div class="status-row">
-                            <div class="status-label"><span class="status-dot" id="editStatusDot"></span> Active</div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" name="isActive" id="editStatusToggle"
-                                    onchange="syncStatusDot('editStatusDot',this)">
-                                <div class="toggle-track"></div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer-btns">
-                    <button type="button" class="btn-cancel" onclick="closeModal('editModal')">Cancel</button>
-                    <button type="submit" class="btn-save"><i class="bi bi-check2 me-1"></i>Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-
-    <!-- ══ IMAGE CROP MODAL ══ -->
-    <div class="crop-overlay" id="cropModal">
-        <div class="crop-box">
-            <div class="crop-box-header">
-                <span class="crop-box-title"><i class="bi bi-crop me-2"></i>Crop & Resize Image</span>
-                <button class="modal-close" onclick="cancelCrop()"><i class="bi bi-x-lg"></i></button>
-            </div>
-            <div class="crop-container">
-                <img id="cropImage" src="" alt="Crop">
-            </div>
-            <div class="crop-controls">
-                <label>Zoom</label>
-                <input type="range" id="cropZoom" min="0.1" max="3" step="0.05" value="1"
-                    oninput="cropperInstance && cropperInstance.zoomTo(parseFloat(this.value))">
-                <span id="cropZoomVal" style="font-size:0.75rem;color:var(--muted);min-width:30px;">1×</span>
-            </div>
-            <div style="display:flex;gap:0.5rem;margin-top:0.6rem;flex-wrap:wrap;">
-                <button type="button" onclick="setCropAspect(1,1)"
-                    style="font-size:0.75rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#f3f4f6;">1:1</button>
-                <button type="button" onclick="setCropAspect(4,3)"
-                    style="font-size:0.75rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#f3f4f6;">4:3</button>
-                <button type="button" onclick="setCropAspect(16,9)"
-                    style="font-size:0.75rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#f3f4f6;">16:9</button>
-                <button type="button" onclick="setCropAspect(NaN)"
-                    style="font-size:0.75rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#f3f4f6;">Free</button>
-            </div>
-            <div class="crop-btn-row">
-                <button type="button" class="btn-crop-cancel" onclick="cancelCrop()">Cancel</button>
-                <button type="button" class="btn-crop-apply" onclick="applyCrop()"><i
-                        class="bi bi-check2 me-1"></i>Apply Crop</button>
+                </form>
             </div>
         </div>
-    </div>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+        <!-- ══ EDIT VARIANT MODAL ══ -->
+        <div class="modal-overlay" id="editModal" onclick="handleOverlayClick(event,'editModal')">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <span class="modal-title">Edit Variant</span>
+                    <button class="modal-close" onclick="closeModal('editModal')"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <form id="editVariantForm" action="" method="POST" enctype="multipart/form-data"
+                    onsubmit="return validateVariantForm(this, 'edit')">
+                    <input type="hidden" name="_method" value="PUT">
 
-    <script>
-        const productId = '<%= typeof product !== "undefined" ? product._id : "" %>';
+                    <div class="img-upload-row">
+                        <div class="img-upload-slot" id="editSlot0" onclick="triggerFileInput('editFile0',event)">
+                            <i class="bi bi-camera upload-icon"></i>
+                            <span class="upload-label">Image 1</span>
+                            <img class="preview-img" src="" alt="">
+                            <button type="button" class="remove-img"
+                                onclick="removeImg('editSlot0','editFile0',event)"><i class="bi bi-x"></i></button>
+                        </div>
+                        <div class="img-upload-slot" id="editSlot1" onclick="triggerFileInput('editFile1',event)">
+                            <i class="bi bi-camera upload-icon"></i>
+                            <span class="upload-label">Image 2</span>
+                            <img class="preview-img" src="" alt="">
+                            <button type="button" class="remove-img"
+                                onclick="removeImg('editSlot1','editFile1',event)"><i class="bi bi-x"></i></button>
+                        </div>
+                        <div class="img-upload-slot" id="editSlot2" onclick="triggerFileInput('editFile2',event)">
+                            <i class="bi bi-camera upload-icon"></i>
+                            <span class="upload-label">Image 3</span>
+                            <img class="preview-img" src="" alt="">
+                            <button type="button" class="remove-img"
+                                onclick="removeImg('editSlot2','editFile2',event)"><i class="bi bi-x"></i></button>
+                        </div>
+                    </div>
+                    <span class="img-section-error" id="editImgError">
+                        <i class="bi bi-exclamation-circle-fill"></i> At least one product image is required.
+                    </span>
 
-        // ══ Pagination ══
-        function goToPage(page) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('page', page);
-            window.location.href = url.toString();
-        }
+                    <input type="file" class="file-input-hidden" id="editFile0" name="images" accept="image/*"
+                        onchange="handleImageSelect(this,'editSlot0')" hidden>
+                    <input type="file" class="file-input-hidden" id="editFile1" name="images" accept="image/*"
+                        onchange="handleImageSelect(this,'editSlot1')" hidden>
+                    <input type="file" class="file-input-hidden" id="editFile2" name="images" accept="image/*"
+                        onchange="handleImageSelect(this,'editSlot2')" hidden>
 
-        // ══ Toggle variant status ══
-        function toggleVariant(variantId, isActive) {
-            fetch(`/admin/variants/${variantId}/toggle`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ isActive })
-            })
-                .then(res => res.json())
-                .then(data => { if (!data.success) { alert('Failed to update status.'); window.location.reload(); } })
-                .catch(() => window.location.reload());
-        }
+                    <div class="form-grid">
+                        <!-- Color -->
+                        <div class="form-group full">
+                            <label class="form-label">Color <span style="color:var(--red)">*</span></label>
+                            <div style="display:flex; gap:10px; align-items:center;">
+                                <input type="color" name="colorCode" id="editColorPicker"
+                                    style="width:46px;height:38px;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px;"
+                                    oninput="updateColorValue(this.value,'editColorValue','editColorPicker')">
+                                <input type="text" name="color" id="editColorValue" class="form-input"
+                                    placeholder="e.g. Midnight Black"
+                                    oninput="handleColorInput(this.value,'editColorPicker','editColorValue'); clearError(this, 'editColorError')">
+                            </div>
+                            <span class="field-error" id="editColorError">
+                                <i class="bi bi-exclamation-circle-fill"></i> Color name is required.
+                            </span>
+                        </div>
 
-        // ══ Soft delete variant ══
-        async function deleteVariant(variantId, productId) {
-            const result = await Swal.fire({
-                title: 'Are you sure?',
-                text: "You want to delete this variant?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#1a1d23',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            });
-            if (result.isConfirmed) {
-                window.location.href = `/admin/products/${productId}/variants-delete/${variantId}`;
+                        <!-- RAM -->
+                        <div class="form-group">
+                            <label class="form-label">RAM (GB) <span style="color:var(--red)">*</span></label>
+                            <input type="number" name="RAM" id="editRAM" class="form-input" placeholder="e.g. 8" min="1"
+                                oninput="clearError(this, 'editRAMError')">
+                            <span class="field-error" id="editRAMError">
+                                <i class="bi bi-exclamation-circle-fill"></i> RAM is required and must be at least 1
+                                GB.
+                            </span>
+                        </div>
+
+                        <!-- Storage -->
+                        <div class="form-group">
+                            <label class="form-label">Storage (GB) <span style="color:var(--red)">*</span></label>
+                            <input type="number" name="storage" id="editStorage" class="form-input"
+                                placeholder="e.g. 128" min="1" oninput="clearError(this, 'editStorageError')">
+                            <span class="field-error" id="editStorageError">
+                                <i class="bi bi-exclamation-circle-fill"></i> Storage is required and must be at
+                                least 1 GB.
+                            </span>
+                        </div>
+
+                        <!-- Stock -->
+                        <div class="form-group">
+                            <label class="form-label">Stock <span style="color:var(--red)">*</span></label>
+                            <input type="number" name="stock" id="editStock" class="form-input" min="0"
+                                oninput="clearError(this, 'editStockError')">
+                            <span class="field-error" id="editStockError">
+                                <i class="bi bi-exclamation-circle-fill"></i> Stock quantity is required (minimum
+                                0).
+                            </span>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="form-group">
+                            <label class="form-label">Price <span style="color:var(--red)">*</span></label>
+                            <div class="input-prefix" id="editPriceWrapper">
+                                <span>₹</span>
+                                <input type="number" name="price" id="editPrice" placeholder="0.00" min="1" step="0.01"
+                                    oninput="clearError(this, 'editPriceError'); clearWrapperError('editPriceWrapper')">
+                            </div>
+                            <span class="field-error" id="editPriceError">
+                                <i class="bi bi-exclamation-circle-fill"></i> Price is required and must be greater
+                                than 0.
+                            </span>
+                        </div>
+
+                        <!-- SKU -->
+                        <div class="form-group full">
+                            <label class="form-label">SKU <span style="color:var(--red)">*</span></label>
+                            <input type="text" name="SKU" id="editSKU" class="form-input" placeholder="e.g. PRD-BLK-128"
+                                oninput="clearError(this, 'editSKUError')">
+                            <span class="field-error" id="editSKUError">
+                                <i class="bi bi-exclamation-circle-fill"></i> SKU code is required.
+                            </span>
+                        </div>
+
+                        <!-- Default toggle -->
+                        <div class="form-group full">
+                            <label class="form-label">Set as Default Variant</label>
+                            <div class="status-row">
+                                <div class="status-label"><i class="bi bi-star-fill me-2"
+                                        style="color:#f59e0b;font-size:0.85rem;"></i> Mark as default</div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="isDefault" id="editDefaultToggle">
+                                    <div class="toggle-track"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Status toggle -->
+                        <div class="form-group full">
+                            <label class="form-label">Status</label>
+                            <div class="status-row">
+                                <div class="status-label"><span class="status-dot" id="editStatusDot"></span> Active
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" name="isActive" id="editStatusToggle"
+                                        onchange="syncStatusDot('editStatusDot',this)">
+                                    <div class="toggle-track"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer-btns">
+                        <button type="button" class="btn-cancel" onclick="closeModal('editModal')">Cancel</button>
+                        <button type="submit" class="btn-save"><i class="bi bi-check2 me-1"></i>Save
+                            Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- ══ IMAGE CROP MODAL ══ -->
+        <div class="crop-overlay" id="cropModal">
+            <div class="crop-box">
+                <div class="crop-box-header">
+                    <span class="crop-box-title"><i class="bi bi-crop me-2"></i>Crop & Resize Image</span>
+                    <button class="modal-close" onclick="cancelCrop()"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="crop-container">
+                    <img id="cropImage" src="" alt="Crop">
+                </div>
+                <div class="crop-controls">
+                    <label>Zoom</label>
+                    <input type="range" id="cropZoom" min="0.1" max="3" step="0.05" value="1"
+                        oninput="cropperInstance && cropperInstance.zoomTo(parseFloat(this.value))">
+                    <span id="cropZoomVal" style="font-size:0.75rem;color:var(--muted);min-width:30px;">1×</span>
+                </div>
+                <div style="display:flex;gap:0.5rem;margin-top:0.6rem;flex-wrap:wrap;">
+                    <button type="button" onclick="setCropAspect(1,1)"
+                        style="font-size:0.75rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#f3f4f6;">1:1</button>
+                    <button type="button" onclick="setCropAspect(4,3)"
+                        style="font-size:0.75rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#f3f4f6;">4:3</button>
+                    <button type="button" onclick="setCropAspect(16,9)"
+                        style="font-size:0.75rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#f3f4f6;">16:9</button>
+                    <button type="button" onclick="setCropAspect(NaN)"
+                        style="font-size:0.75rem;padding:4px 10px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:#f3f4f6;">Free</button>
+                </div>
+                <div class="crop-btn-row">
+                    <button type="button" class="btn-crop-cancel" onclick="cancelCrop()">Cancel</button>
+                    <button type="button" class="btn-crop-apply" onclick="applyCrop()"><i
+                            class="bi bi-check2 me-1"></i>Apply Crop</button>
+                </div>
+            </div>
+        </div>
+
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+
+        <script>
+            const productId = '<%= typeof product !== "undefined" ? product._id : "" %>';
+
+            // ══ Pagination ══
+            function goToPage(page) {
+                const url = new URL(window.location.href);
+                url.searchParams.set('page', page);
+                window.location.href = url.toString();
             }
-        }
 
-        // ══ Modal helpers ══
-        function openAddModal() {
-            // Clear all errors and values before opening
-            clearAllErrors('add');
-            document.getElementById('addVariantForm').reset();
-            ['addSlot0', 'addSlot1', 'addSlot2'].forEach(id => {
-                const slot = document.getElementById(id);
-                slot.classList.remove('has-image', 'img-error');
-                slot.querySelector('.preview-img').src = '';
-            });
-            document.getElementById('addModal').classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
+            // ══ Toggle variant status ══
+            function toggleVariant(variantId, isActive) {
+                fetch(`/admin/variants/${variantId}/toggle`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isActive })
+                })
+                    .then(res => res.json())
+                    .then(data => { if (!data.success) { alert('Failed to update status.'); window.location.reload(); } })
+                    .catch(() => window.location.reload());
+            }
 
-        function openEditModalFromBtn(btn) {
-            const variant = JSON.parse(decodeURIComponent(btn.dataset.variant));
-            openEditModal(variant);
-        }
-
-        function openEditModal(variant) {
-            clearAllErrors('edit');
-            const form = document.getElementById('editVariantForm');
-            form.action = `/admin/products/${productId}/variants-edit/${variant._id}`;
-
-            document.getElementById('editColorValue').value = variant.color || '';
-            document.getElementById('editColorPicker').value = variant.colorCode || '#000000';
-            document.getElementById('editRAM').value = variant.RAM || '';
-            document.getElementById('editStorage').value = variant.storage || '';
-            document.getElementById('editPrice').value = variant.price || '';
-            document.getElementById('editStock').value = variant.stock !== undefined ? variant.stock : 0;
-            document.getElementById('editSKU').value = variant.SKU || '';
-
-            const toggle = document.getElementById('editStatusToggle');
-            toggle.checked = !!variant.isActive;
-            syncStatusDot('editStatusDot', toggle);
-
-            document.getElementById('editDefaultToggle').checked = !!variant.isDefault;
-
-            ['editSlot0', 'editSlot1', 'editSlot2'].forEach((slotId, i) => {
-                const slot = document.getElementById(slotId);
-                const img = slot.querySelector('.preview-img');
-                slot.classList.remove('img-error');
-                if (variant.images && variant.images[i]) {
-                    img.src = variant.images[i];
-                    slot.classList.add('has-image');
-                } else {
-                    img.src = '';
-                    slot.classList.remove('has-image');
+            // ══ Soft delete variant ══
+            async function deleteVariant(variantId, productId) {
+                const result = await Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You want to delete this variant?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#1a1d23',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                });
+                if (result.isConfirmed) {
+                    window.location.href = `/admin/products/${productId}/variants-delete/${variantId}`;
                 }
-            });
-
-            document.getElementById('editModal').classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('open');
-            document.body.style.overflow = '';
-        }
-
-        function handleOverlayClick(e, id) {
-            if (e.target === document.getElementById(id)) closeModal(id);
-        }
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') { closeModal('addModal'); closeModal('editModal'); cancelCrop(); }
-        });
-
-        // ══ Status dot ══
-        function syncStatusDot(dotId, toggle) {
-            document.getElementById(dotId).style.background = toggle.checked ? 'var(--green)' : '#9ca3af';
-        }
-
-        // ══ Color picker ══
-        const COLOR_MAP = {
-            "#ff0000": "Red", "#00ff00": "Green", "#0000ff": "Blue", "#ffff00": "Yellow", "#ff00ff": "Magenta",
-            "#00ffff": "Cyan", "#000000": "Black", "#ffffff": "White", "#808080": "Gray", "#ffa500": "Orange",
-            "#800080": "Purple", "#a52a2a": "Brown", "#ffc0cb": "Pink", "#40e0d0": "Turquoise", "#000080": "Navy",
-            "#808000": "Olive", "#008000": "Dark Green", "#800000": "Maroon", "#ff6347": "Tomato", "#4682b4": "Steel Blue",
-            "#d2691e": "Chocolate", "#f5f5dc": "Beige", "#dc143c": "Crimson", "#1e90ff": "Dodger Blue",
-            "#228b22": "Forest Green", "#daa520": "Goldenrod", "#ff69b4": "Hot Pink", "#cd5c5c": "Indian Red",
-            "#32cd32": "Lime Green", "#9370db": "Medium Purple", "#191970": "Midnight Blue", "#ff4500": "Orange Red",
-            "#da70d6": "Orchid", "#bc8f8f": "Rosy Brown", "#4169e1": "Royal Blue", "#fa8072": "Salmon",
-            "#2e8b57": "Sea Green", "#87ceeb": "Sky Blue", "#6a5acd": "Slate Blue", "#008080": "Teal",
-            "#ee82ee": "Violet", "#9acd32": "Yellow Green", "#b8860b": "Dark Goldenrod", "#e9967a": "Dark Salmon",
-            "#c0c0c0": "Silver", "#cd7f32": "Bronze", "#b87333": "Copper"
-        };
-
-        function hexToRgb(hex) {
-            const bigint = parseInt(hex.substring(1), 16);
-            return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
-        }
-
-        function getColorName(hex) {
-            const h = hex.toLowerCase();
-            if (COLOR_MAP[h]) return COLOR_MAP[h];
-
-            const target = hexToRgb(h);
-            let nearestName = hex;
-            let minDistance = Infinity;
-
-            for (const [mapHex, mapName] of Object.entries(COLOR_MAP)) {
-                const rgb = hexToRgb(mapHex);
-                const dist = Math.pow(target.r - rgb.r, 2) + Math.pow(target.g - rgb.g, 2) + Math.pow(target.b - rgb.b, 2);
-                if (dist < minDistance) {
-                    minDistance = dist;
-                    nearestName = mapName;
-                }
-            }
-            return nearestName;
-        }
-
-        function updateColorValue(hex, valueId, pickerId) {
-            document.getElementById(valueId).value = getColorName(hex);
-            document.getElementById(pickerId).value = hex;
-        }
-
-        function handleColorInput(val, pickerId, valueId) {
-            const key = val.trim().toLowerCase();
-            const foundEntry = Object.entries(COLOR_MAP).find(([hex, name]) => name.toLowerCase() === key);
-
-            if (foundEntry) {
-                document.getElementById(pickerId).value = foundEntry[0];
-            } else if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(val.trim())) {
-                const hexStr = val.trim();
-                document.getElementById(pickerId).value = hexStr;
-                const nearest = getColorName(hexStr);
-                if (nearest && nearest.toLowerCase() !== val.trim().toLowerCase()) {
-                    document.getElementById(valueId).value = nearest;
-                }
-            } else {
-                // native fallback mapping
-                const ctx = document.createElement('canvas').getContext('2d');
-                ctx.fillStyle = val;
-                if (ctx.fillStyle !== '#000000' || val.toLowerCase() === 'black' || val === '0') {
-                    if (ctx.fillStyle) document.getElementById(pickerId).value = ctx.fillStyle;
-                }
-            }
-        }
-
-        // ══ Trigger hidden file input ══
-        function triggerFileInput(inputId, e) {
-            if (e && e.target.closest('.remove-img')) return;
-            document.getElementById(inputId).click();
-        }
-
-        // ══ Remove image ══
-        function removeImg(slotId, inputId, e) {
-            if (e) e.stopPropagation();
-            const slot = document.getElementById(slotId);
-            const img = slot.querySelector('.preview-img');
-            const input = document.getElementById(inputId);
-            img.src = '';
-            if (input) input.value = '';
-            slot.classList.remove('has-image');
-        }
-
-        // ══════════════════════════════════════════════
-        // VALIDATION
-        // ══════════════════════════════════════════════
-
-        /**
-         * Show an error on a field:
-         *   - adds .is-invalid to the input
-         *   - makes the error span visible
-         */
-        function showError(inputEl, errorId) {
-            if (inputEl) inputEl.classList.add('is-invalid');
-            const err = document.getElementById(errorId);
-            if (err) err.classList.add('visible');
-        }
-
-        /**
-         * Clear an error when the user starts typing.
-         */
-        function clearError(inputEl, errorId) {
-            if (inputEl) inputEl.classList.remove('is-invalid');
-            const err = document.getElementById(errorId);
-            if (err) err.classList.remove('visible');
-        }
-
-        function clearWrapperError(wrapperId) {
-            const wrapper = document.getElementById(wrapperId);
-            if (wrapper) wrapper.classList.remove('is-invalid');
-        }
-
-        /**
-         * Clear ALL errors for a given prefix ('add' or 'edit').
-         */
-        function clearAllErrors(prefix) {
-            const ids = ['Color', 'RAM', 'Storage', 'Stock', 'Price', 'SKU'];
-            ids.forEach(field => {
-                const input = document.getElementById(`${prefix}${field === 'Color' ? 'ColorValue' : field}`);
-                if (input) input.classList.remove('is-invalid');
-                const err = document.getElementById(`${prefix}${field}Error`);
-                if (err) err.classList.remove('visible');
-            });
-            // Price wrapper
-            const pw = document.getElementById(`${prefix}PriceWrapper`);
-            if (pw) pw.classList.remove('is-invalid');
-            // Image error
-            const imgErr = document.getElementById(`${prefix}ImgError`);
-            if (imgErr) imgErr.classList.remove('visible');
-            // Image slots
-            [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`].forEach(id => {
-                const slot = document.getElementById(id);
-                if (slot) slot.classList.remove('img-error');
-            });
-        }
-
-        /**
-         * Master validation function called on form submit.
-         * Returns false (blocks submit) if anything fails.
-         */
-        function validateVariantForm(form, prefix) {
-            let valid = true;
-
-            // 1. Exactly three images required
-            const slots = [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`];
-            let missingImages = 0;
-            slots.forEach(id => {
-                const slot = document.getElementById(id);
-                if (!slot?.classList.contains('has-image')) {
-                    slot?.classList.add('img-error');
-                    missingImages++;
-                } else {
-                    slot?.classList.remove('img-error');
-                }
-            });
-
-            if (missingImages > 0) {
-                const imgErr = document.getElementById(`${prefix}ImgError`);
-                if (imgErr) {
-                    imgErr.textContent = "Exactly 3 product images are required.";
-                    imgErr.classList.add('visible');
-                }
-                valid = false;
             }
 
-            // 2. Color name
-            const colorVal = document.getElementById(`${prefix}ColorValue`);
-            if (!colorVal || !colorVal.value.trim()) {
-                showError(colorVal, `${prefix}ColorError`);
-                valid = false;
+            // ══ Modal helpers ══
+            function openAddModal() {
+                // Clear all errors and values before opening
+                clearAllErrors('add');
+                document.getElementById('addVariantForm').reset();
+                ['addSlot0', 'addSlot1', 'addSlot2'].forEach(id => {
+                    const slot = document.getElementById(id);
+                    slot.classList.remove('has-image', 'img-error');
+                    slot.querySelector('.preview-img').src = '';
+                });
+                document.getElementById('addModal').classList.add('open');
+                document.body.style.overflow = 'hidden';
             }
 
-            // 3. RAM
-            const ramEl = document.getElementById(`${prefix}RAM`);
-            const ramVal = ramEl ? parseFloat(ramEl.value) : NaN;
-            if (!ramEl || ramEl.value.trim() === '' || isNaN(ramVal) || ramVal < 1) {
-                showError(ramEl, `${prefix}RAMError`);
-                valid = false;
+            function openEditModalFromBtn(btn) {
+                const variant = JSON.parse(decodeURIComponent(btn.dataset.variant));
+                openEditModal(variant);
             }
 
-            // 4. Storage
-            const storageEl = document.getElementById(`${prefix}Storage`);
-            const storageVal = storageEl ? parseFloat(storageEl.value) : NaN;
-            if (!storageEl || storageEl.value.trim() === '' || isNaN(storageVal) || storageVal < 1) {
-                showError(storageEl, `${prefix}StorageError`);
-                valid = false;
-            }
+            function openEditModal(variant) {
+                clearAllErrors('edit');
+                const form = document.getElementById('editVariantForm');
+                form.action = `/admin/products/${productId}/variants-edit/${variant._id}`;
 
-            // 5. Stock (0 is allowed)
-            const stockEl = document.getElementById(`${prefix}Stock`);
-            const stockVal = stockEl ? stockEl.value.trim() : '';
-            if (stockVal === '' || isNaN(parseFloat(stockVal)) || parseFloat(stockVal) < 0) {
-                showError(stockEl, `${prefix}StockError`);
-                valid = false;
-            }
+                document.getElementById('editColorValue').value = variant.color || '';
+                document.getElementById('editColorPicker').value = variant.colorCode || '#000000';
+                document.getElementById('editRAM').value = variant.RAM || '';
+                document.getElementById('editStorage').value = variant.storage || '';
+                document.getElementById('editPrice').value = variant.price || '';
+                document.getElementById('editStock').value = variant.stock !== undefined ? variant.stock : 0;
+                document.getElementById('editSKU').value = variant.SKU || '';
 
-            // 6. Price (must be > 0)
-            const priceEl = document.getElementById(`${prefix}Price`);
-            const priceVal = priceEl ? parseFloat(priceEl.value) : NaN;
-            if (!priceEl || priceEl.value.trim() === '' || isNaN(priceVal) || priceVal <= 0) {
-                if (priceEl) priceEl.classList.add('is-invalid');
-                const pw = document.getElementById(`${prefix}PriceWrapper`);
-                if (pw) pw.classList.add('is-invalid');
-                document.getElementById(`${prefix}PriceError`)?.classList.add('visible');
-                valid = false;
-            }
+                const toggle = document.getElementById('editStatusToggle');
+                toggle.checked = !!variant.isActive;
+                syncStatusDot('editStatusDot', toggle);
 
-            // 7. SKU
-            const skuEl = document.getElementById(`${prefix}SKU`);
-            if (!skuEl || !skuEl.value.trim()) {
-                showError(skuEl, `${prefix}SKUError`);
-                valid = false;
-            }
+                document.getElementById('editDefaultToggle').checked = !!variant.isDefault;
 
-            // Scroll to first error inside modal box
-            if (!valid) {
-                const modalId = prefix === 'add' ? 'addModal' : 'editModal';
-                const firstErr = document.querySelector(`#${modalId} .field-error.visible, #${modalId} .img-section-error.visible`);
-                if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-
-            return valid;
-        }
-
-        // ══ CROP SYSTEM ══
-        let cropperInstance = null;
-        let currentCropSlotId = null;
-        let currentCropInput = null;
-
-        function handleImageSelect(input, slotId) {
-            if (!input.files || !input.files[0]) return;
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.onload = function (e) { openCropModal(e.target.result, slotId, input); };
-            reader.readAsDataURL(file);
-        }
-
-        function openCropModal(src, slotId, input) {
-            currentCropSlotId = slotId;
-            currentCropInput = input;
-            const cropImg = document.getElementById('cropImage');
-            cropImg.src = src;
-            document.getElementById('cropModal').classList.add('open');
-            document.getElementById('cropZoom').value = 1;
-            document.getElementById('cropZoomVal').textContent = '1×';
-            if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-            setTimeout(() => {
-                cropperInstance = new Cropper(cropImg, {
-                    aspectRatio: 1, viewMode: 2, dragMode: 'move', autoCropArea: 0.85,
-                    restore: false, guides: true, center: true, highlight: false,
-                    cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
-                    zoom(e) {
-                        const slider = document.getElementById('cropZoom');
-                        slider.value = e.detail.ratio;
-                        document.getElementById('cropZoomVal').textContent = e.detail.ratio.toFixed(1) + '×';
+                ['editSlot0', 'editSlot1', 'editSlot2'].forEach((slotId, i) => {
+                    const slot = document.getElementById(slotId);
+                    const img = slot.querySelector('.preview-img');
+                    slot.classList.remove('img-error');
+                    if (variant.images && variant.images[i]) {
+                        img.src = variant.images[i];
+                        slot.classList.add('has-image');
+                    } else {
+                        img.src = '';
+                        slot.classList.remove('has-image');
                     }
                 });
-            }, 150);
-        }
 
-        function setCropAspect(w, h) {
-            if (!cropperInstance) return;
-            cropperInstance.setAspectRatio(isNaN(w) ? NaN : w / h);
-        }
+                document.getElementById('editModal').classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
 
-        function cancelCrop() {
-            document.getElementById('cropModal').classList.remove('open');
-            if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-            if (currentCropInput) currentCropInput.value = '';
-            currentCropSlotId = null;
-            currentCropInput = null;
-        }
+            function closeModal(id) {
+                document.getElementById(id).classList.remove('open');
+                document.body.style.overflow = '';
+            }
 
-        function applyCrop() {
-            if (!cropperInstance || !currentCropSlotId) return;
-            const canvas = cropperInstance.getCroppedCanvas({ width: 800, height: 800, imageSmoothingQuality: 'high' });
-            canvas.toBlob(function (blob) {
-                const slot = document.getElementById(currentCropSlotId);
-                const img = slot.querySelector('.preview-img');
-                img.src = URL.createObjectURL(blob);
-                slot.classList.add('has-image');
-                slot.classList.remove('img-error'); // clear image error if user adds one
-                // Also clear the section-level image error
-                const prefix = currentCropSlotId.startsWith('add') ? 'add' : 'edit';
-                document.getElementById(`${prefix}ImgError`)?.classList.remove('visible');
-                [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`].forEach(id => document.getElementById(id)?.classList.remove('img-error'));
+            function handleOverlayClick(e, id) {
+                if (e.target === document.getElementById(id)) closeModal(id);
+            }
 
-                if (currentCropInput) {
-                    const file = new File([blob], 'variant-image.jpg', { type: 'image/jpeg' });
-                    const dt = new DataTransfer();
-                    dt.items.add(file);
-                    currentCropInput.files = dt.files;
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') { closeModal('addModal'); closeModal('editModal'); cancelCrop(); }
+            });
+
+            // ══ Status dot ══
+            function syncStatusDot(dotId, toggle) {
+                document.getElementById(dotId).style.background = toggle.checked ? 'var(--green)' : '#9ca3af';
+            }
+
+            // ══ Color picker ══
+            const COLOR_MAP = {
+                "#ff0000": "Red", "#00ff00": "Green", "#0000ff": "Blue", "#ffff00": "Yellow", "#ff00ff": "Magenta",
+                "#00ffff": "Cyan", "#000000": "Black", "#ffffff": "White", "#808080": "Gray", "#ffa500": "Orange",
+                "#800080": "Purple", "#a52a2a": "Brown", "#ffc0cb": "Pink", "#40e0d0": "Turquoise", "#000080": "Navy",
+                "#808000": "Olive", "#008000": "Dark Green", "#800000": "Maroon", "#ff6347": "Tomato", "#4682b4": "Steel Blue",
+                "#d2691e": "Chocolate", "#f5f5dc": "Beige", "#dc143c": "Crimson", "#1e90ff": "Dodger Blue",
+                "#228b22": "Forest Green", "#daa520": "Goldenrod", "#ff69b4": "Hot Pink", "#cd5c5c": "Indian Red",
+                "#32cd32": "Lime Green", "#9370db": "Medium Purple", "#191970": "Midnight Blue", "#ff4500": "Orange Red",
+                "#da70d6": "Orchid", "#bc8f8f": "Rosy Brown", "#4169e1": "Royal Blue", "#fa8072": "Salmon",
+                "#2e8b57": "Sea Green", "#87ceeb": "Sky Blue", "#6a5acd": "Slate Blue", "#008080": "Teal",
+                "#ee82ee": "Violet", "#9acd32": "Yellow Green", "#b8860b": "Dark Goldenrod", "#e9967a": "Dark Salmon",
+                "#c0c0c0": "Silver", "#cd7f32": "Bronze", "#b87333": "Copper"
+            };
+
+            function hexToRgb(hex) {
+                const bigint = parseInt(hex.substring(1), 16);
+                return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+            }
+
+            function getColorName(hex) {
+                const h = hex.toLowerCase();
+                if (COLOR_MAP[h]) return COLOR_MAP[h];
+
+                const target = hexToRgb(h);
+                let nearestName = hex;
+                let minDistance = Infinity;
+
+                for (const [mapHex, mapName] of Object.entries(COLOR_MAP)) {
+                    const rgb = hexToRgb(mapHex);
+                    const dist = Math.pow(target.r - rgb.r, 2) + Math.pow(target.g - rgb.g, 2) + Math.pow(target.b - rgb.b, 2);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        nearestName = mapName;
+                    }
                 }
+                return nearestName;
+            }
+
+            function updateColorValue(hex, valueId, pickerId) {
+                document.getElementById(valueId).value = getColorName(hex);
+                document.getElementById(pickerId).value = hex;
+            }
+
+            function handleColorInput(val, pickerId, valueId) {
+                const key = val.trim().toLowerCase();
+                const foundEntry = Object.entries(COLOR_MAP).find(([hex, name]) => name.toLowerCase() === key);
+
+                if (foundEntry) {
+                    document.getElementById(pickerId).value = foundEntry[0];
+                } else if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(val.trim())) {
+                    const hexStr = val.trim();
+                    document.getElementById(pickerId).value = hexStr;
+                    const nearest = getColorName(hexStr);
+                    if (nearest && nearest.toLowerCase() !== val.trim().toLowerCase()) {
+                        document.getElementById(valueId).value = nearest;
+                    }
+                } else {
+                    // native fallback mapping
+                    const ctx = document.createElement('canvas').getContext('2d');
+                    ctx.fillStyle = val;
+                    if (ctx.fillStyle !== '#000000' || val.toLowerCase() === 'black' || val === '0') {
+                        if (ctx.fillStyle) document.getElementById(pickerId).value = ctx.fillStyle;
+                    }
+                }
+            }
+
+            // ══ Trigger hidden file input ══
+            function triggerFileInput(inputId, e) {
+                if (e && e.target.closest('.remove-img')) return;
+                document.getElementById(inputId).click();
+            }
+
+            // ══ Remove image ══
+            function removeImg(slotId, inputId, e) {
+                if (e) e.stopPropagation();
+                const slot = document.getElementById(slotId);
+                const img = slot.querySelector('.preview-img');
+                const input = document.getElementById(inputId);
+                img.src = '';
+                if (input) input.value = '';
+                slot.classList.remove('has-image');
+            }
+
+            // ══════════════════════════════════════════════
+            // VALIDATION
+            // ══════════════════════════════════════════════
+
+            /**
+             * Show an error on a field:
+             *   - adds .is-invalid to the input
+             *   - makes the error span visible
+             */
+            function showError(inputEl, errorId) {
+                if (inputEl) inputEl.classList.add('is-invalid');
+                const err = document.getElementById(errorId);
+                if (err) err.classList.add('visible');
+            }
+
+            /**
+             * Clear an error when the user starts typing.
+             */
+            function clearError(inputEl, errorId) {
+                if (inputEl) inputEl.classList.remove('is-invalid');
+                const err = document.getElementById(errorId);
+                if (err) err.classList.remove('visible');
+            }
+
+            function clearWrapperError(wrapperId) {
+                const wrapper = document.getElementById(wrapperId);
+                if (wrapper) wrapper.classList.remove('is-invalid');
+            }
+
+            /**
+             * Clear ALL errors for a given prefix ('add' or 'edit').
+             */
+            function clearAllErrors(prefix) {
+                const ids = ['Color', 'RAM', 'Storage', 'Stock', 'Price', 'SKU'];
+                ids.forEach(field => {
+                    const input = document.getElementById(`${prefix}${field === 'Color' ? 'ColorValue' : field}`);
+                    if (input) input.classList.remove('is-invalid');
+                    const err = document.getElementById(`${prefix}${field}Error`);
+                    if (err) err.classList.remove('visible');
+                });
+                // Price wrapper
+                const pw = document.getElementById(`${prefix}PriceWrapper`);
+                if (pw) pw.classList.remove('is-invalid');
+                // Image error
+                const imgErr = document.getElementById(`${prefix}ImgError`);
+                if (imgErr) imgErr.classList.remove('visible');
+                // Image slots
+                [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`].forEach(id => {
+                    const slot = document.getElementById(id);
+                    if (slot) slot.classList.remove('img-error');
+                });
+            }
+
+            /**
+             * Master validation function called on form submit.
+             * Returns false (blocks submit) if anything fails.
+             */
+            function validateVariantForm(form, prefix) {
+                let valid = true;
+
+                // 1. Exactly three images required
+                const slots = [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`];
+                let missingImages = 0;
+                slots.forEach(id => {
+                    const slot = document.getElementById(id);
+                    if (!slot?.classList.contains('has-image')) {
+                        slot?.classList.add('img-error');
+                        missingImages++;
+                    } else {
+                        slot?.classList.remove('img-error');
+                    }
+                });
+
+                if (missingImages > 0) {
+                    const imgErr = document.getElementById(`${prefix}ImgError`);
+                    if (imgErr) {
+                        imgErr.textContent = "Exactly 3 product images are required.";
+                        imgErr.classList.add('visible');
+                    }
+                    valid = false;
+                }
+
+                // 2. Color name
+                const colorVal = document.getElementById(`${prefix}ColorValue`);
+                if (!colorVal || !colorVal.value.trim()) {
+                    showError(colorVal, `${prefix}ColorError`);
+                    valid = false;
+                }
+
+                // 3. RAM
+                const ramEl = document.getElementById(`${prefix}RAM`);
+                const ramVal = ramEl ? parseFloat(ramEl.value) : NaN;
+                if (!ramEl || ramEl.value.trim() === '' || isNaN(ramVal) || ramVal < 1) {
+                    showError(ramEl, `${prefix}RAMError`);
+                    valid = false;
+                }
+
+                // 4. Storage
+                const storageEl = document.getElementById(`${prefix}Storage`);
+                const storageVal = storageEl ? parseFloat(storageEl.value) : NaN;
+                if (!storageEl || storageEl.value.trim() === '' || isNaN(storageVal) || storageVal < 1) {
+                    showError(storageEl, `${prefix}StorageError`);
+                    valid = false;
+                }
+
+                // 5. Stock (0 is allowed)
+                const stockEl = document.getElementById(`${prefix}Stock`);
+                const stockVal = stockEl ? stockEl.value.trim() : '';
+                if (stockVal === '' || isNaN(parseFloat(stockVal)) || parseFloat(stockVal) < 0) {
+                    showError(stockEl, `${prefix}StockError`);
+                    valid = false;
+                }
+
+                // 6. Price (must be > 0)
+                const priceEl = document.getElementById(`${prefix}Price`);
+                const priceVal = priceEl ? parseFloat(priceEl.value) : NaN;
+                if (!priceEl || priceEl.value.trim() === '' || isNaN(priceVal) || priceVal <= 0) {
+                    if (priceEl) priceEl.classList.add('is-invalid');
+                    const pw = document.getElementById(`${prefix}PriceWrapper`);
+                    if (pw) pw.classList.add('is-invalid');
+                    document.getElementById(`${prefix}PriceError`)?.classList.add('visible');
+                    valid = false;
+                }
+
+                // 7. SKU
+                const skuEl = document.getElementById(`${prefix}SKU`);
+                if (!skuEl || !skuEl.value.trim()) {
+                    showError(skuEl, `${prefix}SKUError`);
+                    valid = false;
+                }
+
+                // Scroll to first error inside modal box
+                if (!valid) {
+                    const modalId = prefix === 'add' ? 'addModal' : 'editModal';
+                    const firstErr = document.querySelector(`#${modalId} .field-error.visible, #${modalId} .img-section-error.visible`);
+                    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+
+                return valid;
+            }
+
+            // ══ CROP SYSTEM ══
+            let cropperInstance = null;
+            let currentCropSlotId = null;
+            let currentCropInput = null;
+
+            function handleImageSelect(input, slotId) {
+                if (!input.files || !input.files[0]) return;
+                const file = input.files[0];
+                const reader = new FileReader();
+                reader.onload = function (e) { openCropModal(e.target.result, slotId, input); };
+                reader.readAsDataURL(file);
+            }
+
+            function openCropModal(src, slotId, input) {
+                currentCropSlotId = slotId;
+                currentCropInput = input;
+                const cropImg = document.getElementById('cropImage');
+                cropImg.src = src;
+                document.getElementById('cropModal').classList.add('open');
+                document.getElementById('cropZoom').value = 1;
+                document.getElementById('cropZoomVal').textContent = '1×';
+                if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+                setTimeout(() => {
+                    cropperInstance = new Cropper(cropImg, {
+                        aspectRatio: 1, viewMode: 2, dragMode: 'move', autoCropArea: 0.85,
+                        restore: false, guides: true, center: true, highlight: false,
+                        cropBoxMovable: true, cropBoxResizable: true, toggleDragModeOnDblclick: false,
+                        zoom(e) {
+                            const slider = document.getElementById('cropZoom');
+                            slider.value = e.detail.ratio;
+                            document.getElementById('cropZoomVal').textContent = e.detail.ratio.toFixed(1) + '×';
+                        }
+                    });
+                }, 150);
+            }
+
+            function setCropAspect(w, h) {
+                if (!cropperInstance) return;
+                cropperInstance.setAspectRatio(isNaN(w) ? NaN : w / h);
+            }
+
+            function cancelCrop() {
                 document.getElementById('cropModal').classList.remove('open');
                 if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+                if (currentCropInput) currentCropInput.value = '';
                 currentCropSlotId = null;
                 currentCropInput = null;
-            }, 'image/jpeg', 0.92);
-        }
-    </script>
+            }
+
+            function applyCrop() {
+                if (!cropperInstance || !currentCropSlotId) return;
+                const canvas = cropperInstance.getCroppedCanvas({ width: 800, height: 800, imageSmoothingQuality: 'high' });
+                canvas.toBlob(function (blob) {
+                    const slot = document.getElementById(currentCropSlotId);
+                    const img = slot.querySelector('.preview-img');
+                    img.src = URL.createObjectURL(blob);
+                    slot.classList.add('has-image');
+                    slot.classList.remove('img-error'); // clear image error if user adds one
+                    // Also clear the section-level image error
+                    const prefix = currentCropSlotId.startsWith('add') ? 'add' : 'edit';
+                    document.getElementById(`${prefix}ImgError`)?.classList.remove('visible');
+                    [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`].forEach(id => document.getElementById(id)?.classList.remove('img-error'));
+
+                    if (currentCropInput) {
+                        const file = new File([blob], 'variant-image.jpg', { type: 'image/jpeg' });
+                        const dt = new DataTransfer();
+                        dt.items.add(file);
+                        currentCropInput.files = dt.files;
+                    }
+                    document.getElementById('cropModal').classList.remove('open');
+                    if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
+                    currentCropSlotId = null;
+                    currentCropInput = null;
+                }, 'image/jpeg', 0.92);
+            }
+        </script>
 </body>
 
 </html>

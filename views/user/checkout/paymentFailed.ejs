@@ -265,26 +265,44 @@
         }
 
         .btn-retry {
-            background: linear-gradient(135deg, var(--danger) 0%, #ff6b85 100%);
+            background: linear-gradient(135deg, var(--accent) 0%, #7b8cff 100%);
             color: #fff;
             border: none;
             border-radius: var(--radius-md);
-            padding: .9rem 2rem;
+            padding: .9rem 2.2rem;
             font-family: 'Inter', sans-serif;
             font-weight: 700;
             font-size: .95rem;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: .55rem;
             cursor: pointer;
             transition: all var(--transition);
-            box-shadow: 0 4px 18px rgba(255, 77, 109, .3);
+            box-shadow: 0 4px 18px rgba(79, 110, 247, .3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-retry::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-retry:hover::after {
+            left: 100%;
         }
 
         .btn-retry:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 28px rgba(255, 77, 109, .45);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 28px rgba(79, 110, 247, .45);
             color: #fff;
         }
 
@@ -431,8 +449,8 @@
 
                 <!-- Action buttons -->
                 <div class="action-row">
-                    <a href="/checkout" class="btn-retry" id="retryBtn">
-                        <i class="bi bi-arrow-counterclockwise"></i> Retry Payment
+                    <a href="<%= isBuyNow ? '/checkout/buy-now' : '/checkout' %>" class="btn-retry" id="retryBtn">
+                        <i class="bi bi-arrow-counterclockwise"></i> Try Again Now
                     </a>
                     <a href="/products" class="btn-ghost">
                         <i class="bi bi-grid"></i> Browse Products
@@ -460,7 +478,7 @@
                 if (countdownEl) countdownEl.textContent = seconds;
                 if (seconds <= 0) {
                     clearInterval(redirectTimer);
-                    window.location.href = '/checkout';
+                    window.location.href = '<%= isBuyNow ? "/checkout/buy-now" : "/checkout" %>';
                 }
             }
 

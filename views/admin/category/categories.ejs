@@ -19,13 +19,11 @@
     <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
 </head>
 
-<body>
+<body class="admin-body">
+    <%- include('../../partials/admin/Sidebar', { currentPage: 'categories' , currentUser: admin }) %>
 
-    <div class="admin-layout">
-
-        <%- include('../../partials/admin/Sidebar', { currentPage: 'categories' , currentUser: admin }) %>
-
-            <div class="admin-content">
+        <main class="admin-main">
+            <div class="main-content">
 
                 <!-- ── Page Header ── -->
                 <div class="page-header">
@@ -247,130 +245,159 @@
 
                 </div>
 
-            </div><!-- /admin-content -->
-    </div><!-- /admin-layout -->
+            </div><!-- /main-content -->
+        </main><!-- /admin-main -->
 
 
-    <!-- ═══════════════════════════════════════════
+        <!-- ═══════════════════════════════════════════
      ADD CATEGORY MODAL
 ════════════════════════════════════════════ -->
-    <div class="modal-overlay" id="addCategoryModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3><i class="bi bi-plus-circle-fill"></i> Add Category</h3>
-                <button class="modal-close" onclick="closeAddModal()">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
+        <div class="modal-overlay" id="addCategoryModal">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3><i class="bi bi-plus-circle-fill"></i> Add Category</h3>
+                    <button class="modal-close" onclick="closeAddModal()">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
 
-            <form action="/admin/categories-add" method="POST" id="addCategory">
-                <div class="modal-body">
-                    <div>
-                        <label>Category Name</label>
-                        <input type="text" name="categoryName" id="categoryName"
-                            placeholder="e.g. Xiaomi, Apple, Samsung">
-                    </div>
-
-                    <div class="toggle-box">
+                <form action="/admin/categories-add" method="POST" id="addCategory">
+                    <div class="modal-body">
                         <div>
-                            <strong>Status</strong>
-                            <span class="status-label is-inactive" id="addStatusLabel">Inactive</span>
-                            <p>Enable this category immediately</p>
+                            <label>Category Name</label>
+                            <input type="text" name="categoryName" id="categoryName"
+                                placeholder="e.g. Xiaomi, Apple, Samsung">
                         </div>
-                        <label class="switch">
-                            <input type="checkbox" name="status" id="addStatusToggle" value="true">
-                            <span class="slider"></span>
-                        </label>
+
+                        <div class="toggle-box">
+                            <div>
+                                <strong>Status</strong>
+                                <span class="status-label is-inactive" id="addStatusLabel">Inactive</span>
+                                <p>Enable this category immediately</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="status" id="addStatusToggle" value="true">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeAddModal()">
-                        <i class="bi bi-x"></i> Cancel
-                    </button>
-                    <button type="submit" class="btn-dark">
-                        <i class="bi bi-check2"></i> Save Category
-                    </button>
-                </div>
-            </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" onclick="closeAddModal()">
+                            <i class="bi bi-x"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn-dark">
+                            <i class="bi bi-check2"></i> Save Category
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
 
 
-    <!-- ═══════════════════════════════════════════
+        <!-- ═══════════════════════════════════════════
      EDIT CATEGORY MODAL
 ════════════════════════════════════════════ -->
-    <div class="modal-overlay" id="editCategoryModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3><i class="bi bi-pencil-fill"></i> Edit Category</h3>
-                <button class="modal-close" onclick="closeEditModal()">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
+        <div class="modal-overlay" id="editCategoryModal">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3><i class="bi bi-pencil-fill"></i> Edit Category</h3>
+                    <button class="modal-close" onclick="closeEditModal()">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
 
-            <form id="editCategoryForm" method="POST">
-                <input type="hidden" name="_method" value="PUT">
-                <input type="hidden" name="categoryId" id="editCategoryId">
+                <form id="editCategoryForm" method="POST">
+                    <input type="hidden" name="_method" value="PUT">
+                    <input type="hidden" name="categoryId" id="editCategoryId">
 
-                <div class="modal-body">
-                    <div>
-                        <label>Category Name</label>
-                        <input type="text" name="categoryName" id="editCategoryName" placeholder="Category name">
-                    </div>
-
-                    <div class="toggle-box">
+                    <div class="modal-body">
                         <div>
-                            <strong>
-                                <i class="bi bi-toggle-on" style="color:var(--accent);margin-right:5px;"></i>
-                                Status
-                            </strong>
-                            <span class="status-label is-inactive" id="editStatusLabel">Inactive</span>
-                            <p>Category is visible in store</p>
+                            <label>Category Name</label>
+                            <input type="text" name="categoryName" id="editCategoryName" placeholder="Category name">
                         </div>
-                        <label class="switch">
-                            <input type="checkbox" name="status" id="editCategoryStatus" value="true">
-                            <span class="slider"></span>
-                        </label>
+
+                        <div class="toggle-box">
+                            <div>
+                                <strong>
+                                    <i class="bi bi-toggle-on" style="color:var(--accent);margin-right:5px;"></i>
+                                    Status
+                                </strong>
+                                <span class="status-label is-inactive" id="editStatusLabel">Inactive</span>
+                                <p>Category is visible in store</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" name="status" id="editCategoryStatus" value="true">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
                     </div>
-                </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" onclick="closeEditModal()">
-                        <i class="bi bi-x"></i> Cancel
-                    </button>
-                    <button type="submit" class="btn-dark">
-                        <i class="bi bi-check2"></i> Update Category
-                    </button>
-                </div>
-            </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" onclick="closeEditModal()">
+                            <i class="bi bi-x"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn-dark">
+                            <i class="bi bi-check2"></i> Update Category
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
 
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <script>
+        <script>
 
-        /* ── Delete ── */
-        async function deleteConfirmation(id) {
-            const result = await Swal.fire({
-                title: 'Are you sure?',
-                text: 'This category will be deleted.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Yes, sure',
-                cancelButtonText: 'Cancel'
-            });
+            /* ── Delete ── */
+            async function deleteConfirmation(id) {
+                const result = await Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'This category will be deleted.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Yes, sure',
+                    cancelButtonText: 'Cancel'
+                });
 
-            if (result.isConfirmed) {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await axios.patch(`/admin/categories/delete/${id}`);
+                        Swal.fire({
+                            icon: 'success',
+                            title: response.data.message,
+                            position: 'center',
+                            showConfirmButton: false,
+                            timer: 1000
+                        });
+                        setTimeout(() => window.location.reload(), 1000);
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: error.message || 'Delete failed',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                }
+            }
+
+            /* ── Add Category ── */
+            document.getElementById('addCategory').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const categoryName = document.getElementById('categoryName').value.trim();
+                const status = document.getElementById('addStatusToggle').checked;
+
                 try {
-                    const response = await axios.patch(`/admin/categories/delete/${id}`);
+                    const response = await axios.post('/admin/categories-add', { categoryName, status });
                     Swal.fire({
                         icon: 'success',
                         title: response.data.message,
@@ -382,124 +409,95 @@
                 } catch (error) {
                     Swal.fire({
                         icon: 'error',
-                        title: error.message || 'Delete failed',
+                        title: error.response?.data?.message || 'Something went wrong',
+                        toast: true,
+                        position: 'top',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    document.getElementById('addCategory').reset();
+                }
+            });
+
+            /* ── Edit Category ── */
+            document.getElementById('editCategoryForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('editCategoryId').value;
+                const categoryName = document.getElementById('editCategoryName').value.trim();
+                const status = document.getElementById('editCategoryStatus').checked;
+
+                try {
+                    const response = await axios.put(`/admin/categories/${id}`, { categoryName, status });
+                    Swal.fire({
+                        icon: 'success',
+                        title: response.data.message,
+                        position: 'center',
+                        showConfirmButton: false,
+                        timer: 900
+                    });
+                    setTimeout(() => window.location.reload(), 900);
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: error.response?.data?.message || 'Update failed',
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
                         timer: 1500
                     });
                 }
-            }
-        }
-
-        /* ── Add Category ── */
-        document.getElementById('addCategory').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const categoryName = document.getElementById('categoryName').value.trim();
-            const status = document.getElementById('addStatusToggle').checked;
-
-            try {
-                const response = await axios.post('/admin/categories-add', { categoryName, status });
-                Swal.fire({
-                    icon: 'success',
-                    title: response.data.message,
-                    position: 'center',
-                    showConfirmButton: false,
-                    timer: 1000
-                });
-                setTimeout(() => window.location.reload(), 1000);
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: error.response?.data?.message || 'Something went wrong',
-                    toast: true,
-                    position: 'top',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-                document.getElementById('addCategory').reset();
-            }
-        });
-
-        /* ── Edit Category ── */
-        document.getElementById('editCategoryForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('editCategoryId').value;
-            const categoryName = document.getElementById('editCategoryName').value.trim();
-            const status = document.getElementById('editCategoryStatus').checked;
-
-            try {
-                const response = await axios.put(`/admin/categories/${id}`, { categoryName, status });
-                Swal.fire({
-                    icon: 'success',
-                    title: response.data.message,
-                    position: 'center',
-                    showConfirmButton: false,
-                    timer: 900
-                });
-                setTimeout(() => window.location.reload(), 900);
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: error.response?.data?.message || 'Update failed',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-            }
-        });
-
-        /* ── Status Label Sync ── */
-        function syncStatusLabel(checkbox, labelEl) {
-            if (checkbox.checked) {
-                labelEl.textContent = 'Active';
-                labelEl.className = 'status-label is-active';
-            } else {
-                labelEl.textContent = 'Inactive';
-                labelEl.className = 'status-label is-inactive';
-            }
-        }
-
-        const addToggle = document.getElementById('addStatusToggle');
-        const addStatusLabel = document.getElementById('addStatusLabel');
-        addToggle.addEventListener('change', () => syncStatusLabel(addToggle, addStatusLabel));
-
-        const editToggle = document.getElementById('editCategoryStatus');
-        const editStatusLabel = document.getElementById('editStatusLabel');
-        editToggle.addEventListener('change', () => syncStatusLabel(editToggle, editStatusLabel));
-
-        /* ── Modal Controls ── */
-        function openAddModal() { document.getElementById('addCategoryModal').classList.add('show'); }
-        function closeAddModal() { document.getElementById('addCategoryModal').classList.remove('show'); }
-
-        function openEditModal(id, name, status) {
-            const modal = document.getElementById('editCategoryModal');
-            modal.classList.add('show');
-            document.getElementById('editCategoryId').value = id;
-            document.getElementById('editCategoryName').value = name;
-            editToggle.checked = (status === 'true' || status === true);
-            syncStatusLabel(editToggle, editStatusLabel);
-            document.getElementById('editCategoryForm').action = `/admin/categories/${id}`;
-        }
-
-        function closeEditModal() { document.getElementById('editCategoryModal').classList.remove('show'); }
-
-        /* ── Close on backdrop click or Escape ── */
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', function (e) {
-                if (e.target === this) this.classList.remove('show');
             });
-        });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                document.querySelectorAll('.modal-overlay.show')
-                    .forEach(m => m.classList.remove('show'));
+            /* ── Status Label Sync ── */
+            function syncStatusLabel(checkbox, labelEl) {
+                if (checkbox.checked) {
+                    labelEl.textContent = 'Active';
+                    labelEl.className = 'status-label is-active';
+                } else {
+                    labelEl.textContent = 'Inactive';
+                    labelEl.className = 'status-label is-inactive';
+                }
             }
-        });
 
-    </script>
+            const addToggle = document.getElementById('addStatusToggle');
+            const addStatusLabel = document.getElementById('addStatusLabel');
+            addToggle.addEventListener('change', () => syncStatusLabel(addToggle, addStatusLabel));
+
+            const editToggle = document.getElementById('editCategoryStatus');
+            const editStatusLabel = document.getElementById('editStatusLabel');
+            editToggle.addEventListener('change', () => syncStatusLabel(editToggle, editStatusLabel));
+
+            /* ── Modal Controls ── */
+            function openAddModal() { document.getElementById('addCategoryModal').classList.add('show'); }
+            function closeAddModal() { document.getElementById('addCategoryModal').classList.remove('show'); }
+
+            function openEditModal(id, name, status) {
+                const modal = document.getElementById('editCategoryModal');
+                modal.classList.add('show');
+                document.getElementById('editCategoryId').value = id;
+                document.getElementById('editCategoryName').value = name;
+                editToggle.checked = (status === 'true' || status === true);
+                syncStatusLabel(editToggle, editStatusLabel);
+                document.getElementById('editCategoryForm').action = `/admin/categories/${id}`;
+            }
+
+            function closeEditModal() { document.getElementById('editCategoryModal').classList.remove('show'); }
+
+            /* ── Close on backdrop click or Escape ── */
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function (e) {
+                    if (e.target === this) this.classList.remove('show');
+                });
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal-overlay.show')
+                        .forEach(m => m.classList.remove('show'));
+                }
+            });
+
+        </script>
 
 </body>
 

@@ -127,8 +127,11 @@ const loadCheckout = async (req, res) => {
 const loadBuyNowCheckout = async (req, res) => {
     try {
         const userId = req.session.user._id;
-        const { product: productId, variant: variantId, qty } = req.query;
-        const quantity = Math.max(1, parseInt(qty) || 1);
+        const { product: qProduct, variant: qVariant, qty: qQty } = req.query;
+        
+        let productId = qProduct || req.session.buyNowItem?.productId;
+        let variantId = qVariant || req.session.buyNowItem?.variantId;
+        let quantity = Math.max(1, parseInt(qQty) || req.session.buyNowItem?.quantity || 1);
 
         if (!productId || !variantId) return res.redirect('/products');
         req.session.buyNowItem = { productId, variantId, quantity };
@@ -321,7 +324,8 @@ const getPaymentFailed = async (req, res) => {
         res.render('user/checkout/paymentFailed', {
             user: req.session.user, categories, cartItemCount,
             reason: req.query.reason || null, orderId: req.query.orderId || null,
-            totalAmount: req.query.amount || null, currentPage: 'checkout'
+            totalAmount: req.query.amount || null, currentPage: 'checkout',
+            isBuyNow: req.query.isBuyNow === 'true'
         });
     } catch (error) {
         res.redirect('/checkout');

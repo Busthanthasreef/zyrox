@@ -129,12 +129,22 @@
         /* ── MAIN CONTENT ── */
         .main-content {
             flex: 1;
-            padding: 1.5rem 2rem;
             display: flex;
             flex-direction: column;
             background: var(--bg-deep);
-            max-width: 1300px;
+            height: 100vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .content-container {
+            max-width: 1200px;
             width: 100%;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
 
         .page-header {
@@ -158,20 +168,19 @@
 
         /* ── BALANCE CARD ── */
         .balance-card {
-            background: linear-gradient(135deg, #151b31 0%, #0d1221 100%);
+            background: linear-gradient(135deg, rgba(21, 27, 49, 0.9) 0%, rgba(13, 18, 33, 0.95) 100%);
+            backdrop-filter: blur(10px);
             border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 1.5rem 2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--card-shadow);
+            border-radius: 22px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow), 0 0 20px rgba(0, 230, 118, 0.05);
             position: relative;
             overflow: hidden;
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr auto;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            gap: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .balance-card:hover {
@@ -776,6 +785,31 @@
         .secure-banner {
             animation: fadeUp .55s ease .2s both;
         }
+
+        @media (max-width: 768px) {
+            .balance-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding: 2rem 1.5rem;
+            }
+
+            .balance-main {
+                min-width: unset;
+            }
+
+            .balance-amount {
+                justify-content: center;
+            }
+
+            .btn-add-money {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .content-container {
+                padding: 1.5rem 1rem;
+            }
+        }
     </style>
 </head>
 
@@ -790,150 +824,153 @@
 
             <!-- ── MAIN ── -->
             <main class="main-content">
+                <div class="content-container">
 
-                <header class="page-header">
-                    <h1 class="page-title">My Wallet</h1>
-                    <p class="page-subtitle">Your secure digital wallet for faster checkouts and easy refunds.</p>
-                </header>
+                    <header class="page-header">
+                        <h1 class="page-title">My Wallet</h1>
+                        <p class="page-subtitle">Your secure digital wallet for faster checkouts and easy refunds.</p>
+                    </header>
 
-                <!-- Premium Balance Card -->
-                <div class="balance-card">
-                    <div class="balance-main">
-                        <div class="balance-label">
-                            <i class="bi bi-shield-lock-fill"></i> Available Balance
+                    <!-- Premium Balance Card -->
+                    <div class="balance-card">
+                        <div class="balance-main">
+                            <div class="balance-label">
+                                <i class="bi bi-shield-lock-fill"></i> Available Balance
+                            </div>
+                            <div class="balance-amount">
+                                <span class="currency-symbol">₹</span>
+                                <%= (wallet && wallet.balance ? wallet.balance : 0).toLocaleString('en-IN', {
+                                    minimumFractionDigits: 2 }) %>
+                            </div>
+                            <div class="balance-note-pill">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Ready for instant transactions & easy refunds</span>
+                            </div>
                         </div>
-                        <div class="balance-amount">
-                            <span class="currency-symbol">₹</span>
-                            <%= (wallet && wallet.balance ? wallet.balance : 0).toLocaleString('en-IN', {
-                                minimumFractionDigits: 2 }) %>
-                        </div>
-                        <div class="balance-note-pill">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>Ready for instant transactions & easy refunds</span>
-                        </div>
-                    </div>
-                    <button class="btn-add-money">
-                        <i class="bi bi-plus-circle-fill"></i> Add Money
-                    </button>
-                </div>
-
-                <!-- Transaction History -->
-                <div class="section-heading">
-                    <i class="bi bi-clock-history"></i> Transaction History
-                </div>
-
-                <div class="txn-table-wrap">
-                    <div class="txn-table-container">
-                        <table class="txn-table">
-                            <thead>
-                                <tr>
-                                    <th>Date &amp; Time</th>
-                                    <th>Transaction ID</th>
-                                    <th>Order ID</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                                <% if (transactions && transactions.length> 0) { %>
-                                    <% transactions.forEach(txn=> { %>
-                                        <tr>
-                                            <td>
-                                                <div class="fw-500">
-                                                    <%= new Date(txn.Payment_date).toLocaleDateString('en-US', {
-                                                        month: 'short' , day: 'numeric' , year: 'numeric' }) %>
-                                                </div>
-                                                <div class="txn-date">
-                                                    <%= new Date(txn.Payment_time).toLocaleTimeString('en-US', {
-                                                        hour: '2-digit' , minute: '2-digit' }) %>
-                                                </div>
-                                            </td>
-                                            <td class="txn-id">
-                                                <%= txn._id.toString().substring(0, 12).toUpperCase() %>
-                                            </td>
-                                            <td>
-                                                <% if (txn.Order_id) { %>
-                                                    <a href="/myOrders/details?id=<%= txn.Order_id %>"
-                                                        class="order-link">#ORD-<%= txn.Order_id.toString().substring(0,
-                                                            8).toUpperCase() %></a>
-                                                    <% } else { %>
-                                                        <span class="text">N/A</span>
-                                                        <% } %>
-                                            </td>
-                                            <td>
-                                                <%= txn.Description %>
-                                            </td>
-                                            <td>
-                                                <% if (txn.Amount> 0) { %>
-                                                    <span class="badge-status badge-success"><i
-                                                            class="bi bi-arrow-down-circle"></i> Credit</span>
-                                                    <% } else { %>
-                                                        <span class="badge-status badge-danger"><i
-                                                                class="bi bi-arrow-up-circle"></i> Debit</span>
-                                                        <% } %>
-                                            </td>
-                                            <td
-                                                class="text-end <%= txn.Amount > 0 ? 'amount-credit' : 'amount-debit' %>">
-                                                <%= txn.Amount> 0 ? '+' : '' %>₹<%=
-                                                        Math.abs(txn.Amount).toLocaleString('en-IN', {
-                                                        minimumFractionDigits: 2 }) %>
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                                            <% } else { %>
-                                                <tr>
-                                                    <td colspan="6" class="text-center py-5">
-                                                        <div class="text-muted mb-2"><i class="bi bi-wallet2 fs-2"></i>
-                                                        </div>
-                                                        <div class="text-muted">No transactions found.</div>
-                                                    </td>
-                                                </tr>
-                                                <% } %>
-                            </tbody>
-                        </table>
+                        <button class="btn-add-money">
+                            <i class="bi bi-plus-circle-fill"></i> Add Money
+                        </button>
                     </div>
 
-                    <!-- Pagination -->
-                    <% if (totalPages> 1) { %>
-                        <div class="txn-pagination">
-                            <% if (currentPage> 1) { %>
-                                <a href="/wallet?page=<%= currentPage - 1 %>"
-                                    class="page-btn text-decoration-none">&#8249; Previous</a>
-                                <% } %>
+                    <!-- Transaction History -->
+                    <div class="section-heading">
+                        <i class="bi bi-clock-history"></i> Transaction History
+                    </div>
 
-                                    <% for(let i=1; i <=totalPages; i++) { %>
-                                        <a href="/wallet?page=<%= i %>"
-                                            class="page-btn text-decoration-none <%= currentPage === i ? 'active' : '' %>">
-                                            <%= i %>
-                                        </a>
-                                        <% } %>
+                    <div class="txn-table-wrap">
+                        <div class="txn-table-container">
+                            <table class="txn-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date &amp; Time</th>
+                                        <th>Transaction ID</th>
+                                        <th>Order ID</th>
+                                        <th>Description</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
 
-                                            <% if (currentPage < totalPages) { %>
-                                                <a href="/wallet?page=<%= currentPage + 1 %>"
-                                                    class="page-btn text-decoration-none">Next &#8250;</a>
-                                                <% } %>
+                                    <% if (transactions && transactions.length> 0) { %>
+                                        <% transactions.forEach(txn=> { %>
+                                            <tr>
+                                                <td>
+                                                    <div class="fw-500">
+                                                        <%= new Date(txn.Payment_date).toLocaleDateString('en-US', {
+                                                            month: 'short' , day: 'numeric' , year: 'numeric' }) %>
+                                                    </div>
+                                                    <div class="txn-date">
+                                                        <%= new Date(txn.Payment_time).toLocaleTimeString('en-US', {
+                                                            hour: '2-digit' , minute: '2-digit' }) %>
+                                                    </div>
+                                                </td>
+                                                <td class="txn-id">
+                                                    <%= txn._id.toString().substring(0, 12).toUpperCase() %>
+                                                </td>
+                                                <td>
+                                                    <% if (txn.Order_id) { %>
+                                                        <a href="/myOrders/details?id=<%= txn.Order_id %>"
+                                                            class="order-link">#ORD-<%=
+                                                                txn.Order_id.toString().substring(0, 8).toUpperCase() %>
+                                                        </a>
+                                                        <% } else { %>
+                                                            <span class="text">N/A</span>
+                                                            <% } %>
+                                                </td>
+                                                <td>
+                                                    <%= txn.Description %>
+                                                </td>
+                                                <td>
+                                                    <% if (txn.Amount> 0) { %>
+                                                        <span class="badge-status badge-success"><i
+                                                                class="bi bi-arrow-down-circle"></i> Credit</span>
+                                                        <% } else { %>
+                                                            <span class="badge-status badge-danger"><i
+                                                                    class="bi bi-arrow-up-circle"></i> Debit</span>
+                                                            <% } %>
+                                                </td>
+                                                <td
+                                                    class="text-end <%= txn.Amount > 0 ? 'amount-credit' : 'amount-debit' %>">
+                                                    <%= txn.Amount> 0 ? '+' : '' %>₹<%=
+                                                            Math.abs(txn.Amount).toLocaleString('en-IN', {
+                                                            minimumFractionDigits: 2 }) %>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="6" class="text-center py-5">
+                                                            <div class="text-muted mb-2"><i
+                                                                    class="bi bi-wallet2 fs-2"></i>
+                                                            </div>
+                                                            <div class="text-muted">No transactions found.</div>
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
                         </div>
-                        <% } %>
-                </div>
 
-    </div>
+                        <!-- Pagination -->
+                        <% if (totalPages> 1) { %>
+                            <div class="txn-pagination">
+                                <% if (currentPage> 1) { %>
+                                    <a href="/wallet?page=<%= currentPage - 1 %>"
+                                        class="page-btn text-decoration-none">&#8249; Previous</a>
+                                    <% } %>
 
-    <!-- Secure Wallet Banner -->
-    <div class="secure-banner">
-        <i class="bi bi-shield-lock-fill"></i>
-        <div>
-            <div class="secure-banner-title">Secure Wallet</div>
-            <div class="secure-banner-text">
-                Your wallet is securely stored using bank-grade encryption and can be used seamlessly during
-                checkout.
-                We never store your card details in plain text.
-            </div>
-        </div>
-    </div>
+                                        <% for(let i=1; i <=totalPages; i++) { %>
+                                            <a href="/wallet?page=<%= i %>"
+                                                class="page-btn text-decoration-none <%= currentPage === i ? 'active' : '' %>">
+                                                <%= i %>
+                                            </a>
+                                            <% } %>
 
-    </main>
+                                                <% if (currentPage < totalPages) { %>
+                                                    <a href="/wallet?page=<%= currentPage + 1 %>"
+                                                        class="page-btn text-decoration-none">Next &#8250;</a>
+                                                    <% } %>
+                            </div>
+                            <% } %>
+                    </div>
+
+                    <!-- Secure Wallet Banner -->
+                    <div class="secure-banner">
+                        <i class="bi bi-shield-lock-fill"></i>
+                        <div>
+                            <div class="secure-banner-title">Secure Wallet</div>
+                            <div class="secure-banner-text">
+                                Your wallet is securely stored using bank-grade encryption and can be used seamlessly
+                                during
+                                checkout.
+                                We never store your card details in plain text.
+                            </div>
+                        </div>
+                    </div>
+
+                </div> <!-- End content-container -->
+            </main>
     </div>
 
     <!-- ═══════════ ADD MONEY MODAL ═══════════ -->
