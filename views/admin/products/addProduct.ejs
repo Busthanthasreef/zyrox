@@ -28,7 +28,7 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .main-wrap {
+        .admin-main {
             flex: 1;
             height: 100vh;
             overflow-y: auto;
@@ -36,15 +36,15 @@
             background: #f3f4f6;
         }
 
-        .main-wrap::-webkit-scrollbar {
+        .admin-main::-webkit-scrollbar {
             width: 5px;
         }
 
-        .main-wrap::-webkit-scrollbar-track {
+        .admin-main::-webkit-scrollbar-track {
             background: transparent;
         }
 
-        .main-wrap::-webkit-scrollbar-thumb {
+        .admin-main::-webkit-scrollbar-thumb {
             background: #d1d5db;
             border-radius: 10px;
         }
@@ -179,7 +179,7 @@
         /* ── IMAGE UPLOAD GRID ── */
         .img-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 12px;
         }
 
@@ -339,7 +339,6 @@
 
         .img-box.has-image input[type="file"] {
             z-index: 1;
-            pointer-events: none;
         }
 
         .img-slot-badge {
@@ -859,7 +858,7 @@
             }
 
             .img-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
                 gap: 8px;
             }
         }
@@ -936,11 +935,10 @@
                             <!-- Product Images -->
                             <div class="panel">
                                 <div class="panel-title">Product Images</div>
-                                <p class="form-hint mb-3">Upload up to 3 images. Click to crop & resize. First image
-                                    will be
-                                    the thumbnail.</p>
+                                <p class="form-hint mb-3">Upload 3-5 images. Click to crop & resize. First image
+                                    will be the thumbnail.</p>
                                 <div class="img-grid">
-                                    <% for(let j=0; j < 3; j++) { %>
+                                    <% for(let j=0; j < 5; j++) { %>
                                         <div class="img-box" id="vBox_<%= j %>">
                                             <i class="bi bi-camera upload-icon"></i>
                                             <span>
@@ -968,7 +966,7 @@
                                                 title="Crop & resize">
                                                 <i class="bi bi-crop"></i> Crop
                                             </button>
-                                            <input type="file" name="variantImages[0]" accept="image/*"
+                                            <input type="file" name="variantImages[]" accept="image/*"
                                                 id="vFile_<%= j %>"
                                                 onchange="onFileSelected(this, 'vBox_<%= j %>','vPreview_<%= j %>', <%= j %>)">
                                         </div>
@@ -1179,11 +1177,11 @@
             <script>
                 /* ── STATE ── */
                 // croppedBlobs[i] holds a Blob if the user has cropped slot i; otherwise null
-                const croppedBlobs = [null, null, null];
+                const croppedBlobs = [null, null, null, null, null];
                 // originalSrcs[i] holds the raw data-URL from FileReader (pre-crop)
-                const originalSrcs = ['', '', ''];
+                const originalSrcs = ['', '', '', '', ''];
                 // flipState per slot
-                const flipState = [{ x: 1, y: 1 }, { x: 1, y: 1 }, { x: 1, y: 1 }];
+                const flipState = [{ x: 1, y: 1 }, { x: 1, y: 1 }, { x: 1, y: 1 }, { x: 1, y: 1 }, { x: 1, y: 1 }];
 
                 let cropperInst = null;
                 let activeCropSlot = -1;
@@ -1306,7 +1304,7 @@
                     const src = document.getElementById(`vPreview_${slotIdx}`).src;
                     if (!src) return;
                     document.getElementById('lightboxImg').src = src;
-                    const labels = ['Main Image / Thumbnail', 'Image 2', 'Image 3'];
+                    const labels = ['Main Image / Thumbnail', 'Image 2', 'Image 3', 'Image 4', 'Image 5'];
                     document.getElementById('lightboxLabel').textContent = labels[slotIdx] || `Image ${slotIdx + 1}`;
                     document.getElementById('lightboxOverlay').classList.add('active');
                     document.body.style.overflow = 'hidden';
@@ -1345,7 +1343,7 @@
                         fd.delete('variantImages[]');
 
                         // Re-add all images (cropped if available, original otherwise)
-                        for (let i = 0; i < 3; i++) {
+                        for (let i = 0; i < 5; i++) {
                             const fileInput = document.getElementById(`vFile_${i}`);
                             if (croppedBlobs[i]) {
                                 fd.append('variantImages[]', croppedBlobs[i], `image_${i}.jpg`);
@@ -1504,21 +1502,22 @@
                     if (!get('description')) { toast('warning', 'Description is required'); return false; }
                     if (!get('category')) { toast('warning', 'Please select a category'); return false; }
 
-                    // Image validation: Check if ALL 3 images are selected
-                    let missingImages = 0;
-                    for (let i = 0; i < 3; i++) {
-                        const box = document.getElementById(`vBox_${i}`);
+                    // Image validation: Check if AT LEAST 3 images are selected
+                    let imageCount = 0;
+                    for (let i = 0; i < 5; i++) {
                         const hasImg = document.getElementById(`vFile_${i}`).files.length > 0 || croppedBlobs[i];
-                        if (!hasImg) {
-                            box.classList.add('img-error');
-                            missingImages++;
-                        } else {
-                            box.classList.remove('img-error');
+                        if (hasImg) {
+                            imageCount++;
+                            document.getElementById(`vBox_${i}`).classList.remove('img-error');
                         }
                     }
 
-                    if (missingImages > 0) {
-                        toast('error', 'All 3 product images are required');
+                    if (imageCount < 3) {
+                        for (let i = 0; i < 5; i++) {
+                            const hasImg = document.getElementById(`vFile_${i}`).files.length > 0 || croppedBlobs[i];
+                            if (!hasImg) document.getElementById(`vBox_${i}`).classList.add('img-error');
+                        }
+                        toast('error', 'At least 3 product images are required');
                         return false;
                     }
 

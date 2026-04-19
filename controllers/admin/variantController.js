@@ -105,8 +105,13 @@ const addVariant = async (req, res) => {
         // 📸 Images
         const imageUrls = (req.files || []).map(f => f.path);
 
-        if (imageUrls.length !== 3) {
-            req.session.errorMsg = "Exactly 3 images are required for a variant";
+        if (imageUrls.length < 3) {
+            req.session.errorMsg = "At least 3 images are required for a variant";
+            return res.redirect(`/admin/products/${productId}/variants`);
+        }
+
+        if (imageUrls.length > 5) {
+            req.session.errorMsg = "A maximum of 5 images are allowed per variant";
             return res.redirect(`/admin/products/${productId}/variants`);
         }
 
@@ -121,6 +126,7 @@ const addVariant = async (req, res) => {
         // ✅ CREATE VARIANT
         const newVariant = new VariantSchema({
             productId,
+            categoryId: product.categoryId,
             color,
             colorCode: req.body.colorCode || "#000000",
             storage,
@@ -141,7 +147,7 @@ const addVariant = async (req, res) => {
     } catch (err) {
         console.error("addVariant error:", err);
         req.session.errorMsg = "Failed to add variant";
-        res.redirect(`/admin/products/${req.params.id}/variants`);
+        res.redirect(`/admin/products/${productId}/variants`);
     }
 };
 /* =====================================
@@ -194,8 +200,12 @@ const editVariant = async (req, res) => {
         let imageUrls = variant.images || [];
 
         if (req.files && req.files.length > 0) {
-            if (req.files.length !== 3) {
-                req.session.errorMsg = "Exactly 3 images are required when updating images.";
+            if (req.files.length < 3) {
+                req.session.errorMsg = "At least 3 images are required when updating images.";
+                return res.redirect(`/admin/products/${productId}/variants`);
+            }
+            if (req.files.length > 5) {
+                req.session.errorMsg = "A maximum of 5 images are allowed when updating images.";
                 return res.redirect(`/admin/products/${productId}/variants`);
             }
             imageUrls = req.files.map(f => f.path);
@@ -213,6 +223,8 @@ const editVariant = async (req, res) => {
         }
 
         //  UPDATE FIELDS
+        variant.productId = productId;
+        variant.categoryId = product.categoryId;
         variant.color     = color;
         variant.colorCode = req.body.colorCode || variant.colorCode || "#000000";
         variant.storage   = storage;
@@ -221,6 +233,7 @@ const editVariant = async (req, res) => {
         variant.price     = price !== undefined ? Number(price) : variant.price;
         variant.SKU       = SKU || variant.SKU;
         variant.IsActive  = isActive === "on" || isActive === true;
+        variant.IsDefault = isDefault === "on" || isDefault === true;
         variant.images    = imageUrls;
 
         await variant.save();
@@ -231,7 +244,7 @@ const editVariant = async (req, res) => {
     } catch (err) {
         console.error("editVariant error:", err);
         req.session.errorMsg = "Failed to update variant";
-        res.redirect(`/admin/products/${req.params.id}/variants`);
+        res.redirect(`/admin/products/${productId}/variants`);
     }
 };
 

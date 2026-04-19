@@ -42,10 +42,7 @@
                             <p class="stat-value">
                                 ₹<%= typeof stats !=='undefined' ? stats.totalRevenue : '45,231.89' %>
                             </p>
-                            <p class="stat-change positive">
-                                <i class="bi bi-arrow-up-short"></i>
-                                +20.1% from last month
-                            </p>
+                          
                         </div>
                     </div>
 
@@ -58,10 +55,7 @@
                             <p class="stat-value">
                                 +<%= typeof stats !=='undefined' ? stats.totalOrders : '2,350' %>
                             </p>
-                            <p class="stat-change positive">
-                                <i class="bi bi-arrow-up-short"></i>
-                                +15% from last month
-                            </p>
+                          
                         </div>
                     </div>
 
@@ -72,9 +66,9 @@
                                 <span class="stat-dot"></span>
                             </div>
                             <p class="stat-value">
-                                <%= typeof stats !=='undefined' ? stats.pendingOrders : '48' %>
+                                <%= typeof stats !=='undefined' ? stats.pendingOrders : '0' %>
                             </p>
-                            <p class="stat-change neutral">Requires attention</p>
+                         
                         </div>
                     </div>
 
@@ -87,10 +81,7 @@
                             <p class="stat-value">
                                 +<%= typeof stats !=='undefined' ? stats.activeUsers : '12,234' %>
                             </p>
-                            <p class="stat-change positive">
-                                <i class="bi bi-arrow-up-short"></i>
-                                +7% from last month
-                            </p>
+                           
                         </div>
                     </div>
 
@@ -144,41 +135,8 @@
                                             </p>
                                         </div>
                                         <% }) %>
-                                            <% } else { %>
-                                                <!-- Default static data when no EJS data passed -->
-                                                <div class="sale-item">
-                                                    <div class="sale-avatar">O</div>
-                                                    <div class="sale-info">
-                                                        <p class="sale-name">Olivia Martin</p>
-                                                        <p class="sale-email">olivia.martin@email.com</p>
-                                                    </div>
-                                                    <p class="sale-amount">₹1,999.00</p>
-                                                </div>
-                                                <div class="sale-item">
-                                                    <div class="sale-avatar">J</div>
-                                                    <div class="sale-info">
-                                                        <p class="sale-name">Jackson Lee</p>
-                                                        <p class="sale-email">jackson.lee@email.com</p>
-                                                    </div>
-                                                    <p class="sale-amount">₹39.00</p>
-                                                </div>
-                                                <div class="sale-item">
-                                                    <div class="sale-avatar">I</div>
-                                                    <div class="sale-info">
-                                                        <p class="sale-name">Isabella Nguyen</p>
-                                                        <p class="sale-email">isabella.nguyen@email.com</p>
-                                                    </div>
-                                                    <p class="sale-amount">₹299.00</p>
-                                                </div>
-                                                <div class="sale-item">
-                                                    <div class="sale-avatar">O</div>
-                                                    <div class="sale-info">
-                                                        <p class="sale-name">Olivia Martin</p>
-                                                        <p class="sale-email">olivia.martin@email.com</p>
-                                                    </div>
-                                                    <p class="sale-amount">₹1,999.00</p>
-                                                </div>
-                                                <% } %>
+                                <% } %>
+                                            
                             </div>
                         </div>
                     </div>
@@ -212,8 +170,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <% if (typeof trendingProducts !=='undefined' && trendingProducts.length> 0) {
-                                            %>
+                                        <% if (typeof trendingProducts !=='undefined' && trendingProducts.length> 0) { %>
                                             <% trendingProducts.forEach(product=> { %>
                                                 <tr>
                                                     <td>
@@ -238,46 +195,7 @@
                                                     </td>
                                                 </tr>
                                                 <% }) %>
-                                                    <% } else { %>
-                                                        <!-- Static fallback rows -->
-                                                        <% const fallbackProducts=[ { img: '' , name: 'Galaxy S23 Ultra'
-                                                            , sku: 'SAM-S23U-8-256-BLK' , category: 'Samsung' , sales:
-                                                            342, revenue: '1,995,390' }, { img: '' ,
-                                                            name: 'iPhone 17 Pro' , sku: 'APL-IP17P-8-256-TIT' ,
-                                                            category: 'Apple' , sales: 288, revenue: '99,988.00' }, {
-                                                            img: '' , name: 'Redmi Note 13 Pro' ,
-                                                            sku: 'XMI-RN13P-8-128-BLK' , category: 'Xiaomi' , sales:
-                                                            245, revenue: '12,90,999.00' }, { img: '' ,
-                                                            name: 'Realme Narzo 60' , sku: 'RLM-N60-8-256-BLK' ,
-                                                            category: 'Realme' , sales: 187, revenue: '99,9,610.00' }, {
-                                                            img: '' , name: 'Moto Edge 40' , sku: 'MOTO-E40-12-256-GRN'
-                                                            , category: 'Motorola' , sales: 156, revenue: '99,799.00' },
-                                                            ] %>
-                                                            <% fallbackProducts.forEach(p=> { %>
-                                                                <tr>
-                                                                    <td>
-                                                                        <div class="product-img-placeholder"><i
-                                                                                class="bi bi-phone"></i></div>
-                                                                    </td>
-                                                                    <td>
-                                                                        <p class="product-name">
-                                                                            <%= p.name %>
-                                                                        </p>
-                                                                        <p class="product-sku">
-                                                                            <%= p.sku %>
-                                                                        </p>
-                                                                    </td>
-                                                                    <td><span class="product-category">
-                                                                            <%= p.category %>
-                                                                        </span></td>
-                                                                    <td>
-                                                                        <%= p.sales %>
-                                                                    </td>
-                                                                    <td class="revenue-cell">₹<%= p.revenue %>
-                                                                    </td>
-                                                                </tr>
-                                                                <% }) %>
-                                                                    <% } %>
+                                                <% } %>
                                     </tbody>
                                 </table>
                             </div>
@@ -309,28 +227,8 @@
                                             </div>
                                         </div>
                                         <% }) %>
-                                            <% } else { %>
-                                                <!-- Static fallback -->
-                                                <% const fallbackCats=[ { name: 'Samsung' , percent: 45 }, {
-                                                    name: 'Xiaomi' , percent: 28 }, { name: 'Apple' , percent: 15 }, {
-                                                    name: 'Sports' , percent: 8 }, { name: 'Others' , percent: 4 }, ] %>
-                                                    <% fallbackCats.forEach(cat=> { %>
-                                                        <div class="category-item">
-                                                            <div class="d-flex justify-content-between mb-1">
-                                                                <span class="cat-name">
-                                                                    <%= cat.name %>
-                                                                </span>
-                                                                <span class="cat-percent">
-                                                                    <%= cat.percent %>%
-                                                                </span>
-                                                            </div>
-                                                            <div class="progress-bar-wrap">
-                                                                <div class="progress-bar-fill"
-                                                                    style="width: '<%= cat.percent %>%'"></div>
-                                                            </div>
-                                                        </div>
-                                                        <% }) %>
-                                                            <% } %>
+                                        <%}%>
+                                           
                             </div>
 
                             <a href="/admin/categories" class="btn-view-categories">View Categories</a>

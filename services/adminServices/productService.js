@@ -100,8 +100,12 @@ const createProduct = async (data, files) => {
         .filter(f => f.fieldname === 'variantImages' || f.fieldname === 'variantImages[]' || f.fieldname.startsWith('variantImages'))
         .map(f => f.path);
 
-    if (variantImages.length !== 3) {
-        throw new Error("Exactly 3 product images are required for the default variant");
+    if (variantImages.length < 3) {
+        throw new Error("At least 3 product images are required for the default variant");
+    }
+
+    if (variantImages.length > 5) {
+        throw new Error("A maximum of 5 images are allowed per variant");
     }
 
     const newProduct = await Product.create({
@@ -213,8 +217,11 @@ const updateProduct = async (id, body, files) => {
             .map(f => f.path);
 
         if (newImages.length > 0) {
-            if (newImages.length !== 3) {
-                throw new Error("Exactly 3 product images are required. Please upload all 3 images if you are making changes.");
+            if (newImages.length < 3) {
+                throw new Error("At least 3 product images are required when uploading images.");
+            }
+            if (newImages.length > 5) {
+                throw new Error("A maximum of 5 images are allowed. Please ensure you upload between 3 and 5 images.");
             }
             updates.images = newImages;
         }

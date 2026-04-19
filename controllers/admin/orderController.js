@@ -7,7 +7,7 @@ import WalletTransactions from "../../models/walletTransactions.js";
 const getOrders = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 6;
+        const limit = 3;
         const skip = (page - 1) * limit;
         const search = req.query.search || "";
 
@@ -89,6 +89,7 @@ const getOrders = async (req, res) => {
             page,
             totalPages,
             totalOrdersCount,
+            limit,
             search,
             stats,
             returnRequests,

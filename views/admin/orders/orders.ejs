@@ -800,7 +800,7 @@
                                     <% returnRequests.forEach(req=> {
                                         const isR = req.orderStatus === 'Return Requested';
                                         const isC = req.orderStatus === 'Cancellation Requested';
-                                        const itemReqs = req.items.filter(i => ['Return Requested', 'Cancellationn Requested'].includes(i.status));
+                                        const itemReqs = req.items.filter(i => ['Return Requested', 'Cancellation Requested'].includes(i.status));
 
 
                                         let displayType = 'Request';
@@ -835,7 +835,7 @@
                                                         <a href="/admin/orders/details?id=<%= req._id %>"
                                                             class="btn btn-sm btn-dark w-100 py-1"
                                                             style="font-size: 10px; font-weight: 800;">
-                                                            REVIEW & ACTION
+                                                           View
                                                         </a>
                                                     </div>
                                         </div>
@@ -859,31 +859,26 @@
                         <span class="stat-card-title">Total Revenue</span>
                         <div class="stat-card-val">₹<%= stats.totalRevenue %>
                         </div>
-                        <div class="stat-card-growth pos">+20.1%↑</div>
-                        <div class="stat-card-icon"><i class="bi bi-cash-stack"></i></div>
                     </div>
                     <div class="stat-card">
                         <span class="stat-card-title">Total Orders</span>
                         <div class="stat-card-val">+<%= stats.totalOrders %>
                         </div>
-                        <div class="stat-card-growth pos">+180.1%↑</div>
-                        <div class="stat-card-icon"><i class="bi bi-bicycle"></i></div>
+                       
+                       
                     </div>
                     <div class="stat-card">
                         <span class="stat-card-title">Pending Fulfillment</span>
                         <div class="stat-card-val">
                             <%= stats.pendingOrders %>
                         </div>
-                        <div class="stat-card-growth neu" style="color:#000000">Watch out!</div>
-                        <div class="stat-card-icon"><i class="bi bi-clock-history"></i></div>
+                        
                     </div>
                     <div class="stat-card">
                         <span class="stat-card-title">Return/Cancel Rate</span>
                         <div class="stat-card-val">
                             <%= stats.returns %>
-                        </div>
-                        <div class="stat-card-growth neg" style="color:#ef4444">+2 today</div>
-                        <div class="stat-card-icon"><i class="bi bi-shield-exclamation"></i></div>
+                    </div>
                     </div>
                 </div>
 
@@ -923,7 +918,7 @@
                                         <tr>
 
                                             <td>
-                                                <%= (page-1)*6 + (ind + 1) %>
+                                                <%= (page - 1) * limit + (ind + 1) %>
                                             </td>
                                             <td style="font-weight: 800; color:#111;">#<%= order.orderId %>
                                             </td>
@@ -939,8 +934,7 @@
                                                             <% } %>
                                                                 <div class="user-meta">
                                                                     <span class="name">
-                                                                        <%= order.userId ? order.userId.Name.split(' ')[0] : ' Guest'
-                                                                            %>
+                                                                        <%= order.userId ? order.userId.Name.split(' ')[0] : ' Guest' %>
                                                                     </span>
                                                                     <span class="email">
                                                                         <%= order.userId ? order.userId.Email : '—' %>
@@ -956,15 +950,16 @@
                                                 <%= order.paymentMethod %>
                                             </td>
                                             <td>
-                                                <% const sRaw=order.orderStatus.toLowerCase(); let tCol='#ffc107' ;
+                                                <% const sRaw=order.orderStatus.toLowerCase();
+                                                 let tCol='#ffc107' ;
                                                     if(sRaw.includes('Pending')) { tCol='#fd7e14' ; } 
                                                     else if(sRaw.includes('Processing')) { tCol='#ffc107' ; } 
                                                     else if(sRaw.includes('Shipped')) { tCol='#0ea5e9' ; } 
-                                                    else if(sRaw.includes('Delivered')) { tCol='#22c55e' ; } 
-                                                    else if(sRaw.includes('Cancelled')) { tCol='##FF0000' ; } 
+                                                    else if(sRaw.includes('Delivered')) { tCol='#22c55e' ; }
+                                                     else if(sRaw.includes('Cancelled')) { tCol='#ef4444' ; } 
                                                     else if(sRaw.includes('Returned')) { tCol='#f59e0b' ; } %>
                                                     <span class="status-tag"
-                                                        style="background: <%= tCol %>1a; color: <%= tCol %>; border-color: <%= tCol %>33; border: 1px solid;">
+                                                        style="background-color: <%= tCol %>20; color: <%= tCol %>; border: 1px solid <%= tCol %>40;">
                                                         <%= order.orderStatus %>
                                                     </span>
                                             </td>
@@ -996,26 +991,27 @@
 
                     <div class="table-footer">
                         <div class="showing-info">
-                            Showing <%= totalOrdersCount===0 ? 0 : ((page-1)*4)+1 %>-<%= Math.min(page*4,
-                                    totalOrdersCount) %> of <%= totalOrdersCount %>
+                            Showing <%= totalOrdersCount===0 ? 0 : ((page - 1) * limit) + 1 %>-<%= Math.min(page * limit, totalOrdersCount) %> of <%= totalOrdersCount %>
                         </div>
 
-                        <div class="pag-nav-group">
-                            <a href="/admin/orders?page=<%= page - 1 %>&search=<%= search %>"
-                                class="p-nav-link <%= page === 1 ? 'disabled' : '' %>">
-                                <i class="bi bi-chevron-left"></i> Previous
-                            </a>
-                            <% for(let i=Math.max(1, page-2); i <=Math.min(totalPages, page+2); i++) { %>
-                                <a href="/admin/orders?page=<%= i %>&search=<%= search %>"
-                                    class="p-num <%= page === i ? 'active' : '' %>">
-                                    <%= i %>
+                        <% if (totalPages> 1) { %>
+                            <div class="pag-nav-group">
+                                <a href="/admin/orders?page=<%= page - 1 %>&search=<%= search %>"
+                                    class="p-nav-link <%= page === 1 ? 'disabled' : '' %>">
+                                    <i class="bi bi-chevron-left"></i> Previous
                                 </a>
-                                <% } %>
-                                    <a href="/admin/orders?page=<%= page + 1 %>&search=<%= search %>"
-                                        class="p-nav-link <%= page >= totalPages ? 'disabled' : '' %>">
-                                        Next <i class="bi bi-chevron-right"></i>
+                                <% for(let i=Math.max(1, page-2); i <=Math.min(totalPages, page+2); i++) { %>
+                                    <a href="/admin/orders?page=<%= i %>&search=<%= search %>"
+                                        class="p-num <%= page === i ? 'active' : '' %>">
+                                        <%= i %>
                                     </a>
-                        </div>
+                                    <% } %>
+                                        <a href="/admin/orders?page=<%= page + 1 %>&search=<%= search %>"
+                                            class="p-nav-link <%= page >= totalPages ? 'disabled' : '' %>">
+                                            Next <i class="bi bi-chevron-right"></i>
+                                        </a>
+                            </div>
+                            <% } %>
                     </div>
                 </div><!-- end main-content -->
         </main><!-- end admin-main -->

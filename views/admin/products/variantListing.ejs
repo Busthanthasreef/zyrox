@@ -11,6 +11,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
@@ -583,10 +584,12 @@
             display: flex;
             gap: 0.75rem;
             margin-bottom: 0.4rem;
+            flex-wrap: wrap;
         }
 
         .img-upload-slot {
-            flex: 1;
+            flex: 1 1 calc(20% - 0.75rem);
+            min-width: 80px;
             aspect-ratio: 1/1;
             max-height: 110px;
             border: 2px dashed #d1d5db;
@@ -1265,9 +1268,8 @@
                     <span class="modal-title">Add Variant</span>
                     <button class="modal-close" onclick="closeModal('addModal')"><i class="bi bi-x-lg"></i></button>
                 </div>
-                <form id="addVariantForm"
-                    action="/admin/products/<%= typeof product !== 'undefined' ? product._id : '' %>/variants-add"
-                    method="POST" enctype="multipart/form-data" onsubmit="return validateVariantForm(this, 'add')">
+                <form id="addVariantForm" action="/admin/products/<%= product._id %>/variants-add" method="POST"
+                    enctype="multipart/form-data" onsubmit="return validateVariantForm(this, 'add')">
 
                     <input type="file" class="file-input-hidden" id="addFile0" name="images" accept="image/*"
                         onchange="handleImageSelect(this,'addSlot0')" hidden>
@@ -1275,6 +1277,10 @@
                         onchange="handleImageSelect(this,'addSlot1')" hidden>
                     <input type="file" class="file-input-hidden" id="addFile2" name="images" accept="image/*"
                         onchange="handleImageSelect(this,'addSlot2')" hidden>
+                    <input type="file" class="file-input-hidden" id="addFile3" name="images" accept="image/*"
+                        onchange="handleImageSelect(this,'addSlot3')" hidden>
+                    <input type="file" class="file-input-hidden" id="addFile4" name="images" accept="image/*"
+                        onchange="handleImageSelect(this,'addSlot4')" hidden>
 
                     <!-- Image Upload Slots -->
                     <div class="img-upload-row">
@@ -1299,10 +1305,24 @@
                             <button type="button" class="remove-img" onclick="removeImg('addSlot2','addFile2',event)"><i
                                     class="bi bi-x"></i></button>
                         </div>
+                        <div class="img-upload-slot" id="addSlot3" onclick="triggerFileInput('addFile3',event)">
+                            <i class="bi bi-camera upload-icon"></i>
+                            <span class="upload-label">Image 4</span>
+                            <img class="preview-img" src="" alt="">
+                            <button type="button" class="remove-img" onclick="removeImg('addSlot3','addFile3',event)"><i
+                                    class="bi bi-x"></i></button>
+                        </div>
+                        <div class="img-upload-slot" id="addSlot4" onclick="triggerFileInput('addFile4',event)">
+                            <i class="bi bi-camera upload-icon"></i>
+                            <span class="upload-label">Image 5</span>
+                            <img class="preview-img" src="" alt="">
+                            <button type="button" class="remove-img" onclick="removeImg('addSlot4','addFile4',event)"><i
+                                    class="bi bi-x"></i></button>
+                        </div>
                     </div>
                     <!-- Image section error (shown below slots) -->
                     <span class="img-section-error" id="addImgError">
-                        <i class="bi bi-exclamation-circle-fill"></i> At least one product image is required.
+                        <i class="bi bi-exclamation-circle-fill"></i> At least 3 product images are required.
                     </span>
 
                     <div class="form-grid">
@@ -1451,9 +1471,23 @@
                             <button type="button" class="remove-img"
                                 onclick="removeImg('editSlot2','editFile2',event)"><i class="bi bi-x"></i></button>
                         </div>
+                        <div class="img-upload-slot" id="editSlot3" onclick="triggerFileInput('editFile3',event)">
+                            <i class="bi bi-camera upload-icon"></i>
+                            <span class="upload-label">Image 4</span>
+                            <img class="preview-img" src="" alt="">
+                            <button type="button" class="remove-img"
+                                onclick="removeImg('editSlot3','editFile3',event)"><i class="bi bi-x"></i></button>
+                        </div>
+                        <div class="img-upload-slot" id="editSlot4" onclick="triggerFileInput('editFile4',event)">
+                            <i class="bi bi-camera upload-icon"></i>
+                            <span class="upload-label">Image 5</span>
+                            <img class="preview-img" src="" alt="">
+                            <button type="button" class="remove-img"
+                                onclick="removeImg('editSlot4','editFile4',event)"><i class="bi bi-x"></i></button>
+                        </div>
                     </div>
                     <span class="img-section-error" id="editImgError">
-                        <i class="bi bi-exclamation-circle-fill"></i> At least one product image is required.
+                        <i class="bi bi-exclamation-circle-fill"></i> At least 3 product images are required.
                     </span>
 
                     <input type="file" class="file-input-hidden" id="editFile0" name="images" accept="image/*"
@@ -1462,6 +1496,10 @@
                         onchange="handleImageSelect(this,'editSlot1')" hidden>
                     <input type="file" class="file-input-hidden" id="editFile2" name="images" accept="image/*"
                         onchange="handleImageSelect(this,'editSlot2')" hidden>
+                    <input type="file" class="file-input-hidden" id="editFile3" name="images" accept="image/*"
+                        onchange="handleImageSelect(this,'editSlot3')" hidden>
+                    <input type="file" class="file-input-hidden" id="editFile4" name="images" accept="image/*"
+                        onchange="handleImageSelect(this,'editSlot4')" hidden>
 
                     <div class="form-grid">
                         <!-- Color -->
@@ -1656,10 +1694,12 @@
                 // Clear all errors and values before opening
                 clearAllErrors('add');
                 document.getElementById('addVariantForm').reset();
-                ['addSlot0', 'addSlot1', 'addSlot2'].forEach(id => {
+                ['addSlot0', 'addSlot1', 'addSlot2', 'addSlot3', 'addSlot4'].forEach(id => {
                     const slot = document.getElementById(id);
-                    slot.classList.remove('has-image', 'img-error');
-                    slot.querySelector('.preview-img').src = '';
+                    if (slot) {
+                        slot.classList.remove('has-image', 'img-error');
+                        slot.querySelector('.preview-img').src = '';
+                    }
                 });
                 document.getElementById('addModal').classList.add('open');
                 document.body.style.overflow = 'hidden';
@@ -1689,8 +1729,9 @@
 
                 document.getElementById('editDefaultToggle').checked = !!variant.isDefault;
 
-                ['editSlot0', 'editSlot1', 'editSlot2'].forEach((slotId, i) => {
+                ['editSlot0', 'editSlot1', 'editSlot2', 'editSlot3', 'editSlot4'].forEach((slotId, i) => {
                     const slot = document.getElementById(slotId);
+                    if (!slot) return;
                     const img = slot.querySelector('.preview-img');
                     slot.classList.remove('img-error');
                     if (variant.images && variant.images[i]) {
@@ -1855,7 +1896,7 @@
                 const imgErr = document.getElementById(`${prefix}ImgError`);
                 if (imgErr) imgErr.classList.remove('visible');
                 // Image slots
-                [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`].forEach(id => {
+                [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`, `${prefix}Slot3`, `${prefix}Slot4`].forEach(id => {
                     const slot = document.getElementById(id);
                     if (slot) slot.classList.remove('img-error');
                 });
@@ -1868,25 +1909,26 @@
             function validateVariantForm(form, prefix) {
                 let valid = true;
 
-                // 1. Exactly three images required
-                const slots = [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`];
-                let missingImages = 0;
+                // 1. At least three images required
+                const slots = [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`, `${prefix}Slot3`, `${prefix}Slot4`];
+                let imageCount = 0;
                 slots.forEach(id => {
                     const slot = document.getElementById(id);
-                    if (!slot?.classList.contains('has-image')) {
-                        slot?.classList.add('img-error');
-                        missingImages++;
-                    } else {
-                        slot?.classList.remove('img-error');
+                    if (slot?.classList.contains('has-image')) {
+                        imageCount++;
                     }
                 });
 
-                if (missingImages > 0) {
+                if (imageCount < 3) {
                     const imgErr = document.getElementById(`${prefix}ImgError`);
                     if (imgErr) {
-                        imgErr.textContent = "Exactly 3 product images are required.";
+                        imgErr.textContent = "At least 3 images are required.";
                         imgErr.classList.add('visible');
                     }
+                    slots.forEach(id => {
+                        const slot = document.getElementById(id);
+                        if (!slot?.classList.contains('has-image')) slot?.classList.add('img-error');
+                    });
                     valid = false;
                 }
 
@@ -2010,7 +2052,7 @@
                     // Also clear the section-level image error
                     const prefix = currentCropSlotId.startsWith('add') ? 'add' : 'edit';
                     document.getElementById(`${prefix}ImgError`)?.classList.remove('visible');
-                    [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`].forEach(id => document.getElementById(id)?.classList.remove('img-error'));
+                    [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`, `${prefix}Slot3`, `${prefix}Slot4`].forEach(id => document.getElementById(id)?.classList.remove('img-error'));
 
                     if (currentCropInput) {
                         const file = new File([blob], 'variant-image.jpg', { type: 'image/jpeg' });

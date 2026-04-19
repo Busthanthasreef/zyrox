@@ -140,7 +140,7 @@
 
         .img-grid-edit {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 12px;
         }
 
@@ -789,7 +789,7 @@
                                 keep
                                 existing.</p>
                             <div class="img-grid-edit">
-                                <% for(let i=0; i < 3; i++) { %>
+                                <% for(let i=0; i < 5; i++) { %>
                                     <div class="img-box-edit" id="eBox_<%= i %>">
                                         <i class="bi bi-camera upload-icon"></i>
                                         <span class="upload-label">
@@ -880,9 +880,9 @@
 
             <script>
                 /* ── STATE ── */
-                const originalSrcs = ['', '', ''];
-                const croppedBlobs = [null, null, null];
-                const removedSlots = [false, false, false];
+                const originalSrcs = ['', '', '', '', ''];
+                const croppedBlobs = [null, null, null, null, null];
+                const removedSlots = [false, false, false, false, false];
 
                 let cropperInst = null;
                 let activeCropSlot = -1;
@@ -957,7 +957,7 @@
     /* ── INITIALIZE EXISTING IMAGES ── */
     <% if (defaultVariant && defaultVariant.images) { %>
         <% defaultVariant.images.forEach((img, idx) => {
-                    if (idx < 3) { %>
+                    if (idx < 5) { %>
                         (function () {
                             const src = '<%= img %>';
                             const box = document.getElementById('eBox_<%= idx %>');
@@ -1047,23 +1047,27 @@
                 document.getElementById('editProductForm').addEventListener('submit', async function (e) {
                     e.preventDefault();
 
-                    // Image validation: Check if ALL 3 slots have images
-                    let missingImages = 0;
-                    for (let i = 0; i < 3; i++) {
+                    // Image validation: Check if AT LEAST 3 slots have images
+                    let imageCount = 0;
+                    for (let i = 0; i < 5; i++) {
                         const box = document.getElementById(`eBox_${i}`);
-                        if (!box || !box.classList.contains('has-image')) {
-                            box.classList.add('img-error');
-                            missingImages++;
-                        } else {
+                        if (box && box.classList.contains('has-image')) {
+                            imageCount++;
                             box.classList.remove('img-error');
+                        } else if (box) {
+                            // Temporarily not marking as error until final count check
                         }
                     }
 
-                    if (missingImages > 0) {
+                    if (imageCount < 3) {
+                        for (let i = 0; i < 5; i++) {
+                            const box = document.getElementById(`eBox_${i}`);
+                            if (box && !box.classList.contains('has-image')) box.classList.add('img-error');
+                        }
                         Swal.fire({
                             icon: 'error',
                             title: 'Images Required',
-                            text: 'Exactly 3 product images are required. Please upload images for the highlighted slots.'
+                            text: 'At least 3 product images are required. Please upload more images.'
                         });
                         return;
                     }
@@ -1078,7 +1082,7 @@
                     fd.delete('newImages[]');
 
                     // Re-add either the cropped blob or the uncropped file
-                    for (let i = 0; i < 3; i++) {
+                    for (let i = 0; i < 5; i++) {
                         const fileInput = document.getElementById(`eFile_${i}`);
                         if (croppedBlobs[i]) {
                             fd.append('newImages[]', croppedBlobs[i], `crop_${i}.jpg`);

@@ -37,9 +37,9 @@ export const getCategoriesService = async (page, search, statusFilter) => {
 
     {
       $lookup: {
-        from: "Product", // collection name in MongoDB
+        from: "products", // standard Mongoose pluralization
         localField: "_id",
-        foreignField: "categoryId", // ⚠️ must match your product schema
+        foreignField: "categoryId",
         as: "products"
       }
     },
@@ -53,9 +53,7 @@ export const getCategoriesService = async (page, search, statusFilter) => {
               as: "prod",
               cond: {
                 $and: [
-                  { $eq: ["$$prod.IsDeleted", false] },   // ignore deleted
-                  { $eq: ["$$prod.isBlocked", false] },  // ignore blocked
-                  { $eq: ["$$prod.isListed", true] }     // ignore unlisted
+                  { $eq: ["$$prod.IsDeleted", false] }   // only count non-deleted products
                 ]
               }
             }

@@ -1874,7 +1874,7 @@
                                         }
                                     })
                                     .catch(() => {
-                                        window.location.href = '/payment-failed?reason=Network+error+during+verification&isBuyNow=<%= isBuyNow %>';
+                                        window.location.href = '/payment-failed?reason=error+during+verification&isBuyNow=<%= isBuyNow %>';
                                     });
                             },
                             prefill: { name: prefillName },

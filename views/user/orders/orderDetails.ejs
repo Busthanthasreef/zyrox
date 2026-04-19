@@ -542,8 +542,9 @@
         <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
             <thead>
                 <tr style="border-top: 2px solid #444; border-bottom: 2px solid #444;">
-                    <th style="padding: 10px; font-size: 10px; text-align: left;">DESCRIPTION</th>
+                    <th style="padding: 10px; font-size: 10px; text-align: left;">PRODUCTS</th>
                     <th style="padding: 10px; font-size: 10px; text-align: center;">QTY</th>
+                    <th style="padding: 10px; font-size: 10px; text-align: center;">ORDER STATUS</th>
                     <th style="padding: 10px; font-size: 10px; text-align: right;">TAXABLE VALUE</th>
                     <th style="padding: 10px; font-size: 10px; text-align: right;">IGST (18%)</th>
                     <th style="padding: 10px; font-size: 10px; text-align: right;">TOTAL</th>
@@ -565,6 +566,9 @@
                         </td>
                         <td style="padding: 15px 10px; font-size: 11px; text-align: center;">
                             <%= item.quantity %>
+                        </td>
+                        <td style="padding: 15px 10px; font-size: 11px; text-align: center;">
+                            <%= item.orderStatus %>
                         </td>
                         <td style="padding: 15px 10px; font-size: 11px; text-align: right;">₹<%= taxable.toFixed(2) %>
                         </td>

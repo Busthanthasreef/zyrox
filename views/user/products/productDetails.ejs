@@ -424,32 +424,21 @@
         }
 
         /* Stock Badge */
+        .stock-row {
+            margin-top: -8px;
+            /* Pull closer to price */
+            display: flex;
+            align-items: center;
+        }
+
         .stock-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: .73rem;
+            font-size: .75rem;
             font-weight: 600;
-            padding: 5px 13px;
+            padding: 5px 12px;
             border-radius: 20px;
-        }
-
-        .badge-in-stock {
-            background: var(--green-lt);
-            color: var(--green);
-            border: 1px solid rgba(0, 212, 160, .2);
-        }
-
-        .badge-low-stock {
-            background: var(--amber-lt);
-            color: var(--amber);
-            border: 1px solid rgba(245, 158, 11, .25);
-        }
-
-        .badge-out-stock {
-            background: var(--red-lt);
-            color: var(--red);
-            border: 1px solid rgba(230, 57, 70, .2);
         }
 
 
@@ -457,23 +446,23 @@
         .pd-divider {
             border: none;
             border-top: 1px solid var(--border);
-            margin: 0;
+            margin: 8px 0;
         }
 
         /* ── Variant Selector ──────────────────────────────────── */
         .variant-block {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 24px;
         }
 
         .variant-section-title {
-            font-size: .65rem;
+            font-size: .7rem;
             font-weight: 700;
-            letter-spacing: 1.5px;
-            color: var(--accentt);
+            letter-spacing: 1.2px;
+            color: var(--muted);
             text-transform: uppercase;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .variant-row {
@@ -594,6 +583,31 @@
             background: var(--amber-lt);
             border: 1px solid rgba(245, 158, 11, .25);
             color: var(--amber);
+        }
+
+        /* ── Action Sections ────────────────────────────────────── */
+        .pd-price-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .offer-row {
+            display: flex;
+            align-items: center;
+        }
+
+        .pd-purchase-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .qty-selection-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
         }
 
         /* ── Quantity ──────────────────────────────────────────── */
@@ -725,6 +739,37 @@
 
         .btn-buy:active:not(:disabled) {
             transform: translateY(0) scale(.98);
+        }
+
+        .btn-wishlist {
+            width: 100%;
+            height: 52px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border-hi);
+            background: var(--bg-card);
+            color: var(--text-dim);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+        }
+
+        .btn-wishlist:hover {
+            background: var(--bg-raised);
+            border-color: var(--border-hi);
+        }
+
+        .btn-wishlist.active i {
+            color: var(--red);
+        }
+
+        .btn-wishlist.active span {
+            color: var(--red);
+            opacity: 0.9;
         }
 
         /* ── Trust Badges ──────────────────────────────────────── */
@@ -1011,12 +1056,12 @@
                 </section>
 
                 <!-- ═══════════════════════
-         RIGHT — INFO
-    ═══════════════════════ -->
+                         RIGHT — INFO
+                    ═══════════════════════ -->
                 <section class="pd-info">
 
-                    <!-- Header -->
-                    <div>
+                    <!-- 1. Header Group -->
+                    <div class="pd-header-group">
                         <div class="pd-brand">
                             <%= variant.productId.categoryId ? (variant.productId.categoryId.categoryName || 'Zyrox' )
                                 : 'Zyrox' %>
@@ -1026,147 +1071,114 @@
                         </h1>
                     </div>
 
-                    <!-- Rating -->
-                    <!-- <div class="block-rating">
-                        <% const rate=Number(variant.productId.rating) || 4.5; const fullStars=Math.floor(rate); const
-                            halfStar=(rate % 1 !==0); %>
-                            <div class="stars" aria-label="Rated <%= rate %> out of 5">
-                                <% for (let s=1; s <=5; s++) { %>
-                                    <% if (s <=fullStars) { %>
-                                        <i class="fas fa-star"></i>
-                                        <% } else if (s===fullStars + 1 && halfStar) { %>
-                                            <i class="fas fa-star-half-alt"></i>
-                                            <% } else { %>
-                                                <i class="far fa-star"></i>
-                                                <% } %>
-                                                    <% } %>
-                            </div>
-                            <span class="rating-text">
-                                <%= rate %> / 5 &nbsp;·&nbsp; <%= parseInt(variant.productId.reviewsCount) || 128 %>
-                                        reviews
-                            </span>
-                    </div> -->
-
                     <hr class="pd-divider">
 
-                    <!-- Price + Stock -->
-                    <div>
-                        <div class="pd-price" id="priceBlock">
-                            <span class="price-main" id="priceMain">
-                                ₹<%= variant.price ? Number(variant.price).toLocaleString('en-IN') : '—' %>
-                            </span>
-                            <% if (variant.oldPrice && variant.oldPrice> variant.price) { %>
-                                <span class="price-old" id="priceOld">₹<%=
-                                        Number(variant.oldPrice).toLocaleString('en-IN') %></span>
-                                <% const savings=Math.round(((variant.oldPrice - variant.price) / variant.oldPrice) *
-                                    100); %>
-                                    <span class="price-save" id="priceSave">
-                                        <%= savings %>% OFF
-                                    </span>
-                                    <% } else { %>
-                                        <span class="price-old" id="priceOld" style="display:none"></span>
-                                        <span class="price-save" id="priceSave" style="display:none"></span>
-                                        <% } %>
-                        </div>
+                    <!-- 2. Price & Stock Group -->
+                    <div class="pd-price-stack">
+                        <% if (variant.bestOffer) { %>
+                            <div class="offer-row">
+                                <div class="offer-amount-badge">
+                                    <i class="fas fa-tag"></i> SAVE ₹<%= (variant.price -
+                                        variant.discountedPrice).toLocaleString('en-IN') %>
+                                </div>
+                            </div>
+                            <% } %>
 
-                        <div style="margin-top: 10px;" id="stockBlock">
-                            <% if (variant.stock> 10) { %>
-                                <span class="stock-badge badge-in-stock">
-                                    <i class="fas fa-check-circle"></i> In Stock
-                                </span>
-                                <% } else if (variant.stock>5) { %>
-                                    <span class="stock-badge badge-low-stock">
-                                        <i class="fas fa-exclamation-triangle"></i> low of stock
-
+                                <div class="pd-price" id="priceBlock">
+                                    <span class="price-main" id="priceMain">
+                                        ₹<%= variant.discountedPrice ?
+                                            Number(variant.discountedPrice).toLocaleString('en-IN') : '—' %>
                                     </span>
-                                    <% } else if (variant.stock>0) { %>
-                                        <span class="stock-badge badge-low-stock">
-                                            <i class="fas fa-exclamation-triangle"></i> Only <%= parseInt(variant.stock)
-                                                %>
-                                                left
+                                    <% if (variant.bestOffer && variant.price> variant.discountedPrice) { %>
+                                        <span class="price-old" id="priceOld">
+                                            ₹<%= Number(variant.price).toLocaleString('en-IN') %>
                                         </span>
-                                        <% } else { %>
-                                            <span class="stock-badge badge-out-stock">
-                                                <i class="fas fa-times-circle"></i> Out of Stock
+                                        <% const savings=Math.round(((variant.price - variant.discountedPrice) /
+                                            variant.price) * 100); %>
+                                            <span class="price-save" id="priceSave">
+                                                <%= savings %>% OFF
                                             </span>
                                             <% } %>
-                        </div>
+                                </div>
+
+                                <div class="stock-row" id="stockBlock">
+                                    <% if (variant.stock> 10) { %>
+                                        <span class="stock-badge badge-in-stock">
+                                            <i class="fas fa-check-circle"></i> In Stock
+                                        </span>
+                                        <% } else if (variant.stock> 0) { %>
+                                            <span class="stock-badge badge-low-stock">
+                                                <i class="fas fa-exclamation-triangle"></i> Only <%=
+                                                    parseInt(variant.stock) %> left
+                                            </span>
+                                            <% } else { %>
+                                                <span class="stock-badge badge-out-stock">
+                                                    <i class="fas fa-times-circle"></i> Out of Stock
+                                                </span>
+                                                <% } %>
+                                </div>
                     </div>
 
                     <hr class="pd-divider">
 
-                    <!-- ═══ VARIANT SELECTOR ═══ -->
+                    <!-- 3. Variant Selectors -->
                     <% if (allVariants && allVariants.length> 0) { %>
                         <div class="variant-block" id="variantBlock">
-
-                            <!-- RAM -->
                             <div id="ramSection">
-                                <div class="variant-section-title">RAM</div>
+                                <div class="variant-section-title">RAM (GB)</div>
                                 <div class="variant-row" id="ramRow"></div>
                             </div>
-
-                            <!-- Storage -->
                             <div id="storageSection">
-                                <div class="variant-section-title">Storage</div>
+                                <div class="variant-section-title">Storage (GB)</div>
                                 <div class="variant-row" id="storageRow"></div>
                             </div>
-
-                            <!-- Color -->
                             <div id="colorSection">
                                 <div class="variant-section-title">Color</div>
                                 <div class="variant-row" id="colorRow"></div>
                             </div>
-
-                            <!-- Status Messages -->
                             <div class="variant-msg" id="variantMsg">
                                 <i class="fas fa-exclamation-circle" style="flex-shrink:0"></i>
                                 <span id="variantMsgText"></span>
                             </div>
-
                         </div>
                         <% } %>
 
-                            <!-- ═══ QUANTITY ═══ -->
-                            <div class="qty-row" id="qtyBlock" <%- variant.stock < 1 ? 'style="display:none"' : '' %>>
-                                <span class="qty-label">Qty</span>
-                                <div class="qty-ctrl">
-                                    <button class="qty-btn" id="qtyMinus" onclick="changeQty(-1)" aria-label="Decrease">
-                                        <i class="fas fa-minus"></i>
+                            <!-- 4. Purchase Actions -->
+                            <div class="pd-purchase-section">
+                                <div class="qty-selection-row" id="qtyBlock" <%- variant.stock < 1
+                                    ? 'style="display:none"' : '' %>>
+                                    <span class="qty-label">Quantity</span>
+                                    <div class="qty-ctrl">
+                                        <button class="qty-btn" id="qtyMinus" onclick="changeQty(-1)"
+                                            aria-label="Decrease"><i class="fas fa-minus"></i></button>
+                                        <input type="text" class="qty-val" id="qtyVal" value="1" readonly>
+                                        <button class="qty-btn" id="qtyPlus" onclick="changeQty(1)"
+                                            aria-label="Increase"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+
+                                <div class="action-row">
+                                    <button type="button" class="btn-cart" id="btnAddToCart" <%- variant.stock===0
+                                        ? 'disabled' : '' %>
+                                        data-pid="<%= variant.productId._id %>" data-vid="<%= variant._id %>"
+                                                onclick="addToCart()">
+                                                <i class="fas fa-cart-plus"></i> Add to Cart
                                     </button>
-                                    <input type="text" class="qty-val" id="qtyVal" value="1" readonly
-                                        aria-label="Quantity">
-                                    <button class="qty-btn" id="qtyPlus" onclick="changeQty(1)" aria-label="Increase">
-                                        <i class="fas fa-plus"></i>
+                                    <button type="button" class="btn-buy" id="btnBuyNow" onclick="buyNow()" <%-
+                                        variant.stock <=0 ? 'disabled' : '' %>
+                                        data-pid="<%= variant.productId._id %>" data-vid="<%= variant._id %>">
+                                                <i class="fas fa-bolt"></i> Buy Now
                                     </button>
                                 </div>
-                                <br>
 
-                            </div>
-
-                            <!-- ═══ ACTIONS ═══ -->
-                            <div class="action-row">
-                                <button type="button" class="btn-cart" id="btnAddToCart" <%- variant.stock===0
-                                    ? 'disabled' : '' %>
-                                    data-pid="<%= variant.productId._id %>"
-                                        data-vid="<%= variant._id %>"
-                                            onclick="addToCart()">
-                                            <i class="fas fa-cart-plus"></i> Add to Cart
-                                </button>
-                                <button type="button" class="btn-buy" id="btnBuyNow" onclick="buyNow()" <%- variant.stock <=0 ? 'disabled' : '' %> data-pid="<%= variant.productId._id %>" data-vid="<%= variant._id %>">
-                                            <i class="fas fa-bolt"></i> Buy Now
+                                <button class="btn-wishlist <%= isInWishlist ? 'active' : '' %>" id="btnWishlist"
+                                    onclick="toggleWishlistDetail('<%= variant.productId._id %>')">
+                                    <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"></i>
+                                    <span id="wishlistText">
+                                        <%= isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %>
+                                    </span>
                                 </button>
                             </div>
-
-                            <button class="btn-wishlist <%= isInWishlist ? 'active' : '' %>" id="btnWishlist"
-                                onclick="toggleWishlistDetail('<%= variant.productId._id %>')"
-                                style="width: 100%; height: 52px; margin-top: 10px; border-radius: var(--radius-sm); border: 1.5px solid var(--border-hi); background: var(--bg-card); color: var(--text-dim); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s ease;">
-                                <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"
-                                    style="<%= isInWishlist ? 'color: var(--red);' : '' %>"></i>
-                                <span id="wishlistText"
-                                    style="<%= isInWishlist ? 'color: var(--red); opacity: 0.9;' : '' %>">
-                                    <%= isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %>
-                                </span>
-                            </button>
 
                             <!-- Trust Badges -->
                             <div class="trust-row">
@@ -1245,7 +1257,8 @@
 
             <!-- Related Products -->
             <div class="pd-section" style="margin-bottom: 64px;">
-                <h4 style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.2rem;margin-bottom:4px;">You May
+                <h4 style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.2rem;margin-bottom:4px;">
+                    You May
                     Also Like</h4>
                 <span class="section-title">Related Products</span>
 
@@ -1264,7 +1277,8 @@
                                     </div>
                                     <div style="display:flex;align-items:baseline;gap:4px;">
                                         <span class="related-price">₹<%=
-                                                Number(product.displayVariant.price).toLocaleString('en-IN') %></span>
+                                                Number(product.displayVariant.price).toLocaleString('en-IN') %>
+                                        </span>
                                         <% if (product.displayVariant.oldPrice) { %>
                                             <span class="related-old">₹<%=
                                                     Number(product.displayVariant.oldPrice).toLocaleString('en-IN') %>
