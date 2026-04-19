@@ -168,7 +168,7 @@ const editProfile = async (req, res) => {
 
     // Handle profile image update
     if (removeImage === "true") {
-      user.Profile_image = "";
+      user.Profile_image = "/images/default-avatar.png";
     } else if (req.file) {
       user.Profile_image = req.file.path;
     } else if (req.body.pendingImage) {

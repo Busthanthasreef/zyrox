@@ -12,8 +12,8 @@ import Razorpay from "razorpay";
 import crypto from "crypto";
 import { calculateBestOffer, applyOffer } from "../../utils/offerHelper.js";
 
-const SHIPPING_THRESHOLD = 500;
-const SHIPPING_FEE = 50;
+const SHIPPING_THRESHOLD = 50;
+const SHIPPING_FEE = 30;
 
 /* ── HELPER: CALCULATE ORDER SUMMARY ── */
 async function calculateOrderSummary(userId, buyNowItem, appliedCouponCode = null) {

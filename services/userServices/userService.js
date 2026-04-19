@@ -10,6 +10,7 @@ const userSignUpService = async (bodyData) => {
     const email = bodyData.email || bodyData.Email;
     const phone = bodyData.phone || bodyData.Phone;
     const password = bodyData.password || bodyData.Password;
+    const referralCode = bodyData.referralCode ? bodyData.referralCode.trim().toUpperCase() : '';
 
     const trimmedName = name ? name.trim() : "";
     const trimmedEmail = email ? email.trim().toLowerCase() : "";
@@ -25,25 +26,25 @@ const userSignUpService = async (bodyData) => {
 
     if (!trimmedName) {
         error = { Name: "Full name is required" };
-        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone };
+        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
         return { error, data };
     }
 
     if (!emailRegex.test(trimmedEmail)) {
         error = { Email: "Invalid email" };
-        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone };
+        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
         return { error, data };
     }
 
     if (!indianPhone.test(trimmedPhone)) {
         error = { Phone: "Enter a valid 10-digit Indian phone number" };
-        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone };
+        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
         return { error, data };
     }
 
     if (trimmedPassword !== confirmPassword) {
         error = { Password: "Passwords do not match" };
-        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone };
+        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
         return { error, data };
     }
 
@@ -51,7 +52,7 @@ const userSignUpService = async (bodyData) => {
 
     if (existingUser) {
         error = { Email: "User with this email already exists" };
-        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone };
+        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
         return { error, data };
     }
 
@@ -75,6 +76,7 @@ const userSignUpService = async (bodyData) => {
             Email: trimmedEmail,
             Phone: trimmedPhone,
             Password: hashedPassword,
+            referralCode,   // carry along for OTP verification step
         }
     };
 };

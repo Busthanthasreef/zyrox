@@ -57,7 +57,42 @@ const getSalesData = async (startDate, endDate, page = 1, limit = 10) => {
         }
     ]);
 
+    const productsSoldAggr = await Order.aggregate([
+        { $match: query },
+        { $unwind: "$items" },
+        { $group: { _id: null, total: { $sum: "$items.quantity" } } }
+    ]);
+
     const totals = totalsData[0] || { totalSales: 0, totalDiscount: 0, count: 0 };
+    const totalProductsSold = productsSoldAggr[0] ? productsSoldAggr[0].total : 0;
+
+    // 1. Chart Data for selected period (Daily/Monthly)
+    const diffDays = moment(endDate).diff(moment(startDate), 'days');
+    const groupFormat = diffDays > 31 ? "%Y-%m" : "%Y-%m-%d";
+    
+    const chartAggr = await Order.aggregate([
+        { $match: query },
+        { $group: { _id: { $dateToString: { format: groupFormat, date: "$createdAt" } }, total: { $sum: "$finalPrice" } } },
+        { $sort: { _id: 1 } }
+    ]);
+
+    // 2. Yearly Chart Data (Monthly for current year)
+    const startOfYear = moment().startOf('year').toDate();
+    const endOfYear = moment().endOf('year').toDate();
+    const yearlyAggr = await Order.aggregate([
+        { $match: { 
+            orderStatus: { $nin: ["Cancelled", "Returned", "Cancellation Requested", "Return Requested"] },
+            paymentStatus: { $ne: "Failed" },
+            createdAt: { $gte: startOfYear, $lte: endOfYear }
+        } },
+        { $group: { _id: { $month: "$createdAt" }, total: { $sum: "$finalPrice" } } },
+        { $sort: { _id: 1 } }
+    ]);
+
+    const yearlyData = Array(12).fill(0);
+    yearlyAggr.forEach(item => {
+        yearlyData[item._id - 1] = item.total;
+    });
 
     const skip = (page - 1) * limit;
     const orders = await Order.find(query)
@@ -71,8 +106,14 @@ const getSalesData = async (startDate, endDate, page = 1, limit = 10) => {
         totalSalesAmount: totals.totalSales,
         totalDiscounts: totals.totalDiscount,
         totalOrders: totals.count,
+        totalProductsSold,
         currentPage: page,
-        totalPages: Math.ceil(totals.count / limit)
+        totalPages: Math.ceil(totals.count / limit),
+        chartData: {
+            labels: chartAggr.map(c => c._id),
+            values: chartAggr.map(c => c.total)
+        },
+        yearlyChartData: yearlyData
     };
 };
 
@@ -84,7 +125,7 @@ export const getSalesReport = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         
         const { startDate, endDate } = getFilterDates(filterType, customStart, customEnd);
-        const data = await getSalesData(startDate, endDate, page, 10);
+        const data = await getSalesData(startDate, endDate, page, 5);
         
         res.render("admin/salesReport/index", {
             currentUser: req.session.admin,
@@ -152,62 +193,116 @@ export const exportPDF = async (req, res) => {
         const { startDate, endDate } = getFilterDates(filterType, customStart, customEnd);
         const data = await getSalesData(startDate, endDate, 1, 1000000);
         
-        const doc = new PDFDocument({ margin: 30, size: 'A4' });
-        
+        const doc = new PDFDocument({ margin: 40, size: 'A4' });
+        const filename = `Zyrox_Sales_Report_${moment().format('YYYYMMDD')}.pdf`;
+
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename=Zyrox_Sales_Report.pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
         
         doc.pipe(res);
+
+        // --- Branded Header Section ---
+        doc.rect(0, 0, 612, 110).fill('#1e293b'); 
         
-        doc.fontSize(20).text('Zyrox - Sales Report', { align: 'center' });
-        doc.moveDown();
-        doc.fontSize(10).text(`Period: ${moment(startDate).format('YYYY-MM-DD')} to ${moment(endDate).format('YYYY-MM-DD')}`, { align: 'center' });
-        doc.moveDown(2);
+        doc.fillColor('#ffffff')
+           .fontSize(26)
+           .font('Helvetica-Bold')
+           .text('ZYROX', 40, 40);
         
-        doc.fontSize(14).text('Summary', { underline: true });
-        doc.fontSize(12).text(`Total Orders: ${data.totalOrders}`);
-        doc.text(`Total Sales: Rs. ${data.totalSalesAmount.toLocaleString()}`);
-        doc.text(`Total Discount: Rs. ${data.totalDiscounts.toLocaleString()}`);
-        doc.moveDown(2);
+        doc.fontSize(10)
+           .font('Helvetica')
+           .text('ADMINISTRATIVE SALES REPORT', 40, 72);
+           
+        doc.fontSize(9)
+           .text(`Date: ${moment().format('MMMM Do YYYY, h:mm a')}`, 400, 45, { align: 'right', width: 160 });
         
-        const tableTop = 250;
-        let y = tableTop;
+        doc.fontSize(9)
+           .text(`Period: ${moment(startDate).format('DD MMM YYYY')} - ${moment(endDate).format('DD MMM YYYY')}`, 400, 60, { align: 'right', width: 160 });
+
+        // --- KPI Summary Highlight ---
+        const summaryY = 140;
+        const cardWidth = 165;
+        const cardHeight = 65;
         
-        doc.fontSize(10).font('Helvetica-Bold');
-        doc.text('Order ID', 30, y);
-        doc.text('Date', 120, y);
-        doc.text('Customer', 210, y);
-        doc.text('Discount', 340, y);
-        doc.text('Total', 420, y);
-        doc.text('Payment', 480, y);
+        // Orders Summary
+        doc.rect(40, summaryY, cardWidth, cardHeight).fill('#f8fafc');
+        doc.fillColor('#64748b').fontSize(8).font('Helvetica-Bold').text('TOTAL TRANSACTIONS', 50, summaryY + 18);
+        doc.fillColor('#1e293b').fontSize(18).text(data.totalOrders.toString(), 50, summaryY + 35);
         
-        y += 20;
-        doc.moveTo(30, y - 5).lineTo(560, y - 5).stroke();
+        // Revenue Summary
+        doc.rect(215, summaryY, cardWidth, cardHeight).fill('#f8fafc');
+        doc.fillColor('#64748b').fontSize(8).text('GROSS SALES AMOUNT', 225, summaryY + 18);
+        doc.fillColor('#3b82f6').fontSize(18).text(`₹${data.totalSalesAmount.toLocaleString()}`, 225, summaryY + 35);
         
-        doc.font('Helvetica');
-        data.orders.forEach((order, i) => {
-            if (y > 750) {
+        // Discount Summary
+        doc.rect(390, summaryY, cardWidth, cardHeight).fill('#f8fafc');
+        doc.fillColor('#64748b').fontSize(8).text('TOTAL DEDUCTIONS', 400, summaryY + 18);
+        doc.fillColor('#ef4444').fontSize(18).text(`₹${data.totalDiscounts.toLocaleString()}`, 400, summaryY + 35);
+
+        // --- Data Table Header ---
+        const tableTop = 235;
+        doc.rect(40, tableTop, 515, 28).fill('#334155');
+        
+        doc.fillColor('#ffffff').fontSize(8).font('Helvetica-Bold');
+        doc.text('ID', 50, tableTop + 10);
+        doc.text('DATE', 110, tableTop + 10);
+        doc.text('CUSTOMER', 190, tableTop + 10);
+        doc.text('BASE', 320, tableTop + 10);
+        doc.text('DISC', 380, tableTop + 10);
+        doc.text('PAID', 440, tableTop + 10);
+        doc.text('STATUS', 500, tableTop + 10);
+
+        // --- Transaction Rows ---
+        let y = tableTop + 28;
+        doc.fillColor('#334155').font('Helvetica');
+        
+        data.orders.forEach((order, index) => {
+            // Auto Page-Break
+            if (y > 740) {
                 doc.addPage();
                 y = 50;
+                // Repeat Table Header
+                doc.rect(40, y, 515, 25).fill('#334155');
+                doc.fillColor('#ffffff').fontSize(8).font('Helvetica-Bold');
+                doc.text('ID', 50, y + 9);
+                doc.text('DATE', 110, y + 9);
+                doc.text('CUSTOMER', 190, y + 9);
+                doc.text('BASE', 320, y + 9);
+                doc.text('DISC', 380, y + 9);
+                doc.text('PAID', 440, y + 9);
+                doc.text('STATUS', 500, y + 9);
+                y += 25;
             }
-            doc.text(order.orderId.substring(0, 15), 30, y);
-            doc.text(moment(order.createdAt).format('MM-DD-YYYY'), 120, y);
+
+            // Alternate Row Shading
+            if (index % 2 === 1) {
+                doc.rect(40, y, 515, 24).fill('#f1f5f9');
+            }
             
-            const custName = order.userId ? (order.userId.Name || 'User').substring(0, 15) : 'N/A';
-            doc.text(custName, 210, y);
+            doc.fillColor('#334155').fontSize(7.5);
+            doc.text(`${(order.orderId || '').substring(0, 10)}`, 50, y + 8);
+            doc.text(moment(order.createdAt).format('DD/MM/YY'), 110, y + 8);
             
-            const disc = order.discount || 0;
-            doc.text(disc.toString(), 340, y);
-            
-            doc.text(order.finalPrice ? order.finalPrice.toString() : '0', 420, y);
-            doc.text(order.paymentMethod, 480, y);
-            
-            y += 20;
+            const customerName = order.userId ? (order.userId.Name || 'Guest').substring(0, 15) : 'Guest';
+            doc.text(customerName, 190, y + 8);
+            doc.text(`₹${(order.subtotal || 0).toLocaleString()}`, 320, y + 8);
+            doc.text(`₹${((order.discount || 0) + (order.couponDiscount || 0)).toLocaleString()}`, 380, y + 8, { color: '#ef4444' });
+            doc.text(`₹${(order.finalPrice || 0).toLocaleString()}`, 440, y + 8, { font: 'Helvetica-Bold' });
+            doc.text((order.orderStatus || '').toUpperCase(), 500, y + 8);
+            y += 24;
         });
+
+        // --- Page Numbering Footnote ---
+        const totalPages = doc.bufferedPageRange().count;
+        for (let j = 0; j < totalPages; j++) {
+            doc.switchToPage(j);
+            doc.fillColor('#94a3b8').fontSize(7);
+            doc.text(`Zyrox E-Commerce Solutions - Confidential Report - Page ${j + 1} of ${totalPages}`, 0, 805, { align: 'center' });
+        }
         
         doc.end();
     } catch (error) {
-        console.error("Export PDF error", error);
-        res.status(500).send("Failed to export PDF");
+        console.error("Critical Export PDF failure:", error);
+        res.status(500).json({ success: false, message: "Could not generate PDF report" });
     }
 };

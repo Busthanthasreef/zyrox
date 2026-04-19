@@ -950,14 +950,29 @@
                                                 <%= order.paymentMethod %>
                                             </td>
                                             <td>
-                                                <% const sRaw=order.orderStatus.toLowerCase();
-                                                 let tCol='#ffc107' ;
-                                                    if(sRaw.includes('Pending')) { tCol='#fd7e14' ; } 
-                                                    else if(sRaw.includes('Processing')) { tCol='#ffc107' ; } 
-                                                    else if(sRaw.includes('Shipped')) { tCol='#0ea5e9' ; } 
-                                                    else if(sRaw.includes('Delivered')) { tCol='#22c55e' ; }
-                                                     else if(sRaw.includes('Cancelled')) { tCol='#ef4444' ; } 
-                                                    else if(sRaw.includes('Returned')) { tCol='#f59e0b' ; } %>
+                                                <% 
+                                                const sRaw = order.orderStatus.toLowerCase();
+                                                    let tCol = '#ffc107'; 
+                                                                                                
+                                                    if (sRaw.includes('pending')) { 
+                                                        tCol = '#f97316'; 
+                                                    } 
+                                                    else if (sRaw.includes('processing')) { 
+                                                        tCol = '#ffc107';
+                                                    } 
+                                                    else if (sRaw.includes('shipped')) { 
+                                                        tCol = '#0ea5e9'; 
+                                                    } 
+                                                    else if (sRaw.includes('delivered')) { 
+                                                        tCol = '#22c55e'; 
+                                                    }
+                                                    else if (sRaw.includes('cancelled')) { 
+                                                        tCol = '#ef4444'; 
+                                                    } 
+                                                    else if (sRaw.includes('returned')) { 
+                                                        tCol = '#f59e0b'; 
+                                                    } 
+                                                    %>
                                                     <span class="status-tag"
                                                         style="background-color: <%= tCol %>20; color: <%= tCol %>; border: 1px solid <%= tCol %>40;">
                                                         <%= order.orderStatus %>

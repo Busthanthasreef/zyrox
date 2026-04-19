@@ -79,6 +79,7 @@
             flex-shrink: 0;
         }
 
+
         .search-wrapper {
             flex: 1;
             display: flex;
@@ -119,26 +120,41 @@
         }
 
         .offer-table th {
-            background: #f9f9fb;
-            padding: 1.2rem;
+            background: #fafbfd;
+            padding: 10px 16px;
             font-weight: 600;
-            color: #666;
-            font-size: 0.85rem;
-            text-transform: none;
+            color: #9ca3af;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
             border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            white-space: nowrap;
         }
 
         .offer-table td {
-            padding: 1.2rem;
+            padding: 10px 16px;
             vertical-align: middle;
-            border-bottom: 1px solid #f8f8f8;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 13px;
+            color: #4b5563;
+        }
+
+        .offer-table tbody tr:hover {
+            background: #fafbfd;
+        }
+
+        .offer-table tbody tr:last-child td {
+            border-bottom: none;
         }
 
         .badge-pill-custom {
-            padding: 0.4rem 1.2rem;
+            padding: 3px 9px;
             border-radius: 50px;
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: 11px;
             border: 1px solid transparent;
         }
 
@@ -357,28 +373,49 @@
             border-color: var(--primary-black);
         }
 
-        .btn-action {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
+        /* ── ACTION BUTTONS ── */
+        .offer-edit-btn {
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            padding: 4px 10px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            border: 1.5px solid #f1f1f1;
-            background: #fff;
-            color: #666;
-            transition: all 0.2s;
+            gap: 4px;
+            transition: all 0.18s;
+            font-family: 'Inter', sans-serif;
         }
 
-        .btn-action:hover {
-            border-color: var(--primary-black);
-            color: var(--primary-black);
+        .offer-edit-btn:hover {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
         }
 
-        .btn-action.delete:hover {
-            border-color: #ef4444;
-            color: #ef4444;
+        .offer-delete-btn {
             background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            padding: 4px 10px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.18s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .offer-delete-btn:hover {
+            background: #dc2626;
+            color: #fff;
+            border-color: #dc2626;
         }
 
         .empty-state {
@@ -466,10 +503,10 @@
                                 <tr data-type="<%= offer.offerType %>"
                                     data-status="<%= offer.isActive ? 'active' : 'inactive' %>">
                                     <td>
-                                        <div class="fw-600 text-dark">
+                                        <div style="font-weight:600; font-size:13px; color:#111827;">
                                             <%= offer.offerName %>
                                         </div>
-                                        <div class="text-muted small">
+                                        <div style="font-size:11.5px; color:#9ca3af; margin-top:2px;">
                                             <i class="bi bi-tag-fill me-1"></i>
                                             <%= offer.offerType==='product' ? offer.productId?.productName :
                                                 offer.categoryId?.categoryName %>
@@ -518,18 +555,14 @@
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
-                                            <button class="btn-action" onclick="openEditModal('<%= offer._id %>')"
+                                            <button class="offer-edit-btn" onclick="openEditModal('<%= offer._id %>')"
                                                 title="Edit">
-                                                <i class="bi bi-pencil"></i>
+                                                <i class="bi bi-pencil-fill"></i> Edit
                                             </button>
-                                            <button class="btn-action delete" onclick="deleteOffer('<%= offer._id %>')"
+                                            <button class="offer-delete-btn" onclick="deleteOffer('<%= offer._id %>')"
                                                 title="Delete">
-                                                <i class="bi bi-trash"></i>
+                                                <i class="bi bi-trash-fill"></i> Delete
                                             </button>
-                                            <div class="form-switch ms-2">
-                                                <input class="form-check-input" type="checkbox" <%=offer.isActive
-                                                    ? 'checked' : '' %> onclick="toggleStatus('<%= offer._id %>')">
-                                            </div>
                                         </div>
                                     </td>
                                 </tr>

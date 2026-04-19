@@ -132,6 +132,13 @@ const returnOrder = async (req, res) => {
             return res.json({ success: false, message: "Order must be delivered to be returned" });
         }
 
+        // 7-day return window check
+        const deliveredDate = order.deliveredAt || order.updatedAt;
+        const daysSinceDelivery = Math.floor((Date.now() - new Date(deliveredDate).getTime()) / (1000 * 60 * 60 * 24));
+        if (daysSinceDelivery > 7) {
+            return res.json({ success: false, message: "Return window expired. Returns are only accepted within 7 days of delivery." });
+        }
+
         order.orderStatus = 'Return Requested';
         order.returnReason = reason;
 
@@ -164,6 +171,13 @@ const returnItem = async (req, res) => {
 
         if (item.status !== 'Delivered') {
             return res.json({ success: false, message: "Only delivered items can be returned" });
+        }
+
+        // 7-day return window check
+        const deliveredDate = item.deliveredAt || order.deliveredAt || order.updatedAt;
+        const daysSinceDelivery = Math.floor((Date.now() - new Date(deliveredDate).getTime()) / (1000 * 60 * 60 * 24));
+        if (daysSinceDelivery > 7) {
+            return res.json({ success: false, message: "Return window expired. Returns are only accepted within 7 days of delivery." });
         }
 
         item.status = 'Return Requested';

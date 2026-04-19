@@ -1,8 +1,11 @@
+import User from "../../models/user.js";
+import Order from "../../models/order.js";
 import {
   findAdminByEmail,
   verifyPassword,
   getAdminUser
 } from "../../services/adminServices/adminAuthService.js";
+import moment from "moment";
 
 
 const loadLogin = async (req, res) => {
@@ -71,8 +74,6 @@ const login = async (req, res) => {
 };
 
 
-import Order from "../../models/order.js";
-import User from "../../models/user.js";
 
 const dashboard = async (req, res) => {
   try {
@@ -85,7 +86,7 @@ const dashboard = async (req, res) => {
     // 1. Stats
     const totalOrdersCount = await Order.countDocuments({});
     const pendingOrdersCount = await Order.countDocuments({ orderStatus: "Pending" });
-    const activeUsersCount = await User.countDocuments({ IsActive: true });
+    const activeUsersCount = await User.countDocuments({ isAdmin: false, isActive: true });
     
     // Revenue Pipeline
     const aggRevenue = await Order.aggregate([
@@ -108,33 +109,70 @@ const dashboard = async (req, res) => {
       monthlySales: monthlySales
     };
 
-    // 2. Chart Data 
-    const currentYear = new Date().getFullYear();
-    const yearlyOrders = await Order.aggregate([
-      { $match: { orderStatus: "Delivered", createdAt: { $gte: new Date(currentYear, 0, 1) } } },
-      { $group: { _id: { $month: "$createdAt" }, sum: { $sum: "$finalPrice" } } }
-    ]);
-    const chartDataMap = new Array(12).fill(0);
-    yearlyOrders.forEach(o => {
-        chartDataMap[o._id - 1] = o.sum;
-    });
+    // 2. Chart Logic with Filters 
+    const filter = req.query.filter || 'monthly';
+    let chartLabels = [];
+    let chartData = [];
+    let chartTitle = "Revenue Overview";
+
+    if (filter === 'yearly') {
+        const fiveYearsAgo = moment().subtract(4, 'years').startOf('year').toDate();
+        const yearlyOrders = await Order.aggregate([
+            { $match: { orderStatus: "Delivered", createdAt: { $gte: fiveYearsAgo } } },
+            { $group: { _id: { $year: "$createdAt" }, sum: { $sum: "$finalPrice" } } },
+            { $sort: { _id: 1 } }
+        ]);
+        chartTitle = "Yearly Revenue Performance";
+        for (let i = 4; i >= 0; i--) {
+            const yr = moment().subtract(i, 'years').year();
+            chartLabels.push(yr.toString());
+            const found = yearlyOrders.find(o => o._id === yr);
+            chartData.push(found ? found.sum : 0);
+        }
+    } else if (filter === 'weekly') {
+        const last7Days = moment().subtract(6, 'days').startOf('day').toDate();
+        const dailyOrders = await Order.aggregate([
+            { $match: { orderStatus: "Delivered", createdAt: { $gte: last7Days } } },
+            { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, sum: { $sum: "$finalPrice" } } },
+            { $sort: { _id: 1 } }
+        ]);
+        chartTitle = "Last 7 Days Performance";
+        for (let i = 0; i < 7; i++) {
+            const d = moment().subtract(6 - i, 'days').format('YYYY-MM-DD');
+            chartLabels.push(moment(d).format('ddd'));
+            const found = dailyOrders.find(o => o._id === d);
+            chartData.push(found ? found.sum : 0);
+        }
+    } else {
+        // Default Monthly
+        const currentYear = new Date().getFullYear();
+        const monthlyOrders = await Order.aggregate([
+            { $match: { orderStatus: "Delivered", createdAt: { $gte: new Date(currentYear, 0, 1) } } },
+            { $group: { _id: { $month: "$createdAt" }, sum: { $sum: "$finalPrice" } } },
+            { $sort: { _id: 1 } }
+        ]);
+        chartTitle = "Monthly Performance (" + currentYear + ")";
+        chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        chartData = new Array(12).fill(0);
+        monthlyOrders.forEach(o => { if (o._id >= 1 && o._id <= 12) chartData[o._id - 1] = o.sum; });
+    }
 
     // 3. Recent Sales
     const recentOrders = await Order.find({ orderStatus: "Delivered" })
       .sort({ createdAt: -1 })
-      .limit(4)
+      .limit(5)
       .populate('userId');
       
     const recentSales = recentOrders.map(o => {
         return {
             name: o.userId ? (o.userId.Name || o.userId.Email) : "Guest",
-            email: o.userId ? o.userId.Email : "",
+            email: o.userId ? o.userId.Email : "No email",
             amount: o.finalPrice ? o.finalPrice.toLocaleString('en-IN') : "0"
         }
     });
 
-    // 4. Trending Products
-    const trendingAggr = await Order.aggregate([
+    // 4. Best Selling Products (Top 10)
+    const topProductsAggr = await Order.aggregate([
       { $match: { orderStatus: "Delivered" } },
       { $unwind: "$items" },
       { $group: {
@@ -145,16 +183,13 @@ const dashboard = async (req, res) => {
           revenue: { $sum: "$items.total" }
       }},
       { $sort: { sales: -1 } },
-      { $limit: 5 }
+      { $limit: 10 }
     ]);
-    // Populate product category if possible, or just default to "Product"
-    await Order.populate(trendingAggr, { path: '_id', model: 'Product', select: 'categoryId', populate: { path: "categoryId", select: "categoryName" } });
+    await Order.populate(topProductsAggr, { path: '_id', model: 'Product', select: 'categoryId', populate: { path: "categoryId", select: "categoryName" } });
     
-    const trendingProducts = trendingAggr.map(item => {
+    const topProducts = topProductsAggr.map(item => {
         let catName = "General";
-        if(item._id && item._id.categoryId && item._id.categoryId.categoryName){
-           catName = item._id.categoryId.categoryName;
-        }
+        if(item._id && item._id.categoryId && item._id.categoryId.categoryName) catName = item._id.categoryId.categoryName;
         return {
             image: item.image || '/images/placeholder.png',
             name: item.name,
@@ -165,8 +200,8 @@ const dashboard = async (req, res) => {
         }
     });
 
-    // 5. Top Categories
-    const catAggr = await Order.aggregate([
+    // 5. Best Selling Categories (Top 10)
+    const topCategoriesAggr = await Order.aggregate([
       { $match: { orderStatus: "Delivered" } },
       { $unwind: "$items" },
       { $lookup: { from: "products", localField: "items.product", foreignField: "_id", as: "prod" } },
@@ -175,29 +210,45 @@ const dashboard = async (req, res) => {
       { $unwind: { path: "$cat", preserveNullAndEmptyArrays: true } },
       { $group: {
           _id: "$cat.categoryName",
-          rev: { $sum: "$items.total" }
+          sales: { $sum: "$items.quantity" }
       }},
-      { $sort: { rev: -1 } }
+      { $sort: { sales: -1 } },
+      { $limit: 10 }
     ]);
     
-    let totalCatRev = 0;
-    catAggr.forEach(c => totalCatRev += c.rev);
+    let totalTopCatSales = 0;
+    topCategoriesAggr.forEach(c => totalTopCatSales += c.sales);
     
-    const topCategories = catAggr.slice(0, 5).map(c => {
-        return {
-            name: c._id || "Uncategorized",
-            percent: totalCatRev > 0 ? Math.round((c.rev / totalCatRev) * 100) : 0
-        }
-    });
+    const topCategories = topCategoriesAggr.map(c => ({
+        name: c._id || "Uncategorized",
+        percent: totalTopCatSales > 0 ? Math.round((c.sales / totalTopCatSales) * 100) : 0,
+        sales: c.sales
+    }));
+    // 7. Order Status Distribution (Chart Data)
+    const statusAggr = await Order.aggregate([
+      { $group: { _id: "$orderStatus", count: { $sum: 1 } } }
+    ]);
+    const orderStatusData = { labels: statusAggr.map(s => s._id), counts: statusAggr.map(s => s.count) };
+
+    // 8. Payment Method Distribution (Chart Data)
+    const paymentAggr = await Order.aggregate([
+      { $group: { _id: "$paymentMethod", count: { $sum: 1 } } }
+    ]);
+    const paymentData = { labels: paymentAggr.map(p => p._id), counts: paymentAggr.map(p => p.count) };
 
     return res.render("admin/home/dashboard", { 
         user, 
         successSwal, 
         stats, 
-        dashboardChartData: chartDataMap,
+        chartLabels, 
+        chartData,
+        chartTitle,
+        filter,
         recentSales,
-        trendingProducts,
-        topCategories
+        topProducts,
+        topCategories,
+        orderStatusData,
+        paymentData
     });
 
   } catch (error) {

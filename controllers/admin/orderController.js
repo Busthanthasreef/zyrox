@@ -139,6 +139,7 @@ const updateOrderStatus = async (req, res) => {
         
         if (status === 'Delivered') {
             order.paymentStatus = 'Paid';
+            order.deliveredAt = new Date();
         }
 
         // Propagate status to items for terminal states
@@ -153,10 +154,13 @@ const updateOrderStatus = async (req, res) => {
                 item.status = status;
             }
         } else {
-            // For other statuses (Processing, Shipped), only update items that don't have a granular status override
+            // For other statuses (Processing, Shipped, Delivered), only update items that don't have a granular status override
             order.items.forEach(item => {
                 if (!['Cancelled', 'Returned', 'Cancellation Requested', 'Return Requested'].includes(item.status)) {
                     item.status = status;
+                    if (status === 'Delivered') {
+                        item.deliveredAt = new Date();
+                    }
                 }
             });
         }

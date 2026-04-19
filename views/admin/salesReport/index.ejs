@@ -23,210 +23,332 @@
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
         .report-content {
-            padding: 24px 32px;
+            padding: 32px;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-            background: var(--bg);
+            gap: 24px;
         }
 
-        .report-content header {
-            flex-shrink: 0;
+        /* ── HEADER ── */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 8px;
         }
 
-        /* ── SECTION TITLES ── */
         .page-title {
-            font-size: 1.6rem;
+            font-size: 1.85rem;
             font-weight: 800;
-            color: var(--text-main);
-            letter-spacing: -0.5px;
+            letter-spacing: -0.025em;
+            margin-bottom: 4px;
         }
 
-        /* ── CARDS ── */
-        .content-card {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            padding: 16px 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            flex-shrink: 0;
-        }
-
-        /* ── STAT GRID ── */
+        /* ── STAT CARDS ── */
         .stat-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-bottom: 20px;
-            flex-shrink: 0;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
         }
 
         .stat-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
-            padding: 16px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+            padding: 24px;
+            position: relative;
             transition: var(--transition);
         }
 
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px -5px rgba(0, 0, 0, 0.05);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
         }
 
-        .stat-title {
-            font-size: 0.7rem;
-            font-weight: 700;
+        .sale-item {
+            border: 2px solid black;
+            border-radius: 5px;
+        }
+
+        .stat-icon {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .icon-revenue {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .icon-orders {
+            background: #eef2ff;
+            color: #6366f1;
+        }
+
+        .icon-products {
+            background: #fff7ed;
+            color: #f97316;
+        }
+
+        .icon-discounts {
+            background: #fdf2f8;
+            color: #ec4899;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: 600;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
+            margin-bottom: 12px;
         }
 
         .stat-value {
             font-size: 1.75rem;
             font-weight: 800;
-            color: var(--text-main);
-            line-height: 1.2;
+            margin-bottom: 8px;
         }
 
-        /* ── TABLE ── */
-        .table-wrap {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            flex: 1;
+        .stat-trend {
+            font-size: 0.75rem;
+            font-weight: 700;
             display: flex;
-            flex-direction: column;
-            min-height: 0;
-            margin-bottom: 10px;
+            align-items: center;
+            gap: 4px;
         }
 
-        .table-container {
-            flex: 1;
-            overflow-y: auto;
-            scrollbar-width: thin;
+        .trend-up {
+            color: var(--green);
         }
 
-        .table-container::-webkit-scrollbar {
-            width: 6px;
+        /* ── CHARTS ── */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 20px;
         }
 
-        .table-container::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 10px;
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .chart-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ── TABLE SEC ── */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+        }
+
+        .table-search {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.875rem;
+            width: 300px;
         }
 
         .table {
-            margin: 0;
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        .table thead {
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            margin-bottom: 0;
         }
 
         .table thead th {
-            background: #f1f5f9;
-            color: var(--text-muted);
-            font-size: 0.7rem;
+            background: #f8fafc;
+            padding: 16px 24px;
+            font-size: 0.75rem;
             font-weight: 700;
             text-transform: uppercase;
-            padding: 12px 20px;
+            color: var(--text-muted);
             border-bottom: 1px solid var(--border);
         }
 
         .table tbody td {
-            padding: 12px 20px;
+            padding: 16px 24px;
             font-size: 0.875rem;
-            color: var(--text-main);
-            border-bottom: 1px solid var(--border);
             vertical-align: middle;
+            border-bottom: 1px solid var(--border);
         }
 
-        /* ── BUTTONS ── */
-        .btn-xy {
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border: none;
-            transition: var(--transition);
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: capitalize;
         }
 
-        .btn-pdf {
-            background: #ffe4e6;
-            color: #e11d48;
-        }
-
-        .btn-pdf:hover {
-            background: #e11d48;
-            color: white;
-        }
-
-        .btn-excel {
+        .status-paid {
             background: #dcfce7;
             color: #166534;
         }
 
-        .btn-excel:hover {
-            background: #166534;
-            color: white;
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
         }
 
-        .btn-primary-xy {
-            background: var(--accent);
-            color: white;
+        .status-shipped {
+            background: #e0e7ff;
+            color: #3730a3;
         }
 
-        /* ── FILTER ── */
-        .filter-form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: flex-end;
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
         }
 
-        .form-label-xy {
-            font-size: 0.65rem;
-            font-weight: 800;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-
-        .form-control-xy,
-        .form-select-xy {
-            background: #fdfdfd;
+        /* ── DATE PICKER ── */
+        .date-picker-wrap {
+            background: #fff;
             border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 7px 10px;
-            font-size: 0.8rem;
+            border-radius: 10px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .date-picker-wrap:hover {
+            border-color: var(--accent);
+        }
+
+        .btn-download {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .btn-download:hover {
+            background: #f8fafc;
+        }
+
+        .pagination-wrap {
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+        }
+
+        /* Custom Pagination Styling */
+        .pagination-xy {
+            display: flex;
+            list-style: none;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+        }
+
+        .pagination-xy .page-link {
+            border: none;
+            padding: 8px 16px;
             color: var(--text-main);
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: var(--transition);
+            background: transparent;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.65rem;
+        .pagination-xy .page-item.active .page-link {
+            background: #f1f5f9;
+            color: var(--text-main);
             font-weight: 700;
-            text-transform: uppercase;
         }
 
-        @media (max-width: 991px) {
-            .report-content {
-                padding: 16px;
+        .pagination-xy .page-item.disabled .page-link {
+            color: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        .pagination-xy .page-link:hover:not(.disabled) {
+            background: #f8fafc;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card {
+            animation: fadeIn 0.4s easeOut forwards;
+        }
+
+        @media (max-width: 1200px) {
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -237,27 +359,16 @@
 
         <main class="admin-main">
             <div class="report-content">
-                <header class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Header Section -->
+                <div class="page-header">
                     <div>
-                        <h2 class="page-title m-0">Sales Report</h2>
-                        <p class="text-muted small m-0">Performance overview.</p>
+                        <h2 class="page-title">Sales Report</h2>
                     </div>
-                    <div class="d-flex gap-2">
-                        <button onclick="downloadFile('excel')" class="btn btn-xy btn-excel">
-                            <i class="bi bi-file-earmark-excel"></i> Excel
-                        </button>
-                        <button onclick="downloadFile('pdf')" class="btn btn-xy btn-pdf">
-                            <i class="bi bi-file-earmark-pdf"></i> PDF
-                        </button>
-                    </div>
-                </header>
-
-                <div class="content-card">
-                    <form class="filter-form" method="GET" action="/admin/sales-report" id="salesFilterForm">
-                        <div>
-                            <label class="form-label-xy">Period</label>
-                            <select name="filterType" id="filterType" class="form-select-xy"
-                                onchange="toggleCustomDates()">
+                    <div class="d-flex gap-3 align-items-center">
+                        <!-- Filter form -->
+                        <form id="salesFilterForm" action="/admin/sales-report" method="GET" class="d-flex gap-2">
+                            <select name="filterType" id="filterType" class="form-select form-select-sm"
+                                style="border-radius: 10px; width: 140px;" onchange="this.form.submit()">
                                 <option value="daily" <%=filterType==='daily' ? 'selected' : '' %>>Today</option>
                                 <option value="weekly" <%=filterType==='weekly' ? 'selected' : '' %>>This Week</option>
                                 <option value="monthly" <%=filterType==='monthly' ? 'selected' : '' %>>This Month
@@ -266,126 +377,159 @@
                                 <option value="custom" <%=filterType==='custom' ? 'selected' : '' %>>Custom Range
                                 </option>
                             </select>
+
+                            <% if (filterType==='custom' ) { %>
+                                <input type="date" name="startDate" class="form-control form-control-sm"
+                                    style="border-radius: 10px;" value="<%= customStart %>"
+                                    onchange="this.form.submit()">
+                                <input type="date" name="endDate" class="form-control form-control-sm"
+                                    style="border-radius: 10px;" value="<%= customEnd %>" onchange="this.form.submit()">
+                                <% } %>
+                        </form>
+
+                        <div class="dropdown">
+                            <button class="btn-download dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-download"></i> Export Report
+                            </button>
+                            <ul class="dropdown-menu shadow border-0">
+                                <li><a class="dropdown-item py-2" href="#" onclick="downloadFile('pdf')"><i
+                                            class="bi bi-file-earmark-pdf text-danger me-2"></i> Download PDF</a></li>
+                                <li><a class="dropdown-item py-2" href="#" onclick="downloadFile('excel')"><i
+                                            class="bi bi-file-earmark-excel text-success me-2"></i> Download Excel</a>
+                                </li>
+                            </ul>
                         </div>
-                        <div id="customDates"
-                            style="display: <%= filterType === 'custom' ? 'flex' : 'none' %>; gap: 10px;">
-                            <div>
-                                <label class="form-label-xy">Start Date</label>
-                                <input type="date" name="startDate" id="startDate" class="form-control-xy"
-                                    value="<%= customStart || '' %>">
-                            </div>
-                            <div>
-                                <label class="form-label-xy">End Date</label>
-                                <input type="date" name="endDate" id="endDate" class="form-control-xy"
-                                    value="<%= customEnd || '' %>">
-                            </div>
-                        </div>
-                        <div>
-                            <button type="submit" class="btn btn-xy btn-primary-xy">Generate</button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
 
+                <!-- Stats Grid -->
                 <div class="stat-grid">
                     <div class="stat-card">
-                        <div class="stat-title">Gross Revenue</div>
-                        <div class="stat-value" style="color: var(--accent);">₹<%=
-                                data.totalSalesAmount.toLocaleString() %>
+                        <div class="stat-icon icon-revenue"><i class="bi bi-currency-dollar"></i></div>
+                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-value">₹<%= data.totalSalesAmount.toLocaleString() %>
                         </div>
+                        <div class="stat-trend trend-up"><i class="bi bi-arrow-up-short"></i> +12.5%</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-title">Orders</div>
-                        <div class="stat-value" style="color: var(--green);">
+                        <div class="stat-icon icon-orders"><i class="bi bi-bag-check"></i></div>
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-value">
                             <%= data.totalOrders %>
                         </div>
+                        <div class="stat-trend trend-up"><i class="bi bi-arrow-up-short"></i> +8.2%</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-title">Discounts</div>
-                        <div class="stat-value" style="color: var(--amber);">₹<%= data.totalDiscounts.toLocaleString()
-                                %>
+                        <div class="stat-icon icon-products"><i class="bi bi-box-seam"></i></div>
+                        <div class="stat-label">Products Sold</div>
+                        <div class="stat-value">
+                            <%= data.totalProductsSold %>
                         </div>
+                        <div class="stat-trend trend-up"><i class="bi bi-arrow-up-short"></i> +15%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon icon-discounts"><i class="bi bi-ticket-perforated"></i></div>
+                        <div class="stat-label">Discounts Given</div>
+                        <div class="stat-value">₹<%= data.totalDiscounts.toLocaleString() %>
+                        </div>
+                        <div class="stat-trend text-muted">Across <%= data.totalOrders %> orders</div>
                     </div>
                 </div>
 
-                <div class="table-wrap">
-                    <div class="table-container">
-                        <table class="table">
+                <!-- Transactions Table -->
+                <div class="table-card shadow-sm">
+                    <div class="table-header">
+                        <h5 class="m-0 fw-bold" style="font-size: 1.1rem;">Recent Transactions</h5>
+                        <div class="d-flex gap-2">
+                            <input type="text" class="table-search" placeholder="Search order ID or customer...">
+                            <select class="form-select form-select-sm border-0 bg-light"
+                                style="width: 130px; border-radius: 8px;">
+                                <option>All Status</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
                             <thead>
                                 <tr>
+                                    <th>Si.NO</th>
                                     <th>Order ID</th>
                                     <th>Date</th>
                                     <th>Customer</th>
-                                    <th>view</th>
                                     <th>Status</th>
-                                    <th>Savings</th>
-                                    <th>Final Price</th>
-                                    <th>Payment</th>
+                                    <th>Base Amount</th>
+                                    <th>Discounts</th>
+                                    <th>Paid Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <% if (data.orders && data.orders.length> 0) { %>
-                                    <% data.orders.forEach(order=> { %>
+                                    <% data.orders.forEach((order,ind)=> { %>
                                         <tr>
-                                            <td class="fw-bold">#<%= order.orderId %>
+                                            <td>
+                                                <%= (data.currentPage - 1) * 5 + ind + 1 %>
+                                            </td>
+                                            <td class="fw-bold text-primary">#<%= order.orderId %>
+                                            </td>
+                                            <td class="text-muted" style="white-space: nowrap;">
+                                                <%= new Date(order.createdAt).toLocaleDateString('en-GB', {
+                                                    day: '2-digit' , month: 'short' , year: 'numeric' }) %>
                                             </td>
                                             <td>
-                                                <%= new Date(order.createdAt).toLocaleDateString('en-GB') %>
-                                            </td>
-                                            <td>
-                                                <div class="fw-semibold text-truncate" style="max-width: 140px;">
+                                                <div class="fw-semibold text-truncate" style="max-width: 120px;">
                                                     <%= order.userId ? order.userId.Name : 'Guest' %>
                                                 </div>
-                                                <div class="small text-muted text-truncate" style="max-width: 140px;">
-                                                    <%= order.userId ? order.userId.Email : '' %>
-                                                </div>
-                                            </td>
-                                            <td><a href="/admin/orders/details?id=<%= order._id%>">view</a></td>
-                                            <td>
-                                                <span class="status-badge 
-                                            <%= order.orderStatus === 'Delivered' ? 'bg-success-subtle text-success border border-success' : 
-                                                order.orderStatus === 'Shipped' ? 'bg-primary-subtle text-primary border border-primary' : 
-                                                'bg-warning-subtle text-warning border border-warning' %>">
-                                                    <%= order.orderStatus %>
-                                                </span>
-                                            </td>
-                                            <td class="text-danger fw-bold">- ₹<%= (order.discount ||
-                                                    0).toLocaleString() %>
-                                            </td>
-                                            <td class="fw-bold text-success">₹<%= order.finalPrice.toLocaleString() %>
                                             </td>
                                             <td>
                                                 <span
-                                                    class="badge border <%= order.paymentMethod === 'COD' ? 'bg-light text-dark' : 'bg-primary-subtle text-primary' %>"
-                                                    style="font-size: 0.6rem;">
-                                                    <%= order.paymentMethod %>
+                                                    class="status-badge 
+                                                <%= order.orderStatus === 'Delivered' ? 'status-paid' : 
+                                                    order.orderStatus === 'Shipped' ? 'status-shipped' : 
+                                                    order.orderStatus === 'Cancelled' ? 'status-cancelled' : 'status-pending' %>">
+                                                    <%= order.orderStatus %>
                                                 </span>
+                                            </td>
+                                            <td class="text-muted">₹<%= (order.subtotal || 0).toLocaleString() %>
+                                            </td>
+                                            <td class="text-danger">-₹<%= ((order.discount || 0) + (order.couponDiscount
+                                                    || 0)).toLocaleString() %>
+                                            </td>
+                                            <td class="fw-bold">₹<%= (order.finalPrice || 0).toLocaleString() %>
                                             </td>
                                         </tr>
                                         <% }) %>
                                             <% } else { %>
                                                 <tr>
-                                                    <td colspan="8" class="text-center py-5 text-muted">No data
-                                                        available
-                                                        for the selected period.</td>
+                                                    <td colspan="6" class="text-center py-5 text-muted">No transactions
+                                                        found for this period.</td>
                                                 </tr>
                                                 <% } %>
                             </tbody>
                         </table>
                     </div>
-                </div>
 
-                <% if (data.totalPages> 1) { %>
-                    <div class="d-flex justify-content-center mt-3 mb-2">
-                        <nav>
-                            <ul class="pagination pagination-sm mb-0">
-                                <% if (data.currentPage> 1) { %>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#"
-                                            onclick="changePage(<%= data.currentPage - 1 %>)">Prev</a>
+                    <div class="pagination-wrap border-top">
+                        <div class="small text-muted">
+                            Showing <b>
+                                <%= (data.currentPage - 1) * 5 + 1 %>-<%= Math.min(data.currentPage * 5,
+                                        data.totalOrders) %>
+                            </b> of <b>
+                                <%= data.totalOrders %>
+                            </b> transactions
+                        </div>
+                        <% if (data.totalPages> 1) { %>
+                            <nav>
+                                <ul class="pagination-xy">
+                                    <li class="page-item <%= data.currentPage === 1 ? 'disabled' : '' %>">
+                                        <a class="page-link" href="#" onclick="changePage(<%= data.currentPage - 1 %>)">
+                                            <i class="bi bi-chevron-left" style="font-size: 0.75rem;"></i> Previous
+                                        </a>
                                     </li>
-                                    <% } %>
 
-                                        <% for(let i=1; i <=data.totalPages; i++) { %>
+                                    <% let start=Math.max(1, data.currentPage - 1); let end=Math.min(data.totalPages,
+                                        start + 2); if (end - start < 2) start=Math.max(1, end - 2); %>
+
+                                        <% for(let i=start; i <=end; i++) { %>
                                             <li class="page-item <%= data.currentPage === i ? 'active' : '' %>">
                                                 <a class="page-link" href="#" onclick="changePage(<%= i %>)">
                                                     <%= i %>
@@ -393,40 +537,126 @@
                                             </li>
                                             <% } %>
 
-                                                <% if (data.currentPage < data.totalPages) { %>
-                                                    <li class="page-item">
-                                                        <a class="page-link" href="#"
-                                                            onclick="changePage(<%= data.currentPage + 1 %>)">Next</a>
+                                                <% if (end < data.totalPages) { %>
+                                                    <li class="page-item disabled"><span class="page-link">...</span>
                                                     </li>
                                                     <% } %>
-                            </ul>
-                        </nav>
+
+                                                        <li
+                                                            class="page-item <%= data.currentPage === data.totalPages ? 'disabled' : '' %>">
+                                                            <a class="page-link" href="#"
+                                                                onclick="changePage(<%= data.currentPage + 1 %>)">
+                                                                Next <i class="bi bi-chevron-right"
+                                                                    style="font-size: 0.75rem;"></i>
+                                                            </a>
+                                                        </li>
+                                </ul>
+                            </nav>
+                            <% } %>
                     </div>
-                    <% } %>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="chart-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div>
+                                <p class="chart-title">Revenue Overview (DAILY)</p>
+                                <p class="chart-subtitle">Daily revenue performance for the current period</p>
+                            </div>
+                        </div>
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="dailyRevenueChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div>
+                                <p class="chart-title">Revenue Overview (Monthly Performance)</p>
+                                <p class="chart-subtitle">Monthly performance trend for the current year</p>
+                            </div>
+                        </div>
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="monthlyPerfChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </main>
 
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
+            // Data from server
+            const dailyLabels = <%-JSON.stringify(data.chartData.labels) %>;
+            const dailyValues = <%-JSON.stringify(data.chartData.values) %>;
+            const monthlyValues = <%-JSON.stringify(data.yearlyChartData) %>;
+            const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            // 1. Daily Revenue Chart (Spline Area)
+            const dailyCtx = document.getElementById('dailyRevenueChart').getContext('2d');
+            new Chart(dailyCtx, {
+                type: 'line',
+                data: {
+                    labels: dailyLabels,
+                    datasets: [{
+                        label: 'Sales Amount',
+                        data: dailyValues,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } },
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }, ticks: { font: { family: 'Inter', size: 10 } } }
+                    }
+                }
+            });
+
+            // 2. Monthly Performance Chart (Red Line)
+            const monthlyCtx = document.getElementById('monthlyPerfChart').getContext('2d');
+            new Chart(monthlyCtx, {
+                type: 'line',
+                data: {
+                    labels: monthLabels,
+                    datasets: [{
+                        data: monthlyValues,
+                        borderColor: '#ef4444',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 10 } } },
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }, ticks: { font: { family: 'Inter', size: 10 } } }
+                    }
+                }
+            });
+
             function changePage(page) {
                 const url = new URL(window.location.href);
                 url.searchParams.set('page', page);
                 window.location.href = url.toString();
             }
 
-            function toggleCustomDates() {
-                const filterType = document.getElementById('filterType').value;
-                const customDates = document.getElementById('customDates');
-                customDates.style.display = filterType === 'custom' ? 'flex' : 'none';
-            }
-
             function downloadFile(type) {
-                const form = document.getElementById('salesFilterForm');
-                const url = new URL('/admin/sales-report/export/' + type, window.location.origin);
-                const formData = new FormData(form);
-                for (let [key, val] of formData.entries()) {
-                    url.searchParams.append(key, val);
-                }
-                window.location.href = url.toString();
+                const params = new URLSearchParams(window.location.search);
+                window.location.href = `/admin/sales-report/export/${type}?` + params.toString();
             }
         </script>
 </body>

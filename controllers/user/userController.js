@@ -10,6 +10,8 @@ import { sendOtpEmail } from "../../utils/otpController.js";
 import generateOtp from "../../utils/otpGenerator.js";
 import { generateReferralCode, rewardReferrer } from "../../utils/referralHelper.js";
 import Wallet from "../../models/wallet.js";
+import WalletTransactions from "../../models/walletTransactions.js";
+import Coupon from "../../models/coupon.js";
 
 /* =========================
    LANDING PAGE
@@ -42,12 +44,20 @@ const landingPage = async (req, res) => {
       if (v) trendingVariants.push({ product: p, variant: v });
     }
 
+    // Fetch latest active, non-expired coupon for hero banner
+    const latestCoupon = await Coupon.findOne({
+      isActive: true,
+      isDeleted: { $ne: true },
+      validTill: { $gte: new Date() }
+    }).sort({ createdAt: -1 });
+
     res.render("user/home/landingPage", {
       cartItemCount: totalItems,
       categories,
       trendingVariants,
       user: req.session.user || null,
       loginSuccess,
+      latestCoupon: latestCoupon || null,
     });
 
   } catch (error) {
@@ -65,7 +75,7 @@ const loadSignUp = (req, res) => {
   delete req.session.signupErrors;
   delete req.session.signupData;
 
-  // Referral capture
+  // Referral capture via URL query
   if (req.query.ref) {
     req.session.referredByCode = req.query.ref;
   }
@@ -80,6 +90,7 @@ const loadSignUp = (req, res) => {
     Phone: signupData.Phone || "",
     Password: signupData.Password || "",
     confirmPassword: signupData.confirmPassword || "",
+    referralCode: signupData.referralCode || req.session.referredByCode || "",
     clearLocalStorage: true,
   });
 };
@@ -171,10 +182,11 @@ const verifyEmail = async (req, res) => {
       return res.redirect("/otp-verification");
     }
 
-    // Referral logic
+    // Referral logic: form input takes priority over URL query session
     let referredBy = null;
-    if (req.session.referredByCode) {
-      const referrer = await userSchema.findOne({ referralCode: req.session.referredByCode });
+    const enteredCode = req.session.tempUser?.referralCode || req.session.referredByCode || null;
+    if (enteredCode) {
+      const referrer = await userSchema.findOne({ referralCode: enteredCode });
       if (referrer) {
         referredBy = referrer._id;
       }
@@ -194,26 +206,37 @@ const verifyEmail = async (req, res) => {
       referredBy
     });
 
-    // Create Wallet for new user
-    let newUserWallet = await Wallet.create({
+    // Create Wallet for new user — starts at ₹0
+    const newUserWallet = await Wallet.create({
       user_id: newUser._id,
-      balance: referredBy ? 50 : 0 // Bonus for being referred
+      balance: 0
     });
 
+    // Reward only the REFERRER (the user whose code was used) with ₹500
     if (referredBy) {
       await rewardReferrer(referredBy, newUser._id);
-      
-      // Update referrer's wallet
+
       const referrerWallet = await Wallet.findOne({ user_id: referredBy });
       if (referrerWallet) {
-        referrerWallet.balance += 100; // Reward for referring
+        referrerWallet.balance += 500;
         await referrerWallet.save();
+
+        await WalletTransactions.create({
+          user: referredBy,
+          Amount: 500,
+          Payment_status: 'credited',
+          Wallet_id: referrerWallet._id,
+          Payment_date: new Date(),
+          Payment_time: new Date(),
+          Description: `Referral reward – your friend ${newUser.Name} joined Zyrox`,
+        });
       }
     }
 
     await otpSchema.deleteMany({ Email });
     req.session.lastEmail = Email;
     delete req.session.tempUser;
+    delete req.session.referredByCode;
 
     req.session.user = {
       _id: newUser._id,

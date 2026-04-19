@@ -82,6 +82,10 @@ body {
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
 .hero-offer-model {
@@ -90,9 +94,56 @@ body {
     margin-bottom: 8px;
 }
 
+.hero-offer-code {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1.5px dashed rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-bottom: 10px;
+}
+
+.hero-offer-code span {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #fff;
+}
+
+.copy-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.copy-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(1.1);
+}
+
 .hero-offer-discount {
     font-size: 15px;
     font-weight: 600;
+}
+
+.hero-offer-min {
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.75);
+    margin-top: 6px;
 }
 
 .hero-image {

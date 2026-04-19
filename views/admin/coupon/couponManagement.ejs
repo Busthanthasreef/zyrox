@@ -631,7 +631,7 @@
     <div id="couponModal" class="modal-overlay" onclick="handleOverlayClick(event)">
       <div class="modal-box">
         <form id="couponForm" novalidate>
-          <input type="hidden" id="couponId">
+          <input type="hidden" id="couponId" name="couponId">
           <div class="modal-header d-flex justify-content-between align-items-center p-4 border-bottom">
             <div>
               <div class="modal-header-title fw-bold" id="modalTitle">Add New Coupon</div>
@@ -848,8 +848,8 @@
         data.isActive = document.getElementById('f_isActive').checked;
         if (unlimited) data.maxDiscount = null;
 
-        const url = isEditMode ? `/admin/coupons/edit/${document.getElementById('couponId').value}` : '/admin/coupons/add';
-        const method = isEditMode ? 'PUT' : 'POST';
+        const url = isEditMode ? '/admin/coupons/edit' : '/admin/coupons/add';
+        const method = 'POST';
 
         try {
           const res = await fetch(url, {

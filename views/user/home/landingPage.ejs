@@ -28,14 +28,36 @@
                     <a href="/products"><button class="shop-now-btn">Shop Now</button></a>
                 </div>
 
-                <img src="https://images.unsplash.com/photo-1592286927505-c6d69682b5f1?w=400&h=500&fit=crop"
-                    alt="Smartphone" class="hero-image" style="opacity: 0.7;">
+                
 
-                <div class="hero-offer">
-                    <div class="hero-offer-title">Our Offer</div>
-                    <div class="hero-offer-model">NOTE 20 Ultra</div>
-                    <div class="hero-offer-discount">and get 10% Off</div>
-                </div>
+                <% if (latestCoupon) { %>
+                    <div class="hero-offer">
+                        <div class="hero-offer-title"><i class="fas fa-gift"></i> Latest Offer</div>
+                        <div class="hero-offer-code">
+                            <span id="couponCode">
+                                <%= latestCoupon.code %>
+                            </span>
+                            <button class="copy-btn" onclick="copyCoupon()" title="Copy code">
+                                <i class="far fa-copy" id="copyIcon"></i>
+                            </button>
+                        </div>
+                        <div class="hero-offer-discount">
+                            Get <%= latestCoupon.discountType==='percentage' ? latestCoupon.discountValue + '% Off'
+                                : '₹' + latestCoupon.discountValue + ' Off' %>
+                        </div>
+                        <% if (latestCoupon.minCartValue> 0) { %>
+                            <div class="hero-offer-min">Min. order ₹<%=
+                                    latestCoupon.minCartValue.toLocaleString('en-IN') %>
+                            </div>
+                            <% } %>
+                    </div>
+                    <% } else { %>
+                        <div class="hero-offer">
+                            <div class="hero-offer-title"><i class="fas fa-tag"></i> Special Deals</div>
+                            <div class="hero-offer-model">Shop Now</div>
+                            <div class="hero-offer-discount">Explore our latest offers</div>
+                        </div>
+                        <% } %>
             </div>
         </section>
 
@@ -93,9 +115,7 @@
                                     <% if(index===1) { %>
                                         <div class="product-badge new">NEW</div>
                                         <% } %>
-                                            <button class="wishlist-btn"
-                                                onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'"><i
-                                                    class="far fa-heart"></i></button>
+                                            
                                             <img src="<%= (item.variant.images && item.variant.images.length > 0) ? item.variant.images[0] : 'https://via.placeholder.com/300' %>"
                                                 alt="<%= item.product.productName %>" class="product-image"
                                                 style="object-fit: cover;">
@@ -179,6 +199,26 @@
             </div>
         </footer>
 
+
+        <script>
+            function copyCoupon() {
+                const code = document.getElementById('couponCode')?.textContent;
+                if (!code) return;
+                navigator.clipboard.writeText(code).then(() => {
+                    const icon = document.getElementById('copyIcon');
+                    if (icon) {
+                        icon.classList.remove('far', 'fa-copy');
+                        icon.classList.add('fas', 'fa-check');
+                        setTimeout(() => {
+                            icon.classList.remove('fas', 'fa-check');
+                            icon.classList.add('far', 'fa-copy');
+                        }, 1500);
+                    }
+                }).catch(() => {
+                    Swal.fire({ icon: 'info', title: code, text: 'Copy this coupon code!', timer: 2000, showConfirmButton: false });
+                });
+            }
+        </script>
 
 </body>
 

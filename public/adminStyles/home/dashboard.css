@@ -43,10 +43,10 @@
    STAT CARDS
    ===================== */
 .stat-card {
-  background: var(--white);
-  border-radius: var(--radius);
+  background:#ffff;
+  border-radius: 10px;
   padding: 18px 18px 14px;
-  border: 1px solid var(--border);
+  border: 1px solid black;
   height: 100%;
 }
 
@@ -105,10 +105,10 @@
    PANELS
    ===================== */
 .panel {
-  background: var(--white);
-  border-radius: var(--radius);
+  background:#f5f4f0;
+  border-radius: 9px;
   padding: 20px;
-  border: 1px solid var(--border);
+  border: 1px solid black;
   height: 100%;
 }
 
@@ -128,8 +128,8 @@
 
 /* View more button */
 .btn-view-more {
-  background: var(--white);
-  border: 1.5px solid var(--border);
+  background: white;
+  border: 1.5px solid black;
   border-radius: 6px;
   padding: 5px 12px;
   font-size: 12px;
@@ -278,6 +278,9 @@
   font-size: 12px;
   color: var(--text-mid);
   text-decoration: none;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 2px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -287,7 +290,7 @@
 }
 
 .btn-view-all:hover {
-  color: var(--text-dark);
+  background-color:#f0eeea;
 }
 
 /* =====================
@@ -329,9 +332,9 @@
 .btn-view-categories {
   display: block;
   text-align: center;
-  background: var(--white);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
+  background: white;
+  border: 2px solid black;
+  border-radius: 4px;
   padding: 10px;
   font-size: 13px;
   font-weight: 500;

@@ -23,9 +23,16 @@ const isAdminGuest = (req, res, next) => {
 // User authentication middleware
 const isUserAuthenticated = (req, res, next) => {
   if (!req.session.user) {
-    // Save the page they were trying to visit so we can redirect back after login
-    req.session.returnTo = '/';
-    return res.redirect("/signin");
+    // Check if the request is an API/AJAX call
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('json')) || req.path.startsWith('/cart/') || req.path.startsWith('/wishlist/')) {
+      // Save the Referer so the user returns to the referring page (like product details) after login
+      req.session.returnTo = req.get('Referer') || '/';
+      return res.status(401).json({ success: false, requiresAuth: true, redirect: '/signin', message: 'Please sign in' });
+    } else {
+      // For standard page requests, save the URL they tried to visit
+      req.session.returnTo = req.originalUrl || '/';
+      return res.redirect("/signin");
+    }
   }
   next();
 };

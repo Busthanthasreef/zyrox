@@ -122,7 +122,7 @@
             border: 1px solid var(--border);
             border-radius: var(--radius-lg);
             overflow: hidden;
-            cursor: zoom-in;
+            cursor: crosshair;
             user-select: none;
         }
 
@@ -140,45 +140,9 @@
             object-fit: contain;
             padding: 28px;
             pointer-events: none;
-            transition: opacity .25s, transform .3s ease;
+            transition: transform 0.3s ease;
+            transform-origin: 50% 50%;
             display: block;
-        }
-
-        .gallery-main:hover #mainImg {
-            transform: scale(1.015);
-        }
-
-        /* Zoom lens circle */
-        #zoomLens {
-            position: absolute;
-            width: 100px;
-            height: 75px;
-            border-radius: 4px;
-            border: 2px solid var(--accent);
-            background: rgba(200, 136, 58, .06);
-            pointer-events: none;
-            display: none;
-            z-index: 20;
-            box-shadow: 0 0 0 1px var(--accent-glow), inset 0 0 20px rgba(99, 102, 241, .04);
-            transform: translate(-50%, -50%);
-        }
-
-        /* Zoom result panel — floats to the right */
-        #zoomResult {
-            position: absolute;
-            top: 0;
-            left: calc(100% + 16px);
-            width: 1000px;
-            height: 800px;
-            border-radius: var(--radius-lg);
-            border: 2px solid var(--accent-b);
-            background: var(--bg-card);
-            background-repeat: no-repeat;
-            display: none;
-            z-index: 200;
-            pointer-events: none;
-            box-shadow: 0 40px 100px rgba(0, 0, 0, .8), 0 0 0 2px var(--accent-lt);
-            overflow: hidden;
         }
 
         /* Zoom hint badge */
@@ -199,6 +163,24 @@
             transition: opacity .3s;
             z-index: 10;
             backdrop-filter: blur(6px);
+        }
+
+        .badge-in-stock {
+            background-color: #50ff4d4d;
+            color: #09ff1a;
+
+        }
+
+        .badge-out-stock {
+            background-color: #ff494978;
+            color: red;
+
+        }
+
+        .badge-low-stock {
+            background-color: rgba(255, 166, 0, 0.386);
+
+            color: orange;
         }
 
         .gallery-main:hover .zoom-hint {
@@ -945,12 +927,6 @@
         }
 
         /* ── Responsive ─────────────────────────────────────────── */
-        @media (max-width: 1100px) {
-            #zoomResult {
-                display: none !important;
-            }
-        }
-
         @media (max-width: 992px) {
             .pd-wrap {
                 grid-template-columns: 1fr;
@@ -1036,8 +1012,6 @@
                             aria-label="<%= variant.productId.productName %> — main image">
                             <img id="mainImg" src="<%= images[0] %>" alt="<%= variant.productId.productName %>"
                                 title="Hover to zoom · Click to fullscreen">
-                            <div id="zoomLens"></div>
-                            <div id="zoomResult"></div>
                             <span class="zoom-hint">
                                 <i class="fas fa-search-plus"></i> Hover to zoom
                             </span>
@@ -1367,8 +1341,6 @@
             ═══════════════════════════════════════════════════════════════════ */
             const mainImgWrap = document.getElementById('mainImgWrap');
             const mainImg = document.getElementById('mainImg');
-            const zoomLens = document.getElementById('zoomLens');
-            const zoomResult = document.getElementById('zoomResult');
             const fsOverlay = document.getElementById('fsOverlay');
             const fsImg = document.getElementById('fsImg');
             const fsCounter = document.getElementById('fsCounter');
@@ -1380,14 +1352,11 @@
 
             // ── Set main image ──────────────────────────────────────────────────
             function setMainImage(src, idx) {
+                mainImg.style.transition = 'opacity 0.12s ease';
                 mainImg.style.opacity = '0';
                 setTimeout(() => {
                     mainImg.src = src;
                     mainImg.style.opacity = '1';
-                    // Update zoom result bg if visible
-                    if (zoomResult.style.display === 'block') {
-                        zoomResult.style.backgroundImage = `url('${safeUrl(src)}')`;
-                    }
                 }, 120);
 
                 thumbEls.forEach(t => t.classList.remove('active'));
@@ -1403,21 +1372,13 @@
                 });
             });
 
-            // ── ZOOM (hover) ────────────────────────────────────────────────────
-            // ── ZOOM (ENHANCED) ─────────────────────────────────────────────
-
-            function safeUrl(src) {
-                return src
-                    .replace(/\(/g, '%28')
-                    .replace(/\)/g, '%29')
-                    .replace(/'/g, '%27');
-            }
-
+            /* ═══════════════════════════════════════════════════════════════════
+               IN-PLACE ZOOM (hover to magnify)
+            ═══════════════════════════════════════════════════════════════════ */
+            const ZOOM_SCALE = 2.5;
             let zoomActive = false;
 
             function initZoom() {
-                if (window.innerWidth < 1100) return;
-
                 mainImgWrap.addEventListener('mouseenter', onZoomEnter);
                 mainImgWrap.addEventListener('mouseleave', onZoomLeave);
                 mainImgWrap.addEventListener('mousemove', onZoomMove);
@@ -1425,67 +1386,26 @@
 
             function onZoomEnter() {
                 zoomActive = true;
-
-                zoomLens.style.display = 'block';
-                zoomResult.style.display = 'block';
-
-                zoomResult.style.backgroundImage = `url('${safeUrl(mainImg.src)}')`;
-                zoomResult.style.backgroundRepeat = 'no-repeat';
+                mainImg.style.transition = 'transform 0.1s ease';
+                mainImg.style.transform = 'scale(' + ZOOM_SCALE + ')';
             }
 
             function onZoomLeave() {
                 zoomActive = false;
-
-                zoomLens.style.display = 'none';
-                zoomResult.style.display = 'none';
+                mainImg.style.transition = 'transform 0.3s ease';
+                mainImg.style.transform = 'scale(1)';
+                mainImg.style.transformOrigin = '50% 50%';
             }
 
             function onZoomMove(e) {
                 if (!zoomActive) return;
-
                 const rect = mainImgWrap.getBoundingClientRect();
-
-                const mouseX = e.clientX - rect.left;
-                const mouseY = e.clientY - rect.top;
-
-                const lensWidth = zoomLens.offsetWidth;
-                const lensHeight = zoomLens.offsetHeight;
-
-                const halfW = lensWidth / 2;
-                const halfH = lensHeight / 2;
-
-                // Clamp lens inside image
-                let lensX = Math.max(halfW, Math.min(mouseX, rect.width - halfW));
-                let lensY = Math.max(halfH, Math.min(mouseY, rect.height - halfH));
-
-                zoomLens.style.left = lensX + 'px';
-                zoomLens.style.top = lensY + 'px';
-
-                // 🔥 STRONG ZOOM CONTROL
-                const zoomFactor = 2.5; // increase (3, 4) for more zoom
-
-                const cx = (zoomResult.offsetWidth / lensWidth) * zoomFactor;
-                const cy = (zoomResult.offsetHeight / lensHeight) * zoomFactor;
-
-                zoomResult.style.backgroundSize = `${rect.width * cx}px ${rect.height * cy}px`;
-
-                zoomResult.style.backgroundPosition =
-                    `-${(lensX - halfW) * cx}px -${(lensY - halfH) * cy}px`;
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                mainImg.style.transformOrigin = x + '% ' + y + '%';
             }
 
-            // Init
             initZoom();
-
-            // Re-init on resize
-            window.addEventListener('resize', () => {
-                mainImgWrap.removeEventListener('mouseenter', onZoomEnter);
-                mainImgWrap.removeEventListener('mouseleave', onZoomLeave);
-                mainImgWrap.removeEventListener('mousemove', onZoomMove);
-
-                if (zoomActive) onZoomLeave();
-
-                initZoom();
-            });
 
             // ── Fullscreen on click ─────────────────────────────────────────────
             mainImgWrap.addEventListener('click', () => openFullscreen(currentImgIdx));
@@ -1706,8 +1626,6 @@
                 renderColors();
             }
 
-
-
             // ── Resolve which variant matches selection & update UI ─────────────
             function resolveVariant() {
                 variantMsg.classList.remove('show', 'msg-unavail', 'msg-stock');
@@ -1829,16 +1747,6 @@
                 qtyVal.value = 1;
                 document.getElementById('qtyMinus').disabled = true;
                 document.getElementById('qtyPlus').disabled = maxQty <= 1;
-
-                // if (qtyHint) {
-                //     if (alreadyInCart >= MAX_CART_QTY) {
-                //         qtyHint.textContent = 'Cart limit reached';
-                //         qtyHint.style.color = 'var(--red)';
-                //     } else {
-                //         qtyHint.textContent = `You can add ${maxQty} more`;
-                //         qtyHint.style.color = 'var(--muted)';
-                //     }
-                // }
             }
 
             // ── Update gallery if variant has different images ──────────────────

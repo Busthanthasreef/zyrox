@@ -15,7 +15,7 @@ const UserSchema = new mongoose.Schema({
   isActive: { type: Boolean, required: true },
   createdAt: { type: Date, required: true },
   Phone_number: { type: String },
-  Profile_image: { type: String, default: "https://ui-avatars.com/api/?name=User&background=random&size=200" },
+  Profile_image: { type: String, default: "/images/default-avatar.png" },
   
   // Referral System
   referralCode: {

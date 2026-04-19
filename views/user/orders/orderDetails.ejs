@@ -282,26 +282,36 @@
                                                 Cancel Item
                                             </button>
                                             <% } else if (item.status==='Delivered' ) { %>
-                                                <button
-                                                    onclick="openItemModal('<%= item._id %>', '<%= item.name %>', 'return')"
-                                                    class="px-3 py-1 bg-orange-600/10 border border-orange-600/50 text-orange-500 rounded-lg text-[0.6rem] font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition duration-300">
-                                                    Return Item
-                                                </button>
-                                                <% } else if (['Cancelled', 'Cancellation Requested'
-                                                    ].includes(item.status)) { %>
-                                                    <div
-                                                        class="text-[0.6rem] font-black text-red-500 uppercase tracking-widest text-right">
-                                                        <%= item.status==='Cancelled' ? 'ITEM CANCELLED'
-                                                            : 'CANCELLATION PENDING' %>
-                                                    </div>
-                                                    <% } else if (['Returned', 'Return Requested'
-                                                        ].includes(item.status)) { %>
-                                                        <div
-                                                            class="text-[0.6rem] font-black text-orange-500 uppercase tracking-widest text-right">
-                                                            <%= item.status==='Returned' ? 'ITEM RETURNED'
-                                                                : 'RETURN PENDING' %>
-                                                        </div>
-                                                        <% } %>
+                                                <% const itemDelivDate=item.deliveredAt || order.deliveredAt ||
+                                                    order.updatedAt; const itemDaysSince=Math.floor((Date.now() - new
+                                                    Date(itemDelivDate).getTime()) / (1000 * 60 * 60 * 24)); %>
+                                                    <% if (itemDaysSince <=7) { %>
+                                                        <button
+                                                            onclick="openItemModal('<%= item._id %>', '<%= item.name %>', 'return')"
+                                                            class="px-3 py-1 bg-orange-600/10 border border-orange-600/50 text-orange-500 rounded-lg text-[0.6rem] font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition duration-300">
+                                                            Return Item
+                                                        </button>
+                                                        <% } else { %>
+                                                            <div
+                                                                class="text-[0.6rem] font-black text-gray-500 uppercase tracking-widest text-right">
+                                                                RETURN EXPIRED
+                                                            </div>
+                                                            <% } %>
+                                                                <% } else if (['Cancelled', 'Cancellation Requested'
+                                                                    ].includes(item.status)) { %>
+                                                                    <div
+                                                                        class="text-[0.6rem] font-black text-red-500 uppercase tracking-widest text-right">
+                                                                        <%= item.status==='Cancelled' ? 'ITEM CANCELLED'
+                                                                            : 'CANCELLATION PENDING' %>
+                                                                    </div>
+                                                                    <% } else if (['Returned', 'Return Requested'
+                                                                        ].includes(item.status)) { %>
+                                                                        <div
+                                                                            class="text-[0.6rem] font-black text-orange-500 uppercase tracking-widest text-right">
+                                                                            <%= item.status==='Returned'
+                                                                                ? 'ITEM RETURNED' : 'RETURN PENDING' %>
+                                                                        </div>
+                                                                        <% } %>
                                     </div>
                                 </div>
                                 <% const itemStock=(stockMap && item.variant) ? (stockMap[String(item.variant)] ?? null)
@@ -507,8 +517,8 @@
             style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
             <div style="width: 50%;">
                 <h1>Zyrox mobile store pvt ltd </h1>
-                
-            
+
+
                 <p style="font-size: 11px; font-weight: 800; text-transform: uppercase;">Order ID: <span
                         style="font-weight: 600;">
                         <%= order.orderId %>
@@ -675,9 +685,9 @@
             axios.post(endpoint, { orderId: selectedOrder, itemId: selectedItem, reason })
                 .then(res => {
                     if (res.data.success) {
-                        Swal.fire({ title: 'Success', text: res.data.message, icon: 'success',timer:1000,showConfirmButton:false, background: '#161b22', color: '#fff' }).then(() => location.reload());
+                        Swal.fire({ title: 'Success', text: res.data.message, icon: 'success', timer: 1000, showConfirmButton: false, background: '#161b22', color: '#fff' }).then(() => location.reload());
                     } else {
-                        Swal.fire({ title: 'Error', text: res.data.message, icon: 'error',timer:1000,showConfirmButton:false, background: '#161b22', color: '#fff' });
+                        Swal.fire({ title: 'Error', text: res.data.message, icon: 'error', timer: 1000, showConfirmButton: false, background: '#161b22', color: '#fff' });
                     }
                 });
         }

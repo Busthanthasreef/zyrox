@@ -613,11 +613,20 @@
                                                         style="border-radius: 8px; font-size: 0.75rem;">Cancel
                                                     </button>
                                                     <% } else if(order.orderStatus==='Delivered' ) { %>
-                                                        <button onclick="openReturnModal('<%= order._id %>')"
-                                                            class="btn btn-outline-warning btn-sm px-2 py-1"
-                                                            style="border-radius: 8px; font-size: 0.75rem; color: #ffc107; border-color: #ffc107;">Return
-                                                        </button>
-                                                        <% } %>
+                                                        <% const delivDate=order.deliveredAt || order.updatedAt; const
+                                                            daysSince=Math.floor((Date.now() - new
+                                                            Date(delivDate).getTime()) / (1000 * 60 * 60 * 24)); %>
+                                                            <% if (daysSince <=7) { %>
+                                                                <button onclick="openReturnModal('<%= order._id %>')"
+                                                                    class="btn btn-outline-warning btn-sm px-2 py-1"
+                                                                    style="border-radius: 8px; font-size: 0.75rem; color: #ffc107; border-color: #ffc107;">Return
+                                                                </button>
+                                                                <% } else { %>
+                                                                    <span class="badge"
+                                                                        style="background: rgba(255,255,255,0.05); color: #666; font-size: 0.6rem; padding: 4px 8px; border-radius: 6px;">Return
+                                                                        Expired</span>
+                                                                    <% } %>
+                                                                        <% } %>
                                             </div>
                                         </td>
                                     </tr>

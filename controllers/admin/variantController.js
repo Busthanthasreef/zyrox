@@ -154,25 +154,28 @@ const addVariant = async (req, res) => {
    EDIT VARIANT
 ===================================== */
 const editVariant = async (req, res) => {
+    const { id: productId, variantId } = req.params;
     try {
-        const { id: productId, variantId } = req.params;
         let { color, storage, RAM, stock, price, SKU, isActive, isDefault } = req.body;
+
+        const product = await ProductSchema.findById(productId);
+        if (!product) return res.status(404).send("Product not found");
 
         const variant = await VariantSchema.findById(variantId);
         if (!variant) return res.status(404).send("Variant not found");
 
         // Normalize values
-        const parseNum = (val) => val ? Number(String(val).replace(/[^\d]/g, "")) : undefined;
+        const parseNum = (val) => (val !== undefined && val !== "") ? Number(String(val).replace(/[^\d]/g, "")) : undefined;
 
-        color   = (color || variant.color).trim().toLowerCase();
-        storage = storage ? parseNum(storage) : variant.storage;
-        RAM     = RAM ? parseNum(RAM) : variant.RAM;
+        color = (color || variant.color).trim();
+        storage = parseNum(storage) || variant.storage;
+        RAM = parseNum(RAM) || variant.RAM;
 
         // CHECK DUPLICATE (exclude current variant)
         const duplicate = await VariantSchema.findOne({
             productId,
             _id: { $ne: variantId },
-            color,
+            color: color.toLowerCase(),
             RAM,
             storage,
             IsDeleted: false
@@ -183,7 +186,7 @@ const editVariant = async (req, res) => {
             return res.redirect(`/admin/products/${productId}/variants`);
         }
 
-        //  SKU CHECK (exclude current variant)
+        // SKU CHECK (exclude current variant)
         if (SKU) {
             const existingSKU = await VariantSchema.findOne({
                 SKU,
@@ -211,7 +214,7 @@ const editVariant = async (req, res) => {
             imageUrls = req.files.map(f => f.path);
         }
 
-        //  Handle Default Variant
+        // Handle Default Variant
         if (isDefault === "on" || isDefault === true) {
             await VariantSchema.updateMany(
                 { productId, _id: { $ne: variantId } },
@@ -219,22 +222,31 @@ const editVariant = async (req, res) => {
             );
             variant.IsDefault = true;
         } else {
-            variant.IsDefault = false;
+            const otherDefault = await VariantSchema.findOne({ 
+                productId, 
+                _id: { $ne: variantId }, 
+                IsDefault: true, 
+                IsDeleted: false 
+            });
+            if (!otherDefault) {
+                variant.IsDefault = true;
+            } else {
+                variant.IsDefault = false;
+            }
         }
 
-        //  UPDATE FIELDS
+        // UPDATE FIELDS
         variant.productId = productId;
         variant.categoryId = product.categoryId;
-        variant.color     = color;
+        variant.color = color;
         variant.colorCode = req.body.colorCode || variant.colorCode || "#000000";
-        variant.storage   = storage;
-        variant.RAM       = RAM;
-        variant.stock     = stock !== undefined ? Number(stock) : variant.stock;
-        variant.price     = price !== undefined ? Number(price) : variant.price;
-        variant.SKU       = SKU || variant.SKU;
-        variant.IsActive  = isActive === "on" || isActive === true;
-        variant.IsDefault = isDefault === "on" || isDefault === true;
-        variant.images    = imageUrls;
+        variant.storage = storage;
+        variant.RAM = RAM;
+        variant.stock = stock !== undefined ? Number(stock) : variant.stock;
+        variant.price = price !== undefined ? Number(price) : variant.price;
+        variant.SKU = SKU || variant.SKU;
+        variant.IsActive = isActive === "on" || isActive === true;
+        variant.images = imageUrls;
 
         await variant.save();
 
