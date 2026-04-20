@@ -18,26 +18,34 @@ const userSignUpService = async (bodyData) => {
     const trimmedPassword = password ? password.trim() : "";
     const confirmPassword = bodyData.confirmPassword ? bodyData.confirmPassword.trim() : "";
 
-    const emailRegex = /^[a-zA-Z0-9+._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const nameRegex = /^[a-zA-Z\s]{3,50}$/;
+    const emailRegex = /^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
     const indianPhone = /^(?:\+91|91|0)?[6-9]\d{9}$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
     let error = {};
     let data = {};
 
-    if (!trimmedName) {
-        error = { Name: "Full name is required" };
+    if (!trimmedName || !nameRegex.test(trimmedName)) {
+        error = { Name: "Full name must be 3-50 characters long and contain only letters" };
         data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
         return { error, data };
     }
 
-    if (!emailRegex.test(trimmedEmail)) {
-        error = { Email: "Invalid email" };
+    if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {
+        error = { Email: "Invalid email address" };
         data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
         return { error, data };
     }
 
-    if (!indianPhone.test(trimmedPhone)) {
+    if (!trimmedPhone || !indianPhone.test(trimmedPhone)) {
         error = { Phone: "Enter a valid 10-digit Indian phone number" };
+        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
+        return { error, data };
+    }
+
+    if (!trimmedPassword || !passwordRegex.test(trimmedPassword)) {
+        error = { Password: "Password must be at least 8 characters and contain at least one letter and one number" };
         data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
         return { error, data };
     }

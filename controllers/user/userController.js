@@ -313,6 +313,10 @@ const userSignIn = async (req, res) => {
       return res.json({ success: false, target: "email", message: "Invalid email format" });
     }
 
+    if (!Password) {
+      return res.json({ success: false, target: "password", message: "Password is required" });
+    }
+
     const user = await userSchema.findOne({ Email: trimmedEmail, isAdmin: false });
 
     if (!user)
@@ -484,6 +488,12 @@ const resetPassword = async (req, res) => {
 
     if (Password !== confirmPassword) {
       req.session.passError = "Passwords do not match";
+      return res.redirect("/new-password");
+    }
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!Password || !passwordRegex.test(Password)) {
+      req.session.passError = "Password must be at least 8 characters and contain at least one letter and one number";
       return res.redirect("/new-password");
     }
 

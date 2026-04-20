@@ -34,8 +34,21 @@ const login = async (req, res) => {
     const Email = req.body.email || req.body.Email;
     const Password = req.body.password || req.body.Password;
 
-    if (!Email || !Password) {
-      req.session.adminError = "Email and Password are required";
+    if (!Email) {
+      req.session.adminError = "Email is required";
+      req.session.adminFormData = { email: Email };
+      return res.redirect("/admin");
+    }
+
+    const emailRegex = /^[a-zA-Z0-9+._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(Email)) {
+      req.session.adminError = "Invalid email format";
+      req.session.adminFormData = { email: Email };
+      return res.redirect("/admin");
+    }
+
+    if (!Password) {
+      req.session.adminError = "Password is required";
       req.session.adminFormData = { email: Email };
       return res.redirect("/admin");
     }

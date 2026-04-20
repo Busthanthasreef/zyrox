@@ -177,7 +177,7 @@
                 const confirmPasswordValue = document.getElementById("confirmPassword").value.trim();
 
 
-                const nameRegex = /^[a-zA-Z.]$/;
+                const nameRegex = /^[a-zA-Z\s]{3,50}$/;
                 const emailRegex = /^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
                 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
                 const phoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
@@ -192,46 +192,52 @@
                 phoneError.textContent = "";
                 passError.textContent = "";
 
+                let hasError = false;
 
-
-                // // Empty field validation
-                if (!Name && !emailValue && !passwordValue && !confirmPasswordValue) {
-                    event.preventDefault();
-                    nameError.textContent = "full name is required "
-                    emailError.textContent = "email is required"
-                    passError.textContent = "Password is required"
-                    return;
-                }
+                // Name validation
                 if (!Name) {
-                    event.preventDefault();
-                    nameError.textContent = "invalid email , please enter a valid email "
-                    return;
+                    nameError.textContent = "Full name is required";
+                    hasError = true;
+                } else if (!nameRegex.test(Name)) {
+                    nameError.textContent = "Full name must be 3-50 characters long and contain only letters";
+                    hasError = true;
                 }
 
                 // Email validation
-                if (!emailRegex.test(emailValue)) {
-                    event.preventDefault();
-                    emailError.textContent = "invalid email, please enter a valid email"
-                    return;
+                if (!emailValue) {
+                    emailError.textContent = "Email is required";
+                    hasError = true;
+                } else if (!emailRegex.test(emailValue)) {
+                    emailError.textContent = "Invalid email, please enter a valid email address";
+                    hasError = true;
                 }
 
                 // Phone validation
-                if (!phoneRegex.test(phoneValue)) {
-                    event.preventDefault();
-                    phoneError.textContent = "Invalid phone number, it must be an Indian phone number"
-                    return;
+                if (!phoneValue) {
+                    phoneError.textContent = "Phone number is required";
+                    hasError = true;
+                } else if (!phoneRegex.test(phoneValue)) {
+                    phoneError.textContent = "Invalid phone number, it must be a valid 10-digit Indian phone number";
+                    hasError = true;
                 }
 
                 // Password validation
-                if (!passwordRegex.test(passwordValue)) {
-                    event.preventDefault();
-                    passError.textContent = "Password must be at least 8 characters and must contain atleast one letter and one number"
-                    return;
+                if (!passwordValue) {
+                    passError.textContent = "Password is required";
+                    hasError = true;
+                } else if (!passwordRegex.test(passwordValue)) {
+                    passError.textContent = "Password must be at least 8 characters and contain at least one letter and one number";
+                    hasError = true;
+                } else if (!confirmPasswordValue) {
+                    passError.textContent = "Please confirm your password";
+                    hasError = true;
+                } else if (passwordValue !== confirmPasswordValue) {
+                    passError.textContent = "Passwords do not match";
+                    hasError = true;
                 }
 
-                // Confirm password match
-                if (passwordValue !== confirmPasswordValue) {
-                    passError.textContent = "Passwords do not match"
+                if (hasError) {
+                    event.preventDefault();
                     return;
                 }
 
