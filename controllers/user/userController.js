@@ -19,7 +19,7 @@ import Coupon from "../../models/coupon.js";
 const landingPage = async (req, res) => {
   try {
 
-    const categories = await Categories.find({});
+    const categories = await Categories.find({IsActive:true,IsDeleted:false});
     const loginSuccess = req.query.loginSuccess === "true";
     const currentUser = req.session.user?._id || null;
 
