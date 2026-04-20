@@ -1,5 +1,6 @@
 import Wishlist from "../models/wishlist.js";
 import Cart from "../models/cart.js";
+import Categories from "../models/category.js";
 
 /**
  * Global middleware that injects wishlistCount and cartItemCount
@@ -24,22 +25,41 @@ const attachLocalCounts = async (req, res, next) => {
         if (res.locals.cartItemCount === undefined) {
             res.locals.cartItemCount = 0;
         }
+        try {
+            const categories = await Categories.find({ IsActive: true, IsDeleted: false }).select("categoryName").lean();
+            res.locals.categories = categories || [];
+        } catch {
+            res.locals.categories = [];
+        }
+
+        // Add current brand filters for navbar
+        const brandQuery = req.query.brand;
+        res.locals.curBrands = brandQuery ? (Array.isArray(brandQuery) ? brandQuery : [brandQuery]) : [];
+
         return next();
     }
 
     try {
-        const [wishlist, cart] = await Promise.all([
+        const [wishlist, cart, categories] = await Promise.all([
             Wishlist.findOne({ User_id: userId }).select("Products").lean(),
-            Cart.findOne({ User_id: userId }).select("Items").lean()
+            Cart.findOne({ User_id: userId }).select("Items").lean(),
+            Categories.find({ IsActive: true, IsDeleted: false }).select("categoryName").lean()
         ]);
 
         res.locals.wishlistCount = wishlist?.Products?.length ?? 0;
+        res.locals.categories = categories || [];
+
+        // Add current brand filters for navbar
+        const brandQuery = req.query.brand;
+        res.locals.curBrands = brandQuery ? (Array.isArray(brandQuery) ? brandQuery : [brandQuery]) : [];
 
         if (res.locals.cartItemCount === undefined) {
             res.locals.cartItemCount = cart?.Items?.length ?? 0;
         }
     } catch {
         res.locals.wishlistCount = 0;
+        res.locals.categories = [];
+        res.locals.curBrands = [];
         if (res.locals.cartItemCount === undefined) {
             res.locals.cartItemCount = 0;
         }

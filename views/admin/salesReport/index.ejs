@@ -441,11 +441,25 @@
                     <div class="table-header">
                         <h5 class="m-0 fw-bold" style="font-size: 1.1rem;">Recent Transactions</h5>
                         <div class="d-flex gap-2">
-                            <input type="text" class="table-search" placeholder="Search order ID or customer...">
-                            <select class="form-select form-select-sm border-0 bg-light"
+                            <input type="text" name="search" form="salesFilterForm" class="table-search"
+                                placeholder="Search order ID or customer..."
+                                value="<%= typeof search !== 'undefined' ? search : '' %>">
+                            <select name="status" form="salesFilterForm"
+                                class="form-select form-select-sm border-0 bg-light"
                                 style="width: 130px; border-radius: 8px;">
-                                <option>All Status</option>
+                                <option value="">All Status</option>
+                                <option value="Pending" <%=typeof status !=='undefined' && status==='Pending'
+                                    ? 'selected' : '' %>>Pending</option>
+                                <option value="Processing" <%=typeof status !=='undefined' && status==='Processing'
+                                    ? 'selected' : '' %>>Processing</option>
+                                <option value="Shipped" <%=typeof status !=='undefined' && status==='Shipped'
+                                    ? 'selected' : '' %>>Shipped</option>
+                                <option value="Delivered" <%=typeof status !=='undefined' && status==='Delivered'
+                                    ? 'selected' : '' %>>Delivered</option>
                             </select>
+                            <button type="submit" form="salesFilterForm" class="btn btn-sm shadow-sm"
+                                style="background:#fff; border:1px solid #e2e8f0; border-radius:8px;"><i
+                                    class="bi bi-search"></i></button>
                         </div>
                     </div>
                     <div class="table-responsive">

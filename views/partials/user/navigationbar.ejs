@@ -90,37 +90,54 @@
         top: calc(100% + 14px);
         left: 0;
         background-color: #1a1a1a;
-        min-width: 190px;
-        border-radius: 8px;
+        border-radius: 12px;
         border: 1px solid #2a2a2a;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
         z-index: 999;
-        padding: 6px 0;
+        padding: 10px;
+        flex-direction: column;
+        flex-wrap: wrap;
+        max-height: 260px;
+        /* Approx 6 rows of 40px */
+        min-width: 200px;
+        width: max-content;
+        gap: 2px;
     }
 
-    .dropdown::after .dropdown-menu {
-        display: inline;
+    .dropdown:hover .dropdown-menu {
+        display: flex;
     }
 
-    .dropdown-menu a {
-        display: block;
-        padding: 10px 18px;
-        color: #fff !important;
-        text-decoration: none !important;
-        font-size: 14px;
+    .dropdown-item-wrap {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 13.5px;
+        transition: all 0.2s;
+        cursor: pointer;
+        width: 190px;
+        gap: 12px;
+        border-radius: 6px;
+    }
+
+    .dropdown-item-wrap:hover {
+        background: rgba(0, 255, 4, 0.05);
+        color: #00ff04;
+    }
+
+    .dropdown-item-wrap input[type="checkbox"] {
+        accent-color: #00ff04;
+        width: 15px;
+        height: 15px;
+        cursor: pointer;
+    }
+
+    .dropdown-item-wrap span {
         white-space: nowrap;
-        transition: background 0.2s, color 0.2s, padding 0.2s;
-        border-bottom: 1px solid #2a2a2a;
-    }
-
-    .dropdown-menu a:last-child {
-        border-bottom: none;
-    }
-
-    .dropdown-menu a:hover {
-        background-color: #2a2a2a;
-        color: #00ff04 !important;
-        padding-left: 24px;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     /* ===== SEARCH BOX ===== */
@@ -494,19 +511,25 @@
 
         <!-- Categories Dropdown -->
         <li class="dropdown">
-            <a class=" <%= currentPage === 'categories' ? 'active' : '' %>">
+            <a href="/products" class="dropdown-toggle <%= currentPage === 'categories' ? 'active' : '' %>">
                 Categories
             </a>
             <div class="dropdown-menu">
                 <% if (typeof categories !=='undefined' && categories.length> 0) { %>
                     <% categories.forEach(category=> { %>
-                        <a href="/categories/<%= category._id %>">
-                            <i class="fas fa-tag" style="font-size:11px; margin-right:8px; color:#00ff04;"></i>
-                            <%= category.categoryName %>
-                        </a>
+                        <div class="dropdown-item-wrap"
+                            onclick="handleCategorySelect(event, '<%= category.categoryName %>')">
+                            <input type="checkbox" value="<%= category.categoryName %>" <%=typeof curBrands
+                                !=='undefined' && curBrands.includes(category.categoryName) ? 'checked' : '' %>
+                            onclick="event.stopPropagation(); handleCategorySelect(event, '<%= category.categoryName %>
+                                ')">
+                                <span>
+                                    <%= category.categoryName %>
+                                </span>
+                        </div>
                         <% }) %>
                             <% } else { %>
-                                <a href="#">No categories found</a>
+                                <div class="dropdown-item-wrap">No categories found</div>
                                 <% } %>
             </div>
         </li>
@@ -629,13 +652,13 @@
         <!-- Sidebar Categories Accordion -->
         <li>
             <details class="sidebar-dropdown">
-                <!-- <summary class="<%= currentPage === 'categories' ? 'active' : '' %>">
+                <summary class="<%= currentPage === 'categories' ? 'active' : '' %>">
                     Categories
-                </summary> -->
+                </summary>
                 <div class="sidebar-cat-links">
                     <% if (typeof categories !=='undefined' && categories.length> 0) { %>
                         <% categories.forEach(category=> { %>
-                            <a href="/categories/<%= category._id %>" onclick="toggleSidebar()">
+                            <a href="/products?brand=<%= category.categoryName %>" onclick="toggleSidebar()">
                                 <i class="fas fa-tag" style="font-size:11px; margin-right:8px; color:#00ff04;"></i>
                                 <%= category.categoryName %>
                             </a>
@@ -742,6 +765,41 @@
         attributes: true,
         attributeFilter: ['class']
     });
+
+    // Category Filter from Navbar
+    function handleCategorySelect(event, categoryName) {
+        // Find the checkbox within the current context (either event target or currentTarget)
+        const checkbox = event.currentTarget.tagName === 'DIV'
+            ? event.currentTarget.querySelector('input[type="checkbox"]')
+            : event.target;
+
+        // If clicked on the div, manually toggle checkbox (if event wasn't from the checkbox itself)
+        if (event.currentTarget.tagName === 'DIV' && event.target !== checkbox) {
+            checkbox.checked = !checkbox.checked;
+        }
+
+        updateCategoryFilters();
+    }
+
+    function updateCategoryFilters() {
+        const checkboxes = document.querySelectorAll('.dropdown-item-wrap input[type="checkbox"]:checked');
+        const selected = Array.from(checkboxes).map(cb => cb.value);
+
+        const currentUrl = new URL(window.location.href);
+        const productsUrl = new URL(window.location.origin + '/products');
+
+        // If we're already on the products page, keep other filters but update brand
+        if (window.location.pathname === '/products') {
+            currentUrl.searchParams.delete('brand');
+            currentUrl.searchParams.delete('page'); // Reset to first page
+            selected.forEach(val => currentUrl.searchParams.append('brand', val));
+            window.location.href = currentUrl.toString();
+        } else {
+            // If on another page, just go to products with the brand filter
+            selected.forEach(val => productsUrl.searchParams.append('brand', val));
+            window.location.href = productsUrl.toString();
+        }
+    }
 </script>
 
 <!-- Bootstrap JS -->
@@ -796,9 +854,9 @@
                 <!-- ── GLOBAL SESSION ALERTS (Swal) ── -->
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
-                        const success = <%- JSON.stringify(successMessage || '') %>;
-                        const error = <%- JSON.stringify(errorMessage || '') %>;
-                        const info = <%- JSON.stringify(infoMessage || '') %>;
+                        const success = <% - JSON.stringify(successMessage || '') %>;
+                        const error = <% - JSON.stringify(errorMessage || '') %>;
+                        const info = <% - JSON.stringify(infoMessage || '') %>;
 
                         if (success) {
                             Swal.fire({

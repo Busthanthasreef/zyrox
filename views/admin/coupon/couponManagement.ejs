@@ -572,10 +572,16 @@
                             year: 'numeric' }) %>
                         </td>
                         <td>
-                          <span class="badge-status <%= coupon.isActive ? 'badge-active' : '' %>"
-                            style="background-color: <%= coupon.isActive ? '' : 'rgba(255,0,0,0.15)' %>; color: <%= coupon.isActive ? '' : '#c32222' %>">
-                            <%= coupon.isActive ? 'Active' : 'Inactive' %>
-                          </span>
+                          <% if (coupon.usageLimit && coupon.usedCount>= coupon.usageLimit) { %>
+                            <span class="badge-status" style="background-color: rgba(255,0,0,0.15); color: #c32222">
+                              Limit Exceeded
+                            </span>
+                            <% } else { %>
+                              <span class="badge-status <%= coupon.isActive ? 'badge-active' : '' %>"
+                                style="background-color: <%= coupon.isActive ? '' : 'rgba(255,0,0,0.15)' %>; color: <%= coupon.isActive ? '' : '#c32222' %>">
+                                <%= coupon.isActive ? 'Active' : 'Inactive' %>
+                              </span>
+                              <% } %>
                         </td>
                         <td>
                           <div class="action-btns">

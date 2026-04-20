@@ -2,6 +2,7 @@ import Order from "../../models/order.js";
 import moment from "moment";
 import ExcelJS from "exceljs";
 import PDFDocument from "pdfkit";
+import User from "../../models/user.js";
 
 const getFilterDates = (filterType, customStart, customEnd) => {
     let startDate = null;
@@ -35,7 +36,7 @@ const getFilterDates = (filterType, customStart, customEnd) => {
     return { startDate, endDate };
 };
 
-const getSalesData = async (startDate, endDate, page = 1, limit = 10) => {
+const getSalesData = async (startDate, endDate, page = 1, limit = 10, search = '', status = '') => {
     const query = {
         orderStatus: { $nin: ["Cancelled", "Returned", "Cancellation Requested", "Return Requested"] },
         paymentStatus: { $ne: "Failed" },
@@ -44,6 +45,26 @@ const getSalesData = async (startDate, endDate, page = 1, limit = 10) => {
             $lte: endDate
         }
     };
+    
+    if (status) {
+        query.orderStatus = status;
+    }
+
+    if (search) {
+        const users = await User.find({
+            $or: [
+                { Name: { $regex: search, $options: "i" } },
+                { Email: { $regex: search, $options: "i" } }
+            ]
+        });
+        const userIds = users.map(u => u._id);
+        query.$or = [
+            { orderId: { $regex: search, $options: "i" } }
+        ];
+        if (userIds.length > 0) {
+            query.$or.push({ userId: { $in: userIds } });
+        }
+    }
     
     const totalsData = await Order.aggregate([
         { $match: query },
@@ -122,17 +143,21 @@ export const getSalesReport = async (req, res) => {
         const filterType = req.query.filterType || 'daily';
         const customStart = req.query.startDate;
         const customEnd = req.query.endDate;
+        const search = req.query.search || '';
+        const status = req.query.status || '';
         const page = parseInt(req.query.page) || 1;
         
         const { startDate, endDate } = getFilterDates(filterType, customStart, customEnd);
-        const data = await getSalesData(startDate, endDate, page, 5);
+        const data = await getSalesData(startDate, endDate, page, 5, search, status);
         
         res.render("admin/salesReport/index", {
             currentUser: req.session.admin,
             data,
             filterType,
             customStart,
-            customEnd
+            customEnd,
+            search,
+            status
         });
     } catch (error) {
         console.error("Error generating sales report:", error);
@@ -142,9 +167,9 @@ export const getSalesReport = async (req, res) => {
 
 export const exportExcel = async (req, res) => {
     try {
-        const { filterType, startDate: customStart, endDate: customEnd } = req.query;
+        const { filterType, startDate: customStart, endDate: customEnd, search = '', status = '' } = req.query;
         const { startDate, endDate } = getFilterDates(filterType, customStart, customEnd);
-        const data = await getSalesData(startDate, endDate, 1, 1000000);
+        const data = await getSalesData(startDate, endDate, 1, 1000000, search, status);
         
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Sales Report');
@@ -189,9 +214,9 @@ export const exportExcel = async (req, res) => {
 
 export const exportPDF = async (req, res) => {
     try {
-        const { filterType, startDate: customStart, endDate: customEnd } = req.query;
+        const { filterType, startDate: customStart, endDate: customEnd, search = '', status = '' } = req.query;
         const { startDate, endDate } = getFilterDates(filterType, customStart, customEnd);
-        const data = await getSalesData(startDate, endDate, 1, 1000000);
+        const data = await getSalesData(startDate, endDate, 1, 1000000, search, status);
         
         const doc = new PDFDocument({ margin: 40, size: 'A4' });
         const filename = `Zyrox_Sales_Report_${moment().format('YYYYMMDD')}.pdf`;
