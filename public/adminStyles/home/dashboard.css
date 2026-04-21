@@ -43,7 +43,7 @@
    STAT CARDS
    ===================== */
 .stat-card {
-  background:#ffff;
+  background: #ffff;
   border-radius: 10px;
   padding: 18px 18px 14px;
   border: 1px solid black;
@@ -105,7 +105,7 @@
    PANELS
    ===================== */
 .panel {
-  background:#f5f4f0;
+  background: #f5f4f0;
   border-radius: 9px;
   padding: 20px;
   border: 1px solid black;
@@ -290,7 +290,7 @@
 }
 
 .btn-view-all:hover {
-  background-color:#f0eeea;
+  background-color: #f0eeea;
 }
 
 /* =====================
@@ -351,7 +351,7 @@
 /* =====================
    RESPONSIVE
    ===================== */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .sidebar {
     width: 160px;
     min-width: 160px;
@@ -366,12 +366,17 @@
   }
 }
 
-@media (max-width: 576px) {
-  .sidebar {
-    display: none;
-  }
+.main-content {
+  padding: 12px;
+}
 
-  .main-content {
-    padding: 12px;
-  }
+.topbar {
+  flex-direction: column;
+  align-items: flex-start !important;
+  gap: 12px;
+}
+
+.stat-card {
+  padding: 15px 12px;
+}
 }

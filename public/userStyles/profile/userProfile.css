@@ -1,6 +1,6 @@
 body {
     background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .sidebar {
@@ -127,7 +127,7 @@ body {
 /* ========== RESPONSIVE ========== */
 
 /* Tablets: hide sidebar, show dropdown nav */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .sidebar {
         display: none !important;
     }
@@ -149,7 +149,7 @@ body {
 }
 
 /* Mobile phones */
-@media (max-width: 480px) {
+@media (max-width: 575px) {
     .profile-card {
         padding: 20px 16px;
         border-radius: 14px;

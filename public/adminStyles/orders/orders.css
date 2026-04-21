@@ -160,9 +160,11 @@ body {
 .table-area {
     flex: 1;
     overflow-y: auto;
+    overflow-x: auto;
 }
 
 .table-area::-webkit-scrollbar {
+    height: 4px;
     width: 0;
     background: transparent;
 }

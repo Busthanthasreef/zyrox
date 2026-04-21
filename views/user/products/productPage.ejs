@@ -7,8 +7,10 @@
   <title>Products — Zyrox</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <style>
     :root {
       --bg: #0d0f14;
@@ -834,29 +836,67 @@
     }
 
     /* RESPONSIVE */
+
     @media (max-width: 1200px) {
       .product-grid {
         grid-template-columns: repeat(3, 1fr);
       }
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 992px) {
       .main-row {
-        flex-direction: column;
+        flex-direction: column !important;
+      }
+
+      /* Desktop sidebar hidden on tablet/mobile, we'll use offcanvas */
+      .desktop-sidebar {
+        display: none !important;
       }
 
       .product-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 15px;
+      }
+
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+      }
+
+      .topbar-right-actions {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .topbar-right-actions>div,
+      .topbar-right-actions>button {
+        flex: 1;
       }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
       .product-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px;
+      }
+    }
+
+
+    @media (max-width: 575px) {
+      .product-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
       }
 
+
       .page-content {
-        padding: 20px 16px 40px;
+        padding: 15px 16px 40px !important;
+      }
+
+      .card-img-wrap {
+        height: 200px !important;
       }
     }
   </style>
@@ -941,123 +981,59 @@
                   </div>
             </div>
 
-            <!-- Sort -->
-            <div class="sort-wrap">
-              <button class="sort-btn">
-                <% const sortLabels=[ { val: '' , label: 'Default' }, { val: 'price_asc' ,
-                  label: 'Price: Low \u2192 High' }, { val: 'price_desc' , label: 'Price: High \u2192 Low' }, {
-                  val: 'name_asc' , label: 'Name: A\u2013Z' }, { val: 'name_desc' , label: 'Name: Z\u2013A' }, ]; %>
-                  Sort: <%= (sortLabels.find(o=> o.val === curSort) || sortLabels[0]).label %>
-                    <i class="fas fa-chevron-down"></i>
+            <!-- Sort & Filter actions -->
+            <div class="topbar-right-actions">
+              <!-- Filter button (Mobile/Tablet only) -->
+              <button class="sort-btn d-lg-none" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#filterOffcanvas">
+                <i class="fas fa-filter"></i>
+                Filter
               </button>
-              <div class="sort-dd">
-                <% sortLabels.forEach(o=> { %>
-                  <a href="<%= qs({ sort: o.val, page: 1 }) %>"
-                    class="sort-opt <%= curSort === o.val ? 'active' : '' %>">
-                    <%= o.label %> <i class="fas fa-check tick"></i>
-                  </a>
-                  <% }) %>
+
+              <div class="sort-wrap">
+                <button class="sort-btn">
+                  <% const sortLabels=[ { val: '' , label: 'Default' }, { val: 'price_asc' ,
+                    label: 'Price: Low \u2192 High' }, { val: 'price_desc' , label: 'Price: High \u2192 Low' }, {
+                    val: 'name_asc' , label: 'Name: A\u2013Z' }, { val: 'name_desc' , label: 'Name: Z\u2013A' }, ]; %>
+                    Sort: <%= (sortLabels.find(o=> o.val === curSort) || sortLabels[0]).label %>
+                      <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="sort-dd">
+                  <% sortLabels.forEach(o=> { %>
+                    <a href="<%= qs({ sort: o.val, page: 1 }) %>"
+                      class="sort-opt <%= curSort === o.val ? 'active' : '' %>">
+                      <%= o.label %> <i class="fas fa-check tick"></i>
+                    </a>
+                    <% }) %>
+                </div>
               </div>
             </div>
           </div>
 
+
           <!-- MAIN ROW -->
           <div class="main-row">
-
-
-
-            <!-- ===== SIDEBAR ===== -->
-
-            <aside>
-              <div style="border-color: #ffffff;">
-
-                <form id="filterForm" method="GET" action="/products">
-                  <% if (curSort) { %><input type="hidden" name="sort" value="<%= curSort %>">
-                    <% } %>
-                      <% if (curSearch) { %><input type="hidden" name="search" value="<%= curSearch %>">
-                        <% } %>
-
-                          <div class="sidebar-header">
-                            <span class="sidebar-title">Filter by</span>
-                            <a href="/products<% if (curSort) { %>?sort=<%= curSort %><% } %>" class="clear-all">Clear
-                              All</a>
-                          </div>
-
-                          <!-- BRANDS (CATEGORIES) -->
-                          <div class="sidebar-section">
-                            <div class="sidebar-section-title">Brands</div>
-                            <% if (safeBrands.length> 0) { %>
-                              <% safeBrands.forEach(brand=> { %>
-                                <div class="cb-row">
-                                  <label>
-                                    <input type="checkbox" name="brand" value="<%= brand.name %>"
-                                      <%=curBrands.includes(brand.name) ? 'checked' : '' %>
-                                    onchange="handlePriceSubmit()">
-                                    <span>
-                                      <%= brand.name %>
-                                    </span>
-                                  </label>
-                                  <span class="cb-count">
-                                    <%= brand.count %>
-                                  </span>
-                                </div>
-                                <% }) %>
-                                  <% } else { %>
-                                    <span class="no-data">No categories available</span>
-                                    <% } %>
-                          </div>
-
-                          <!-- PRICE RANGE -->
-                          <div class="sidebar-section">
-                            <div class="sidebar-section-title">Price Range</div>
-                            <div class="price-inputs-row">
-                              <div class="p-input-group">
-                                <label for="minPrice">Min</label>
-                                <div class="p-input-wrap">
-                                  <span>₹</span>
-                                  <input type="number" name="minPrice" id="minPriceInput" value="<%= curMin %>"
-                                    min="<%= PRICE_MIN_VAL %>" max="<%= PRICE_MAX_VAL %>" step="1"
-                                    onchange="this.form.submit()">
-                                </div>
-                              </div>
-                              <div class="p-input-group">
-                                <label for="maxPrice">Max</label>
-                                <div class="p-input-wrap">
-                                  <span>₹</span>
-                                  <input type="number" name="maxPrice" id="maxPriceInput" value="<%= curMax %>"
-                                    min="<%= PRICE_MIN_VAL %>" max="<%= PRICE_MAX_VAL %>" step="1"
-                                    onchange="this.form.submit()">
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-
-                          <!-- COLOR -->
-                          <div class="sidebar-section">
-                            <div class="sidebar-section-title">Color</div>
-                            <% if (safeColors.length> 0) { %>
-                              <% safeColors.forEach(color=> { %>
-                                <div class="cb-row">
-                                  <label>
-                                    <input type="checkbox" name="color" value="<%= color %>"
-                                      <%=curColors.includes(color) ? 'checked' : '' %>
-                                    onchange="handlePriceSubmit()">
-                                    <span>
-                                      <%= color %>
-                                    </span>
-                                  </label>
-                                </div>
-                                <% }) %>
-                                  <% } else { %>
-                                    <span class="no-data">No colors</span>
-                                    <% } %>
-                          </div>
-
-
-                </form>
-              </div>
+            <!-- ===== DESKTOP SIDEBAR ===== -->
+            <aside class="desktop-sidebar d-none d-lg-block">
+              <%- include('../../partials/user/productFilterForm', { curSort, curSearch, safeBrands, curBrands,
+                PRICE_MIN_VAL, PRICE_MAX_VAL, curMin, curMax, safeColors, curColors, isMobile: false }) %>
             </aside>
+
+            <!-- ===== MOBILE/TABLET SIDEBAR (OFFCANVAS) ===== -->
+            <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="filterOffcanvas"
+              aria-labelledby="filterOffcanvasLabel" style="width: 300px;">
+              <div class="offcanvas-header border-bottom border-secondary">
+                <h5 class="offcanvas-title fw-bold" id="filterOffcanvasLabel">Filter Options</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                  aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                <%- include('../../partials/user/productFilterForm', { curSort, curSearch, safeBrands, curBrands,
+                  PRICE_MIN_VAL, PRICE_MAX_VAL, curMin, curMax, safeColors, curColors, isMobile: true, suffix: 'Mobile'
+                  }) %>
+              </div>
+            </div>
+
             <!-- ===== PRODUCTS ===== -->
             <div class="content-area" id="productContainer">
               <div class="loading-overlay">
@@ -1240,10 +1216,13 @@
           const JS_PRICE_MAX = 999999;
           const JS_MIN_GAP = 5000;
 
-          function handlePriceSubmit() {
+          function handlePriceSubmit(suffix = '') {
             showLoading();
-            document.getElementById('filterForm').submit();
+            const formId = 'filterForm' + suffix;
+            const form = document.getElementById(formId);
+            if (form) form.submit();
           }
+
 
           function showLoading() {
             const container = document.getElementById('productContainer');
@@ -1347,6 +1326,8 @@
           }
 
         </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 
 </html>

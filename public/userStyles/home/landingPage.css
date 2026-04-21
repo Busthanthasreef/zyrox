@@ -1,3 +1,26 @@
+
+/* ENTIRELY RESPONSIVE FIXES */
+* { max-width: 100vw; box-sizing: border-box; }
+body { overflow-x: hidden; }
+.hero-content { width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 20px; }
+.hero-text { flex: 1; }
+.hero-image { flex: 1; position: relative !important; right: auto !important; top: auto !important; transform: none !important; opacity: 1 !important; display: block !important; }
+
+@media (max-width: 992px) {
+    .hero-content { flex-direction: column; text-align: center; padding: 40px 20px; }
+    .hero-image { width: 250px !important; margin: 20px auto !important; }
+    .products-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .categories-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    .footer-content { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+@media (max-width: 575px) {
+    .hero-text h1 { font-size: 28px !important; }
+    .hero-image { width: 180px !important; }
+    .products-grid { grid-template-columns: 1fr !important; }
+    .categories-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .footer-content { grid-template-columns: 1fr !important; }
+}
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 * {
@@ -107,7 +130,7 @@ body {
 }
 
 .hero-offer-code span {
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 20px;
     font-weight: 800;
     letter-spacing: 2px;
@@ -283,7 +306,7 @@ body {
     background-color: #dc2626;
 }
 
-.product-image {
+.product-image { max-width: 100%; object-fit: cover;
     width: 100%;
     height: 250px;
     object-fit: cover;
@@ -427,8 +450,8 @@ body {
            RESPONSIVE MEDIA QUERIES
            =================================== */
 
-/* Large Tablets & Small Desktops (992px - 1199px) */
-@media (max-width: 1199px) {
+/* Tablet & Small Desktops (992px) */
+@media (max-width: 992px) {
 
     .hero,
     .categories,
@@ -469,14 +492,13 @@ body {
     }
 }
 
-/* Tablets (768px - 991px) - Hide search only, keep nav links and icons */
-@media (max-width: 1199px) {
+@media (max-width: 992px) {
     .search-box {
         width: 190px;
     }
 }
 
-@media (max-width: 991px) {
+@media (max-width: 992px) {
 
     /* Hide ONLY search bar */
     .search-box {
@@ -546,20 +568,20 @@ body {
     }
 }
 
-/* Mobile (below 768px) - Show hamburger, hide nav links */
-@media (max-width: 941px) {
+/* Tablets and Mobile - Show hamburger, hide nav links */
+@media (max-width: 992px) {
     .search-box {
         width: 270px;
     }
 }
 
-@media (max-width: 850px) {
+@media (max-width: 992px) {
     .search-box {
         width: 170px;
     }
 }
 
-@media (max-width: 827px) {
+@media (max-width: 992px) {
 
     /* Show hamburger menu */
     .hamburger {
@@ -670,7 +692,7 @@ body {
         padding: 15px;
     }
 
-    .product-image {
+    .product-image { max-width: 100%; object-fit: cover;
         height: 200px;
         margin-bottom: 12px;
     }
@@ -703,7 +725,7 @@ body {
     }
 }
 
-@media (max-width:851px) {
+@media (max-width: 992px) {
     .search-box {
         width: 200px;
     }
@@ -810,7 +832,7 @@ body {
         padding: 15px;
     }
 
-    .product-image {
+    .product-image { max-width: 100%; object-fit: cover;
         height: 200px;
         margin-bottom: 12px;
     }
@@ -981,7 +1003,7 @@ body {
         font-size: 14px;
     }
 
-    .product-image {
+    .product-image { max-width: 100%; object-fit: cover;
         height: 250px;
     }
 
@@ -1047,13 +1069,13 @@ body {
     }
 }
 
-@media (max-width: 941px) {
+@media (max-width: 992px) {
     .search-box {
         width: 110px;
     }
 }
 
-@media (max-width: 941px) {
+@media (max-width: 992px) {
     .search-box {
         width: 140px;
     }
@@ -1064,7 +1086,7 @@ body {
 }
 
 /* Extra Small Devices (< 375px) */
-@media (max-width: 394px) {
+@media (max-width: 575px) {
     .nav-icons {
         gap: 10px;
         margin-right: 45px;
@@ -1094,7 +1116,7 @@ body {
         font-size: 16px;
     }
 
-    .product-image {
+    .product-image { max-width: 100%; object-fit: cover;
         height: 220px;
     }
 

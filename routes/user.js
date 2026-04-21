@@ -39,7 +39,7 @@ userRoutes.get("/signin", isUserGuest, userController.loadSignIn);
 userRoutes.post("/signin", isUserGuest, userController.userSignIn);
 
 /* FORGOT PASSWORD */
-userRoutes.post("/forgot-password", isUserGuest, userController.sendResetOtp);
+userRoutes.post("/forgot-password", isUserGuest, userController.loadForgotPassword);
 userRoutes.post("/verify-reset-otp", userController.verifyResetOtp);
 userRoutes.post("/resend-reset-otp", userController.resendOtp); // Reusing resendOtp or creating a specific one if needed
 

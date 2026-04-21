@@ -30,3 +30,15 @@
 .form-row .form-group {
     flex: 1;
 }
+
+@media (max-width: 576px) {
+    .radio-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}

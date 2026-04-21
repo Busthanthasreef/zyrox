@@ -4,8 +4,10 @@
 
 :root {
   --admin-sidebar-w: 260px;
-  --admin-sidebar-bg: #111827; /* Deep Navy/Dark Gray */
-  --admin-accent: #e8522a;     /* Zyrox Orange */
+  --admin-sidebar-bg: #111827;
+  /* Deep Navy/Dark Gray */
+  --admin-accent: #e8522a;
+  /* Zyrox Orange */
   --admin-text-dim: rgba(255, 255, 255, 0.6);
   --admin-text-bright: #ffffff;
   --admin-radius: 12px;
@@ -192,23 +194,95 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .sidebar {
     width: 80px !important;
     min-width: 80px !important;
   }
+
   .sidebar-logo span,
   .sidebar-section-label,
   .nav-item span,
   .user-info {
     display: none;
   }
+
   .sidebar-logo {
     margin: 10px;
     padding: 10px;
   }
+
   .nav-item {
     justify-content: center;
     padding: 15px;
+  }
+}
+
+/* Admin Mobile Header */
+.admin-mobile-header {
+  display: none;
+  background: var(--admin-sidebar-bg);
+  padding: 15px 20px;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1100;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--admin-text-bright);
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.header-logo i {
+  color: var(--admin-accent);
+}
+
+.sidebar-toggle {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .admin-mobile-header {
+    display: flex;
+  }
+
+  .sidebar {
+    position: fixed !important;
+    left: -100% !important;
+    transition: left 0.3s ease !important;
+    width: var(--admin-sidebar-w) !important;
+    min-width: var(--admin-sidebar-w) !important;
+  }
+
+  .sidebar.mobile-show {
+    left: 0 !important;
+  }
+
+  .admin-main {
+    padding-top: 60px !important;
+  }
+
+  .sidebar-logo span,
+  .sidebar-section-label,
+  .nav-item span,
+  .user-info {
+    display: block !important;
+  }
+
+  .nav-item {
+    justify-content: flex-start !important;
   }
 }

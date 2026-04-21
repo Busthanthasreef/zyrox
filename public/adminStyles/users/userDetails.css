@@ -270,7 +270,7 @@ body {
 .order-id {
     font-weight: 600;
     color: var(--text-dark);
-    font-family: monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 13px;
 }
 
@@ -305,7 +305,7 @@ body {
 }
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .sidebar {
         width: 160px;
         min-width: 160px;

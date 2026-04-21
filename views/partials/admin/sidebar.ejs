@@ -1,5 +1,16 @@
+<!-- ===================== MOBILE HEADER ===================== -->
+<div class="admin-mobile-header">
+    <div class="header-logo">
+        <i class="bi bi-shop"></i>
+        <span>Zyrox</span>
+    </div>
+    <button class="sidebar-toggle" onclick="toggleAdminSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+</div>
+
 <!-- ===================== SIDEBAR ===================== -->
-<aside class="sidebar">
+<aside class="sidebar" id="adminSidebar">
     <div class="sidebar-logo">
         <i class="bi bi-shop"></i>
         <span>Zyrox</span>
@@ -79,5 +90,10 @@
                 window.location.href = "/admin/logout";
             }
         });
+    }
+
+    function toggleAdminSidebar() {
+        const sidebar = document.getElementById('adminSidebar');
+        sidebar.classList.toggle('mobile-show');
     }
 </script>

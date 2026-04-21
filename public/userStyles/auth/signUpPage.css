@@ -166,7 +166,7 @@
     /* ========== RESPONSIVE ========== */
 
     /* Tablets (≤768px) */
-    @media (max-width: 768px) {
+    @media (max-width: 992px) {
         body {
             align-items: flex-start;
             padding: 30px 16px;
@@ -182,7 +182,7 @@
     }
 
     /* Mobile (≤480px) */
-    @media (max-width: 480px) {
+    @media (max-width: 575px) {
         body {
             padding: 20px 12px;
         }

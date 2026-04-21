@@ -1,4 +1,4 @@
-<aside class="sidebar d-none d-md-flex">
+<aside class="sidebar d-none d-lg-flex">
     <div class="logo">Zyrox<span>.</span></div>
     <a href="/" class="go-back"><i class="fa-solid fa-arrow-left"></i> Home</a>
 
@@ -11,7 +11,7 @@
     <a href="/myOrders" class="<%= activePage === 'orders' ? 'active' : '' %>">
         <i class="fa-solid fa-box"></i> My Orders
     </a>
-    
+
     <a href="/wallet" class="<%= activePage === 'wallet' ? 'active' : '' %>">
         <i class="fa-solid fa-wallet"></i> Wallet
     </a>
@@ -22,24 +22,90 @@
     </div>
 </aside>
 
-   <script>
-        function confirmLogout() {
-            Swal.fire({
-                background: '#111422',
-                color: '#f0f2ff',
-                icon: 'warning',
-                title: 'Logout?',
-                text: "Are you sure you want to end your session?",
-                showCancelButton: true,
-                confirmButtonText: "Yes, logout",
-                cancelButtonText: "Cancel",
-                confirmButtonColor: '#ff4d6d',
-                cancelButtonColor: 'rgba(255,255,255,0.1)',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "/logout"
-                }
-            })
-        }
-    </script>
+<!-- Mobile Profile Nav -->
+<div class="profile-mobile-nav d-lg-none">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="logo-sm">Zyrox<span>.</span></div>
+        <a href="/" class="btn btn-sm btn-outline-light"><i class="fa-solid fa-arrow-left"></i> Home</a>
+    </div>
+    <div class="mobile-links-scroll">
+        <a href="/profile" class="<%= activePage === 'profile' ? 'active' : '' %>">Profile</a>
+        <a href="/address" class="<%= activePage === 'address' ? 'active' : '' %>">Addresses</a>
+        <a href="/myOrders" class="<%= activePage === 'orders' ? 'active' : '' %>">Orders</a>
+        <a href="/wallet" class="<%= activePage === 'wallet' ? 'active' : '' %>">Wallet</a>
+    </div>
+</div>
+
+<style>
+    .profile-mobile-nav {
+        background: var(--bg-card);
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .logo-sm {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--text-1);
+    }
+
+    .logo-sm span {
+        color: var(--accent);
+    }
+
+    .mobile-links-scroll {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .mobile-links-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    .mobile-links-scroll a {
+        white-space: nowrap;
+        padding: 8px 16px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        color: var(--text-2);
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .mobile-links-scroll a.active {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+    }
+</style>
+
+<script>
+    function confirmLogout() {
+        Swal.fire({
+            background: '#111422',
+            color: '#f0f2ff',
+            icon: 'warning',
+            title: 'Logout?',
+            text: "Are you sure you want to end your session?",
+            showCancelButton: true,
+            confirmButtonText: "Yes, logout",
+            cancelButtonText: "Cancel",
+            confirmButtonColor: '#ff4d6d',
+            cancelButtonColor: 'rgba(255,255,255,0.1)',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "/logout"
+            }
+        })
+    }
+</script>

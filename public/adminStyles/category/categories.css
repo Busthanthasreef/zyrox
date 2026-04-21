@@ -347,7 +347,7 @@ body {
 }
 
 .cat-id {
-    font-family: 'Courier New', monospace;
+    font-family: 'Inter', sans-serif;
     font-size: 11px;
     background: var(--bg);
     padding: 3px 7px;
@@ -842,7 +842,7 @@ body {
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .table-toolbar {
         flex-direction: column;
         align-items: flex-start;
