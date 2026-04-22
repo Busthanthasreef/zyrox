@@ -467,7 +467,7 @@ const verifyResetOtp = async (req, res) => {
    RESET PASSWORD
 ========================= */
 const loadNewPassword = (req, res) => {
-  if (!req.session.isOtpVerified) return res.redirect("/forgot-password");
+  // if (!req.session.isOtpVerified) return res.redirect("/forgot-password");
 
   const passError = req.session.passError || null;
   const passSwal = !!req.session.passSwal;
@@ -504,7 +504,7 @@ const resetPassword = async (req, res) => {
     delete req.session.resetEmail;
     delete req.session.isOtpVerified;
 
-    req.session.passSwal = true;
+    req.session.passSwal = true; 
     res.redirect("/new-password");
   } catch (error) {
     console.log("Reset Password Error:", error);
