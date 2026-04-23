@@ -20,7 +20,7 @@
 </head>
 
 <body class="admin-body">
-    <%- include('../../partials/admin/Sidebar', { currentPage: 'categories' , currentUser: admin }) %>
+    <%- include('../../partials/admin/sidebar', { currentPage: 'categories' , currentUser: admin }) %>
 
         <main class="admin-main">
             <div class="main-content">
@@ -475,32 +475,52 @@
             editToggle.addEventListener('change', () => syncStatusLabel(editToggle, editStatusLabel));
 
             /* ── Modal Controls ── */
-            function openAddModal() { document.getElementById('addCategoryModal').classList.add('show'); }
-            function closeAddModal() { document.getElementById('addCategoryModal').classList.remove('show'); }
+            const openModalClass = 'show';
+            const scrollLockClass = 'modal-open';
+            function updateScrollLock() {
+                const hasOpenModal = document.querySelector(`.modal-overlay.${openModalClass}`);
+                document.body.classList.toggle(scrollLockClass, !!hasOpenModal);
+            }
+            function openAddModal() {
+                document.getElementById('addCategoryModal').classList.add(openModalClass);
+                updateScrollLock();
+            }
+            function closeAddModal() {
+                document.getElementById('addCategoryModal').classList.remove(openModalClass);
+                updateScrollLock();
+            }
 
             function openEditModal(id, name, status) {
                 const modal = document.getElementById('editCategoryModal');
-                modal.classList.add('show');
+                modal.classList.add(openModalClass);
                 document.getElementById('editCategoryId').value = id;
                 document.getElementById('editCategoryName').value = name;
                 editToggle.checked = (status === 'true' || status === true);
                 syncStatusLabel(editToggle, editStatusLabel);
                 document.getElementById('editCategoryForm').action = `/admin/categories/${id}`;
+                updateScrollLock();
             }
 
-            function closeEditModal() { document.getElementById('editCategoryModal').classList.remove('show'); }
+            function closeEditModal() {
+                document.getElementById('editCategoryModal').classList.remove(openModalClass);
+                updateScrollLock();
+            }
 
             /* ── Close on backdrop click or Escape ── */
             document.querySelectorAll('.modal-overlay').forEach(overlay => {
                 overlay.addEventListener('click', function (e) {
-                    if (e.target === this) this.classList.remove('show');
+                    if (e.target === this) {
+                        this.classList.remove(openModalClass);
+                        updateScrollLock();
+                    }
                 });
             });
 
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
-                    document.querySelectorAll('.modal-overlay.show')
-                        .forEach(m => m.classList.remove('show'));
+                    document.querySelectorAll(`.modal-overlay.${openModalClass}`)
+                        .forEach(m => m.classList.remove(openModalClass));
+                    updateScrollLock();
                 }
             });
 

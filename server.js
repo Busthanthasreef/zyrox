@@ -5,12 +5,22 @@ import session from "express-session";
 import adminRoutes from "./routes/admin.js"; 
 import userRoutes from "./routes/user.js"; 
 import authRoutes from "./routes/auth.js"
-import errorHandler from "./middlewares/error.js"; 
+import { notFoundHandler, errorHandler } from "./middlewares/error.js"; 
 import passport from "./config/passport.js"
 import attachLocalCounts from "./middlewares/locals.js";
 import nocache from "nocache";
+import crypto from "node:crypto";
 
 const app = express();
+const isProduction = process.env.NODE_ENV === "production";
+const sessionSecret = process.env.SESSION_SECRET || (isProduction ? "" : crypto.randomUUID());
+
+if (!sessionSecret) {
+    throw new Error("SESSION_SECRET is required in production.");
+}
+if (!process.env.SESSION_SECRET && !isProduction) {
+    console.warn("SESSION_SECRET is not set. Using a temporary in-memory secret for development.");
+}
 
 // Database Connection
 await connectDB();
@@ -19,7 +29,7 @@ app.set("view engine","ejs");
 app.use(nocache());
 
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'zxcvbnm1234567',
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     name: "session",
@@ -40,6 +50,7 @@ app.use("/admin", adminRoutes);
 app.use("/", userRoutes);
 app.use("/auth", authRoutes);
 
+app.use(notFoundHandler);
 app.use(errorHandler);
     
 const PORT = process.env.PORT || 2999;

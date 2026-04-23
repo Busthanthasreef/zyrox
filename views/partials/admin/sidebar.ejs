@@ -72,7 +72,13 @@
     </div>
 
 </aside>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    if (!window.Swal) {
+        const swalScript = document.createElement('script');
+        swalScript.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+        document.head.appendChild(swalScript);
+    }
+</script>
 <script>
     function confirmLogout() {
         Swal.fire({

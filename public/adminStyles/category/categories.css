@@ -564,6 +564,10 @@ body {
 }
 
 /* ── Modal Overlay ── */
+body.modal-open {
+    overflow: hidden;
+}
+
 .modal-overlay {
     display: none;
     position: fixed;
