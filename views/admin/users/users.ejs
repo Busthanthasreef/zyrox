@@ -55,6 +55,12 @@
                                     <option value="blocked" <%=statusFilter==='blocked' ? 'selected' : '' %>>Blocked
                                     </option>
                                 </select>
+                                <select name="sortBy" class="filter-select" onchange="this.form.submit()">
+                                    <option value="newest" <%= sortBy === 'newest' ? 'selected' : '' %>>Newest First</option>
+                                    <option value="oldest" <%= sortBy === 'oldest' ? 'selected' : '' %>>Oldest First</option>
+                                    <option value="name_asc" <%= sortBy === 'name_asc' ? 'selected' : '' %>>Name: A-Z</option>
+                                    <option value="name_desc" <%= sortBy === 'name_desc' ? 'selected' : '' %>>Name: Z-A</option>
+                                </select>
                                 <button type="submit" class="search-submit-btn">
                                     <i class="bi bi-search"></i> Search
                                 </button>
@@ -199,7 +205,7 @@
                                     (endPage - startPage < 2) startPage=Math.max(1, endPage - 2); %>
                                     <!-- Previous -->
                                     <li>
-                                        <a href="?page=<%= Math.max(1, cp - 1) %>&search=<%= src %>&status=<%= stf %>"
+                                        <a href="?page=<%= Math.max(1, cp - 1) %>&search=<%= src %>&status=<%= stf %>&sortBy=<%= typeof sortBy !=='undefined' ? sortBy : '' %>"
                                             class="page-btn <%= cp <= 1 ? 'disabled' : '' %>">
                                             <i class="bi bi-chevron-left"></i> Previous
                                         </a>
@@ -207,7 +213,7 @@
                                     <!-- Page numbers -->
                                     <% for (let p=startPage; p <=endPage; p++) { %>
                                         <li>
-                                            <a href="?page=<%= p %>&search=<%= src %>&status=<%= stf %>"
+                                            <a href="?page=<%= p %>&search=<%= src %>&status=<%= stf %>&sortBy=<%= typeof sortBy !=='undefined' ? sortBy : '' %>"
                                                 class="page-btn <%= cp === p ? 'active' : '' %>">
                                                 <%= p %>
                                             </a>
@@ -218,7 +224,7 @@
                                                 <% } %>
                                                     <!-- Next -->
                                                     <li>
-                                                        <a href="?page=<%= cp + 1 %>&search=<%= src %>&status=<%= stf %>"
+                                                        <a href="?page=<%= cp + 1 %>&search=<%= src %>&status=<%= stf %>&sortBy=<%= typeof sortBy !=='undefined' ? sortBy : '' %>"
                                                             class="page-btn <%= cp >= tp ? 'disabled' : '' %>">
                                                             Next <i class="bi bi-chevron-right"></i>
                                                         </a>

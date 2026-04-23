@@ -990,8 +990,23 @@
                 Filter
               </button>
 
+              <!-- Search bar (always visible on product page) -->
+              <div class="search-wrap" style="position:relative;flex:1;max-width:320px;">
+                <input
+                  type="text"
+                  id="productSearchInput"
+                  placeholder="Search products…"
+                  value="<%= curSearch %>"
+                  autocomplete="off"
+                  style="width:100%;background:var(--bg-card);border:1px solid var(--border2);border-radius:12px;padding:10px 40px 10px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s;"
+                  onfocus="this.style.borderColor='var(--accent)'"
+                  onblur="this.style.borderColor='var(--border2)'"
+                >
+                <i class="fas fa-search" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--sub);font-size:.8rem;pointer-events:none;"></i>
+              </div>
+
               <div class="sort-wrap">
-                <button class="sort-btn">
+                <button class="sort-btn" type="button">
                   <% const sortLabels=[ { val: '' , label: 'Default' }, { val: 'price_asc' ,
                     label: 'Price: Low \u2192 High' }, { val: 'price_desc' , label: 'Price: High \u2192 Low' }, {
                     val: 'name_asc' , label: 'Name: A\u2013Z' }, { val: 'name_desc' , label: 'Name: Z\u2013A' }, ]; %>
@@ -1000,10 +1015,11 @@
                 </button>
                 <div class="sort-dd">
                   <% sortLabels.forEach(o=> { %>
-                    <a href="<%= qs({ sort: o.val, page: 1 }) %>"
-                      class="sort-opt <%= curSort === o.val ? 'active' : '' %>">
+                    <span
+                      class="sort-opt <%= curSort === o.val ? 'active' : '' %>"
+                      onclick="applySort('<%= o.val %>')">
                       <%= o.label %> <i class="fas fa-check tick"></i>
-                    </a>
+                    </span>
                     <% }) %>
                 </div>
               </div>
@@ -1216,6 +1232,40 @@
           const JS_PRICE_MAX = 999999;
           const JS_MIN_GAP = 5000;
 
+          // ── Core navigation: syncs ALL params from both forms then submits ────
+          function getActiveForm() {
+            // prefer desktop form; fall back to mobile
+            return document.getElementById('filterForm') || document.getElementById('filterFormMobile');
+          }
+
+          function applySort(val) {
+            showLoading();
+            // update hidden sort inputs in BOTH forms so they stay in sync
+            ['filterForm', 'filterFormMobile'].forEach(id => {
+              const f = document.getElementById(id);
+              if (!f) return;
+              const h = f.querySelector('[name="sort"]') || f.querySelector('#hiddenSort' + (id === 'filterFormMobile' ? 'Mobile' : ''));
+              if (h) h.value = val;
+            });
+            const form = getActiveForm();
+            if (form) form.submit();
+          }
+
+          function applySearch(val) {
+            showLoading();
+            ['filterForm', 'filterFormMobile'].forEach(id => {
+              const f = document.getElementById(id);
+              if (!f) return;
+              const h = f.querySelector('[name="search"]') || f.querySelector('#hiddenSearch' + (id === 'filterFormMobile' ? 'Mobile' : ''));
+              if (h) h.value = val;
+              // reset to page 1
+              const pg = f.querySelector('[name="page"]');
+              if (pg) pg.value = 1;
+            });
+            const form = getActiveForm();
+            if (form) form.submit();
+          }
+
           function handlePriceSubmit(suffix = '') {
             showLoading();
             const formId = 'filterForm' + suffix;
@@ -1223,11 +1273,27 @@
             if (form) form.submit();
           }
 
-
           function showLoading() {
             const container = document.getElementById('productContainer');
             if (container) container.classList.add('is-loading');
           }
+
+          // ── Search box wiring ────────────────────────────────────────────────
+          (function () {
+            const searchInput = document.getElementById('productSearchInput');
+            if (!searchInput) return;
+            let _timer;
+            searchInput.addEventListener('input', function () {
+              clearTimeout(_timer);
+              _timer = setTimeout(() => applySearch(this.value.trim()), 520);
+            });
+            searchInput.addEventListener('keydown', function (e) {
+              if (e.key === 'Enter') {
+                clearTimeout(_timer);
+                applySearch(this.value.trim());
+              }
+            });
+          })();
 
 
 
@@ -1311,14 +1377,11 @@
                 Swal.fire({
                   toast: true, position: 'top-end', icon: 'success',
                   title: data.action === 'added' ? 'Added to wishlist!' : 'Removed from wishlist',
-                  showConfirmButton: false, timer: 1600,
-                  background: 'black', color: "white", iconColor: data.action === 'added' ? 'green' : 'red'
-                });
-
-                setTimeout(() => {
+                  showConfirmButton: false, timer: 1500,
+                  background: '#1a1d24', color: '#f0f0f2', iconColor: data.action === 'added' ? '#4ade80' : '#e63946'
+                }).then(() => {
                   window.location.reload();
-
-                }, 1000)
+                });
               }
             } catch (err) {
               console.error("Wishlist Toggle Error:", err);

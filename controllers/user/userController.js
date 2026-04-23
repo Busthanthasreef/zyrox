@@ -491,9 +491,9 @@ const resetPassword = async (req, res) => {
       return res.redirect("/new-password");
     }
 
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     if (!Password || !passwordRegex.test(Password)) {
-      req.session.passError = "Password must be at least 8 characters and contain at least one letter and one number";
+      req.session.passError = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.";
       return res.redirect("/new-password");
     }
 

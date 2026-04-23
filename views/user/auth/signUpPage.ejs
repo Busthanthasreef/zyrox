@@ -66,6 +66,18 @@
                         <i class="bi bi-eye-slash"></i>
                     </div>
                 </div>
+                <!-- Strength Meter -->
+                <div class="strength-meter" id="strengthMeter">
+                    <div class="strength-meter-fill" id="strengthMeterFill"></div>
+                </div>
+                <!-- Password Requirements Checklist -->
+                <ul class="password-requirements" id="passwordRequirements">
+                    <li class="requirement" data-req="length"><i class="bi bi-circle"></i> At least 8 characters</li>
+                    <li class="requirement" data-req="uppercase"><i class="bi bi-circle"></i> At least one uppercase letter</li>
+                    <li class="requirement" data-req="lowercase"><i class="bi bi-circle"></i> At least one lowercase letter</li>
+                    <li class="requirement" data-req="number"><i class="bi bi-circle"></i> At least one number</li>
+                    <li class="requirement" data-req="symbol"><i class="bi bi-circle"></i> At least one symbol</li>
+                </ul>
             </div>
 
             <!-- Confirm Password -->
@@ -179,7 +191,7 @@
 
                 const nameRegex = /^[a-zA-Z\s]{3,50}$/;
                 const emailRegex = /^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
-                const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
                 const phoneRegex = /^(?:\+91|91|0)?[6-9]\d{9}$/;
 
                 const nameError = document.getElementById("nameError");
@@ -226,7 +238,7 @@
                     passError.textContent = "Password is required";
                     hasError = true;
                 } else if (!passwordRegex.test(passwordValue)) {
-                    passError.textContent = "Password must be at least 8 characters and contain at least one letter and one number";
+                    passError.textContent = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.";
                     hasError = true;
                 } else if (!confirmPasswordValue) {
                     passError.textContent = "Please confirm your password";
@@ -242,6 +254,96 @@
                 }
 
                 localStorage.removeItem("otp_timer_expiry");
+            });
+
+            // Dynamic validation clearing
+            document.getElementById('fullName').addEventListener('input', function() {
+                const nameError = document.getElementById("nameError");
+                if (/^[a-zA-Z\s]{3,50}$/.test(this.value.trim())) {
+                    nameError.textContent = "";
+                }
+            });
+
+            document.getElementById("Email").addEventListener('input', function() {
+                const emailError = document.getElementById("emailError");
+                if (/^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/.test(this.value.trim())) {
+                    emailError.textContent = "";
+                }
+            });
+
+            document.getElementById("Phone").addEventListener('input', function() {
+                const phoneError = document.getElementById("phoneError");
+                if (/^(?:\+91|91|0)?[6-9]\d{9}$/.test(this.value.trim())) {
+                    phoneError.textContent = "";
+                }
+            });
+
+            document.getElementById("confirmPassword").addEventListener('input', function() {
+                const passError = document.getElementById("passError");
+                const passwordValue = document.getElementById("Password").value.trim();
+                if (this.value.trim() === passwordValue && passwordValue !== "") {
+                    passError.textContent = "";
+                }
+            });
+
+            // Password strength logic
+            const strengthMeter = document.getElementById("strengthMeter");
+            const strengthMeterFill = document.getElementById("strengthMeterFill");
+            const requirementsList = document.getElementById("passwordRequirements");
+            const requirements = {
+                length: { re: /.{8,}/, el: document.querySelector('[data-req="length"]') },
+                uppercase: { re: /[A-Z]/, el: document.querySelector('[data-req="uppercase"]') },
+                lowercase: { re: /[a-z]/, el: document.querySelector('[data-req="lowercase"]') },
+                number: { re: /[0-9]/, el: document.querySelector('[data-req="number"]') },
+                symbol: { re: /[\W_]/, el: document.querySelector('[data-req="symbol"]') }
+            };
+
+            password.addEventListener("input", function () {
+                const val = password.value;
+                if (val.length > 0) {
+                    strengthMeter.style.display = "block";
+                    requirementsList.style.display = "block";
+                } else {
+                    strengthMeter.style.display = "none";
+                    requirementsList.style.display = "none";
+                }
+
+                let metCount = 0;
+                Object.keys(requirements).forEach(key => {
+                    const req = requirements[key];
+                    const isMet = req.re.test(val);
+                    if (isMet) {
+                        metCount++;
+                        req.el.classList.add("met");
+                        req.el.querySelector("i").className = "bi bi-check-circle-fill";
+                    } else {
+                        req.el.classList.remove("met");
+                        req.el.querySelector("i").className = "bi bi-circle";
+                    }
+                });
+
+                // Update meter
+                const percent = (metCount / 5) * 100;
+                strengthMeterFill.style.width = percent + "%";
+
+                if (metCount <= 2) {
+                    strengthMeterFill.style.backgroundColor = "#ef4444"; // Red
+                } else if (metCount <= 4) {
+                    strengthMeterFill.style.backgroundColor = "#f59e0b"; // Yellow
+                } else {
+                    strengthMeterFill.style.backgroundColor = "#10b981"; // Green
+                }
+
+                // Dynamic validation for password
+                const passError = document.getElementById("passError");
+                const confirmPasswordValue = document.getElementById("confirmPassword").value.trim();
+                if (val.length >= 8 && metCount === 5) { // Regex passed roughly
+                    if (!confirmPasswordValue || val === confirmPasswordValue) {
+                        passError.textContent = "";
+                    } else if (confirmPasswordValue && val !== confirmPasswordValue) {
+                        passError.textContent = "Passwords do not match";
+                    }
+                }
             });
 
         });

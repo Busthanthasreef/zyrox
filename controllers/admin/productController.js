@@ -10,6 +10,7 @@ const loadProducts = async (req, res) => {
         const search = req.query.search || "";
         const statusFilter = req.query.status || "";
         const categoryFilter = req.query.category || "";
+        const sortBy = req.query.sortBy || "newest";
         const page = parseInt(req.query.page) || 1;
 
         const limit = 4;
@@ -20,6 +21,7 @@ const loadProducts = async (req, res) => {
             search,
             statusFilter,
             categoryFilter,
+            sortBy,
             page,
             limit
         });
@@ -31,6 +33,7 @@ const loadProducts = async (req, res) => {
             search,
             statusFilter,
             categoryFilter,
+            sortBy,
             currentPage: page
         });
 

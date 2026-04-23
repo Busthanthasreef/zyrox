@@ -1132,10 +1132,10 @@
                                 </div>
 
                                 <div class="action-row">
-                                    <button type="button" class="btn-cart" id="btnAddToCart" <%- variant.stock===0
+                                    <button type="button" class="btn-cart" onclick="addToCart()" id="btnAddToCart" <%- variant.stock===0
                                         ? 'disabled' : '' %>
                                         data-pid="<%= variant.productId._id %>" data-vid="<%= variant._id %>"
-                                                onclick="addToCart()">
+                                                >
                                                 <i class="fas fa-cart-plus"></i> Add to Cart
                                     </button>
                                     <button type="button" class="btn-buy" id="btnBuyNow" onclick="buyNow()" <%-
@@ -1942,22 +1942,25 @@
                         You can add <strong style="color:#00ff04">${canAddMore}</strong> more unit${canAddMore === 1 ? '' : 's'}
                        </span>`,
                             showConfirmButton: false,
-                            timer: 2500,
+                            timer: 1500,
                             timerProgressBar: true,
                             iconColor: '#00d4a0',
-                        });
-
-                        setTimeout(() => {
+                        }).then(() => {
                             window.location.reload();
-
-                        }, 1500)
-                    }
+                        });
+                       
+                    } // end else
 
                 } catch (err) {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
                     console.error('addToCart error:', err);
-                    window.location.href = '/signin';
+                    Swal.fire({
+                        ...swalBase,
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong. Please try again.',
+                    });
                 }
             }
             /* ═══════════════════════════════════════════════════════════════════
@@ -2032,9 +2035,12 @@
 
                         Swal.fire({
                             toast: true, position: 'top-end', icon: 'success',
-                            title: data.action === 'added' ? 'Added to wishlist' : 'Removed from wishlist',
-                            showConfirmButton: false, timer: 1600,
-                            background: '#1a1d24', color: '#f0f0f2', iconColor: '#4ade80'
+                            title: data.action === 'added' ? 'Added to wishlist!' : 'Removed from wishlist',
+                            showConfirmButton: false, timer: 1500,
+                            background: '#1a1d24', color: '#f0f0f2',
+                            iconColor: data.action === 'added' ? '#4ade80' : '#e63946'
+                        }).then(() => {
+                            window.location.reload();
                         });
                     }
                 } catch (err) {

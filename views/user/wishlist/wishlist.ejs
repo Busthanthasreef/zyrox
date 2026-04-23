@@ -623,9 +623,15 @@
 
                     const data = await response.json();
                     if (data.success) {
-                        toast.fire({ icon: 'success', title: 'Added to cart' }).then(() => {
+                        toast.fire({ icon: 'success', title: 'Added to cart!' }).then(() => {
                             location.reload();
                         });
+                    } else if (data.limitReached) {
+                        toast.fire({ icon: 'warning', title: 'Cart limit reached', text: data.message });
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    } else if (data.requiresAuth || data.redirect) {
+                        window.location.href = '/signin';
                     } else {
                         throw new Error(data.message || 'Failed to add to cart');
                     }

@@ -75,7 +75,7 @@
 
         .page-body {
             padding: 24px 26px;
-            max-width: 700px;
+            width: 100%;
         }
 
         .panel {
@@ -140,7 +140,7 @@
 
         .img-grid-edit {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(115px, 1fr));
             gap: 12px;
         }
 
@@ -298,7 +298,139 @@
 
         .img-box-edit.has-image input[type="file"] {
             z-index: 1;
-            pointer-events: none;
+        }
+
+        /* ── LIVE PREVIEW STYLES ── */
+        .preview-panel {
+            background: #11141a;
+            border: 1px solid #2a2d35;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .preview-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #6366f1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, rgba(99, 102, 241, 0.3), transparent);
+        }
+
+        .mock-card {
+            background: #16181e;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 240px;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .mock-img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #1c1f26;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mock-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mock-img-placeholder {
+            color: #374151;
+            font-size: 2rem;
+            opacity: 0.5;
+        }
+
+        .mock-body {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .mock-brand {
+            font-size: 0.6rem;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mock-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #f0f0f2;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2rem;
+        }
+
+        .mock-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        .mock-spec {
+            font-size: 0.58rem;
+            font-weight: 500;
+            padding: 1px 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            color: #c5c5c5;
+        }
+
+        .mock-footer {
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .mock-price {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #00ff04;
+        }
+
+        .mock-btn {
+            background: linear-gradient(135deg, #0ce0a1, #00d4a0);
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 0.7rem;
         }
 
         .img-box-edit.img-error {
@@ -681,155 +813,181 @@
                     <form id="editProductForm" action="/admin/products-edit/<%= product._id %>" method="POST"
                         enctype="multipart/form-data">
 
-                        <!-- Basic Information -->
-                        <div class="panel">
-                            <div class="panel-title">
-                                <i class="bi bi-info-circle me-2 text-primary"></i>Basic Information
-                            </div>
+                        <div class="row g-4">
 
-                            <div class="mb-3">
-                                <label class="form-label">Product Name</label>
-                                <input type="text" name="productName" class="form-control"
-                                    placeholder="Enter product name" value="<%= product.productName %>" required>
-                            </div>
+                            <!-- LEFT COLUMN: Primary Data -->
+                            <div class="col-lg-7">
+                                <!-- Basic Information -->
+                                <div class="panel">
+                                    <div class="panel-title">
+                                        <i class="bi bi-info-circle me-2 text-primary"></i>Basic Information
+                                    </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Description</label>
-                                <textarea name="description" class="form-control"
-                                    placeholder="Describe this product..."><%= product.description %></textarea>
-                            </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Product Name</label>
+                                        <input type="text" name="productName" id="productName" class="form-control"
+                                            placeholder="Enter product name" value="<%= product.productName %>" required>
+                                    </div>
 
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <label class="form-label">Category</label>
-                                    <select name="category" class="form-select">
-                                        <option value="">Select a category</option>
-                                        <% if (typeof categories !=='undefined' ) { %>
-                                            <% categories.forEach(cat=> { %>
-                                                <option value="<%= cat._id %>" <%=product.categoryId &&
-                                                    product.categoryId._id?.toString()===cat._id.toString() ? 'selected'
-                                                    : '' %>>
-                                                    <%= cat.categoryName %>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">Category</label>
+                                            <select name="category" id="category" class="form-select">
+                                                <option value="">Select a category</option>
+                                                <% if (typeof categories !=='undefined' ) { %>
+                                                    <% categories.forEach(cat=> { %>
+                                                        <option value="<%= cat._id %>" <%=product.categoryId &&
+                                                            product.categoryId._id?.toString()===cat._id.toString() ? 'selected'
+                                                            : '' %>>
+                                                            <%= cat.categoryName %>
+                                                        </option>
+                                                        <% }) %>
+                                                            <% } %>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Status</label>
+                                            <select name="status" class="form-select">
+                                                <option value="active" <%=product.status==='active' ? 'selected' : '' %>>Active
                                                 </option>
-                                                <% }) %>
-                                                    <% } %>
-                                    </select>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label">Status</label>
-                                    <select name="status" class="form-select">
-                                        <option value="active" <%=product.status==='active' ? 'selected' : '' %>>Active
-                                        </option>
-                                        <option value="inactive" <%=product.status==='inactive' ? 'selected' : '' %>
-                                            >Inactive</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Default Variant Section -->
-                        <div class="panel">
-                            <div class="panel-title">
-                                <i class="bi bi-layers me-2 text-primary"></i>Default Variant Specs
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Color <span class="text-danger">*</span></label>
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="color-swatch" id="colorSwatch"
-                                        style="background: <%= defaultVariant && defaultVariant.colorHex ? defaultVariant.colorHex : '#3b82f6' %>">
-                                        <input type="color" id="colorPicker" name="colorHex"
-                                            value="<%= defaultVariant && defaultVariant.colorHex ? defaultVariant.colorHex : '#3b82f6' %>"
-                                            oninput="onPickerChange(this.value)">
+                                                <option value="inactive" <%=product.status==='inactive' ? 'selected' : '' %>
+                                                    >Inactive</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <input type="text" class="form-control" id="colorName" name="color"
-                                        placeholder="e.g. Midnight Black"
-                                        value="<%= defaultVariant ? defaultVariant.color : '' %>"
-                                        oninput="onNameChange(this.value)">
-                                </div>
-                                <p class="form-hint" style="font-size: 11.5px; color: #9ca3af; margin-top: 5px;">Pick a
-                                    color or type a name — they'll sync automatically.</p>
-                            </div>
 
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <label class="form-label">RAM (GB)</label>
-                                    <input type="number" name="ram" class="form-control"
-                                        value="<%= defaultVariant ? defaultVariant.RAM : '' %>">
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label">Storage (GB)</label>
-                                    <input type="number" name="storage" class="form-control"
-                                        value="<%= defaultVariant ? defaultVariant.storage : '' %>">
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label">Price (₹)</label>
-                                    <input type="number" name="price" class="form-control"
-                                        value="<%= defaultVariant ? defaultVariant.price : '' %>">
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label">Stock</label>
-                                    <input type="number" name="stock" class="form-control"
-                                        value="<%= defaultVariant ? defaultVariant.stock : '' %>">
-                                </div>
-                                <div class="col-12">
-                                    <label class="form-label">SKU</label>
-                                    <input type="text" name="sku" class="form-control"
-                                        value="<%= defaultVariant ? defaultVariant.SKU : '' %>">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Product Images -->
-                        <div class="panel">
-                            <div class="panel-title">
-                                <i class="bi bi-images me-2 text-primary"></i>Product Images
-                            </div>
-                            <p class="img-hint">You can upload up to 3 images for the default variant. Leave empty to
-                                keep
-                                existing.</p>
-                            <div class="img-grid-edit">
-                                <% for(let i=0; i < 5; i++) { %>
-                                    <div class="img-box-edit" id="eBox_<%= i %>">
-                                        <i class="bi bi-camera upload-icon"></i>
-                                        <span class="upload-label">
-                                            <%= i===0 ? 'Primary' : 'Extra ' + i %>
-                                        </span>
-                                        <span class="img-slot-badge">#<%= i + 1 %></span>
-
-                                        <img class="img-preview" id="ePreview_<%= i %>" src="" alt="">
-
-                                        <!-- Lightbox preview button -->
-                                        <button type="button" class="preview-btn"
-                                            onclick="event.stopPropagation(); openLightbox(<%= i %>)"
-                                            title="Preview image">
-                                            <i class="bi bi-zoom-in"></i>
-                                        </button>
-                                        <!-- Remove button -->
-                                        <button type="button" class="remove-btn"
-                                            onclick="event.stopPropagation(); removeImgSlot(<%= i %>)"
-                                            title="Remove image">
-                                            <i class="bi bi-x"></i>
-                                        </button>
-                                        <!-- Crop/edit button -->
-                                        <button type="button" class="crop-edit-btn"
-                                            onclick="event.stopPropagation(); openCropModal(<%= i %>)"
-                                            title="Crop & resize">
-                                            <i class="bi bi-crop"></i>
-                                        </button>
-
-                                        <input type="file" name="newImages[]" accept="image/*" id="eFile_<%= i %>"
-                                            onchange="onFileSelected(this, <%= i %>)">
+                                    <div class="mb-0">
+                                        <label class="form-label">Description</label>
+                                        <textarea name="description" class="form-control"
+                                            placeholder="Describe this product..."><%= product.description %></textarea>
                                     </div>
-                                    <% } %>
-                            </div>
-                        </div>
+                                </div>
 
-                        <div class="form-actions">
-                            <button type="button" class="btn-discard" onclick="confirmDiscard()">Discard</button>
-                            <button type="submit" class="btn-save" id="saveBtn">
-                                <i class="bi bi-check2 me-1"></i> Save Changes
-                            </button>
+                                <!-- Default Variant Section -->
+                                <div class="panel">
+                                    <div class="panel-title">
+                                        <i class="bi bi-layers me-2 text-primary"></i>Variant Specifications
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="form-label">Color <span class="text-danger">*</span></label>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="color-swatch" id="colorSwatch"
+                                                style="background: <%= defaultVariant && defaultVariant.colorHex ? defaultVariant.colorHex : '#3b82f6' %>">
+                                                <input type="color" id="colorPicker" name="colorHex"
+                                                    value="<%= defaultVariant && defaultVariant.colorHex ? defaultVariant.colorHex : '#3b82f6' %>"
+                                                    oninput="onPickerChange(this.value)">
+                                            </div>
+                                            <div style="flex:1">
+                                                <input type="text" class="form-control" id="colorName" name="color"
+                                                    placeholder="e.g. Midnight Black"
+                                                    value="<%= defaultVariant ? defaultVariant.color : '' %>"
+                                                    oninput="onNameChange(this.value)">
+                                                <p class="form-hint mb-0" style="font-size: 11px; color: #9ca3af; margin-top: 4px;">Syncs automatically with picker.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <label class="form-label">RAM (GB)</label>
+                                            <input type="number" name="ram" id="ramValue" class="form-control"
+                                                value="<%= defaultVariant ? defaultVariant.RAM : '' %>">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label">Storage (GB)</label>
+                                            <input type="number" name="storage" id="storageValue" class="form-control"
+                                                value="<%= defaultVariant ? defaultVariant.storage : '' %>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT COLUMN: Media & Inventory -->
+                            <div class="col-lg-5">
+                                <!-- Product Images -->
+                                <div class="panel">
+                                    <div class="panel-title">
+                                        <i class="bi bi-images me-2 text-primary"></i>Product Media
+                                    </div>
+                                    <p class="img-hint">Upload up to 5 images. At least 3 required.</p>
+                                    <div class="img-grid-edit">
+                                        <% for(let i=0; i < 5; i++) { %>
+                                            <div class="img-box-edit" id="eBox_<%= i %>">
+                                                <i class="bi bi-camera upload-icon"></i>
+                                                <span class="upload-label"><%= i===0 ? 'Primary' : '#' + (i + 1) %></span>
+                                                <span class="img-slot-badge">#<%= i + 1 %></span>
+                                                <img class="img-preview" id="ePreview_<%= i %>" src="" alt="">
+                                                <button type="button" class="preview-btn" onclick="event.stopPropagation(); openLightbox(<%= i %>)"><i class="bi bi-zoom-in"></i></button>
+                                                <button type="button" class="remove-btn" onclick="event.stopPropagation(); removeImgSlot(<%= i %>)"><i class="bi bi-x"></i></button>
+                                                <button type="button" class="crop-edit-btn" onclick="event.stopPropagation(); openCropModal(<%= i %>)"><i class="bi bi-crop"></i></button>
+                                                <input type="file" name="newImages[]" accept="image/*" id="eFile_<%= i %>" onchange="onFileSelected(this, <%= i %>)">
+                                            </div>
+                                            <% } %>
+                                    </div>
+                                </div>
+
+                                <!-- Pricing & Inventory -->
+                                <div class="panel">
+                                    <div class="panel-title">
+                                        <i class="bi bi-currency-dollar me-2 text-primary"></i>Pricing & Inventory
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-6">
+                                            <label class="form-label">Price (₹)</label>
+                                            <input type="number" name="price" id="variantPrice" class="form-control"
+                                                value="<%= defaultVariant ? defaultVariant.price : '' %>">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label">Stock</label>
+                                            <input type="number" name="stock" id="variantStock" class="form-control"
+                                                value="<%= defaultVariant ? defaultVariant.stock : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label">SKU</label>
+                                        <input type="text" name="sku" class="form-control"
+                                            value="<%= defaultVariant ? defaultVariant.SKU : '' %>">
+                                    </div>
+                                </div>
+
+                                <!-- Actions Panel -->
+                                <div class="panel bg-light">
+                                    <div class="form-actions border-0 p-0 m-0">
+                                        <button type="button" class="btn-discard w-100 mb-2" onclick="confirmDiscard()">Discard Changes</button>
+                                        <button type="submit" class="btn-save w-100" id="saveBtn">
+                                            <i class="bi bi-check2-circle me-1"></i> Update Product
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Live Preview Panel -->
+                                <div class="preview-panel">
+                                    <div class="preview-label">Live Store Preview</div>
+                                    <div class="mock-card">
+                                        <div class="mock-img">
+                                            <div id="mockPlaceholder" class="mock-img-placeholder" style="<%= defaultVariant?.images?.[0] ? 'display:none' : '' %>">
+                                                <i class="bi bi-image"></i>
+                                            </div>
+                                            <img id="mockImage" src="<%= defaultVariant?.images?.[0] || '' %>" alt="" style="<%= defaultVariant?.images?.[0] ? 'display:block' : 'display:none' %>">
+                                        </div>
+                                        <div class="mock-body">
+                                            <div class="mock-brand" id="mockCategory"><%= product.categoryId?.categoryName || 'Category' %></div>
+                                            <div class="mock-name" id="mockName"><%= product.productName %></div>
+                                            <div class="mock-specs" id="mockSpecs">
+                                                <span class="mock-spec" id="mockRAM"><%= defaultVariant?.RAM || 'RAM' %>GB</span>
+                                                <span class="mock-spec" id="mockStorage"><%= defaultVariant?.storage || 'Storage' %>GB</span>
+                                            </div>
+                                            <div class="mock-footer">
+                                                <div class="mock-price" id="mockPrice">₹<%= defaultVariant?.price?.toLocaleString('en-IN') || '0' %></div>
+                                                <div class="mock-btn"><i class="bi bi-plus-lg"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="form-hint text-center mt-3">This is how your product will appear to customers.</p>
+                                </div>
+
+                            </div>
                         </div>
 
                     </form>
@@ -901,6 +1059,29 @@
                     "#c0c0c0": "Silver", "#cd7f32": "Bronze", "#b87333": "Copper"
                 };
 
+                // Update Preview logic
+                function updateLivePreview() {
+                    const name = document.getElementById('productName').value;
+                    const price = document.getElementById('variantPrice').value;
+                    const catSelect = document.getElementById('category');
+                    const category = catSelect.options[catSelect.selectedIndex]?.text || 'Category';
+                    const ram = document.getElementById('ramValue').value;
+                    const storage = document.getElementById('storageValue').value;
+
+                    document.getElementById('mockName').textContent = name || 'Product Name';
+                    document.getElementById('mockPrice').textContent = price ? '₹' + parseInt(price).toLocaleString('en-IN') : '₹0';
+                    document.getElementById('mockCategory').textContent = category && category !== 'Select a category' ? category : 'Category';
+                    document.getElementById('mockRAM').textContent = ram ? ram + 'GB' : 'RAM';
+                    document.getElementById('mockStorage').textContent = storage ? storage + 'GB' : 'Storage';
+                }
+
+                // Attach listeners
+                document.getElementById('productName').addEventListener('input', updateLivePreview);
+                document.getElementById('variantPrice').addEventListener('input', updateLivePreview);
+                document.getElementById('category').addEventListener('change', updateLivePreview);
+                document.getElementById('ramValue').addEventListener('input', updateLivePreview);
+                document.getElementById('storageValue').addEventListener('input', updateLivePreview);
+
                 function hexToRgb(hex) {
                     const bigint = parseInt(hex.substring(1), 16);
                     return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
@@ -948,54 +1129,77 @@
                     }
                 }
 
-                // Sync on load just in case hex matches but name is missing format
+                /* ── INITIALIZE EXISTING IMAGES ── */
                 window.addEventListener('DOMContentLoaded', () => {
                     const currentName = document.getElementById('colorName').value;
                     if (currentName) onNameChange(currentName);
+
+                    <% if (defaultVariant && defaultVariant.images) { %>
+                        <% defaultVariant.images.forEach((img, idx) => {
+                            if (idx < 5) { %>
+                                (function () {
+                                    const src = '<%= img %>';
+                                    const box = document.getElementById('eBox_<%= idx %>');
+                                    const prev = document.getElementById('ePreview_<%= idx %>');
+                                    if (box && prev) {
+                                        prev.src = src;
+                                        box.classList.add('has-image');
+                                        prev.style.display = 'block';
+                                        originalSrcs[<%= idx %>] = src;
+                                    }
+                                })();
+                            <% }
+                        }) %>
+                    <% } %>
+                    updateLivePreview();
                 });
 
-    /* ── INITIALIZE EXISTING IMAGES ── */
-    <% if (defaultVariant && defaultVariant.images) { %>
-        <% defaultVariant.images.forEach((img, idx) => {
-                    if (idx < 5) { %>
-                        (function () {
-                            const src = '<%= img %>';
-                            const box = document.getElementById('eBox_<%= idx %>');
-                            const prev = document.getElementById('ePreview_<%= idx %>');
-                            if (box && prev) {
-                                prev.src = src;
-                                box.classList.add('has-image');
-                                originalSrcs[<%= idx %>] = src;
-                            }
-                        })();
-        <% }
-                }) %>
-    <% } %>
+                function onFileSelected(input, slotIdx) {
+                    const file = input.files[0];
+                    if (!file) return;
 
-                    /* ── FILE SELECTION ── */
-                    function onFileSelected(input, idx) {
-                        const file = input.files[0];
-                        if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        const preview = document.getElementById(`ePreview_${slotIdx}`);
+                        const box = document.getElementById(`eBox_${slotIdx}`);
 
-                        const reader = new FileReader();
-                        reader.onload = e => {
-                            originalSrcs[idx] = e.target.result;
-                            croppedBlobs[idx] = null;
-                            removedSlots[idx] = false;
-                            document.getElementById(`ePreview_${idx}`).src = e.target.result;
-                            document.getElementById(`eBox_${idx}`).classList.add('has-image');
-                            openCropModal(idx);
-                        };
-                        reader.readAsDataURL(file);
+                        preview.src = e.target.result;
+                        originalSrcs[slotIdx] = e.target.result;
+                        box.classList.add('has-image');
+                        preview.style.display = 'block';
+                        removedSlots[slotIdx] = false;
+
+                        // Update mock image if it's the first one
+                        if (slotIdx === 0) {
+                            document.getElementById('mockImage').src = e.target.result;
+                            document.getElementById('mockImage').style.display = 'block';
+                            document.getElementById('mockPlaceholder').style.display = 'none';
+                        }
+
+                        openCropModal(slotIdx);
+                    };
+                    reader.readAsDataURL(file);
+                }
+
+                function removeImgSlot(slotIdx) {
+                    const box = document.getElementById(`eBox_${slotIdx}`);
+                    const preview = document.getElementById(`ePreview_${slotIdx}`);
+                    const fileInput = document.getElementById(`eFile_${slotIdx}`);
+
+                    fileInput.value = "";
+                    preview.src = "";
+                    box.classList.remove('has-image');
+                    preview.style.display = 'none';
+                    croppedBlobs[slotIdx] = null;
+                    originalSrcs[slotIdx] = '';
+                    removedSlots[slotIdx] = true;
+
+                    // Update mock image if it's the first one
+                    if (slotIdx === 0) {
+                        document.getElementById('mockImage').src = "";
+                        document.getElementById('mockImage').style.display = 'none';
+                        document.getElementById('mockPlaceholder').style.display = 'flex';
                     }
-
-                function removeImgSlot(idx) {
-                    document.getElementById(`ePreview_${idx}`).src = '';
-                    document.getElementById(`eBox_${idx}`).classList.remove('has-image');
-                    document.getElementById(`eFile_${idx}`).value = '';
-                    originalSrcs[idx] = '';
-                    croppedBlobs[idx] = null;
-                    removedSlots[idx] = true;
                 }
 
                 /* ── CROP LOGIC ── */
@@ -1023,7 +1227,11 @@
                     const canvas = cropperInst.getCroppedCanvas({ width: 800, height: 800 });
                     canvas.toBlob(blob => {
                         croppedBlobs[activeCropSlot] = blob;
-                        document.getElementById(`ePreview_${activeCropSlot}`).src = URL.createObjectURL(blob);
+                        const url = URL.createObjectURL(blob);
+                        document.getElementById(`ePreview_${activeCropSlot}`).src = url;
+                        if (activeCropSlot === 0) {
+                            document.getElementById('mockImage').src = url;
+                        }
                         closeCropModal();
                     }, 'image/jpeg', 0.9);
                 }
@@ -1047,15 +1255,12 @@
                 document.getElementById('editProductForm').addEventListener('submit', async function (e) {
                     e.preventDefault();
 
-                    // Image validation: Check if AT LEAST 3 slots have images
                     let imageCount = 0;
                     for (let i = 0; i < 5; i++) {
                         const box = document.getElementById(`eBox_${i}`);
                         if (box && box.classList.contains('has-image')) {
                             imageCount++;
                             box.classList.remove('img-error');
-                        } else if (box) {
-                            // Temporarily not marking as error until final count check
                         }
                     }
 
@@ -1064,11 +1269,7 @@
                             const box = document.getElementById(`eBox_${i}`);
                             if (box && !box.classList.contains('has-image')) box.classList.add('img-error');
                         }
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Images Required',
-                            text: 'At least 3 product images are required. Please upload more images.'
-                        });
+                        Swal.fire({ icon: 'error', title: 'Images Required', text: 'At least 3 product images are required.' });
                         return;
                     }
 
@@ -1077,11 +1278,9 @@
                     saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
 
                     const fd = new FormData(this);
-
-                    // Remove all natively captured file inputs to prevent duplicates
                     fd.delete('newImages[]');
+                    removedSlots.forEach((val, i) => { if (val) fd.append('removedSlots[]', i); });
 
-                    // Re-add either the cropped blob or the uncropped file
                     for (let i = 0; i < 5; i++) {
                         const fileInput = document.getElementById(`eFile_${i}`);
                         if (croppedBlobs[i]) {
@@ -1104,12 +1303,12 @@
                         } else {
                             Swal.fire({ icon: 'error', title: 'Error', text: data.message });
                             saveBtn.disabled = false;
-                            saveBtn.innerHTML = '<i class="bi bi-check2 me-1"></i> Save Changes';
+                            saveBtn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Update Product';
                         }
                     } catch (err) {
                         Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong' });
                         saveBtn.disabled = false;
-                        saveBtn.innerHTML = '<i class="bi bi-check2 me-1"></i> Save Changes';
+                        saveBtn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Update Product';
                     }
                 });
 

@@ -1,99 +1,96 @@
-<form id="filterForm<%= typeof suffix !== 'undefined' ? suffix : '' %>" method="GET" action="/products">
-    <% if (curSort) { %><input type="hidden" name="sort" value="<%= curSort %>">
+<%
+  const fSuffix = (typeof suffix !== 'undefined') ? suffix : '';
+  const fMobile = (typeof isMobile !== 'undefined') && isMobile;
+%>
+<form id="filterForm<%= fSuffix %>" method="GET" action="/products" onsubmit="showLoading()">
+
+    <!-- Hidden: always carry sort & search so submitting the filter doesn't lose them -->
+    <input type="hidden" name="sort"   id="hiddenSort<%= fSuffix %>"   value="<%= curSort   %>">
+    <input type="hidden" name="search" id="hiddenSearch<%= fSuffix %>" value="<%= curSearch %>">
+
+    <div class="sidebar-header">
+        <span class="sidebar-title">Filter by</span>
+        <a href="/products<% if (curSort) { %>?sort=<%= curSort %><% } %>"
+            class="clear-all text-decoration-none" onclick="showLoading()">Clear All</a>
+    </div>
+
+    <!-- BRANDS (CATEGORIES) -->
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">Brands</div>
+        <% if (safeBrands.length > 0) { %>
+            <% safeBrands.forEach(brand => { %>
+                <div class="cb-row">
+                    <label>
+                        <input type="checkbox" name="brand" value="<%= brand.name %>"
+                            <%= curBrands.includes(brand.name) ? 'checked' : '' %>
+                            <% if (!fMobile) { %>onchange="handlePriceSubmit('<%= fSuffix %>')"<% } %>>
+                        <span><%= brand.name %></span>
+                    </label>
+                    <span class="cb-count"><%= brand.count %></span>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <span class="no-data">No categories available</span>
         <% } %>
-            <% if (curSearch) { %><input type="hidden" name="search" value="<%= curSearch %>">
-                <% } %>
+    </div>
 
-                    <div class="sidebar-header">
-                        <span class="sidebar-title">Filter by</span>
-                        <a href="/products<% if (curSort) { %>?sort=<%= curSort %><% } %>"
-                            class="clear-all text-decoration-none">Clear All</a>
-                    </div>
+    <!-- PRICE RANGE -->
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">Price Range</div>
+        <div class="price-inputs-row">
+            <div class="p-input-group">
+                <label for="minPriceInput<%= fSuffix %>">Min</label>
+                <div class="p-input-wrap">
+                    <span>₹</span>
+                    <input type="number" name="minPrice"
+                        id="minPriceInput<%= fSuffix %>"
+                        value="<%= curMin %>"
+                        min="<%= PRICE_MIN_VAL %>" max="<%= PRICE_MAX_VAL %>" step="1"
+                        <% if (!fMobile) { %>onchange="this.form.submit()"<% } %>>
+                </div>
+            </div>
+            <div class="p-input-group">
+                <label for="maxPriceInput<%= fSuffix %>">Max</label>
+                <div class="p-input-wrap">
+                    <span>₹</span>
+                    <input type="number" name="maxPrice"
+                        id="maxPriceInput<%= fSuffix %>"
+                        value="<%= curMax %>"
+                        min="<%= PRICE_MIN_VAL %>" max="<%= PRICE_MAX_VAL %>" step="1"
+                        <% if (!fMobile) { %>onchange="this.form.submit()"<% } %>>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <!-- BRANDS (CATEGORIES) -->
-                    <div class="sidebar-section">
-                        <div class="sidebar-section-title">Brands</div>
-                        <% if (safeBrands.length> 0) { %>
-                            <% safeBrands.forEach(brand=> { %>
-                                <div class="cb-row">
-                                    <label>
-                                        <input type="checkbox" name="brand" value="<%= brand.name %>"
-                                            <%=curBrands.includes(brand.name) ? 'checked' : '' %>
-                                        onchange="<%= (typeof isMobile !=='undefined' && isMobile) ? ''
-                                            : 'handlePriceSubmit()' %>">
-                                            <span>
-                                                <%= brand.name %>
-                                            </span>
-                                    </label>
-                                    <span class="cb-count">
-                                        <%= brand.count %>
-                                    </span>
-                                </div>
-                                <% }) %>
-                                    <% } else { %>
-                                        <span class="no-data">No categories available</span>
-                                        <% } %>
-                    </div>
+    <!-- COLOR -->
+    <div class="sidebar-section">
+        <div class="sidebar-section-title">Color</div>
+        <% if (safeColors.length > 0) { %>
+            <% safeColors.forEach(color => { %>
+                <div class="cb-row">
+                    <label>
+                        <input type="checkbox" name="color" value="<%= color %>"
+                            <%= curColors.includes(color) ? 'checked' : '' %>
+                            <% if (!fMobile) { %>onchange="handlePriceSubmit('<%= fSuffix %>')"<% } %>>
+                        <span><%= color %></span>
+                    </label>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <span class="no-data">No colors</span>
+        <% } %>
+    </div>
 
-                    <!-- PRICE RANGE -->
-                    <div class="sidebar-section">
-                        <div class="sidebar-section-title">Price Range</div>
-                        <div class="price-inputs-row">
-                            <div class="p-input-group">
-                                <label for="minPrice">Min</label>
-                                <div class="p-input-wrap">
-                                    <span>₹</span>
-                                    <input type="number" name="minPrice"
-                                        id="minPriceInput<%= typeof suffix !== 'undefined' ? suffix : '' %>"
-                                        value="<%= curMin %>" min="<%= PRICE_MIN_VAL %>" max="<%= PRICE_MAX_VAL %>"
-                                        step="1"
-                                        onchange="<%= (typeof isMobile !== 'undefined' && isMobile) ? '' : 'this.form.submit()' %>">
-                                </div>
-                            </div>
-                            <div class="p-input-group">
-                                <label for="maxPrice">Max</label>
-                                <div class="p-input-wrap">
-                                    <span>₹</span>
-                                    <input type="number" name="maxPrice"
-                                        id="maxPriceInput<%= typeof suffix !== 'undefined' ? suffix : '' %>"
-                                        value="<%= curMax %>" min="<%= PRICE_MIN_VAL %>" max="<%= PRICE_MAX_VAL %>"
-                                        step="1"
-                                        onchange="<%= (typeof isMobile !== 'undefined' && isMobile) ? '' : 'this.form.submit()' %>">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Apply (Mobile only) -->
+    <% if (fMobile) { %>
+    <div class="mt-4 pb-3">
+        <button type="submit" class="btn w-100 py-3 fw-bold"
+            style="border-radius:12px;background:var(--accent);border:none;color:#000;"
+            onclick="showLoading()">
+            APPLY FILTERS
+        </button>
+    </div>
+    <% } %>
 
-                    <!-- COLOR -->
-                    <div class="sidebar-section">
-                        <div class="sidebar-section-title">Color</div>
-                        <% if (safeColors.length> 0) { %>
-                            <% safeColors.forEach(color=> { %>
-                                <div class="cb-row">
-                                    <label>
-                                        <input type="checkbox" name="color" value="<%= color %>"
-                                            <%=curColors.includes(color) ? 'checked' : '' %>
-                                        onchange="<%= (typeof isMobile !=='undefined' && isMobile) ? ''
-                                            : 'handlePriceSubmit()' %>">
-                                            <span>
-                                                <%= color %>
-                                            </span>
-                                    </label>
-                                </div>
-                                <% }) %>
-                                    <% } else { %>
-                                        <span class="no-data">No colors</span>
-                                        <% } %>
-                    </div>
-
-                    <!-- Apply Filter Button for Mobile -->
-                    <% if (typeof isMobile !=='undefined' && isMobile) { %>
-                        <div class="mt-4 pb-3">
-                            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold"
-                                style="border-radius: 12px; background: var(--accent); border: none; color: #000;"
-                                onclick="showLoading()">
-                                APPLY FILTERS
-                            </button>
-                        </div>
-                        <% } %>
 </form>

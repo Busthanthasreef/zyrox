@@ -21,7 +21,7 @@ const userSignUpService = async (bodyData) => {
     const nameRegex = /^[a-zA-Z\s]{3,50}$/;
     const emailRegex = /^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
     const indianPhone = /^(?:\+91|91|0)?[6-9]\d{9}$/;
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
     let error = {};
     let data = {};
@@ -45,7 +45,7 @@ const userSignUpService = async (bodyData) => {
     }
 
     if (!trimmedPassword || !passwordRegex.test(trimmedPassword)) {
-        error = { Password: "Password must be at least 8 characters and contain at least one letter and one number" };
+        error = { Password: "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character." };
         data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
         return { error, data };
     }

@@ -3,7 +3,7 @@ import productSchema from "../../models/product.js";
 
 /* ================= LOAD CATEGORIES ================= */
 
-export const getCategoriesService = async (page, search, statusFilter) => {
+export const getCategoriesService = async (page, search, statusFilter, sortBy) => {
 
   const query = { IsDeleted: false };
 
@@ -16,6 +16,12 @@ export const getCategoriesService = async (page, search, statusFilter) => {
   } else if (statusFilter === "blocked") {
     query.IsActive = false;
   }
+
+  let sortObj = { createdAt: -1 };
+  if (sortBy === "name_asc") sortObj = { categoryName: 1 };
+  if (sortBy === "name_desc") sortObj = { categoryName: -1 };
+  if (sortBy === "newest") sortObj = { createdAt: -1 };
+  if (sortBy === "oldest") sortObj = { createdAt: 1 };
 
   const limit = 4;
   const skip = (page - 1) * limit;
@@ -31,7 +37,7 @@ export const getCategoriesService = async (page, search, statusFilter) => {
   const categories = await categorySchema.aggregate([
     { $match: query },
 
-    { $sort: { createdAt: -1 } },
+    { $sort: sortObj },
     { $skip: skip },
     { $limit: limit },
 

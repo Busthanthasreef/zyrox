@@ -47,16 +47,26 @@ const userProfile = async (req, res) => {
     const hasPassword = !!user.Password;
     const passwordToast = req.session.passwordAddedToast || null;
     delete req.session.passwordAddedToast;
-    console.log(user.Profile_image)
+
+    // Password modal state (errors / messages from change-password form)
+    const errors = req.session.passwordErrors || {};
+    const errorMessage = req.session.passwordError || null;
+    const successMessage = req.session.passwordSuccess || null;
+    delete req.session.passwordErrors;
+    delete req.session.passwordError;
+    delete req.session.passwordSuccess;
 
     res.render("user/profile/userProfile", {
       user,
-      userProfileImage:user.Profile_image,
+      userProfileImage: user.Profile_image,
       createdAt: formatDate(user.createdAt),
       isGoogleUser,
       hasPassword,
       passwordToast,
       phError: null,
+      errors,
+      errorMessage,
+      successMessage,
     });
   } catch (error) {
     console.log("Profile Error:", error);
@@ -324,7 +334,7 @@ const changePassword = async (req, res) => {
 const updatePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
     const user = await userSchema.findById(req.session.user._id);
     const hasPassword = !!user.Password;
@@ -336,7 +346,7 @@ const updatePassword = async (req, res) => {
     const errors = {};
     if (!newPassword) errors.newPassword = "New password is required";
     else if (!passwordRegex.test(newPassword))
-      errors.newPassword = "Password must be at least 8 characters long and contain at least one letter and one number";
+      errors.newPassword = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.";
     
     if (!confirmPassword) errors.confirmPassword = "confirm password is required";
     if (newPassword !== confirmPassword)
@@ -344,7 +354,7 @@ const updatePassword = async (req, res) => {
 
     if (Object.keys(errors).length > 0) {
       req.session.passwordErrors = errors;
-      return res.redirect("/change-password");
+      return res.redirect("/profile");
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.Password);
@@ -352,7 +362,7 @@ const updatePassword = async (req, res) => {
       req.session.passwordErrors = {
         currentPassword: "Incorrect current password",
       };
-      return res.redirect("/change-password");
+      return res.redirect("/profile");
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -360,7 +370,7 @@ const updatePassword = async (req, res) => {
     await user.save();
 
     req.session.passwordSuccess = "Password updated successfully!";
-    res.redirect("/change-password");
+    res.redirect("/profile");
   } catch (error) {
     console.log("Update Password Error:", error);
     res.status(500).send("Server Error");
@@ -372,7 +382,7 @@ const addPassword = async (req, res) => {
     const { newPassword, confirmPassword } = req.body;
     const user = await userSchema.findById(req.session.user._id);
     const isGoogleUser = !!user.googleId;
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     if (!isGoogleUser) {
       return res.redirect("/change-password");
     }
@@ -380,14 +390,14 @@ const addPassword = async (req, res) => {
     const errors = {};
     if (!newPassword) errors.newPassword = "Password is required";
     else if (!passwordRegex.test(newPassword))
-      errors.newPassword = "Password must be at least 8 characters long and contain at least one letter and one number";
+      errors.newPassword = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.";
     if (!confirmPassword) errors.confirmPassword = "confirm password is required";
     if (newPassword !== confirmPassword)
       errors.confirmPassword = "Passwords do not match";
 
     if (Object.keys(errors).length > 0) {
       req.session.passwordErrors = errors;
-      return res.redirect("/add-password");
+      return res.redirect("/profile");
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);

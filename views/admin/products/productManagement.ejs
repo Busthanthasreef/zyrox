@@ -105,7 +105,7 @@
                     <div class="panel-topbar d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
                         <h2 class="panel-title">All Products</h2>
 
-                        <form method="GET" action="/admin/products" class="search-bar-group d-flex gap-2 flex-wrap">
+                        <form method="GET" action="/admin/products" class="search-bar-group d-flex gap-2 flex-wrap" id="productFilterForm">
                             <div class="search-input-wrap" style="position: relative;">
                                 <i class="bi bi-search search-icon-inner"></i>
                                 <input type="search" name="search" id="productSearchInput"
@@ -117,7 +117,7 @@
                                     onclick="document.getElementById('productSearchInput').value=''; this.style.display='none'; this.closest('form').submit();"></i>
                             </div>
 
-                            <select name="category" class="filter-select">
+                            <select name="category" class="filter-select" onchange="this.form.submit()">
                                 <option value="">All Categories</option>
                                 <% categories.forEach(cat=> { %>
                                     <option value="<%= cat._id %>" <%=categoryFilter==cat._id.toString() ? 'selected'
@@ -127,15 +127,22 @@
                                     <% }) %>
                             </select>
 
-                            <select name="status" class="filter-select">
+                            <select name="status" class="filter-select" onchange="this.form.submit()">
                                 <option value="">All Status</option>
                                 <option value="active" <%=statusFilter==='active' ? 'selected' : '' %>>Active</option>
                                 <option value="inactive" <%=statusFilter==='inactive' ? 'selected' : '' %>>Inactive
                                 </option>
                             </select>
 
+                            <select name="sortBy" class="filter-select" onchange="this.form.submit()">
+                                <option value="newest" <%= sortBy === 'newest' ? 'selected' : '' %>>Newest First</option>
+                                <option value="oldest" <%= sortBy === 'oldest' ? 'selected' : '' %>>Oldest First</option>
+                                <option value="name_asc" <%= sortBy === 'name_asc' ? 'selected' : '' %>>Name: A-Z</option>
+                                <option value="name_desc" <%= sortBy === 'name_desc' ? 'selected' : '' %>>Name: Z-A</option>
+                            </select>
+
                             <button type="submit" class="search-submit-btn">
-                                <i class="bi bi-search"></i> Search
+                                <i class="bi bi-funnel"></i> Apply
                             </button>
                         </form>
                     </div>
@@ -260,7 +267,7 @@
                             <ul class="pagination-list">
                                 <% for(let i=1; i <=totalPages; i++){ %>
                                     <li>
-                                        <a href="?page=<%= i %>&search=<%= search %>&category=<%= categoryFilter %>&status=<%= statusFilter %>"
+                                        <a href="?page=<%= i %>&search=<%= search %>&category=<%= categoryFilter %>&status=<%= statusFilter %>&sortBy=<%= sortBy || '' %>"
                                             class="page-btn <%= currentPage === i ? 'active' : '' %>">
                                             <%= i %>
                                         </a>

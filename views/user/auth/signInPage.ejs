@@ -169,6 +169,22 @@
                                 passwordInput.classList.remove("input-error");
                             }
 
+                            emailInput.addEventListener('input', function() {
+                                if (emailRegex.test(this.value.trim())) {
+                                    emailValidation.textContent = "";
+                                    emailInput.classList.remove("input-error");
+                                    const backendErrors = document.querySelectorAll('.validation-error');
+                                    backendErrors.forEach(err => { if(err.id !== 'emailValidation' && err.id !== 'passwordValidation') err.style.display = 'none'; });
+                                }
+                            });
+
+                            passwordInput.addEventListener('input', function() {
+                                if (this.value.trim() !== "") {
+                                    passwordValidation.textContent = "";
+                                    passwordInput.classList.remove("input-error");
+                                }
+                            });
+
                             form.addEventListener("submit", function (event) {
                                 event.preventDefault();
                                 clearErrors();

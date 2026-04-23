@@ -287,3 +287,43 @@ label {
         height: auto;
     }
 }
+
+/* Password Strength Meter */
+.strength-meter {
+    height: 4px;
+    background-color: var(--border);
+    border-radius: 2px;
+    margin-top: 10px;
+    overflow: hidden;
+    display: none;
+}
+
+.strength-meter-fill {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.password-requirements {
+    margin-top: 12px;
+    padding: 0;
+    list-style: none;
+    display: none;
+}
+
+.requirement {
+    font-size: 0.75rem;
+    color: var(--text-2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.requirement.met {
+    color: var(--success);
+}
+
+.requirement i {
+    font-size: 0.85rem;
+}

@@ -179,7 +179,7 @@
         /* ── IMAGE UPLOAD GRID ── */
         .img-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 12px;
         }
 
@@ -333,34 +333,173 @@
         }
 
         .img-box.has-image .upload-icon,
-        .img-box.has-image span {
+        .img-box.has-img .remove-btn,
+        .img-box.has-img .preview-btn,
+        .img-box.has-img .crop-edit-btn {
+            display: flex;
+        }
+
+        .img-box.has-img i.upload-icon,
+        .img-box.has-img span {
             display: none;
         }
 
-        .img-box.has-image input[type="file"] {
-            z-index: 1;
+        .img-box.img-error {
+            border-color: #ef4444 !important;
+            background: #fef2f2;
         }
 
         .img-slot-badge {
             position: absolute;
             bottom: 6px;
             left: 6px;
-            background: rgba(0, 0, 0, 0.08);
-            color: #6b7280;
-            font-size: 10px;
-            padding: 1px 7px;
-            border-radius: 20px;
+            background: rgba(17, 24, 39, 0.6);
+            color: #fff;
+            font-size: 8px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: .3px;
             z-index: 4;
             pointer-events: none;
         }
 
-        .img-box.has-image .img-slot-badge {
+        .img-box.has-img .img-slot-badge {
             display: none;
         }
 
-        .img-error {
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        /* ── LIVE PREVIEW STYLES ── */
+        .preview-panel {
+            background: #11141a;
+            border: 1px solid #2a2d35;
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .preview-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: #6366f1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, rgba(99, 102, 241, 0.3), transparent);
+        }
+
+        .mock-card {
+            background: #16181e;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 240px;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .mock-img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: #1c1f26;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mock-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .mock-img-placeholder {
+            color: #374151;
+            font-size: 2rem;
+            opacity: 0.5;
+        }
+
+        .mock-body {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .mock-brand {
+            font-size: 0.6rem;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mock-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #f0f0f2;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2rem;
+        }
+
+        .mock-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        .mock-spec {
+            font-size: 0.58rem;
+            font-weight: 500;
+            padding: 1px 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            color: #c5c5c5;
+        }
+
+        .mock-footer {
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .mock-price {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #00ff04;
+        }
+
+        .mock-btn {
+            background: linear-gradient(135deg, #0ce0a1, #00d4a0);
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 0.7rem;
         }
 
         /* ── CROP MODAL ── */
@@ -853,7 +992,7 @@
         }
 
         @media (max-width: 992px) {
-            .main-wrap {
+            .admin-main {
                 padding: 0 14px 50px;
             }
 
@@ -886,30 +1025,23 @@
 
                     <div class="row g-4">
 
-                        <!-- LEFT COLUMN -->
-                        <div class="col-lg-6">
+                        <!-- LEFT COLUMN: Primary Data -->
+                        <div class="col-lg-7">
 
+                            <!-- Basic Information -->
                             <div class="panel">
                                 <div class="panel-title">Basic Information</div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Product Name <span class="req">*</span></label>
                                     <input type="text" name="productName" id="productName" class="form-control"
-                                        placeholder="e.g. Samsung Galaxy S24 Ultra" maxlength="120"
+                                        placeholder="e.g. Samsung Galaxy S24 Ultra" maxlength="70"
                                         oninput="charCount(this,'nameCount',70); autoSKU()">
                                     <div class="char-count" id="nameCount">0 / 70</div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label">Description <span class="req">*</span></label>
-                                    <textarea name="description" id="description" class="form-control"
-                                        placeholder="Describe the product — key features, highlights, etc."
-                                        maxlength="1000" oninput="charCount(this,'descCount',1000)"></textarea>
-                                    <div class="char-count" id="descCount">0 / 1000</div>
-                                </div>
-
-                                <div class="row g-3">
-                                    <div class="col-6">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
                                         <label class="form-label">Category <span class="req">*</span></label>
                                         <select name="category" id="category" class="form-select">
                                             <option value="">Select category</option>
@@ -922,7 +1054,7 @@
                                                         <% } %>
                                         </select>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-md-6">
                                         <label class="form-label">Product Status</label>
                                         <select name="status" class="form-select">
                                             <option value="active">Active</option>
@@ -930,68 +1062,33 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>
 
-                            <!-- Product Images -->
-                            <div class="panel">
-                                <div class="panel-title">Product Images</div>
-                                <p class="form-hint mb-3">Upload 3-5 images. Click to crop & resize. First image
-                                    will be the thumbnail.</p>
-                                <div class="img-grid">
-                                    <% for(let j=0; j < 5; j++) { %>
-                                        <div class="img-box" id="vBox_<%= j %>">
-                                            <i class="bi bi-camera upload-icon"></i>
-                                            <span>
-                                                <%= j===0 ? 'Main Image' : 'Image ' + (j + 1) %>
-                                            </span>
-                                            <span class="img-slot-badge">
-                                                <%= j===0 ? 'Thumbnail' : '#' + (j + 1) %>
-                                            </span>
-                                            <img class="img-preview" id="vPreview_<%= j %>" src="" alt="">
-                                            <!-- Lightbox preview button -->
-                                            <button type="button" class="preview-btn"
-                                                onclick="event.stopPropagation(); openLightbox(<%= j %>)"
-                                                title="Preview image">
-                                                <i class="bi bi-zoom-in"></i>
-                                            </button>
-                                            <!-- Remove button -->
-                                            <button type="button" class="remove-btn"
-                                                onclick="event.stopPropagation(); removeImg('vBox_<%= j %>','vPreview_<%= j %>','vFile_<%= j %>', <%= j %>)"
-                                                title="Remove image">
-                                                <i class="bi bi-x"></i>
-                                            </button>
-                                            <!-- Crop/edit button -->
-                                            <button type="button" class="crop-edit-btn"
-                                                onclick="event.stopPropagation(); openCropModal(<%= j %>)"
-                                                title="Crop & resize">
-                                                <i class="bi bi-crop"></i> Crop
-                                            </button>
-                                            <input type="file" name="variantImages[]" accept="image/*"
-                                                id="vFile_<%= j %>"
-                                                onchange="onFileSelected(this, 'vBox_<%= j %>','vPreview_<%= j %>', <%= j %>)">
-                                        </div>
-                                        <% } %>
+                                <div class="mb-0">
+                                    <label class="form-label">Description <span class="req">*</span></label>
+                                    <textarea name="description" id="description" class="form-control"
+                                        placeholder="Describe the product — key features, highlights, etc."
+                                        maxlength="1000" oninput="charCount(this,'descCount',1000)"></textarea>
+                                    <div class="char-count" id="descCount">0 / 1000</div>
                                 </div>
                             </div>
 
-                        </div>
-
-                        <!-- RIGHT COLUMN -->
-                        <div class="col-lg-6">
+                            <!-- Variant Specifications -->
                             <div class="panel">
-                                <div class="panel-title">Default Variant</div>
+                                <div class="panel-title">Variant Specifications</div>
 
                                 <div class="mb-4">
                                     <label class="form-label">Color <span class="req">*</span></label>
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center gap-3">
                                         <div class="color-swatch" id="colorSwatch">
                                             <input type="color" id="colorPicker" name="variants[0][colorHex]"
                                                 value="#3b82f6" oninput="onPickerChange(this.value)">
                                         </div>
-                                        <input type="text" class="form-control" id="colorName" name="variants[0][color]"
-                                            placeholder="e.g. Midnight Black" oninput="onNameChange(this.value)">
+                                        <div style="flex:1">
+                                            <input type="text" class="form-control" id="colorName" name="variants[0][color]"
+                                                placeholder="e.g. Midnight Black" oninput="onNameChange(this.value)">
+                                            <p class="form-hint mb-0">Pick or type a name — they sync automatically.</p>
+                                        </div>
                                     </div>
-                                    <p class="form-hint">Pick a color or type a name — they'll sync automatically.</p>
                                 </div>
 
                                 <div class="section-divider"></div>
@@ -1007,17 +1104,15 @@
                                             </div>
                                             <% }) %>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2 mt-2">
-                                        <div class="input-unit-wrap" style="flex:1">
-                                            <input type="text" class="form-control" id="ramCustom"
-                                                placeholder="Or type custom e.g. 10"
-                                                oninput="customSpec(this,'ramOptions','ramValue','GB')">
-                                            <span class="unit">GB</span>
-                                        </div>
+                                    <div class="input-unit-wrap mt-3">
+                                        <input type="text" class="form-control" id="ramCustom"
+                                            placeholder="Or type custom e.g. 10"
+                                            oninput="customSpec(this,'ramOptions','ramValue','GB')">
+                                        <span class="unit">GB</span>
                                     </div>
                                 </div>
 
-                                <div class="mb-4">
+                                <div class="mb-0">
                                     <label class="form-label">Storage <span class="req">*</span></label>
                                     <input type="hidden" name="variants[0][storage]" id="storageValue">
                                     <div class="spec-options" id="storageOptions">
@@ -1032,17 +1127,42 @@
                                                     1TB
                                                 </div>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2 mt-2">
-                                        <div class="input-unit-wrap" style="flex:1">
-                                            <input type="text" class="form-control" id="storageCustom"
-                                                placeholder="Or type custom e.g. 768"
-                                                oninput="customSpec(this,'storageOptions','storageValue','GB')">
-                                            <span class="unit">GB</span>
-                                        </div>
+                                    <div class="input-unit-wrap mt-3">
+                                        <input type="text" class="form-control" id="storageCustom"
+                                            placeholder="Or type custom e.g. 768"
+                                            oninput="customSpec(this,'storageOptions','storageValue','GB')">
+                                        <span class="unit">GB</span>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
 
-                                <div class="section-divider"></div>
+                        <!-- RIGHT COLUMN: Media & Inventory -->
+                        <div class="col-lg-5">
+
+                            <!-- Product Media -->
+                            <div class="panel">
+                                <div class="panel-title">Product Media</div>
+                                <p class="form-hint mb-3">Upload 3-5 images. <b>First</b> is the thumbnail.</p>
+                                <div class="img-grid">
+                                    <% for(let j=0; j < 5; j++) { %>
+                                        <div class="img-box" id="vBox_<%= j %>">
+                                            <i class="bi bi-camera upload-icon"></i>
+                                            <span><%= j===0 ? 'Main' : '#' + (j + 1) %></span>
+                                            <span class="img-slot-badge"><%= j===0 ? 'Thumbnail' : '#' + (j + 1) %></span>
+                                            <img class="img-preview" id="vPreview_<%= j %>" src="" alt="">
+                                            <button type="button" class="preview-btn" onclick="event.stopPropagation(); openLightbox(<%= j %>)"><i class="bi bi-zoom-in"></i></button>
+                                            <button type="button" class="remove-btn" onclick="event.stopPropagation(); removeImg('vBox_<%= j %>','vPreview_<%= j %>','vFile_<%= j %>', <%= j %>)"><i class="bi bi-x"></i></button>
+                                            <button type="button" class="crop-edit-btn" onclick="event.stopPropagation(); openCropModal(<%= j %>)"><i class="bi bi-crop"></i></button>
+                                            <input type="file" name="variantImages[]" accept="image/*" id="vFile_<%= j %>" onchange="onFileSelected(this, 'vBox_<%= j %>','vPreview_<%= j %>', <%= j %>)">
+                                        </div>
+                                        <% } %>
+                                </div>
+                            </div>
+
+                            <!-- Pricing & Inventory -->
+                            <div class="panel">
+                                <div class="panel-title">Pricing & Inventory</div>
 
                                 <div class="row g-3 mb-4">
                                     <div class="col-6">
@@ -1067,26 +1187,52 @@
                                     <label class="form-label">SKU</label>
                                     <div class="d-flex gap-2">
                                         <input type="text" name="variants[0][sku]" id="skuInput" class="form-control"
-                                            placeholder="e.g. ZYX-SAM-8-256-BLK">
+                                            placeholder="e.g. ZYX-SAM-BLK">
                                         <button type="button" class="sku-gen-btn" onclick="generateSKU()">
-                                            <i class="bi bi-shuffle"></i> Generate
+                                            <i class="bi bi-shuffle"></i>
                                         </button>
                                     </div>
-                                    <p class="form-hint">Leave blank to auto-generate on save, or click Generate.</p>
+                                    <p class="form-hint">Leave blank to auto-generate.</p>
                                 </div>
 
                                 <div class="toggle-wrap">
                                     <div>
                                         <div class="toggle-label">Variant Active</div>
-                                        <div class="toggle-sub">Controls visibility of this variant in the store</div>
+                                        <div class="toggle-sub">Visibility in store</div>
                                     </div>
                                     <div class="form-check form-switch mb-0">
                                         <input class="form-check-input" type="checkbox" name="variants[0][isActive]"
                                             id="variantActive" value="true" checked>
                                     </div>
                                 </div>
-
                             </div>
+
+                            <!-- Live Preview Panel -->
+                            <div class="preview-panel">
+                                <div class="preview-label">Live Store Preview</div>
+                                <div class="mock-card">
+                                    <div class="mock-img">
+                                        <div id="mockPlaceholder" class="mock-img-placeholder">
+                                            <i class="bi bi-image"></i>
+                                        </div>
+                                        <img id="mockImage" src="" alt="" style="display: none;">
+                                    </div>
+                                    <div class="mock-body">
+                                        <div class="mock-brand" id="mockCategory">Electronics</div>
+                                        <div class="mock-name" id="mockName">Product Name</div>
+                                        <div class="mock-specs" id="mockSpecs">
+                                            <span class="mock-spec" id="mockRAM">RAM</span>
+                                            <span class="mock-spec" id="mockStorage">Storage</span>
+                                        </div>
+                                        <div class="mock-footer">
+                                            <div class="mock-price" id="mockPrice">₹0</div>
+                                            <div class="mock-btn"><i class="bi bi-plus-lg"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="form-hint text-center mt-3">This is how your product will appear to customers.</p>
+                            </div>
+
                         </div>
 
                     </div>
@@ -1176,15 +1322,35 @@
 
             <script>
                 /* ── STATE ── */
-                // croppedBlobs[i] holds a Blob if the user has cropped slot i; otherwise null
                 const croppedBlobs = [null, null, null, null, null];
-                // originalSrcs[i] holds the raw data-URL from FileReader (pre-crop)
                 const originalSrcs = ['', '', '', '', ''];
-                // flipState per slot
                 const flipState = [{ x: 1, y: 1 }, { x: 1, y: 1 }, { x: 1, y: 1 }, { x: 1, y: 1 }, { x: 1, y: 1 }];
 
                 let cropperInst = null;
                 let activeCropSlot = -1;
+
+                // Update Preview logic
+                function updateLivePreview() {
+                    const name = document.getElementById('productName').value;
+                    const price = document.getElementById('variantPrice').value;
+                    const catSelect = document.getElementById('category');
+                    const category = catSelect.options[catSelect.selectedIndex]?.text || 'Category';
+                    const ram = document.getElementById('ramValue').value;
+                    const storage = document.getElementById('storageValue').value;
+
+                    document.getElementById('mockName').textContent = name || 'Product Name';
+                    document.getElementById('mockPrice').textContent = price ? '₹' + parseInt(price).toLocaleString('en-IN') : '₹0';
+                    document.getElementById('mockCategory').textContent = category !== 'Select category' ? category : 'Category';
+                    document.getElementById('mockRAM').textContent = ram ? ram + 'GB' : 'RAM';
+                    document.getElementById('mockStorage').textContent = storage ? storage + 'GB' : 'Storage';
+                }
+
+                // Attach listeners
+                document.getElementById('productName').addEventListener('input', updateLivePreview);
+                document.getElementById('variantPrice').addEventListener('input', updateLivePreview);
+                document.getElementById('category').addEventListener('change', updateLivePreview);
+                document.getElementById('ramValue').addEventListener('input', updateLivePreview);
+                document.getElementById('storageValue').addEventListener('input', updateLivePreview);
 
                 /* ── FILE SELECTED ── */
                 function onFileSelected(input, boxId, previewId, slotIdx) {
@@ -1196,10 +1362,17 @@
                     const reader = new FileReader();
                     reader.onload = e => {
                         originalSrcs[slotIdx] = e.target.result;
-                        croppedBlobs[slotIdx] = null; // reset previous crop
+                        croppedBlobs[slotIdx] = null;
                         document.getElementById(previewId).src = e.target.result;
-                        document.getElementById(boxId).classList.add('has-image');
-                        // Auto-open crop modal for fresh upload
+                        document.getElementById(boxId).classList.add('has-img');
+                        document.getElementById(previewId).style.display = 'block';
+
+                        // Update mock image if it's the first one
+                        if (slotIdx === 0) {
+                            document.getElementById('mockImage').src = e.target.result;
+                            document.getElementById('mockImage').style.display = 'block';
+                            document.getElementById('mockPlaceholder').style.display = 'none';
+                        }
                         openCropModal(slotIdx);
                     };
                     reader.readAsDataURL(file);
@@ -1208,7 +1381,8 @@
                 /* ── REMOVE IMAGE ── */
                 function removeImg(boxId, previewId, fileInputId, slotIdx) {
                     document.getElementById(previewId).src = '';
-                    document.getElementById(boxId).classList.remove('has-image');
+                    document.getElementById(boxId).classList.remove('has-img');
+                    document.getElementById(previewId).style.display = 'none';
                     const fi = document.getElementById(fileInputId);
                     fi.value = '';
                     croppedBlobs[slotIdx] = null;

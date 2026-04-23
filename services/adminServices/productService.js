@@ -7,7 +7,7 @@ const parseSpec = (val) => parseInt(String(val).replace(/[^\d]/g, ""), 10);
 
 /* ================= LOAD PRODUCTS ================= */
 
-const getProducts = async ({ search, statusFilter, categoryFilter, page, limit }) => {
+const getProducts = async ({ search, statusFilter, categoryFilter, sortBy, page, limit }) => {
 
     const skip = (page - 1) * limit;
 
@@ -17,12 +17,18 @@ const getProducts = async ({ search, statusFilter, categoryFilter, page, limit }
     if (statusFilter) filter.status = statusFilter;
     if (categoryFilter) filter.categoryId = categoryFilter;
 
+    let sortObj = { createdAt: -1 };
+    if (sortBy === "name_asc") sortObj = { productName: 1 };
+    if (sortBy === "name_desc") sortObj = { productName: -1 };
+    if (sortBy === "newest") sortObj = { createdAt: -1 };
+    if (sortBy === "oldest") sortObj = { createdAt: 1 };
+
     const totalProducts = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalProducts / limit);
 
     const products = await Product.find(filter)
         .populate("categoryId")
-        .sort({ createdAt: -1 })
+        .sort(sortObj)
         .skip(skip)
         .limit(limit)
         .lean();

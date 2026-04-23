@@ -6,6 +6,7 @@ const loadUserManagement = async (req, res) => {
   try {
     const search = req.query.search || "";
     const statusFilter = req.query.status || "";
+    const sortBy = req.query.sortBy || "newest";
     const page = parseInt(req.query.page) || 1;
     const limit = 4;
     const safeSearch = escapeRegex(search);
@@ -25,8 +26,14 @@ const loadUserManagement = async (req, res) => {
     }
     const admin=await userSchema.findOne({isAdmin:true})
 
+    let sortObj = { createdAt: -1 };
+    if (sortBy === "name_asc") sortObj = { Name: 1 };
+    if (sortBy === "name_desc") sortObj = { Name: -1 };
+    if (sortBy === "newest") sortObj = { createdAt: -1 };
+    if (sortBy === "oldest") sortObj = { createdAt: 1 };
+
     const users = await userSchema.find(query)
-      .sort({ createdAt: -1 })
+      .sort(sortObj)
       .limit(limit)
       .skip((page - 1) * limit)
       .exec();
@@ -39,6 +46,7 @@ const loadUserManagement = async (req, res) => {
       users,
       search,
       statusFilter,
+      sortBy,
       currentPage: page,
       totalPages,
       totalUsers,

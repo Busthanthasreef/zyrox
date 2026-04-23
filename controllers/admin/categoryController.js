@@ -10,16 +10,18 @@ const loadCategories = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const search = req.query.search || "";
     const statusFilter = req.query.status || "";
+    const sortBy = req.query.sortBy || "newest";
 
     const safeSearch = escapeRegex(search);
 
-    const data = await getCategoriesService(page, safeSearch, statusFilter);
+    const data = await getCategoriesService(page, safeSearch, statusFilter, sortBy);
 
     res.render("admin/category/Categories", {
       admin: req.session.admin,
       ...data,
       search,
-      statusFilter
+      statusFilter,
+      sortBy
     });
 
   } catch (error) {
