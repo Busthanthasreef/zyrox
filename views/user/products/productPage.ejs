@@ -16,7 +16,7 @@
       --bg: #0d0f14;
       --bg-card: #16181e;
       --bg-card-h: #1c1f26;
-      --accent: #00ff04;
+      --accent: #4f6ef7;
       --accent-rgb: 200, 136, 58;
       --accent-lt: rgba(200, 136, 58, .12);
       --green: #00d4a0;
@@ -325,10 +325,17 @@
     /* TOPBAR */
     .topbar {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 6px;
+      margin-bottom: 12px;
+    }
+
+    .topbar-right-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
     }
 
     .topbar-left {
@@ -493,6 +500,16 @@
       border-color: rgba(var(--accent-rgb), 0.3);
       transform: translateY(-8px);
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(var(--accent-rgb), 0.1);
+      animation: smoothShake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    @keyframes smoothShake {
+      0%, 100% { transform: translateY(-8px) rotate(0deg); }
+      15% { transform: translateY(-8px) rotate(1deg); }
+      30% { transform: translateY(-8px) rotate(-1deg); }
+      45% { transform: translateY(-8px) rotate(0.6deg); }
+      60% { transform: translateY(-8px) rotate(-0.6deg); }
+      75% { transform: translateY(-8px) rotate(0.3deg); }
     }
 
     .product-card.is-inactive {
@@ -508,18 +525,19 @@
     .card-img-wrap {
       position: relative;
       width: 100%;
-      height: 160px;
-      background: var(--bg-card);
+      height: 200px;
+      background: transparent;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 15px;
     }
 
     .card-img-wrap img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
 
@@ -860,12 +878,33 @@
 
 
       .topbar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .topbar-left {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .search-wrap {
+        order: 2;
+        width: 100%; /* Default to full width on very small, then side by side */
+        max-width: 100% !important;
+      }
+
+      @media (min-width: 480px) {
+        .search-wrap {
+          width: auto;
+          flex: 0 0 180px;
+        }
       }
 
       .topbar-right-actions {
+        order: 3;
         display: flex;
         gap: 10px;
         width: 100%;
@@ -981,6 +1020,23 @@
                   </div>
             </div>
 
+            <!-- Search bar (always visible on product page) -->
+            <div class="search-wrap" style="position:relative;flex:1;max-width:320px;">
+              <input type="text" id="productSearchInput" placeholder="Search products…" value="<%= curSearch %>"
+                autocomplete="off"
+                style="width:100%;background:var(--bg-card);border:1px solid var(--border2);border-radius:12px;padding:10px 60px 10px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s;"
+                onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'">
+              <button type="button" id="clearSearchBtn"
+                style="position:absolute;right:38px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--sub);font-size:.8rem;cursor:pointer;display:<%= curSearch ? 'block' : 'none' %>;padding:0;line-height:1;">
+                <i class="fas fa-times-circle"></i>
+              </button>
+              <button type="button" id="submitSearchBtn"
+                style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--sub);font-size:.9rem;cursor:pointer;padding:0;line-height:1;transition:color .2s;"
+                onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--sub)'">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+
             <!-- Sort & Filter actions -->
             <div class="topbar-right-actions">
               <!-- Filter button (Mobile/Tablet only) -->
@@ -990,34 +1046,17 @@
                 Filter
               </button>
 
-              <!-- Search bar (always visible on product page) -->
-              <div class="search-wrap" style="position:relative;flex:1;max-width:320px;">
-                <input
-                  type="text"
-                  id="productSearchInput"
-                  placeholder="Search products…"
-                  value="<%= curSearch %>"
-                  autocomplete="off"
-                  style="width:100%;background:var(--bg-card);border:1px solid var(--border2);border-radius:12px;padding:10px 40px 10px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s;"
-                  onfocus="this.style.borderColor='var(--accent)'"
-                  onblur="this.style.borderColor='var(--border2)'"
-                >
-                <i class="fas fa-search" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--sub);font-size:.8rem;pointer-events:none;"></i>
-              </div>
-
               <div class="sort-wrap">
                 <button class="sort-btn" type="button">
-                  <% const sortLabels=[ { val: '' , label: 'Default' }, { val: 'price_asc' ,
-                    label: 'Price: Low \u2192 High' }, { val: 'price_desc' , label: 'Price: High \u2192 Low' }, {
-                    val: 'name_asc' , label: 'Name: A\u2013Z' }, { val: 'name_desc' , label: 'Name: Z\u2013A' }, ]; %>
+                  <% const sortLabels=[ { val: '' , label: 'Default' }, { val: 'price_asc' , label: 'Price: Low \u2192 High'
+                    }, { val: 'price_desc' , label: 'Price: High \u2192 Low' }, { val: 'name_asc' , label: 'Name: A\u2013Z'
+                    }, { val: 'name_desc' , label: 'Name: Z\u2013A' }, ]; %>
                     Sort: <%= (sortLabels.find(o=> o.val === curSort) || sortLabels[0]).label %>
                       <i class="fas fa-chevron-down"></i>
                 </button>
                 <div class="sort-dd">
                   <% sortLabels.forEach(o=> { %>
-                    <span
-                      class="sort-opt <%= curSort === o.val ? 'active' : '' %>"
-                      onclick="applySort('<%= o.val %>')">
+                    <span class="sort-opt <%= curSort === o.val ? 'active' : '' %>" onclick="applySort('<%= o.val %>')">
                       <%= o.label %> <i class="fas fa-check tick"></i>
                     </span>
                     <% }) %>
@@ -1165,7 +1204,7 @@
                                           <i class="fas fa-eye"></i> View Details
                                         </button>
                                         <button class="btn-wish-list"
-                                          onclick="event.preventDefault(); event.stopPropagation(); window.location.href='/signin'"
+                                          onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistListing(this, '<%= product.id %>')"
                                           style="display:flex; align-items:center; justify-content:center; width:44px; height:100%; border:1px solid var(--border2); border-radius:var(--radius-sm); background:transparent; color:var(--text-dim); cursor:pointer; transition:all 0.2s;"
                                           onmouseover="this.style.background='rgba(230,57,70,0.1)'; this.style.borderColor='rgba(230,57,70,0.5)'; this.style.color='#e63946'"
                                           onmouseout="this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='var(--text-dim)'">
@@ -1281,18 +1320,45 @@
           // ── Search box wiring ────────────────────────────────────────────────
           (function () {
             const searchInput = document.getElementById('productSearchInput');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            const submitBtn = document.getElementById('submitSearchBtn');
             if (!searchInput) return;
+
             let _timer;
             searchInput.addEventListener('input', function () {
+              const val = this.value.trim();
+              
+              // Show/hide clear button
+              if (clearBtn) {
+                clearBtn.style.display = val.length > 0 ? 'block' : 'none';
+              }
+
               clearTimeout(_timer);
-              _timer = setTimeout(() => applySearch(this.value.trim()), 520);
+              _timer = setTimeout(() => applySearch(val), 520);
             });
+
             searchInput.addEventListener('keydown', function (e) {
               if (e.key === 'Enter') {
                 clearTimeout(_timer);
                 applySearch(this.value.trim());
               }
             });
+
+            if (submitBtn) {
+              submitBtn.addEventListener('click', function() {
+                clearTimeout(_timer);
+                applySearch(searchInput.value.trim());
+              });
+            }
+
+            if (clearBtn) {
+              clearBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                this.style.display = 'none';
+                clearTimeout(_timer);
+                applySearch('');
+              });
+            }
           })();
 
 
@@ -1314,7 +1380,7 @@
           const swalBase = {
             background: '#141416',
             color: '#eaeaea',
-            confirmButtonColor: '#00ff04',
+            confirmButtonColor: '#4f6ef7',
             cancelButtonColor: '#3a3a4a',
           };
 
@@ -1332,12 +1398,12 @@
               icon: isFull ? 'warning' : 'success',
               title: isFull ? 'Limit Reached' : 'Added to cart!',
               html: isFull
-                ? `<span style="font-size:.76rem;color:var(--text-dim)">You can only add up to <strong style="color:#00ff04">${limitVal}</strong> units of this item.</span>`
-                : `<span style="font-size:.76rem;color:var(--text-dim)">You can add <strong style="color:#00ff04">${remaining}</strong> more unit${remaining === 1 ? '' : 's'}</span>`,
+                ? `<span style="font-size:.76rem;color:var(--text-dim)">You can only add up to <strong style="color:#4f6ef7">${limitVal}</strong> units of this item.</span>`
+                : `<span style="font-size:.76rem;color:var(--text-dim)">You can add <strong style="color:#4f6ef7">${remaining}</strong> more unit${remaining === 1 ? '' : 's'}</span>`,
               showConfirmButton: false,
               timer: 2500,
               timerProgressBar: true,
-              iconColor: isFull ? '#00ff04' : '#00d4a0',
+              iconColor: isFull ? '#4f6ef7' : '#00d4a0',
             });
           }
 
@@ -1353,7 +1419,7 @@
                 return Swal.fire({
                   background: '#141416',
                   color: '#eaeaea',
-                  confirmButtonColor: '#00ff04',
+                  confirmButtonColor: '#4f6ef7',
                   icon: 'warning',
                   title: 'Sign In Required',
                   text: 'Please log in to add items to your wishlist.',

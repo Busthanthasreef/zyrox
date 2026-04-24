@@ -13,586 +13,491 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="/userStyles/profile/profileShared.css">
+
+    <style>
+        :root {
+            --bg-deep: #0c0f1a;
+            --bg-card: #141824;
+            --bg-card-h: #1a1f2e;
+            --accent: #4f6ef7;
+            --accent-rgb: 0, 255, 4;
+            --primary-blue: #4f6ef7;
+            --text: #e8eaf6;
+            --sub: #7b8fb5;
+            --border: rgba(255, 255, 255, 0.05);
+            --border2: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+
+
+        /* ── LAYOUT ── */
+        .page-wrapper { display: flex; min-height: 100vh; align-items: flex-start; padding-top: 80px; }
+        .main-wrapper { flex: 1; padding-bottom: 80px; }
+        .content-container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
+
+        /* ── HEADER ROW ── */
+        .profile-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .profile-main-title { font-size: 1.4rem; font-weight: 700; margin: 0; }
+        .top-action-btns { display: flex; gap: 10px; }
+        .btn-edit-profile {
+            background: var(--primary-blue);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-logout-icon {
+            background: rgba(255, 77, 109, 0.05);
+            color: #ff4d6d;
+            border: 1px solid rgba(255, 77, 109, 0.2);
+            border-radius: 8px;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        /* ── AVATAR SECTION ── */
+        .avatar-section { text-align: center; margin-bottom: 40px; }
+        .avatar-glow-wrap { display: inline-block; margin-bottom: 15px; position: relative; }
+        .avatar-outer-ring {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            padding: 4px;
+            background: linear-gradient(135deg, var(--primary-blue), #6c5ce7);
+            box-shadow: 0 0 20px rgba(79, 110, 247, 0.3);
+        }
+        .avatar-inner-ring { width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--bg-deep); overflow: hidden; background: #252a42; }
+        .main-avatar-img { width: 100%; height: 100%; object-fit: cover; }
+        .user-display-name { font-size: 1.5rem; font-weight: 800; margin-bottom: 5px; }
+        .member-since { font-size: 0.8rem; color: var(--sub); }
+
+        /* ── INFO CARDS ── */
+        .info-cards-grid { display: grid; gap: 15px; }
+        .profile-info-card { background: var(--bg-card); border: 1px solid var(--border2); border-radius: 16px; padding: 16px 20px; }
+        .card-field-label { display: block; font-size: 0.65rem; font-weight: 700; color: var(--sub); letter-spacing: 0.5px; margin-bottom: 6px; text-transform: uppercase; }
+        .card-field-value { font-size: 1rem; font-weight: 700; color: var(--text); }
+        .card-field-row { display: flex; justify-content: space-between; align-items: center; }
+        .card-row-actions { display: flex; align-items: center; gap: 10px; }
+        .icon-action-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border2); color: var(--sub); border-radius: 6px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+        .btn-share-link { background: rgba(79, 110, 247, 0.1); color: var(--primary-blue); border: 1px solid rgba(79, 110, 247, 0.2); border-radius: 6px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+
+        /* ── VERIFICATION ── */
+        .verification-badge-wrap { margin-top: 5px; }
+        .v-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; }
+        .badge-zyrox { background: rgba(var(--accent-rgb), 0.1); color: var(--accent); border: 1px solid rgba(var(--accent-rgb), 0.2); }
+        .badge-google { background: rgba(79, 110, 247, 0.1); color: var(--primary-blue); border: 1px solid rgba(79, 110, 247, 0.2); }
+
+        /* ── EMAIL BOX ── */
+        .email-display-box { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 10px; padding: 12px 15px; font-size: 0.95rem; color: var(--sub); margin-top: 5px; }
+        .google-managed-hint { font-size: 0.7rem; color: #ff9800; margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+
+        /* ── SECURITY SECTION ── */
+        .security-section { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 25px; text-align: center; }
+        .security-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; }
+        .btn-update-password { width: 100%; background: var(--bg-card); border: 1px solid var(--border2); color: var(--text); padding: 12px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; }
+        .btn-update-password i { color: var(--sub); }
+
+        @media (min-width: 768px) {
+            .info-cards-grid { grid-template-columns: repeat(2, 1fr); }
+            .profile-info-card.full-width { grid-column: span 2; }
+        }
+
+        @media (max-width: 992px) {
+            .desktop-sidebar { display: none !important; }
+            .content-container { padding: 15px 16px 40px !important; }
+            .footer-zyrax { display: none !important; }
+        }
+
+        /* ── FOOTER STYLES ── */
+        .footer-zyrax {
+            background: #080a12;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 60px 20px 30px;
+            margin-top: 50px;
+        }
+        .footer-brand { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; color: #fff; }
+        .footer-brand span { color: var(--accent); }
+        .footer-tagline { color: #7b8fb5; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; }
+        .footer-social { display: flex; gap: 12px; }
+        .social-btn {
+            width: 36px; height: 36px; background: rgba(255,255,255,0.05); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: #7b8fb5; transition: 0.3s; text-decoration: none;
+        }
+        .social-btn:hover { background: var(--accent); color: #000; transform: translateY(-3px); }
+        .footer-col-title { font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-link { display: block; color: #7b8fb5; font-size: 0.85rem; margin-bottom: 12px; text-decoration: none; transition: 0.2s; }
+        .footer-link:hover { color: var(--accent); padding-left: 5px; }
+        .footer-divider { border-color: rgba(255, 255, 255, 0.05); margin: 40px 0 20px; }
+        .footer-copy { font-size: 0.75rem; color: #7b8fb5; }
+
+        /* ── MODAL STYLES ── */
+        .modal-field-label { display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #4f566b; margin-bottom: 6px; }
+        .modal-input-wrap { position: relative; }
+        .modal-field-input { width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid #252a42; border-radius: 10px; padding: 11px 44px 11px 14px; color: #f0f2ff; font-size: 0.9rem; outline: none; transition: 0.22s; }
+        .modal-field-input:focus { border-color: #4f6ef7; box-shadow: 0 0 0 3px rgba(79, 110, 247, .2); }
+        .modal-eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #4f566b; font-size: 1rem; }
+        .modal-strength-bar { height: 4px; background: #1e2338; border-radius: 4px; margin-top: 10px; overflow: hidden; display: none; }
+        .modal-strength-fill { height: 100%; width: 0; transition: 0.35s; }
+        .modal-req-list { list-style: none; padding: 0; margin: 10px 0 4px; display: none; }
+        .modal-req { font-size: 0.76rem; color: #4f566b; display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+        .modal-req.met { color: #00d4aa; }
+        .modal-field-error { font-size: 0.75rem; color: #ff4d6d; margin: 4px 0 0; min-height: 16px; }
+        .modal-submit-btn { background: linear-gradient(135deg, #4f6ef7, #6c5ce7); color: #fff; border: none; border-radius: 10px; padding: 12px; font-weight: 700; font-size: 0.95rem; transition: 0.2s; margin-top: 6px; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
 
 <body>
-
-    <div class="main-container">
-        <!-- Sidebar Partial -->
+    <%- include('../../partials/user/navigationbar') %>
+    <div class="page-wrapper">
         <%- include('../../partials/user/profileSidebar', { activePage: 'profile' }) %>
+        <main class="main-wrapper">
 
-            <!-- Main Content -->
-            <main class="main-wrapper">
-                <div id="profile-card-container">
-                    <div class="profile-card">
+            <div class="content-container">
+                <div class="profile-header-row">
+                    <h3 class="profile-main-title">User Profile</h3>
+                    <div class="top-action-btns">
+                        <button class="btn-edit-profile" onclick="window.location.href='/profile-edit'">
+                            <i class="far fa-edit"></i> Edit Profile
+                        </button>
+                        <button class="btn-logout-icon" onclick="confirmLogout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
 
-                        <div class="d-flex justify-content-between align-items-center mb-5">
-                            <h3 class="m-0">User Profile</h3>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-custom edit-btn ajax-link" data-url="/profile-edit">
-                                    <i class="bi bi-pencil-square"></i> Edit Profile
-                                </button>
-                                <button class="btn btn-custom logout-btn" onclick="confirmLogout()">
-                                    <i class="bi bi-box-arrow-right"></i>
-                                </button>
+                <% if (user) { %>
+                    <div class="avatar-section">
+                        <div class="avatar-glow-wrap">
+                            <div class="avatar-outer-ring">
+                                <div class="avatar-inner-ring">
+                                    <img src="<%= userProfileImage || '/images/default-avatar.png' %>" alt="Profile" class="main-avatar-img">
+                                </div>
+                            </div>
+                        </div>
+                        <h2 class="user-display-name"><%= user.Name %></h2>
+                        <p class="member-since">Member since <%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) %></p>
+                    </div>
+
+                    <div class="info-cards-grid">
+                        <div class="profile-info-card">
+                            <label class="card-field-label">FULL NAME</label>
+                            <div class="card-field-value"><%= user.Name %></div>
+                        </div>
+
+                        <div class="profile-info-card">
+                            <label class="card-field-label">REFERRAL CODE</label>
+                            <div class="card-field-row">
+                                <div class="card-field-value font-monospace" id="referralCodeText"><%= user.referralCode || '—' %></div>
+                                <div class="card-row-actions">
+                                    <button class="icon-action-btn" onclick="copyReferralCode()" title="Copy Code">
+                                        <i class="far fa-copy"></i>
+                                    </button>
+                                    <button class="btn-share-link" onclick="copyReferralLink()">
+                                        <i class="fas fa-link"></i> Share Link
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
-                        <% if (user) { %>
-                            <div class="text-center">
-                                <div class="profile-img-container">
-                                    <img class="profile-img " src="<%= userProfileImage%>" alt="Profile Image">
+                        <% if(!isGoogleUser) { %>
+                        <div class="profile-info-card">
+                            <label class="card-field-label">PHONE NUMBER</label>
+                            <div class="card-field-value">+91 <%= user.Phone_number %></div>
+                        </div>
+                        <% } %>
 
-                                </div>
-                                <div class="mb-5">
-                                    <h4 class="fw-bold mb-1">
-                                        <%= user.Name %>
-                                    </h4>
-                                    <p class="text small">Member since <%= new
-                                            Date(user.createdAt).toLocaleDateString('en-US', { month: 'long' ,
-                                            year: 'numeric' }) %>
-                                    </p>
-                                </div>
+                        <div class="profile-info-card">
+                            <label class="card-field-label">VERIFICATION STATUS</label>
+                            <div class="verification-badge-wrap">
+                                <% if (isGoogleUser) { %>
+                                    <span class="v-badge badge-google"><i class="fab fa-google"></i> Google Verified</span>
+                                <% } else { %>
+                                    <span class="v-badge badge-zyrox"><i class="fas fa-shield-alt"></i> Zyrox Verified</span>
+                                <% } %>
                             </div>
+                        </div>
 
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <div class="info-box">
-                                        <label>Full Name</label>
-                                        <p class="mb-0 fw-bold">
-                                            <%= user.Name %>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="info-box">
-                                        <label>Referral Code</label>
-                                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <p class="mb-0 fw-bold font-monospace" id="referralCodeText">
-                                                <%= user.referralCode || '—' %>
-                                            </p>
-                                            <% if (user.referralCode) { %>
-                                                <button type="button" id="copyReferralBtn"
-                                                    class="btn btn-sm btn-outline-secondary py-0 px-2"
-                                                    title="Copy referral code" onclick="copyReferralCode()">
-                                                    <i class="bi bi-clipboard" id="copyIcon"></i>
-                                                </button>
-                                                <button type="button" id="shareReferralBtn"
-                                                    class="btn btn-sm btn-outline-primary py-0 px-2"
-                                                    title="Copy referral link" onclick="copyReferralLink()">
-                                                    <i class="bi bi-link-45deg" id="shareLinkIcon"></i> Share Link
-                                                </button>
-                                                <% } %>
-                                        </div>
-                                    </div>
-                                </div>
-                                <%if(!isGoogleUser){%>
-                                    <div class="col-md-6">
-                                        <div class="info-box">
-                                            <label>Phone Number</label>
-                                            <p class="mb-0 fw-bold">+91 <%= user.Phone_number %>
-                                            </p>
-
-                                        </div>
-                                    </div>
-                                    <%}%>
-                                        <div class="col-md-6">
-                                            <div class="info-box">
-                                                <label>Verification Status</label>
-                                                <p class="mb-0">
-                                                    <% if (isGoogleUser) { %>
-                                                        <span
-                                                            class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2">
-                                                            <i class="bi bi-google me-1"></i> Google Verified
-                                                        </span>
-                                                        <% } else { %>
-                                                            <span
-                                                                class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
-                                                                <i class="bi bi-shield-check me-1"></i> Zyrox Verified
-                                                            </span>
-                                                            <% } %>
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="info-box">
-                                                <label>Email Address</label>
-                                                <div class="d-flex align-items-center gap-2 mt-1">
-                                                    <div
-                                                        class="flex-grow-1 py-2 px-3 bg-dark-subtle rounded border border-secondary-subtle text-dark opacity-75">
-                                                        <%= user.Email %>
-                                                    </div>
-                                                    <%if(isGoogleUser){%>
-                                                        <p style="color: yellow;"><span
-                                                                style="color: rgb(255, 0, 0);">CAN'T EDIT
-                                                            </span><br>This acccont is managed by google </p>
-                                                        <%}%>
-                                                </div>
-                                            </div>
-                                        </div>
-                            </div>
-
-                            <div class="mt-5 pt-3 border-top border-secondary-subtle">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h6 class="mb-1 fw-bold">Security</h6>
-                                        <p class="text-muted small mb-0">Manage your password</p>
-                                    </div>
-                                    <% if(isGoogleUser && !hasPassword) { %>
-                                        <button class="btn btn-custom change-pass-btn" data-bs-toggle="modal"
-                                            data-bs-target="#passwordModal">
-                                            <i class="bi bi-shield-plus"></i> Add Password
-                                        </button>
-                                        <% } else { %>
-                                            <button class="btn btn-custom change-pass-btn" data-bs-toggle="modal"
-                                                data-bs-target="#passwordModal">
-                                                <i class="bi bi-shield-lock"></i> Update Password
-                                            </button>
-                                            <% } %>
-                                </div>
-                            </div>
+                        <div class="profile-info-card full-width">
+                            <label class="card-field-label">EMAIL ADDRESS</label>
+                            <div class="email-display-box"><%= user.Email %></div>
+                            <% if(isGoogleUser) { %>
+                                <div class="google-managed-hint"><i class="fas fa-info-circle"></i> Managed by Google</div>
                             <% } %>
-                    </div>
-                </div>
-            </main>
-            <div>
-
-                <!-- ===== PASSWORD MODAL ===== -->
-                <div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content"
-                            style="background:#111422;border:1px solid #252a42;border-radius:16px;overflow:hidden;">
-                            <div style="height:4px;background:linear-gradient(90deg,#4f6ef7,#00d4aa);"></div>
-                            <div class="modal-header border-0 px-4 pt-4 pb-2">
-                                <div>
-                                    <h5 class="modal-title fw-bold mb-1" id="passwordModalLabel" style="color:#f0f2ff;">
-                                        <i class="bi bi-shield-lock me-2" style="color:#4f6ef7;"></i>
-                                        <%= hasPassword ? 'Update Password' : 'Add Password' %>
-                                    </h5>
-                                    <p class="mb-0 small" style="color:#8b92b8;">Keep your account secure with a strong
-                                        password</p>
-                                </div>
-                                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body px-4 pb-2 pt-3">
-                                <% if (typeof errorMessage !=='undefined' && errorMessage) { %>
-                                    <div class="alert d-flex align-items-center gap-2 mb-3"
-                                        style="background:rgba(255,77,109,0.12);border:1px solid rgba(255,77,109,0.3);color:#ff8fa3;border-radius:10px;">
-                                        <i class="bi bi-exclamation-triangle-fill"></i>
-                                        <%= errorMessage %>
-                                    </div>
-                                    <% } %>
-                                        <% if (typeof successMessage !=='undefined' && successMessage) { %>
-                                            <div class="alert d-flex align-items-center gap-2 mb-3"
-                                                style="background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.25);color:#00d4aa;border-radius:10px;">
-                                                <i class="bi bi-check-circle-fill"></i>
-                                                <%= successMessage %>
-                                            </div>
-                                            <% } %>
-                                                <form action="<%= hasPassword ? '/change-password' : '/add-password' %>"
-                                                    method="POST" id="passwordModalForm" novalidate>
-                                                    <% if (hasPassword) { %>
-                                                        <div class="mb-3">
-                                                            <label class="modal-field-label">Current Password</label>
-                                                            <div class="modal-input-wrap">
-                                                                <input type="password" id="modal_currentPassword"
-                                                                    name="currentPassword" class="modal-field-input"
-                                                                    placeholder="Enter your current password"
-                                                                    autocomplete="current-password">
-                                                                <button type="button" class="modal-eye-btn"
-                                                                    onclick="modalToggleVis('modal_currentPassword', this)"><i
-                                                                        class="fa-regular fa-eye"></i></button>
-                                                            </div>
-                                                            <p class="modal-field-error"
-                                                                id="modal_currentPasswordError"></p>
-                                                            <% if (typeof errors !=='undefined' &&
-                                                                errors.currentPassword) { %>
-                                                                <p class="modal-field-error">
-                                                                    <%= errors.currentPassword %>
-                                                                </p>
-                                                                <% } %>
-                                                        </div>
-                                                        <% } %>
-                                                            <div class="mb-2">
-                                                                <label class="modal-field-label">New Password</label>
-                                                                <div class="modal-input-wrap">
-                                                                    <input type="password" id="modal_newPassword"
-                                                                        name="newPassword" class="modal-field-input"
-                                                                        placeholder="Create a strong new password"
-                                                                        autocomplete="new-password">
-                                                                    <button type="button" class="modal-eye-btn"
-                                                                        onclick="modalToggleVis('modal_newPassword', this)"><i
-                                                                            class="fa-regular fa-eye"></i></button>
-                                                                </div>
-                                                                <div class="modal-strength-bar" id="modal_strengthBar">
-                                                                    <div class="modal-strength-fill"
-                                                                        id="modal_strengthFill"></div>
-                                                                </div>
-                                                                <ul class="modal-req-list" id="modal_reqList">
-                                                                    <li class="modal-req" data-req="length"><i
-                                                                            class="bi bi-circle"></i> At least 8
-                                                                        characters</li>
-                                                                    <li class="modal-req" data-req="uppercase"><i
-                                                                            class="bi bi-circle"></i> One uppercase
-                                                                        letter (A–Z)</li>
-                                                                    <li class="modal-req" data-req="lowercase"><i
-                                                                            class="bi bi-circle"></i> One lowercase
-                                                                        letter (a–z)</li>
-                                                                    <li class="modal-req" data-req="number"><i
-                                                                            class="bi bi-circle"></i> One number (0–9)
-                                                                    </li>
-                                                                    <li class="modal-req" data-req="symbol"><i
-                                                                            class="bi bi-circle"></i> One symbol (!@#$…)
-                                                                    </li>
-                                                                </ul>
-                                                                <p class="modal-field-error"
-                                                                    id="modal_newPasswordError"></p>
-                                                                <% if (typeof errors !=='undefined' &&
-                                                                    errors.newPassword) { %>
-                                                                    <p class="modal-field-error">
-                                                                        <%= errors.newPassword %>
-                                                                    </p>
-                                                                    <% } %>
-                                                            </div>
-                                                            <div class="mb-3">
-                                                                <label class="modal-field-label">Confirm
-                                                                    Password</label>
-                                                                <div class="modal-input-wrap">
-                                                                    <input type="password" id="modal_confirmPassword"
-                                                                        name="confirmPassword" class="modal-field-input"
-                                                                        placeholder="Repeat your new password"
-                                                                        autocomplete="new-password">
-                                                                    <button type="button" class="modal-eye-btn"
-                                                                        onclick="modalToggleVis('modal_confirmPassword', this)"><i
-                                                                            class="fa-regular fa-eye"></i></button>
-                                                                </div>
-                                                                <p class="modal-field-error"
-                                                                    id="modal_confirmPasswordError"></p>
-                                                                <% if (typeof errors !=='undefined' &&
-                                                                    errors.confirmPassword) { %>
-                                                                    <p class="modal-field-error">
-                                                                        <%= errors.confirmPassword %>
-                                                                    </p>
-                                                                    <% } %>
-                                                            </div>
-                                                            <button type="submit" class="modal-submit-btn w-100">
-                                                                <i class="bi bi-shield-lock-fill me-2"></i>
-                                                                <%= hasPassword ? 'Update Password' : 'Set Password' %>
-                                                            </button>
-                                                </form>
-                            </div>
-                            <div class="modal-footer border-0 px-4 pb-4 pt-1 justify-content-center">
-                                <p class="small mb-0" style="color:#4f566b;"><i class="bi bi-lock-fill me-1"></i>Your
-                                    password is encrypted and stored securely.</p>
-                            </div>
                         </div>
                     </div>
+
+                    <div class="security-section">
+                        <h4 class="security-title">Security</h4>
+                        <button class="btn-update-password" data-bs-toggle="modal" data-bs-target="#passwordModal">
+                            <i class="fas fa-shield-alt"></i> Update Password
+                        </button>
+                    </div>
+                <% } %>
+            </div>
+        </main>
+    </div>
+
+    <%- include('../../partials/user/bottomNav', { activePage: 'profile' }) %>
+
+    <!-- ===== PASSWORD MODAL ===== -->
+    <div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background:#111422;border:1px solid #252a42;border-radius:16px;overflow:hidden;">
+                <div style="height:4px;background:linear-gradient(90deg,#4f6ef7,#00d4aa);"></div>
+                <div class="modal-header border-0 px-4 pt-4 pb-2">
+                    <div>
+                        <h5 class="modal-title fw-bold mb-1" style="color:#f0f2ff;">
+                            <i class="bi bi-shield-lock me-2" style="color:#4f6ef7;"></i>
+                            <%= hasPassword ? 'Update Password' : 'Add Password' %>
+                        </h5>
+                        <p class="mb-0 small" style="color:#8b92b8;">Keep your account secure with a strong password</p>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
                 </div>
+                <div class="modal-body px-4 pb-2 pt-3">
+                    <form action="<%= hasPassword ? '/change-password' : '/add-password' %>" method="POST" id="passwordModalForm">
+                        <% if (hasPassword) { %>
+                            <div id="currentPasswordSection">
+                                <div class="mb-3">
+                                    <label class="modal-field-label">Current Password</label>
+                                    <div class="modal-input-wrap">
+                                        <input type="password" id="modal_currentPassword" name="currentPassword" class="modal-field-input" placeholder="Enter your current password">
+                                        <button type="button" class="modal-eye-btn" onclick="modalToggleVis('modal_currentPassword', this)"><i class="fa-regular fa-eye"></i></button>
+                                    </div>
+                                    <p class="modal-field-error" id="modal_currentPasswordError"></p>
+                                </div>
+                                <button type="button" class="modal-submit-btn w-100 mb-3" id="verifyCurrentPasswordBtn">
+                                    <i class="bi bi-shield-check me-2"></i> Verify Password
+                                </button>
+                            </div>
+                        <% } %>
 
-                <style>
-                    .modal-field-label {
-                        display: block;
-                        font-size: 0.72rem;
-                        font-weight: 700;
-                        text-transform: uppercase;
-                        letter-spacing: 0.06em;
-                        color: #4f566b;
-                        margin-bottom: 6px;
-                    }
+                        <div id="newPasswordSection" style="<%= hasPassword ? 'display: none;' : '' %>">
+                            <div class="mb-2">
+                                <label class="modal-field-label">New Password</label>
+                                <div class="modal-input-wrap">
+                                    <input type="password" id="modal_newPassword" name="newPassword" class="modal-field-input" placeholder="Create a strong new password">
+                                    <button type="button" class="modal-eye-btn" onclick="modalToggleVis('modal_newPassword', this)"><i class="fa-regular fa-eye"></i></button>
+                                </div>
+                                <div class="modal-strength-bar" id="modal_strengthBar"><div class="modal-strength-fill" id="modal_strengthFill"></div></div>
+                                <ul class="modal-req-list" id="modal_reqList">
+                                    <li class="modal-req" data-req="length"><i class="bi bi-circle"></i> At least 8 characters</li>
+                                    <li class="modal-req" data-req="uppercase"><i class="bi bi-circle"></i> One uppercase letter</li>
+                                    <li class="modal-req" data-req="lowercase"><i class="bi bi-circle"></i> One lowercase letter</li>
+                                    <li class="modal-req" data-req="number"><i class="bi bi-circle"></i> One number</li>
+                                    <li class="modal-req" data-req="symbol"><i class="bi bi-circle"></i> One symbol</li>
+                                </ul>
+                                <p class="modal-field-error" id="modal_newPasswordError"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="modal-field-label">Confirm Password</label>
+                                <div class="modal-input-wrap">
+                                    <input type="password" id="modal_confirmPassword" name="confirmPassword" class="modal-field-input" placeholder="Repeat your new password">
+                                    <button type="button" class="modal-eye-btn" onclick="modalToggleVis('modal_confirmPassword', this)"><i class="fa-regular fa-eye"></i></button>
+                                </div>
+                                <p class="modal-field-error" id="modal_confirmPasswordError"></p>
+                            </div>
+                            <button type="submit" class="modal-submit-btn w-100">
+                                <i class="bi bi-shield-lock-fill me-2"></i> <%= hasPassword ? 'Update Password' : 'Set Password' %>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    .modal-input-wrap {
-                        position: relative;
-                    }
+    <!-- ═══════════ FOOTER ═══════════ -->
+    <footer class="footer-zyrax">
+        <div class="row g-4 container-fluid mx-0">
+            <div class="col-12 col-md-3">
+                <div class="footer-brand"><i class="bi bi-hexagon-fill me-1"></i>Zy<span>rox</span></div>
+                <p class="footer-tagline">Your trusted destination for genuine smartphones. Secure payments and exceptional service.</p>
+                <div class="footer-social">
+                    <a href="#" class="social-btn"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-btn"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="social-btn"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+            <div class="col-6 col-md-2 offset-md-1">
+                <div class="footer-col-title">Shop by Brand</div>
+                <a href="#" class="footer-link">Apple iPhones</a>
+                <a href="#" class="footer-link">Samsung Galaxy</a>
+                <a href="#" class="footer-link">Xiaomi Phones</a>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="footer-col-title">Support</div>
+                <a href="#" class="footer-link">Contact Us</a>
+                <a href="#" class="footer-link">Track Order</a>
+                <a href="#" class="footer-link">FAQs</a>
+            </div>
+            <div class="col-6 col-md-2">
+                <div class="footer-col-title">Company</div>
+                <a href="#" class="footer-link">About Us</a>
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms</a>
+            </div>
+        </div>
+        <hr class="footer-divider" />
+        <div class="d-flex justify-content-between align-items-center container-fluid">
+            <span class="footer-copy">© 2024 Zyrox. All rights reserved.</span>
+            <span class="footer-copy">Made with <i class="bi bi-heart-fill text-danger"></i></span>
+        </div>
+    </footer>
 
-                    .modal-field-input {
-                        width: 100%;
-                        background: rgba(255, 255, 255, 0.04);
-                        border: 1px solid #252a42;
-                        border-radius: 10px;
-                        padding: 11px 44px 11px 14px;
-                        color: #f0f2ff;
-                        font-size: 0.9rem;
-                        outline: none;
-                        transition: border-color .22s, box-shadow .22s;
-                    }
-
-                    .modal-field-input::placeholder {
-                        color: #4f566b;
-                    }
-
-                    .modal-field-input:focus {
-                        border-color: #4f6ef7;
-                        box-shadow: 0 0 0 3px rgba(79, 110, 247, .2);
-                        background: rgba(255, 255, 255, 0.06);
-                    }
-
-                    .modal-eye-btn {
-                        position: absolute;
-                        right: 12px;
-                        top: 50%;
-                        transform: translateY(-50%);
-                        background: none;
-                        border: none;
-                        color: #4f566b;
-                        cursor: pointer;
-                        padding: 0;
-                        font-size: 1rem;
-                        transition: color .2s;
-                    }
-
-                    .modal-eye-btn:hover {
-                        color: #f0f2ff;
-                    }
-
-                    .modal-strength-bar {
-                        height: 4px;
-                        background: #1e2338;
-                        border-radius: 4px;
-                        margin-top: 10px;
-                        overflow: hidden;
-                        display: none;
-                    }
-
-                    .modal-strength-fill {
-                        height: 100%;
-                        width: 0;
-                        border-radius: 4px;
-                        transition: width .35s ease, background-color .35s ease;
-                    }
-
-                    .modal-req-list {
-                        list-style: none;
-                        padding: 0;
-                        margin: 10px 0 4px;
-                        display: none;
-                    }
-
-                    .modal-req {
-                        font-size: 0.76rem;
-                        color: #4f566b;
-                        display: flex;
-                        align-items: center;
-                        gap: 7px;
-                        margin-bottom: 5px;
-                        transition: color .2s;
-                    }
-
-                    .modal-req i {
-                        font-size: 0.8rem;
-                    }
-
-                    .modal-req.met {
-                        color: #00d4aa;
-                    }
-
-                    .modal-field-error {
-                        font-size: 0.75rem;
-                        color: #ff4d6d;
-                        margin: 4px 0 0;
-                        min-height: 16px;
-                    }
-
-                    .modal-submit-btn {
-                        background: linear-gradient(135deg, #4f6ef7, #6c5ce7);
-                        color: #fff;
-                        border: none;
-                        border-radius: 10px;
-                        padding: 12px;
-                        font-weight: 700;
-                        font-size: 0.95rem;
-                        cursor: pointer;
-                        transition: opacity .2s, transform .2s;
-                        margin-top: 6px;
-                    }
-
-                    .modal-submit-btn:hover {
-                        opacity: .9;
-                        transform: translateY(-1px);
-                    }
-                </style>
-
-                <!-- Bootstrap JS -->
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-                <!-- AJAX Logic for Card Switching -->
-                <script src="/js/userProfile.js"></script>
-                <script>
-                    function copyReferralCode() {
-                        const code = document.getElementById('referralCodeText').textContent.trim();
-                        navigator.clipboard.writeText(code).then(() => {
-                            const icon = document.getElementById('copyIcon');
-                            icon.classList.remove('bi-clipboard');
-                            icon.classList.add('bi-clipboard-check');
-                            const btn = document.getElementById('copyReferralBtn');
-                            btn.classList.remove('btn-outline-secondary');
-                            btn.classList.add('btn-success');
-                            setTimeout(() => {
-                                icon.classList.remove('bi-clipboard-check');
-                                icon.classList.add('bi-clipboard');
-                                btn.classList.remove('btn-success');
-                                btn.classList.add('btn-outline-secondary');
-                            }, 2000);
-                        }).catch(() => {
-                            // Fallback for older browsers
-                            const el = document.createElement('textarea');
-                            el.value = code;
-                            document.body.appendChild(el);
-                            el.select();
-                            document.execCommand('copy');
-                            document.body.removeChild(el);
-                        });
-                    }
-
-                    function copyReferralLink() {
-                        const code = document.getElementById('referralCodeText').textContent.trim();
-                        const link = window.location.origin + '/signup?ref=' + code;
-                        navigator.clipboard.writeText(link).then(() => {
-                            const icon = document.getElementById('shareLinkIcon');
-                            const btn = document.getElementById('shareReferralBtn');
-                            icon.classList.remove('bi-link-45deg');
-                            icon.classList.add('bi-check-lg');
-                            btn.classList.remove('btn-outline-primary');
-                            btn.classList.add('btn-success');
-                            btn.innerHTML = '<i class="bi bi-check-lg"></i> Copied!';
-                            setTimeout(() => {
-                                btn.classList.remove('btn-success');
-                                btn.classList.add('btn-outline-primary');
-                                btn.innerHTML = '<i class="bi bi-link-45deg" id="shareLinkIcon"></i> Share Link';
-                            }, 2000);
-                        }).catch(() => {
-                            // Fallback: show the link in a SweetAlert
-                            Swal.fire({
-                                title: 'Your Referral Link',
-                                text: link,
-                                icon: 'info',
-                                background: '#1a1a2e',
-                                color: '#fff',
-                                confirmButtonText: 'OK'
-                            });
-                        });
-                    }
-
-                    // ── Modal: toggle password visibility ──
-                    function modalToggleVis(fieldId, btn) {
-                        const input = document.getElementById(fieldId);
-                        const icon = btn.querySelector('i');
-                        if (input.type === 'password') {
-                            input.type = 'text';
-                            icon.className = 'fa-regular fa-eye-slash';
-                        } else {
-                            input.type = 'password';
-                            icon.className = 'fa-regular fa-eye';
-                        }
-                    }
-
-                    // ── Modal: strength meter ──
-                    const _modalReqs = {
-                        length: { re: /.{8,}/, el: document.querySelector('.modal-req[data-req="length"]') },
-                        uppercase: { re: /[A-Z]/, el: document.querySelector('.modal-req[data-req="uppercase"]') },
-                        lowercase: { re: /[a-z]/, el: document.querySelector('.modal-req[data-req="lowercase"]') },
-                        number: { re: /[0-9]/, el: document.querySelector('.modal-req[data-req="number"]') },
-                        symbol: { re: /[\W_]/, el: document.querySelector('.modal-req[data-req="symbol"]') }
-                    };
-
-                    const _modalNewPass = document.getElementById('modal_newPassword');
-                    if (_modalNewPass) {
-                        _modalNewPass.addEventListener('input', function () {
-                            const val = this.value;
-                            const bar = document.getElementById('modal_strengthBar');
-                            const fill = document.getElementById('modal_strengthFill');
-                            const list = document.getElementById('modal_reqList');
-
-                            bar.style.display = val.length > 0 ? 'block' : 'none';
-                            list.style.display = val.length > 0 ? 'block' : 'none';
-
-                            let met = 0;
-                            Object.keys(_modalReqs).forEach(k => {
-                                const r = _modalReqs[k];
-                                if (!r.el) return;
-                                if (r.re.test(val)) {
-                                    met++;
-                                    r.el.classList.add('met');
-                                    r.el.querySelector('i').className = 'bi bi-check-circle-fill';
-                                } else {
-                                    r.el.classList.remove('met');
-                                    r.el.querySelector('i').className = 'bi bi-circle';
-                                }
-                            });
-
-                            fill.style.width = (met / 5 * 100) + '%';
-                            fill.style.backgroundColor = met <= 2 ? '#ff4d6d' : met <= 4 ? '#f59e0b' : '#00d4aa';
-                        });
-                    }
-
-                    // ── Modal: form validation ──
-                    const _modalForm = document.getElementById('passwordModalForm');
-                    if (_modalForm) {
-                        _modalForm.addEventListener('submit', function (e) {
-                            const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-                            const currErr = document.getElementById('modal_currentPasswordError');
-                            const newErr = document.getElementById('modal_newPasswordError');
-                            const confErr = document.getElementById('modal_confirmPasswordError');
-                            const currIn = document.getElementById('modal_currentPassword');
-                            const newIn = document.getElementById('modal_newPassword');
-                            const confIn = document.getElementById('modal_confirmPassword');
-
-                            if (currErr) currErr.textContent = '';
-                            newErr.textContent = '';
-                            confErr.textContent = '';
-
-                            let ok = true;
-
-                            if (currIn && !currIn.value.trim()) {
-                                currErr.textContent = 'Current password is required.';
-                                ok = false;
-                            }
-                            if (!newIn.value) {
-                                newErr.textContent = 'New password is required.';
-                                ok = false;
-                            } else if (!strongRegex.test(newIn.value)) {
-                                newErr.textContent = 'Must be ≥8 chars with uppercase, lowercase, number & symbol.';
-                                ok = false;
-                            }
-                            if (!confIn.value) {
-                                confErr.textContent = 'Please confirm your password.';
-                                ok = false;
-                            } else if (newIn.value !== confIn.value) {
-                                confErr.textContent = 'Passwords do not match.';
-                                ok = false;
-                            }
-
-                            if (!ok) e.preventDefault();
-                        });
-                    }
-
-        // ── Auto-open modal on server-side errors/success ──
-        <% if ((typeof errors !== 'undefined' && errors && Object.keys(errors).length > 0) ||
-                        (typeof errorMessage !== 'undefined' && errorMessage) ||
-                        (typeof successMessage !== 'undefined' && successMessage)) { %>
-                            document.addEventListener('DOMContentLoaded', function () {
-                                var m = document.getElementById('passwordModal');
-                                if (m) new bootstrap.Modal(m).show();
-                            });
-        <% } %>
-                </script>
-                <!-- commented-out logout script kept below -->
-                <!-- <script>
-        function confirmLogout() {
-            Swal.fire({
-                background: 'black', color: '#f0f2ff', icon: 'warning',
-                title: 'Logout?', text: "Are you sure you want to Logout?",
-                showCancelButton: true, confirmButtonText: "Yes, logout",
-                cancelButtonText: "Cancel", confirmButtonColor: '#ff4d6d',
-                cancelButtonColor: 'rgba(255,255,255,0.1)', reverseButtons: true
-            }).then((result) => { if (result.isConfirmed) window.location.href = "/logout"; });
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ── Referral Code Logic ──
+        function copyReferralCode() {
+            const code = document.getElementById('referralCodeText')?.textContent.trim();
+            if (!code || code === '—') return;
+            navigator.clipboard.writeText(code).then(() => {
+                Swal.fire({ icon: 'success', title: 'Code Copied', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, background: '#141824', color: '#e8eaf6' });
+            });
         }
-    </script> -->
-</body>
+        function copyReferralLink() {
+            const code = document.getElementById('referralCodeText')?.textContent.trim();
+            if (!code || code === '—') return;
+            const link = window.location.origin + '/signup?ref=' + code;
+            navigator.clipboard.writeText(link).then(() => {
+                Swal.fire({ icon: 'success', title: 'Link Copied', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, background: '#141824', color: '#e8eaf6' });
+            });
+        }
 
+        <% if (typeof profileSuccess !== 'undefined' && profileSuccess) { %>
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: '<%= profileSuccess %>',
+                showConfirmButton: false,
+                timer: 2000,
+                background: '#141824',
+                color: '#e8eaf6'
+            });
+        <% } %>
+
+        // ── Password Modal Logic ──
+        function modalToggleVis(id, btn) {
+            const el = document.getElementById(id);
+            const icon = btn.querySelector('i');
+            if (el.type === 'password') { el.type = 'text'; icon.className = 'fa-regular fa-eye-slash'; }
+            else { el.type = 'password'; icon.className = 'fa-regular fa-eye'; }
+        }
+
+        const _modalReqs = {
+            length: { re: /.{8,}/, el: document.querySelector('.modal-req[data-req="length"]') },
+            uppercase: { re: /[A-Z]/, el: document.querySelector('.modal-req[data-req="uppercase"]') },
+            lowercase: { re: /[a-z]/, el: document.querySelector('.modal-req[data-req="lowercase"]') },
+            number: { re: /[0-9]/, el: document.querySelector('.modal-req[data-req="number"]') },
+            symbol: { re: /[\W_]/, el: document.querySelector('.modal-req[data-req="symbol"]') }
+        };
+
+        const _modalNewPass = document.getElementById('modal_newPassword');
+        if (_modalNewPass) {
+            _modalNewPass.addEventListener('input', function() {
+                const val = this.value;
+                const bar = document.getElementById('modal_strengthBar');
+                const fill = document.getElementById('modal_strengthFill');
+                const list = document.getElementById('modal_reqList');
+                bar.style.display = list.style.display = val.length > 0 ? 'block' : 'none';
+                let met = 0;
+                Object.keys(_modalReqs).forEach(k => {
+                    const r = _modalReqs[k];
+                    if (r.re.test(val)) { met++; r.el.classList.add('met'); r.el.querySelector('i').className = 'bi bi-check-circle-fill'; }
+                    else { r.el.classList.remove('met'); r.el.querySelector('i').className = 'bi bi-circle'; }
+                });
+                fill.style.width = (met / 5 * 100) + '%';
+                fill.style.backgroundColor = met <= 2 ? '#ff4d6d' : met <= 4 ? '#f59e0b' : '#00d4aa';
+            });
+        }
+
+        const verifyBtn = document.getElementById('verifyCurrentPasswordBtn');
+        if (verifyBtn) {
+            verifyBtn.addEventListener('click', async function() {
+                const currentPassword = document.getElementById('modal_currentPassword').value;
+                const errorEl = document.getElementById('modal_currentPasswordError');
+                errorEl.textContent = '';
+                if (!currentPassword) { errorEl.textContent = 'Please enter your current password.'; return; }
+                try {
+                    verifyBtn.disabled = true;
+                    verifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Verifying...';
+                    const res = await fetch('/verify-current-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword }) });
+                    const data = await res.json();
+                    if (data.success) {
+                        document.getElementById('currentPasswordSection').style.display = 'none';
+                        const newPassSec = document.getElementById('newPasswordSection');
+                        newPassSec.style.display = 'block'; newPassSec.classList.add('animate-fade-in');
+                    } else {
+                        errorEl.textContent = data.message || 'Incorrect password.';
+                        verifyBtn.disabled = false; verifyBtn.innerHTML = '<i class="bi bi-shield-check me-2"></i> Verify Password';
+                    }
+                } catch (e) { errorEl.textContent = 'Something went wrong.'; verifyBtn.disabled = false; verifyBtn.innerHTML = '<i class="bi bi-shield-check me-2"></i> Verify Password'; }
+            });
+        }
+
+        const _modalForm = document.getElementById('passwordModalForm');
+        if (_modalForm) {
+            _modalForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const newIn = document.getElementById('modal_newPassword');
+                const confIn = document.getElementById('modal_confirmPassword');
+                const newErr = document.getElementById('modal_newPasswordError');
+                const confErr = document.getElementById('modal_confirmPasswordError');
+                newErr.textContent = confErr.textContent = '';
+                let ok = true;
+                if (!newIn.value) { newErr.textContent = 'New password is required.'; ok = false; }
+                else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(newIn.value)) { newErr.textContent = 'Password is not strong enough.'; ok = false; }
+                if (newIn.value !== confIn.value) { confErr.textContent = 'Passwords do not match.'; ok = false; }
+                if (!ok) return;
+                const submitBtn = _modalForm.querySelector('button[type="submit"]');
+                const originalHtml = submitBtn.innerHTML;
+                try {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Updating...';
+                    const res = await fetch(_modalForm.action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(_modalForm))) });
+                    const result = await res.json();
+                    if (result.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('passwordModal')).hide();
+                        Swal.fire({ icon: 'success', title: 'Success!', text: result.message, timer: 2000, showConfirmButton: false, background: '#1a1a1a', color: '#fff' }).then(() => window.location.reload());
+                    } else {
+                        newErr.textContent = result.message || 'Update failed.';
+                        submitBtn.disabled = false; submitBtn.innerHTML = originalHtml;
+                    }
+                } catch (err) { submitBtn.disabled = false; submitBtn.innerHTML = originalHtml; }
+            });
+        }
+
+        function confirmLogout() {
+            Swal.fire({ background: '#111827', color: '#f0f2ff', icon: 'warning', title: 'Logout?', text: "Are you sure?", showCancelButton: true, confirmButtonText: "Yes", cancelButtonText: "No", confirmButtonColor: '#ff4d6d', reverseButtons: true })
+            .then((r) => { if (r.isConfirmed) window.location.href = "/logout"; });
+        }
+    </script>
+</body>
 </html>

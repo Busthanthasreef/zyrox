@@ -3,6 +3,9 @@ import User from '../../models/user.js';
 import Variant from '../../models/variant.js';
 import Wallet from '../../models/wallet.js';
 import WalletTransactions from '../../models/walletTransactions.js';
+import Category from '../../models/category.js';
+import Cart from '../../models/cart.js';
+import Wishlist from '../../models/wishlist.js';
 
 const getOrdersPage = async (req, res) => {
     try {
@@ -27,15 +30,26 @@ const getOrdersPage = async (req, res) => {
             return acc + (order.totalPrice || 0);
         }, 0);
 
+        const [user, categories, cartItemCount, wishlist] = await Promise.all([
+            User.findById(userId),
+            Category.find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } }).lean(),
+            Cart.findOne({ User_id: userId }).select("Items").lean().then(cart => cart?.Items?.length || 0),
+            Wishlist.findOne({ User_id: userId }).select("Products").lean().then(w => w?.Products?.length || 0)
+        ]);
+
         res.render('user/orders/myOrders', {
-            user: req.session.user,
+            user: user,
             orders: orders,
             totalOrders: totalOrdersCount,
             totalItems: totalItems,
             totalSpent: totalSpent.toLocaleString('en-IN'),
             pageTitle: 'My Orders',
             page,
-            totalPages
+            totalPages,
+            categories,
+            cartItemCount,
+            wishlistCount: wishlist,
+            currentPage: 'orders'
         });
 
     } catch (error) {
@@ -277,7 +291,12 @@ const getOrdersDetailsPage = async (req, res) => {
             return res.redirect('/orders');
         }
 
-        const order = await Order.findById(orderId);
+        const [order, categories, cartItemCount, wishlist] = await Promise.all([
+            Order.findById(orderId),
+            Category.find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } }).lean(),
+            Cart.findOne({ User_id: user._id }).select("Items").lean().then(cart => cart?.Items?.length || 0),
+            Wishlist.findOne({ User_id: user._id }).select("Products").lean().then(w => w?.Products?.length || 0)
+        ]);
 
         if (!order) {
             console.log('order not found');
@@ -294,7 +313,11 @@ const getOrdersDetailsPage = async (req, res) => {
             user: user,
             order: order,
             stockMap,
-            pageTitle: 'Order Details'
+            pageTitle: 'Order Details',
+            categories,
+            cartItemCount,
+            wishlistCount: wishlist,
+            currentPage: 'orders'
         });
 
     } catch (error) {

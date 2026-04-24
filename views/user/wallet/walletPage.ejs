@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Zyrax – My Wallet</title>
+    <title>Zyrox – My Wallet</title>
 
 
     <!-- Bootstrap 5 -->
@@ -19,802 +19,402 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="/userStyles/profile/profileShared.css">
-
     <style>
         :root {
             --bg-deep: #0c0f1a;
-            --bg-card: #111627;
-
-            --bg-row: #161c30;
-            --accent-green: #00e676;
-            --accent-teal: #00bcd4;
-            --accent-red: #ff4d6d;
-            --accent-gold: #ffd600;
-            --text-primary: #e8eaf6;
-            --text-muted: #7b8fb5;
-            --border: #1e2a45;
-            --nav-bg: #0a0d18;
-            --card-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
-            --green-glow: 0 0 18px rgba(0, 230, 118, 0.35);
-        }
-
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            --bg-card: #141824;
+            --bg-card-h: #1a1f2e;
+            --accent: #4f6ef7;
+            --accent-rgb: 0, 255, 4;
+            --primary-blue: #4f6ef7;
+            --text: #e8eaf6;
+            --sub: #7b8fb5;
+            --border: rgba(255, 255, 255, 0.05);
+            --border2: rgba(255, 255, 255, 0.1);
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-deep);
-            color: var(--text-primary);
-            /* min-height: 100vh; */
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
         }
 
-        /* ── NAVBAR ── */
-        .navbar-zyrax {
-            background: var(--nav-bg);
-            border-bottom: 1px solid var(--border);
-            padding: 0 1.5rem;
-            height: 58px;
-        }
-
-        .brand-logo {
-            font-family: 'Inter', sans-serif;
-            font-weight: 800;
-            font-size: 1.45rem;
-            color: var(--accent-green) !important;
-            letter-spacing: -0.5px;
-            text-decoration: none;
-        }
-
-        .brand-logo span {
-            color: var(--text-primary);
-        }
-
-        .nav-link-top {
-            color: var(--text-muted) !important;
-            font-size: 0.875rem;
-            font-weight: 500;
-            padding: 0 .9rem !important;
-            transition: color .2s;
-        }
-
-        .nav-link-top:hover {
-            color: var(--accent-green) !important;
-        }
-
-        .search-bar {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 0.82rem;
-            padding: .38rem 1rem;
-            width: 230px;
-            outline: none;
-            transition: border-color .2s;
-        }
-
-        .search-bar::placeholder {
-            color: var(--text-muted);
-        }
-
-        .search-bar:focus {
-            border-color: var(--accent-green);
-        }
-
-        .nav-icon-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            padding: .25rem .5rem;
-            transition: color .2s;
-            cursor: pointer;
-        }
-
-        .nav-icon-btn:hover {
-            color: var(--accent-green);
-        }
-
-        /* ── LAYOUT ── */
+        /* ── CONTENT ── */
         .page-wrapper {
             display: flex;
             min-height: 100vh;
+            align-items: flex-start;
+            padding-top: 80px;
         }
 
-        /* ── MAIN CONTENT ── */
-        .main-content {
+        .main-wrapper {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-deep);
-            height: 100vh;
-            overflow-y: auto;
-            position: relative;
+            padding-bottom: 80px; /* Space for bottom nav */
         }
 
         .content-container {
             max-width: 1200px;
-            width: 100%;
             margin: 0 auto;
-            padding: 2.5rem 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .page-header {
-            margin-bottom: 1.25rem;
+            padding: 24px 20px;
         }
 
         .page-title {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.75rem;
+            font-size: 1.8rem;
             font-weight: 800;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-            letter-spacing: -0.5px;
+            margin-bottom: 6px;
         }
 
         .page-subtitle {
             font-size: 0.85rem;
-            color: var(--text-muted);
-            max-width: 600px;
+            color: var(--sub);
+            margin-bottom: 24px;
         }
 
         /* ── BALANCE CARD ── */
         .balance-card {
-            background: linear-gradient(135deg, rgba(21, 27, 49, 0.9) 0%, rgba(13, 18, 33, 0.95) 100%);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border);
-            border-radius: 22px;
-            padding: 2.5rem;
-            box-shadow: var(--card-shadow), 0 0 20px rgba(0, 230, 118, 0.05);
+            background: var(--bg-card);
+            border: 1px solid var(--border2);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 30px;
             position: relative;
-            overflow: hidden;
-            display: grid;
-            grid-template-columns: 1fr auto;
-            align-items: center;
-            gap: 2rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .balance-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-            border-color: rgba(0, 230, 118, 0.2);
-        }
-
-        .balance-card::before {
-            content: '';
-            position: absolute;
-            top: -50px;
-            right: -50px;
-            width: 250px;
-            height: 250px;
-            background: radial-gradient(circle, rgba(0, 230, 118, 0.1) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .balance-main {
-            flex: 1;
-            min-width: 280px;
         }
 
         .balance-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
+            color: var(--sub);
+            letter-spacing: 1px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 8px;
         }
 
         .balance-label i {
-            color: var(--accent-green);
-        }
-
-        .balance-amount {
-            font-family: 'Inter', sans-serif;
-            font-size: 2.4rem;
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: -1px;
-            line-height: 1;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: baseline;
-            gap: 0.4rem;
-        }
-
-        .balance-amount .currency-symbol {
-            font-size: 1.4rem;
-            color: var(--accent-green);
-            font-weight: 700;
-        }
-
-        .balance-note-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.75rem;
-            color: var(--text-primary);
-            background: rgba(255, 255, 255, 0.05);
-            padding: 0.4rem 1rem;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .balance-note-pill i {
-            color: var(--accent-green);
-            font-size: 0.8rem;
-        }
-
-        .btn-add-money {
-            background: var(--accent-green);
-            color: #000;
-            font-family: 'Inter', sans-serif;
-            font-weight: 800;
+            color: var(--accent);
             font-size: 0.9rem;
-            border: none;
-            border-radius: 12px;
-            padding: 0.85rem 1.75rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.6rem;
-            box-shadow: var(--green-glow);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            white-space: nowrap;
         }
 
-        .btn-add-money:hover {
-            background: #fff;
-            color: #000;
-            transform: scale(1.05);
-            box-shadow: 0 0 35px rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-add-money i {
-            font-size: 1.2rem;
-        }
-
-        /* ── TRANSACTION SECTION ── */
-        .section-heading {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin: 0.5rem 0 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-
-        .section-heading i {
-            color: var(--accent-teal);
-            font-size: 1.1rem;
-        }
-
-        /* ── TABLE (REFINED) ── */
-        .txn-table-wrap {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: var(--card-shadow);
-            display: flex;
-            flex-direction: column;
-            min-height: 350px;
-        }
-
-        .txn-table-container {
-            flex-grow: 1;
-            overflow-x: auto;
-        }
-
-        .txn-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .txn-table thead tr {
-            background: rgba(255, 255, 255, 0.02);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .txn-table thead th {
-            padding: 1rem 1.25rem;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        .txn-table tbody tr {
-            border-bottom: 1px solid var(--border);
-            transition: background 0.2s;
-        }
-
-        .txn-table tbody tr:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .txn-table tbody td {
-            padding: 0.85rem 1.25rem;
-            color: var(--text-primary);
-            font-size: 0.85rem;
-            vertical-align: middle;
-        }
-
-        .txn-date {
-            color: var(--text-muted);
-            font-size: .78rem;
-        }
-
-        .txn-id {
-            font-family: 'Inter', sans-serif;
-            font-size: .78rem;
-            color: var(--text-muted);
-            letter-spacing: .3px;
-        }
-
-        .order-link {
-            color: var(--accent-teal);
-            font-weight: 500;
-            text-decoration: none;
-            font-size: .82rem;
-        }
-
-        .order-link:hover {
-            color: var(--accent-green);
-            text-decoration: underline;
-        }
-
-        .badge-status {
-            display: inline-flex;
-            align-items: center;
-            gap: .3rem;
-            padding: .28rem .7rem;
-            border-radius: 6px;
-            font-size: .72rem;
-            font-weight: 600;
-            letter-spacing: .4px;
-        }
-
-        .badge-success {
-            background: rgba(0, 230, 118, 0.12);
-            color: var(--accent-green);
-            border: 1px solid rgba(0, 230, 118, 0.2);
-        }
-
-        .badge-danger {
-            background: rgba(255, 77, 109, 0.12);
-            color: var(--accent-red);
-            border: 1px solid rgba(255, 77, 109, 0.2);
-        }
-
-        .badge-info {
-            background: rgba(0, 188, 212, 0.12);
-            color: var(--accent-teal);
-            border: 1px solid rgba(0, 188, 212, 0.2);
-        }
-
-        .amount-credit {
-            color: var(--accent-green);
-            font-weight: 700;
-        }
-
-        .amount-debit {
-            color: var(--accent-red);
-            font-weight: 700;
-        }
-
-        /* ── PAGINATION ── */
-        .txn-pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: .4rem;
-            padding: 1rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .page-btn {
-            background: var(--bg-row);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            border-radius: 7px;
-            padding: .32rem .8rem;
-            font-size: .78rem;
-            cursor: pointer;
-            transition: all .18s;
-        }
-
-        .page-btn:hover {
-            border-color: var(--accent-green);
-            color: var(--accent-green);
-        }
-
-        .page-btn.active {
-            background: var(--accent-green);
-            border-color: var(--accent-green);
-            color: #000;
-            font-weight: 700;
-        }
-
-        /* ── ADD MONEY MODAL ── */
-        .modal-zyrax .modal-content {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-        }
-
-        .modal-zyrax .modal-header {
-            border-bottom: 1px solid var(--border);
-            padding: 1.25rem 1.5rem;
-        }
-
-        .modal-zyrax .modal-title {
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            font-size: 1.05rem;
-            color: var(--text-primary);
-        }
-
-        .modal-zyrax .btn-close {
-            filter: invert(1) opacity(0.5);
-        }
-
-        .modal-zyrax .btn-close:hover {
-            filter: invert(1) opacity(1);
-        }
-
-        .modal-zyrax .modal-body {
-            padding: 1.5rem;
-        }
-
-        .modal-zyrax .modal-footer {
-            border-top: 1px solid var(--border);
-            padding: 1rem 1.5rem;
-        }
-
-        /* Current Balance display inside modal */
-        .modal-balance-row {
+        .balance-amount-wrap {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: var(--bg-row);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: .85rem 1.1rem;
-            margin-bottom: 1.25rem;
+            margin-bottom: 15px;
         }
 
-        .modal-balance-label {
-            font-size: .78rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .modal-balance-value {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--accent-green);
-        }
-
-        /* Preset amount chips */
-        .preset-label {
-            font-size: .72rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: .65rem;
-        }
-
-        .preset-chips {
+        .balance-amount {
+            font-size: 2.2rem;
+            font-weight: 800;
             display: flex;
-            flex-wrap: wrap;
-            gap: .5rem;
-            margin-bottom: 1.25rem;
+            align-items: center;
+            gap: 6px;
         }
 
-        .preset-chip {
-            background: var(--bg-row);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text-muted);
-            font-size: .82rem;
-            font-weight: 600;
-            padding: .42rem .9rem;
-            cursor: pointer;
-            transition: all .18s;
-            user-select: none;
-        }
-
-        .preset-chip:hover {
-            border-color: var(--accent-green);
-            color: var(--accent-green);
-            background: rgba(0, 230, 118, 0.06);
-        }
-
-        .preset-chip.selected {
-            border-color: var(--accent-green);
-            background: rgba(0, 230, 118, 0.12);
-            color: var(--accent-green);
-            box-shadow: 0 0 10px rgba(0, 230, 118, 0.2);
-        }
-
-        /* Custom amount input */
-        .amount-input-wrap {
-            position: relative;
-            margin-bottom: .35rem;
-        }
-
-        .amount-input-wrap .rupee-sign {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1rem;
+        .currency-symbol {
+            color: var(--accent);
             font-weight: 700;
-            color: var(--accent-green);
-            pointer-events: none;
         }
 
-        .amount-input {
-            width: 100%;
-            background: var(--bg-row);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            padding: .75rem 1rem .75rem 2.2rem;
-            outline: none;
-            transition: border-color .2s, box-shadow .2s;
-        }
-
-        .amount-input::placeholder {
-            color: var(--text-muted);
-            font-weight: 400;
-            font-size: .9rem;
-        }
-
-        .amount-input:focus {
-            border-color: var(--accent-green);
-            box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.12);
-        }
-
-        .amount-hint {
-            font-size: .73rem;
-            color: var(--text-muted);
-            margin-top: .4rem;
-        }
-
-        /* Confirm button */
-        .btn-confirm-add {
-            width: 100%;
-            background: var(--accent-green);
+        .btn-add-money-mini {
+            background: var(--accent);
             color: #000;
-            font-family: 'Inter', sans-serif;
-            font-weight: 700;
-            font-size: .9rem;
             border: none;
             border-radius: 10px;
-            padding: .75rem;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: .5rem;
-            box-shadow: var(--green-glow);
-            transition: all .2s;
-            cursor: pointer;
-            margin-top: 1.25rem;
+            gap: 6px;
+            box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.3);
+            transition: all 0.2s;
         }
 
-        .btn-confirm-add:hover {
-            background: #00ff85;
-            transform: translateY(-1px);
-            box-shadow: 0 0 28px rgba(0, 230, 118, 0.5);
-        }
-
-        .btn-confirm-add:disabled {
-            background: #1a3a2a;
-            color: #3a5a4a;
-            box-shadow: none;
-            transform: none;
-            cursor: not-allowed;
-        }
-
-        /* ── SECURE WALLET BANNER ── */
-        .secure-banner {
-            background: linear-gradient(90deg, rgba(0, 188, 212, 0.07) 0%, rgba(0, 230, 118, 0.04) 100%);
-            border: 1px solid rgba(0, 188, 212, 0.18);
-            border-radius: 12px;
-            padding: 1rem 1.25rem;
-            margin-top: 1.75rem;
-            display: flex;
-            align-items: flex-start;
-            gap: .85rem;
-        }
-
-        .secure-banner i {
-            color: var(--accent-teal);
-            font-size: 1.35rem;
-            margin-top: .1rem;
-            flex-shrink: 0;
-        }
-
-        .secure-banner-title {
-            font-weight: 700;
-            font-size: .85rem;
-            color: var(--accent-teal);
-            margin-bottom: .2rem;
-        }
-
-        .secure-banner-text {
-            font-size: .78rem;
-            color: var(--text-muted);
-            line-height: 1.55;
-        }
-
-        /* ── FOOTER ── */
-        .footer-zyrax {
-            background: var(--nav-bg);
-            border-top: 1px solid var(--border);
-            padding: 3rem 2.5rem 1.5rem;
-        }
-
-        .footer-brand {
-            font-family: 'Inter', sans-serif;
-            font-size: 1.3rem;
-            font-weight: 800;
-            color: var(--accent-green);
-        }
-
-        .footer-brand span {
-            color: var(--text-primary);
-        }
-
-        .footer-tagline {
-            font-size: .8rem;
-            color: var(--text-muted);
-            margin-top: .5rem;
-            line-height: 1.6;
-            max-width: 220px;
-        }
-
-        .footer-social {
-            display: flex;
-            gap: .6rem;
-            margin-top: 1.2rem;
-        }
-
-        .social-btn {
-            width: 34px;
-            height: 34px;
-            background: var(--bg-card);
+        .balance-footer-note {
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 50px;
+            padding: 8px 16px;
+            font-size: 0.75rem;
+            color: var(--sub);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .balance-footer-note i {
+            color: var(--accent);
+        }
+
+        /* ── SECTION HEADING ── */
+        .section-heading {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-heading i {
+            color: #4a90e2;
+        }
+
+        /* ── TRANSACTION CARDS (MOBILE) ── */
+        .txn-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border2);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
+
+        .txn-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .txn-card-date {
+            font-size: 0.75rem;
+            color: var(--sub);
+        }
+
+        .txn-card-amount {
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .txn-card-desc-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .txn-card-title {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .txn-badge {
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .badge-credit {
+            background: rgba(var(--accent-rgb), 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(var(--accent-rgb), 0.2);
+        }
+
+        .badge-debit {
+            background: rgba(255, 77, 109, 0.1);
+            color: #ff4d6d;
+            border: 1px solid rgba(255, 77, 109, 0.2);
+        }
+
+        .txn-card-order {
+            font-size: 0.8rem;
+            color: var(--sub);
+            margin-bottom: 12px;
+        }
+
+        .txn-card-footer {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .txn-card-footer .divider {
+            color: rgba(255, 255, 255, 0.1);
+        }
+
+        .amount-credit { color: var(--accent); }
+        .amount-debit { color: #ff4d6d; }
+
+        /* ── TABLE (DESKTOP) ── */
+        .txn-table { width: 100%; border-collapse: collapse; }
+        .txn-table th { padding: 12px; font-size: 0.75rem; color: var(--sub); text-align: left; border-bottom: 1px solid var(--border2); }
+        .txn-table td { padding: 15px 12px; font-size: 0.85rem; border-bottom: 1px solid var(--border); }
+
+        /* ── SECURE BANNER ── */
+        .secure-banner {
+            background: rgba(var(--accent-rgb), 0.05);
+            border: 1px solid rgba(var(--accent-rgb), 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .secure-banner i { color: var(--accent); font-size: 1.2rem; }
+        .secure-banner-title { font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; }
+        .secure-banner-text { font-size: 0.75rem; color: var(--sub); line-height: 1.4; }
+
+        /* ── FOOTER STYLES ── */
+        .footer-zyrox {
+            background: #080a12;
+            border-top: 1px solid var(--border);
+            padding: 60px 20px 30px;
+            margin-top: 50px;
+        }
+        .footer-brand { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; color: #fff; }
+        .footer-brand span { color: var(--accent); }
+        .footer-tagline { color: var(--sub); font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; }
+        .footer-social { display: flex; gap: 12px; }
+        .social-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-muted);
-            font-size: .95rem;
-            transition: all .2s;
-            cursor: pointer;
+            color: var(--sub);
+            transition: all 0.3s;
             text-decoration: none;
         }
-
-        .social-btn:hover {
-            border-color: var(--accent-green);
-            color: var(--accent-green);
-        }
-
-        .footer-col-title {
-            font-family: 'Inter', sans-serif;
-            font-size: .82rem;
-            font-weight: 700;
-            letter-spacing: .8px;
-            text-transform: uppercase;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-        }
-
-        .footer-link {
-            display: block;
-            font-size: .8rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            margin-bottom: .5rem;
-            transition: color .18s;
-        }
-
-        .footer-link:hover {
-            color: var(--accent-green);
-        }
-
-        .footer-divider {
-            border-color: var(--border);
-            margin: 2rem 0 1rem;
-        }
-
-        .footer-copy {
-            font-size: .75rem;
-            color: var(--text-muted);
-        }
-
-
-
-        /* Subtle fade-in animation */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .balance-card {
-            animation: fadeUp .5s ease both;
-        }
-
-        .txn-table-wrap {
-            animation: fadeUp .55s ease .1s both;
-        }
-
-        .secure-banner {
-            animation: fadeUp .55s ease .2s both;
-        }
+        .social-btn:hover { background: var(--accent); color: #000; transform: translateY(-3px); }
+        .footer-col-title { font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-link { display: block; color: var(--sub); font-size: 0.85rem; margin-bottom: 12px; text-decoration: none; transition: 0.2s; }
+        .footer-link:hover { color: var(--accent); padding-left: 5px; }
+        .footer-divider { border-color: var(--border); margin: 40px 0 20px; }
+        .footer-copy { font-size: 0.75rem; color: var(--sub); }
 
         @media (max-width: 992px) {
-            .balance-card {
-                grid-template-columns: 1fr;
-                text-align: center;
-                padding: 2rem 1.5rem;
-            }
+            .desktop-sidebar { display: none !important; }
+            .content-container { padding: 15px 16px 40px; }
+            .footer-zyrox { display: none !important; } /* Hide big footer on mobile */
+        }
 
-            .balance-main {
-                min-width: unset;
-            }
+        /* ── MODAL STYLES ── */
+        .modal-zyrox .modal-content {
+            background: #111627;
+            border: 1px solid var(--border2);
+            border-radius: 20px;
+            color: var(--text);
+        }
+        .modal-zyrox .modal-header { border-bottom: 1px solid var(--border); padding: 20px 24px; }
+        .modal-zyrox .modal-title { font-weight: 800; font-size: 1.1rem; }
+        .modal-zyrox .btn-close { filter: invert(1); opacity: 0.5; }
+        .modal-zyrox .modal-body { padding: 24px; }
 
-            .balance-amount {
-                justify-content: center;
-            }
+        .modal-balance-row {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-balance-label { font-size: 0.75rem; color: var(--sub); }
+        .modal-balance-value { font-weight: 700; color: var(--accent); }
 
-            .btn-add-money {
-                width: 100%;
-                justify-content: center;
-            }
+        .preset-label { font-size: 0.7rem; font-weight: 700; color: var(--sub); margin-bottom: 10px; text-transform: uppercase; }
+        
+        .amount-input-wrap { position: relative; margin-bottom: 20px; }
+        .rupee-sign { position: absolute; left: 16px; top: 12px; color: var(--accent); font-weight: 700; font-size: 1.2rem; }
+        .amount-input {
+            width: 100%;
+            background: #1a1f2e;
+            border: 1px solid var(--border2);
+            border-radius: 12px;
+            padding: 12px 16px 12px 40px;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        .amount-hint { font-size: 0.65rem; color: var(--sub); margin-top: 6px; }
 
-            .content-container {
-                padding: 1.5rem 1rem;
-            }
+        .preset-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
+        .preset-chip {
+            background: #1a1f2e;
+            border: 1px solid var(--border2);
+            border-radius: 10px;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .preset-chip:hover { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.05); }
+        .preset-chip.selected { background: var(--accent); color: #000; border-color: var(--accent); }
+
+        .btn-confirm-add {
+            width: 100%;
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 800;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        .btn-confirm-add:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-confirm-add:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(var(--accent-rgb), 0.4); }
+
+        /* ── PAGINATION ── */
+        .pagination-zyrox {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 28px;
+            margin-bottom: 8px;
+        }
+
+        .pag-item {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--sub);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .pag-item.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(79, 110, 247, 0.4);
+        }
+
+        .pag-item:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            border-color: var(--border2);
         }
     </style>
 </head>
 
 <body>
-
+    <%- include('../../partials/user/navigationbar') %>
     <!-- ═══════════ PAGE WRAPPER ═══════════ -->
     <div class="page-wrapper">
 
@@ -823,7 +423,8 @@
 
 
             <!-- ── MAIN ── -->
-            <main class="main-content">
+            <main class="main-wrapper">
+
                 <div class="content-container">
 
                     <header class="page-header">
@@ -835,29 +436,71 @@
                     <div class="balance-card">
                         <div class="balance-main">
                             <div class="balance-label">
-                                <i class="bi bi-shield-lock-fill"></i> Available Balance
+                                <i class="fas fa-shield-alt"></i> AVAILABLE BALANCE
                             </div>
-                            <div class="balance-amount">
-                                <span class="currency-symbol">₹</span>
-                                <%= (wallet && wallet.balance ? wallet.balance : 0).toLocaleString('en-IN', {
-                                    minimumFractionDigits: 2 }) %>
+                            <div class="balance-amount-wrap">
+                                <div class="balance-amount">
+                                    <span class="currency-symbol">₹</span>
+                                    <%= (wallet && wallet.balance ? wallet.balance : 0).toLocaleString('en-IN', {
+                                        minimumFractionDigits: 2 }) %>
+                                </div>
+                                <button class="btn-add-money-mini">
+                                    <i class="fas fa-plus-circle"></i> Add Money
+                                </button>
                             </div>
-                            <div class="balance-note-pill">
-                                <i class="bi bi-check-circle-fill"></i>
+                            <div class="balance-footer-note">
+                                <i class="fas fa-check-circle"></i>
                                 <span>Ready for instant transactions & easy refunds</span>
                             </div>
                         </div>
-                        <button class="btn-add-money">
-                            <i class="bi bi-plus-circle-fill"></i> Add Money
-                        </button>
                     </div>
 
                     <!-- Transaction History -->
                     <div class="section-heading">
-                        <i class="bi bi-clock-history"></i> Transaction History
+                        <i class="far fa-clock"></i> Transaction History
                     </div>
 
-                    <div class="txn-table-wrap">
+                    <div class="txn-list-mobile d-lg-none">
+                        <% if (transactions && transactions.length> 0) { %>
+                            <% transactions.forEach(txn=> { %>
+                                <div class="txn-card">
+                                    <div class="txn-card-header">
+                                        <div class="txn-card-date">
+                                            <%= new Date(txn.Payment_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>, 
+                                            <%= new Date(txn.Payment_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) %>
+                                        </div>
+                                        <div class="txn-card-amount <%= txn.Amount > 0 ? 'amount-credit' : 'amount-debit' %>">
+                                            <%= txn.Amount > 0 ? '+' : '' %>₹<%= Math.abs(txn.Amount).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %>
+                                        </div>
+                                    </div>
+                                    <div class="txn-card-body">
+                                        <div class="txn-card-desc-row">
+                                            <div class="txn-card-title"><%= txn.Description %></div>
+                                            <span class="txn-badge <%= txn.Amount > 0 ? 'badge-credit' : 'badge-debit' %>">
+                                                <%= txn.Amount > 0 ? 'Credit' : 'Debit' %>
+                                            </span>
+                                        </div>
+                                        <div class="txn-card-order">
+                                            <% if (txn.Order_id) { %>
+                                                for Cancelled Order #ORD-<%= txn.Order_id.toString().substring(0, 12).toUpperCase() %>
+                                            <% } %>
+                                        </div>
+                                        <div class="txn-card-footer">
+                                            <span>Txn ID: <%= txn._id.toString().substring(0, 12).toUpperCase() %></span>
+                                            <% if (txn.Order_id) { %>
+                                                <span class="divider">|</span>
+                                                <span>Order ID: #ORD-<%= txn.Order_id.toString().substring(0, 12).toUpperCase() %></span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="empty-txns">No transactions found</div>
+                        <% } %>
+                    </div>
+
+                    <div class="txn-table-wrap d-none d-lg-block">
                         <div class="txn-table-container">
                             <table class="txn-table">
                                 <thead>
@@ -934,23 +577,24 @@
 
                         <!-- Pagination -->
                         <% if (totalPages> 1) { %>
-                            <div class="txn-pagination">
-                                <% if (currentPage> 1) { %>
-                                    <a href="/wallet?page=<%= currentPage - 1 %>"
-                                        class="page-btn text-decoration-none">&#8249; Previous</a>
-                                    <% } %>
+                            <div class="pagination-zyrox">
+                                <% if (currentPage > 1) { %>
+                                    <a href="/wallet?page=<%= currentPage - 1 %>" class="pag-item">
+                                        <i class="fas fa-chevron-left" style="font-size: 11px;"></i>
+                                    </a>
+                                <% } %>
 
-                                        <% for(let i=1; i <=totalPages; i++) { %>
-                                            <a href="/wallet?page=<%= i %>"
-                                                class="page-btn text-decoration-none <%= currentPage === i ? 'active' : '' %>">
-                                                <%= i %>
-                                            </a>
-                                            <% } %>
+                                <% for(let i = 1; i <= totalPages; i++) { %>
+                                    <a href="/wallet?page=<%= i %>" class="pag-item <%= currentPage === i ? 'active' : '' %>">
+                                        <%= i %>
+                                    </a>
+                                <% } %>
 
-                                                <% if (currentPage < totalPages) { %>
-                                                    <a href="/wallet?page=<%= currentPage + 1 %>"
-                                                        class="page-btn text-decoration-none">Next &#8250;</a>
-                                                    <% } %>
+                                <% if (currentPage < totalPages) { %>
+                                    <a href="/wallet?page=<%= currentPage + 1 %>" class="pag-item">
+                                        <i class="fas fa-chevron-right" style="font-size: 11px;"></i>
+                                    </a>
+                                <% } %>
                             </div>
                             <% } %>
                     </div>
@@ -973,15 +617,17 @@
             </main>
     </div>
 
+    <%- include('../../partials/user/bottomNav', { activePage: 'wallet' }) %>
+
     <!-- ═══════════ ADD MONEY MODAL ═══════════ -->
-    <div class="modal fade modal-zyrax" id="addMoneyModal" tabindex="-1" aria-labelledby="addMoneyModalLabel"
+    <div class="modal fade modal-zyrox" id="addMoneyModal" tabindex="-1" aria-labelledby="addMoneyModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
             <div class="modal-content">
 
                 <div class="modal-header">
                     <h5 class="modal-title" id="addMoneyModalLabel">
-                        <i class="bi bi-wallet2 me-2" style="color:var(--accent-green)"></i>Add Money
+                        <i class="bi bi-wallet2 me-2" style="color:var(--accent)"></i>Add Money
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -1029,12 +675,12 @@
     </div>
 
     <!-- ═══════════ FOOTER ═══════════ -->
-    <footer class="footer-zyrax">
+    <footer class="footer-zyrox">
         <div class="row g-4">
 
             <!-- Brand col -->
             <div class="col-12 col-md-3">
-                <div class="footer-brand"><i class="bi bi-hexagon-fill me-1"></i>Zy<span>rax</span></div>
+                <div class="footer-brand"><i class="bi bi-hexagon-fill me-1"></i>Zy<span>rox</span></div>
                 <p class="footer-tagline">
                     Your trusted destination for genuine smartphones from top brands.
                     Secure payments and exceptional customer service.
@@ -1084,7 +730,7 @@
 
         <hr class="footer-divider" />
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-            <span class="footer-copy">© 2024 Zyrax. All rights reserved.</span>
+            <span class="footer-copy">© 2024 Zyrox. All rights reserved.</span>
             <span class="footer-copy">Made with <i class="bi bi-heart-fill text-danger" style="font-size:.7rem"></i> for
                 mobile enthusiasts.</span>
         </div>
@@ -1104,7 +750,7 @@
         const addMoneyModal = new bootstrap.Modal(addMoneyModalEl);
 
         // Open modal on button click
-        document.querySelector('.btn-add-money').addEventListener('click', () => {
+        document.querySelector('.btn-add-money-mini').addEventListener('click', () => {
             addMoneyModal.show();
         });
 
@@ -1164,7 +810,7 @@
                     key: RAZORPAY_KEY,
                     amount: data.order.amount,
                     currency: data.order.currency,
-                    name: "Zyrax",
+                    name: "Zyrox",
                     description: "Wallet Top-up",
                     order_id: data.order.id,
                     handler: async function (response) {

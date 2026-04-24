@@ -1,0 +1,71 @@
+<% if (locals.successMessage) { %>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: '<%= successMessage %>',
+            timer: 3000,
+            timerProgressBar: true,
+            background: '#1a1a1a',
+            color: '#fff',
+            confirmButtonColor: '#4f6ef7'
+        });
+    });
+</script>
+<% } %>
+
+<% if (locals.errorMessage) { %>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: '<%= errorMessage %>',
+            background: '#1a1a1a',
+            color: '#fff',
+            confirmButtonColor: '#ff3333'
+        });
+    });
+</script>
+<% } %>
+
+<% if (locals.infoMessage) { %>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        Swal.fire({
+            icon: 'info',
+            title: 'Notice',
+            text: '<%= infoMessage %>',
+            timer: 3000,
+            timerProgressBar: true,
+            background: '#1a1a1a',
+            color: '#fff',
+            confirmButtonColor: '#2196f3'
+        });
+    });
+</script>
+<% } %>
+
+<script>
+    // Global function for AJAX toasts
+    window.showToast = (icon, message) => {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            background: '#1a1a1a',
+            color: '#fff',
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+        Toast.fire({
+            icon: icon,
+            title: message
+        });
+    };
+</script>

@@ -107,6 +107,7 @@ const userSignUp = async (req, res) => {
     }
 
     req.session.tempUser = result.tempUser;
+    req.session.otpSuccess = "OTP sent to your email";
     res.redirect("/otp-verification");
   } catch (error) {
     console.log("Signup Error:", error);
@@ -290,7 +291,12 @@ const resendOtp = async (req, res) => {
    SIGN IN
 ========================= */
 const loadSignIn = (req, res) => {
-  const { error } = req.query;
+  const { error, returnTo: queryReturnTo } = req.query;
+  
+  if (queryReturnTo) {
+    req.session.returnTo = queryReturnTo;
+  }
+
   const returnTo = req.session.returnTo || null;
   res.render("user/auth/signInPage", {
     emailError: null,
@@ -417,6 +423,7 @@ const sendResetOtp = async (req, res) => {
     await sendOtpEmail(trimmedEmail, OTP);
 
     req.session.resetEmail = trimmedEmail;
+    req.session.otpSuccess = "OTP sent to your email";
     res.redirect("/otp-verification");
   } catch (error) {
     console.log("Send Reset OTP Error:", error);

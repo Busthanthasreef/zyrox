@@ -21,7 +21,7 @@
             --bg-card: #141416;
             --bg-raised: #1c1c1f;
             --accentt: #6366f1;
-            --accent: #04ff00;
+            --accent: #4f6ef7;
             --accent-lt: rgba(99, 102, 241, .15);
             --accent-glow: rgba(99, 102, 241, .25);
             --green: #10b981;
@@ -114,7 +114,6 @@
             align-self: start;
         }
 
-        /* Main image container */
         .gallery-main {
             position: relative;
             aspect-ratio: 1 / 1;
@@ -145,7 +144,6 @@
             display: block;
         }
 
-        /* Zoom hint badge */
         .zoom-hint {
             position: absolute;
             bottom: 12px;
@@ -168,18 +166,15 @@
         .badge-in-stock {
             background-color: #50ff4d4d;
             color: #09ff1a;
-
         }
 
         .badge-out-stock {
             background-color: #ff494978;
             color: red;
-
         }
 
         .badge-low-stock {
             background-color: rgba(255, 166, 0, 0.386);
-
             color: orange;
         }
 
@@ -195,18 +190,9 @@
             padding-bottom: 4px;
         }
 
-        .gallery-thumbs::-webkit-scrollbar {
-            height: 3px;
-        }
-
-        .gallery-thumbs::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .gallery-thumbs::-webkit-scrollbar-thumb {
-            background: var(--border-hi);
-            border-radius: 3px;
-        }
+        .gallery-thumbs::-webkit-scrollbar { height: 3px; }
+        .gallery-thumbs::-webkit-scrollbar-track { background: transparent; }
+        .gallery-thumbs::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
 
         .thumb {
             flex-shrink: 0;
@@ -229,9 +215,7 @@
             transition: background .2s;
         }
 
-        .thumb:hover::after {
-            background: var(--accentt-lt);
-        }
+        .thumb:hover::after { background: var(--accent-lt); }
 
         .thumb img {
             width: 100%;
@@ -242,18 +226,14 @@
             transition: transform .25s;
         }
 
-        .thumb:hover img {
-            transform: scale(1.06);
-        }
+        .thumb:hover img { transform: scale(1.06); }
 
         .thumb.active {
             border-color: var(--accentt);
-            box-shadow: 0 0 0 1px var(--accentt-glow);
+            box-shadow: 0 0 0 1px var(--accent-glow);
         }
 
-        .thumb.active img {
-            transform: scale(1.04);
-        }
+        .thumb.active img { transform: scale(1.04); }
 
         /* ── Fullscreen Overlay ─────────────────────────────────── */
         .fs-overlay {
@@ -268,29 +248,20 @@
             backdrop-filter: blur(4px);
         }
 
-        .fs-overlay.open {
-            display: flex;
-        }
+        .fs-overlay.open { display: flex; }
 
         .fs-overlay img {
             max-width: 88vw;
             max-height: 88vh;
             object-fit: contain;
             border-radius: var(--radius);
-            box-shadow: 0 0 80px var(--accentt-glow);
+            box-shadow: 0 0 80px var(--accent-glow);
             animation: fsIn .25s ease;
         }
 
         @keyframes fsIn {
-            from {
-                opacity: 0;
-                transform: scale(.93);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(.93); }
+            to   { opacity: 1; transform: scale(1); }
         }
 
         .fs-close {
@@ -311,9 +282,7 @@
             transition: var(--trans);
         }
 
-        .fs-close:hover {
-            background: rgba(255, 255, 255, .14);
-        }
+        .fs-close:hover { background: rgba(255, 255, 255, .14); }
 
         .fs-counter {
             position: absolute;
@@ -338,7 +307,6 @@
         }
 
         .pd-brand {
-            font-family: 'Inter', sans-serif;
             font-size: .68rem;
             font-weight: 700;
             letter-spacing: 2px;
@@ -347,7 +315,6 @@
         }
 
         .pd-name {
-            font-family: 'Inter', sans-serif;
             font-size: 1.65rem;
             font-weight: 800;
             line-height: 1.2;
@@ -355,25 +322,6 @@
             margin-top: 5px;
         }
 
-        /* Rating */
-        .block-rating {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .stars {
-            color: #ffc107;
-            font-size: .82rem;
-            letter-spacing: 1px;
-        }
-
-        .rating-text {
-            font-size: .82rem;
-            color: var(--text-dim);
-        }
-
-        /* Price */
         .pd-price {
             display: flex;
             align-items: center;
@@ -382,7 +330,6 @@
         }
 
         .price-main {
-            font-family: 'Inter', sans-serif;
             font-size: 2rem;
             font-weight: 800;
             color: var(--green);
@@ -405,10 +352,8 @@
             border: 1px solid rgba(0, 212, 160, .2);
         }
 
-        /* Stock Badge */
         .stock-row {
             margin-top: -8px;
-            /* Pull closer to price */
             display: flex;
             align-items: center;
         }
@@ -423,8 +368,6 @@
             border-radius: 20px;
         }
 
-
-        /* Divider */
         .pd-divider {
             border: none;
             border-top: 1px solid var(--border);
@@ -432,11 +375,7 @@
         }
 
         /* ── Variant Selector ──────────────────────────────────── */
-        .variant-block {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
+        .variant-block { display: flex; flex-direction: column; gap: 24px; }
 
         .variant-section-title {
             font-size: .7rem;
@@ -447,13 +386,8 @@
             margin-bottom: 12px;
         }
 
-        .variant-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
+        .variant-row { display: flex; flex-wrap: wrap; gap: 8px; }
 
-        /* Chip button — RAM & Storage */
         .v-chip {
             padding: 8px 16px;
             border-radius: var(--radius-sm);
@@ -489,13 +423,6 @@
             pointer-events: none;
         }
 
-        .v-chip.v-out-stock {
-            border-color: rgba(230, 57, 70, .3);
-            color: var(--red);
-            opacity: .5;
-        }
-
-        /* Color swatch */
         .v-color-wrap {
             display: flex;
             align-items: center;
@@ -539,7 +466,6 @@
             flex-shrink: 0;
         }
 
-        /* Variant unavailable message */
         .variant-msg {
             display: none;
             align-items: center;
@@ -551,9 +477,7 @@
             margin-top: 4px;
         }
 
-        .variant-msg.show {
-            display: flex;
-        }
+        .variant-msg.show { display: flex; }
 
         .variant-msg.msg-unavail {
             background: var(--red-lt);
@@ -568,36 +492,13 @@
         }
 
         /* ── Action Sections ────────────────────────────────────── */
-        .pd-price-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .offer-row {
-            display: flex;
-            align-items: center;
-        }
-
-        .pd-purchase-section {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-top: 20px;
-        }
-
-        .qty-selection-row {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+        .pd-price-stack { display: flex; flex-direction: column; gap: 16px; }
+        .offer-row { display: flex; align-items: center; }
+        .pd-purchase-section { display: flex; flex-direction: column; gap: 16px; margin-top: 20px; }
+        .qty-selection-row { display: flex; align-items: center; gap: 16px; }
 
         /* ── Quantity ──────────────────────────────────────────── */
-        .qty-row {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+        .qty-row { display: flex; align-items: center; gap: 16px; }
 
         .qty-label {
             font-size: .72rem;
@@ -632,14 +533,8 @@
             font-size: .78rem;
         }
 
-        .qty-btn:hover:not(:disabled) {
-            background: var(--border-hi);
-        }
-
-        .qty-btn:disabled {
-            opacity: .3;
-            cursor: not-allowed;
-        }
+        .qty-btn:hover:not(:disabled) { background: var(--border-hi); }
+        .qty-btn:disabled { opacity: .3; cursor: not-allowed; }
 
         .qty-val {
             width: 44px;
@@ -654,11 +549,6 @@
             font-family: 'Inter', sans-serif;
             padding: 0;
             height: 36px;
-        }
-
-        .qty-hint {
-            font-size: .7rem;
-            color: var(--muted);
         }
 
         /* ── Action Buttons ────────────────────────────────────── */
@@ -715,13 +605,8 @@
             box-shadow: none;
         }
 
-        .btn-cart:active:not(:disabled) {
-            transform: scale(.98);
-        }
-
-        .btn-buy:active:not(:disabled) {
-            transform: translateY(0) scale(.98);
-        }
+        .btn-cart:active:not(:disabled) { transform: scale(.98); }
+        .btn-buy:active:not(:disabled)  { transform: translateY(0) scale(.98); }
 
         .btn-wishlist {
             width: 100%;
@@ -745,14 +630,8 @@
             border-color: var(--border-hi);
         }
 
-        .btn-wishlist.active i {
-            color: var(--red);
-        }
-
-        .btn-wishlist.active span {
-            color: var(--red);
-            opacity: 0.9;
-        }
+        .btn-wishlist.active i   { color: var(--red); }
+        .btn-wishlist.active span { color: var(--red); opacity: 0.9; }
 
         /* ── Trust Badges ──────────────────────────────────────── */
         .trust-row {
@@ -772,9 +651,7 @@
             border-right: 1px solid var(--border);
         }
 
-        .trust-item:last-child {
-            border-right: none;
-        }
+        .trust-item:last-child { border-right: none; }
 
         .trust-item i {
             font-size: 1.1rem;
@@ -782,10 +659,7 @@
             flex-shrink: 0;
         }
 
-        .trust-item-text {
-            display: flex;
-            flex-direction: column;
-        }
+        .trust-item-text { display: flex; flex-direction: column; }
 
         .trust-item-text strong {
             font-size: .75rem;
@@ -799,7 +673,7 @@
         }
 
         /* ═══════════════════════════════════════════════════════════
-           PRODUCT SECTIONS (Description, Specs, Related)
+           PRODUCT SECTIONS
         ═══════════════════════════════════════════════════════════ */
         .pd-section {
             border-top: 1px solid var(--border);
@@ -808,7 +682,6 @@
         }
 
         .section-title {
-            font-family: 'Inter', sans-serif;
             font-size: .65rem;
             font-weight: 700;
             letter-spacing: 2px;
@@ -838,9 +711,7 @@
             transition: border-color .2s;
         }
 
-        .spec-card:hover {
-            border-color: var(--border-hi);
-        }
+        .spec-card:hover { border-color: var(--border-hi); }
 
         .spec-lbl {
             font-size: .58rem;
@@ -891,11 +762,7 @@
             justify-content: center;
         }
 
-        .related-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
+        .related-img img { width: 100%; height: 100%; object-fit: contain; }
 
         .related-info {
             padding: 14px;
@@ -934,17 +801,11 @@
                 gap: 32px;
             }
 
-            .gallery {
-                position: static;
-            }
+            .gallery { position: static; }
 
-            .related-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .related-grid { grid-template-columns: repeat(2, 1fr); }
 
-            .trust-row {
-                flex-wrap: wrap;
-            }
+            .trust-row { flex-wrap: wrap; }
 
             .trust-item {
                 flex: none;
@@ -952,9 +813,7 @@
                 border-bottom: 1px solid var(--border);
             }
 
-            .trust-item:nth-child(2) {
-                border-right: none;
-            }
+            .trust-item:nth-child(2) { border-right: none; }
 
             .trust-item:last-child {
                 border-bottom: none;
@@ -963,1097 +822,1104 @@
         }
 
         @media (max-width: 576px) {
-            .action-row {
-                grid-template-columns: 1fr;
-            }
-
-            .pd-name {
-                font-size: 1.4rem;
-            }
+            .action-row { grid-template-columns: 1fr; }
+            .pd-name { font-size: 1.4rem; }
         }
     </style>
 </head>
 
 <body>
 
-    <%- include('../../partials/user/navigationbar', { user, cartItemCount, currentPage: 'products' , categories }) %>
+    <%- include('../../partials/user/navigationbar', { user, cartItemCount, currentPage: 'products', categories }) %>
 
-        <!-- Breadcrumb -->
-        <div class="breadcrumb-bar">
-            <div class="container">
-                <a href="/">Home</a>
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar">
+        <div class="container">
+            <a href="/">Home</a>
+            <i class="fas fa-chevron-right sep"></i>
+            <a href="/products">Products</a>
+            <i class="fas fa-chevron-right sep"></i>
+            <% if (variant.productId.categoryId) { %>
+                <a href="/products?category=<%= encodeURIComponent(variant.productId.categoryId.categoryName) %>">
+                    <%= variant.productId.categoryId.categoryName %>
+                </a>
                 <i class="fas fa-chevron-right sep"></i>
-                <a href="/products">Products</a>
-                <i class="fas fa-chevron-right sep"></i>
-                <% if (variant.productId.categoryId) { %>
-                    <a href="/products?category=<%= encodeURIComponent(variant.productId.categoryId.categoryName) %>">
-                        <%= variant.productId.categoryId.categoryName %>
-                    </a>
-                    <i class="fas fa-chevron-right sep"></i>
+            <% } %>
+            <span class="current"><%= variant.productId.productName %></span>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="pd-wrap">
+
+            <!-- ═══════════════════════════════════════════════════
+                 LEFT — GALLERY
+            ═══════════════════════════════════════════════════════ -->
+            <section class="gallery">
+                <% const images = (variant.images && variant.images.length > 0 && variant.IsActive !== false)
+                    ? variant.images
+                    : ['/images/placeholder.png']; %>
+
+                <div class="gallery-main" id="mainImgWrap" role="img"
+                    aria-label="<%= variant.productId.productName %> — main image">
+                    <img id="mainImg" src="<%= images[0] %>" alt="<%= variant.productId.productName %>"
+                        title="Hover to zoom · Click to fullscreen">
+                    <span class="zoom-hint">
+                        <i class="fas fa-search-plus"></i> Hover to zoom
+                    </span>
+                </div>
+
+                <div class="gallery-thumbs">
+                    <% images.forEach((img, i) => { %>
+                        <div class="thumb <%= i === 0 ? 'active' : '' %>" data-src="<%= img %>"
+                            data-idx="<%= i %>" role="button" tabindex="0"
+                            aria-label="View image <%= i + 1 %> of <%= images.length %>">
+                            <img src="<%= img %>" alt="Product image <%= i + 1 %>">
+                        </div>
+                    <% }) %>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════════════
+                 RIGHT — INFO
+            ═══════════════════════════════════════════════════════ -->
+            <section class="pd-info">
+
+                <!-- 1. Header -->
+                <div class="pd-header-group">
+                    <div class="pd-brand">
+                        <%= variant.productId.categoryId
+                            ? (variant.productId.categoryId.categoryName || 'Zyrox')
+                            : 'Zyrox' %>
+                    </div>
+                    <h1 class="pd-name"><%= variant.productId.productName %></h1>
+                </div>
+
+                <hr class="pd-divider">
+
+                <!-- 2. Price & Stock -->
+                <div class="pd-price-stack">
+                    <% if (variant.bestOffer) { %>
+                        <div class="offer-row">
+                            <div class="offer-amount-badge">
+                                <i class="fas fa-tag"></i> SAVE ₹<%= (variant.price - variant.discountedPrice).toLocaleString('en-IN') %>
+                            </div>
+                        </div>
                     <% } %>
-                        <span class="current">
-                            <%= variant.productId.productName %>
+
+                    <div class="pd-price" id="priceBlock">
+                        <span class="price-main" id="priceMain">
+                            ₹<%= variant.discountedPrice
+                                ? Number(variant.discountedPrice).toLocaleString('en-IN')
+                                : '—' %>
                         </span>
-            </div>
-        </div>
-
-        <main class="container">
-            <div class="pd-wrap">
-
-                <!-- ═══════════════════════
-         LEFT — GALLERY
-    ═══════════════════════ -->
-                <section class="gallery">
-                    <% const images=(variant.images && variant.images.length> 0 && variant.IsActive !== false)
-                        ? variant.images
-                        : ['/images/placeholder.png'];
-                        %>
-                        <div class="gallery-main" id="mainImgWrap" role="img"
-                            aria-label="<%= variant.productId.productName %> — main image">
-                            <img id="mainImg" src="<%= images[0] %>" alt="<%= variant.productId.productName %>"
-                                title="Hover to zoom · Click to fullscreen">
-                            <span class="zoom-hint">
-                                <i class="fas fa-search-plus"></i> Hover to zoom
+                        <% if (variant.bestOffer && variant.price > variant.discountedPrice) { %>
+                            <span class="price-old" id="priceOld">
+                                ₹<%= Number(variant.price).toLocaleString('en-IN') %>
                             </span>
-                        </div>
-
-                        <!-- Thumbnails (always shown even for 1 image for consistency) -->
-                        <div class="gallery-thumbs">
-                            <% images.forEach((img, i)=> { %>
-                                <div class="thumb <%= i === 0 ? 'active' : '' %>" data-src="<%= img %>"
-                                    data-idx="<%= i %>" role="button" tabindex="0"
-                                    aria-label="View image <%= i + 1 %> of <%= images.length %>">
-                                    <img src="<%= img %>" alt="Product image <%= i + 1 %>">
-                                </div>
-                                <% }) %>
-                        </div>
-                </section>
-
-                <!-- ═══════════════════════
-                         RIGHT — INFO
-                    ═══════════════════════ -->
-                <section class="pd-info">
-
-                    <!-- 1. Header Group -->
-                    <div class="pd-header-group">
-                        <div class="pd-brand">
-                            <%= variant.productId.categoryId ? (variant.productId.categoryId.categoryName || 'Zyrox' )
-                                : 'Zyrox' %>
-                        </div>
-                        <h1 class="pd-name">
-                            <%= variant.productId.productName %>
-                        </h1>
-                    </div>
-
-                    <hr class="pd-divider">
-
-                    <!-- 2. Price & Stock Group -->
-                    <div class="pd-price-stack">
-                        <% if (variant.bestOffer) { %>
-                            <div class="offer-row">
-                                <div class="offer-amount-badge">
-                                    <i class="fas fa-tag"></i> SAVE ₹<%= (variant.price -
-                                        variant.discountedPrice).toLocaleString('en-IN') %>
-                                </div>
-                            </div>
-                            <% } %>
-
-                                <div class="pd-price" id="priceBlock">
-                                    <span class="price-main" id="priceMain">
-                                        ₹<%= variant.discountedPrice ?
-                                            Number(variant.discountedPrice).toLocaleString('en-IN') : '—' %>
-                                    </span>
-                                    <% if (variant.bestOffer && variant.price> variant.discountedPrice) { %>
-                                        <span class="price-old" id="priceOld">
-                                            ₹<%= Number(variant.price).toLocaleString('en-IN') %>
-                                        </span>
-                                        <% const savings=Math.round(((variant.price - variant.discountedPrice) /
-                                            variant.price) * 100); %>
-                                            <span class="price-save" id="priceSave">
-                                                <%= savings %>% OFF
-                                            </span>
-                                            <% } %>
-                                </div>
-
-                                <div class="stock-row" id="stockBlock">
-                                    <% if (variant.stock> 10) { %>
-                                        <span class="stock-badge badge-in-stock">
-                                            <i class="fas fa-check-circle"></i> In Stock
-                                        </span>
-                                        <% } else if (variant.stock> 0) { %>
-                                            <span class="stock-badge badge-low-stock">
-                                                <i class="fas fa-exclamation-triangle"></i> Only <%=
-                                                    parseInt(variant.stock) %> left
-                                            </span>
-                                            <% } else { %>
-                                                <span class="stock-badge badge-out-stock">
-                                                    <i class="fas fa-times-circle"></i> Out of Stock
-                                                </span>
-                                                <% } %>
-                                </div>
-                    </div>
-
-                    <hr class="pd-divider">
-
-                    <!-- 3. Variant Selectors -->
-                    <% if (allVariants && allVariants.length> 0) { %>
-                        <div class="variant-block" id="variantBlock">
-                            <div id="ramSection">
-                                <div class="variant-section-title">RAM (GB)</div>
-                                <div class="variant-row" id="ramRow"></div>
-                            </div>
-                            <div id="storageSection">
-                                <div class="variant-section-title">Storage (GB)</div>
-                                <div class="variant-row" id="storageRow"></div>
-                            </div>
-                            <div id="colorSection">
-                                <div class="variant-section-title">Color</div>
-                                <div class="variant-row" id="colorRow"></div>
-                            </div>
-                            <div class="variant-msg" id="variantMsg">
-                                <i class="fas fa-exclamation-circle" style="flex-shrink:0"></i>
-                                <span id="variantMsgText"></span>
-                            </div>
-                        </div>
+                            <% const savings = Math.round(((variant.price - variant.discountedPrice) / variant.price) * 100); %>
+                            <span class="price-save" id="priceSave"><%= savings %>% OFF</span>
+                        <% } else { %>
+                            <span class="price-old" id="priceOld" style="display:none"></span>
+                            <span class="price-save" id="priceSave" style="display:none"></span>
                         <% } %>
+                    </div>
 
-                            <!-- 4. Purchase Actions -->
-                            <div class="pd-purchase-section">
-                                <div class="qty-selection-row" id="qtyBlock" <%- variant.stock < 1
-                                    ? 'style="display:none"' : '' %>>
-                                    <span class="qty-label">Quantity</span>
-                                    <div class="qty-ctrl">
-                                        <button class="qty-btn" id="qtyMinus" onclick="changeQty(-1)"
-                                            aria-label="Decrease"><i class="fas fa-minus"></i></button>
-                                        <input type="text" class="qty-val" id="qtyVal" value="1" readonly>
-                                        <button class="qty-btn" id="qtyPlus" onclick="changeQty(1)"
-                                            aria-label="Increase"><i class="fas fa-plus"></i></button>
-                                    </div>
-                                </div>
-
-                                <div class="action-row">
-                                    <button type="button" class="btn-cart" onclick="addToCart()" id="btnAddToCart" <%- variant.stock===0
-                                        ? 'disabled' : '' %>
-                                        data-pid="<%= variant.productId._id %>" data-vid="<%= variant._id %>"
-                                                >
-                                                <i class="fas fa-cart-plus"></i> Add to Cart
-                                    </button>
-                                    <button type="button" class="btn-buy" id="btnBuyNow" onclick="buyNow()" <%-
-                                        variant.stock <=0 ? 'disabled' : '' %>
-                                        data-pid="<%= variant.productId._id %>" data-vid="<%= variant._id %>">
-                                                <i class="fas fa-bolt"></i> Buy Now
-                                    </button>
-                                </div>
-
-                                <button class="btn-wishlist <%= isInWishlist ? 'active' : '' %>" id="btnWishlist"
-                                    onclick="toggleWishlistDetail('<%= variant.productId._id %>')">
-                                    <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"></i>
-                                    <span id="wishlistText">
-                                        <%= isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %>
-                                    </span>
-                                </button>
-                            </div>
-
-                            <!-- Trust Badges -->
-                            <div class="trust-row">
-                                <div class="trust-item">
-                                    <i class="fas fa-truck-fast"></i>
-                                    <div class="trust-item-text">
-                                        <strong>Fast Delivery</strong>
-                                        <span>2–4 business days</span>
-                                    </div>
-                                </div>
-                                <div class="trust-item">
-                                    <i class="fas fa-shield-halved"></i>
-                                    <div class="trust-item-text">
-                                        <strong>Secure Payment</strong>
-                                        <span>SSL encrypted</span>
-                                    </div>
-                                </div>
-                                <div class="trust-item">
-                                    <i class="fas fa-rotate-left"></i>
-                                    <div class="trust-item-text">
-                                        <strong>Easy Returns</strong>
-                                        <span>7-day return policy</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                </section>
-            </div>
-
-            <!-- Description -->
-            <div class="pd-section">
-                <span class="section-title">Product Description</span>
-                <div class="pd-desc-text">
-                    <%= variant.productId.description %>
+                    <div class="stock-row" id="stockBlock">
+                        <% if (variant.stock > 10) { %>
+                            <span class="stock-badge badge-in-stock">
+                                <i class="fas fa-check-circle"></i> In Stock
+                            </span>
+                        <% } else if (variant.stock > 0) { %>
+                            <span class="stock-badge badge-low-stock">
+                                <i class="fas fa-exclamation-triangle"></i> Only <%= parseInt(variant.stock) %> left
+                            </span>
+                        <% } else { %>
+                            <span class="stock-badge badge-out-stock">
+                                <i class="fas fa-times-circle"></i> Out of Stock
+                            </span>
+                        <% } %>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Specifications -->
-            <div class="pd-section">
-                <span class="section-title">Technical Specifications</span>
-                <div class="specs-grid">
-                    <% if (variant.processor) { %>
-                        <div class="spec-card">
-                            <div class="spec-lbl">Processor</div>
-                            <div class="spec-val">
-                                <%= variant.processor %>
-                            </div>
+                <hr class="pd-divider">
+
+                <!-- 3. Variant Selectors -->
+                <% if (allVariants && allVariants.length > 0) { %>
+                    <div class="variant-block" id="variantBlock">
+                        <div id="ramSection">
+                            <div class="variant-section-title">RAM (GB)</div>
+                            <div class="variant-row" id="ramRow"></div>
                         </div>
-                        <% } %>
-                            <% if (variant.RAM) { %>
-                                <div class="spec-card">
-                                    <div class="spec-lbl">Memory (RAM)</div>
-                                    <div class="spec-val">
-                                        <%= parseInt(variant.RAM, 10) %> GB
-                                    </div>
-                                </div>
-                                <% } %>
-                                    <% if (variant.storage) { %>
-                                        <div class="spec-card">
-                                            <div class="spec-lbl">Internal Storage</div>
-                                            <div class="spec-val">
-                                                <%= parseInt(variant.storage, 10) %> GB
-                                            </div>
-                                        </div>
-                                        <% } %>
-                                            <% if (variant.color) { %>
-                                                <div class="spec-card">
-                                                    <div class="spec-lbl">Color</div>
-                                                    <div class="spec-val">
-                                                        <%= variant.color %>
-                                                    </div>
-                                                </div>
-                                                <% } %>
-                </div>
-            </div>
-
-            <!-- Related Products -->
-            <div class="pd-section" style="margin-bottom: 64px;">
-                <h4 style="font-family: 'Inter', sans-serif;font-weight:800;font-size:1.2rem;margin-bottom:4px;">
-                    You May
-                    Also Like</h4>
-                <span class="section-title">Related Products</span>
-
-                <% if (relatedProducts && relatedProducts.length> 0) { %>
-                    <div class="related-grid">
-                        <% relatedProducts.forEach(product=> { %>
-                            <a href="/product/<%= product._id %>?variant=<%= product.displayVariant._id %>"
-                                class="related-card">
-                                <div class="related-img">
-                                    <img src="<%= product.displayVariant.images[0] || '/images/placeholder.png' %>"
-                                        alt="<%= product.productName %>" loading="lazy">
-                                </div>
-                                <div class="related-info">
-                                    <div class="related-name">
-                                        <%= product.productName %>
-                                    </div>
-                                    <div style="display:flex;align-items:baseline;gap:4px;">
-                                        <span class="related-price">₹<%=
-                                                Number(product.displayVariant.price).toLocaleString('en-IN') %>
-                                        </span>
-                                        <% if (product.displayVariant.oldPrice) { %>
-                                            <span class="related-old">₹<%=
-                                                    Number(product.displayVariant.oldPrice).toLocaleString('en-IN') %>
-                                            </span>
-                                            <% } %>
-                                    </div>
-                                </div>
-                            </a>
-                            <% }) %>
+                        <div id="storageSection">
+                            <div class="variant-section-title">Storage (GB)</div>
+                            <div class="variant-row" id="storageRow"></div>
+                        </div>
+                        <div id="colorSection">
+                            <div class="variant-section-title">Color</div>
+                            <div class="variant-row" id="colorRow"></div>
+                        </div>
+                        <div class="variant-msg" id="variantMsg">
+                            <i class="fas fa-exclamation-circle" style="flex-shrink:0"></i>
+                            <span id="variantMsgText"></span>
+                        </div>
                     </div>
-                    <% } else { %>
-                        <div
-                            style="margin-top:16px;padding:32px;border:1px dashed var(--border);border-radius:var(--radius);text-align:center;color:var(--muted);">
-                            <i class="fas fa-box-open"
-                                style="font-size:1.6rem;opacity:.4;display:block;margin-bottom:8px;"></i>
-                            No related products available right now.
+                <% } %>
+
+                <!-- 4. Purchase Actions -->
+                <div class="pd-purchase-section">
+                    <div class="qty-selection-row" id="qtyBlock" <%- variant.stock < 1 ? 'style="display:none"' : '' %>>
+                        <span class="qty-label">Quantity</span>
+                        <div class="qty-ctrl">
+                            <button class="qty-btn" id="qtyMinus" onclick="changeQty(-1)" aria-label="Decrease">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="text" class="qty-val" id="qtyVal" value="1" readonly>
+                            <button class="qty-btn" id="qtyPlus" onclick="changeQty(1)" aria-label="Increase">
+                                <i class="fas fa-plus"></i>
+                            </button>
                         </div>
-                        <% } %>
-            </div>
+                    </div>
 
-        </main>
+                    <div class="action-row">
+                        <button type="button" class="btn-cart" id="btnAddToCart"
+                            onclick="addToCart()"
+                            <%- variant.stock === 0 ? 'disabled' : '' %>
+                            data-pid="<%= variant.productId._id %>"
+                            data-vid="<%= variant._id %>">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                        <button type="button" class="btn-buy" id="btnBuyNow"
+                            onclick="buyNow()"
+                            <%- variant.stock <= 0 ? 'disabled' : '' %>
+                            data-pid="<%= variant.productId._id %>"
+                            data-vid="<%= variant._id %>">
+                            <i class="fas fa-bolt"></i> Buy Now
+                        </button>
+                    </div>
 
-        <!-- Fullscreen Overlay -->
-        <div class="fs-overlay" id="fsOverlay" role="dialog" aria-modal="true" aria-label="Full size image">
-            <button class="fs-close" id="fsClose" aria-label="Close"><i class="fas fa-times"></i></button>
-            <img id="fsImg" src="" alt="">
-            <div class="fs-counter" id="fsCounter"></div>
+                    <button class="btn-wishlist <%= isInWishlist ? 'active' : '' %>" id="btnWishlist"
+                        onclick="toggleWishlistDetail('<%= variant.productId._id %>')">
+                        <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"></i>
+                        <span id="wishlistText">
+                            <%= isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Trust Badges -->
+                <div class="trust-row">
+                    <div class="trust-item">
+                        <i class="fas fa-truck-fast"></i>
+                        <div class="trust-item-text">
+                            <strong>Fast Delivery</strong>
+                            <span>2–4 business days</span>
+                        </div>
+                    </div>
+                    <div class="trust-item">
+                        <i class="fas fa-shield-halved"></i>
+                        <div class="trust-item-text">
+                            <strong>Secure Payment</strong>
+                            <span>SSL encrypted</span>
+                        </div>
+                    </div>
+                    <div class="trust-item">
+                        <i class="fas fa-rotate-left"></i>
+                        <div class="trust-item-text">
+                            <strong>Easy Returns</strong>
+                            <span>7-day return policy</span>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
         </div>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+        <!-- Description -->
+        <div class="pd-section">
+            <span class="section-title">Product Description</span>
+            <div class="pd-desc-text"><%= variant.productId.description %></div>
+        </div>
 
-        <!-- ═══════════════════════════════════════════════════════
-     SECURE DATA INJECTION
-     All server data passed via <script type="application/json">
-     Never interpolated directly into JS — prevents XSS.
-═══════════════════════════════════════════════════════ -->
-        <script id="__data_variants__" type="application/json"><%- JSON.stringify(
-    (allVariants || []).map(v => ({
-        _id:       String(v._id),
-        productId: String(v.productId && v.productId._id ? v.productId._id : v.productId),
-        RAM:       v.RAM       != null ? Number(v.RAM)     : null,
-        storage:   v.storage   != null ? Number(v.storage) : null,
-        color:     v.color     || null,
-        price:     Number(v.price)    || 0,
-        oldPrice:  v.oldPrice  ? Number(v.oldPrice) : null,
-        stock:     Number(v.stock)    || 0,
-        images:    Array.isArray(v.images) ? v.images : [],
-        IsActive:  v.IsActive !== false
-    }))
-).replace(/<\/script>/gi, '<\\/script>') %></script>
+        <!-- Specifications -->
+        <div class="pd-section">
+            <span class="section-title">Technical Specifications</span>
+            <div class="specs-grid">
+                <% if (variant.processor) { %>
+                    <div class="spec-card">
+                        <div class="spec-lbl">Processor</div>
+                        <div class="spec-val"><%= variant.processor %></div>
+                    </div>
+                <% } %>
+                <% if (variant.RAM) { %>
+                    <div class="spec-card">
+                        <div class="spec-lbl">Memory (RAM)</div>
+                        <div class="spec-val"><%= parseInt(variant.RAM, 10) %> GB</div>
+                    </div>
+                <% } %>
+                <% if (variant.storage) { %>
+                    <div class="spec-card">
+                        <div class="spec-lbl">Internal Storage</div>
+                        <div class="spec-val"><%= parseInt(variant.storage, 10) %> GB</div>
+                    </div>
+                <% } %>
+                <% if (variant.color) { %>
+                    <div class="spec-card">
+                        <div class="spec-lbl">Color</div>
+                        <div class="spec-val"><%= variant.color %></div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
 
-        <script id="__data_currentVid__" type="application/json">"<%-  String(variant._id).replace(/"/g,'') %>"</script>
-        <script id="__data_cartQty__"
-            type="application/json"><%=  parseInt((cartQuantityMap || {})[String(variant._id)] || 0, 10) %></script>
-        <script id="__data_stockQty__" type="application/json"><%=  parseInt(variant.stock || 0, 10) %></script>
-        <script id="__data_maxCartQty__" type="application/json"><%=  parseInt(MAX_CART_QTY, 10) %></script>
+        <!-- Related Products -->
+        <div class="pd-section" style="margin-bottom: 64px;">
+            <h4 style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.2rem;margin-bottom:4px;">
+                You May Also Like
+            </h4>
+            <span class="section-title">Related Products</span>
 
-        <script>
-            /* ═══════════════════════════════════════════════════════════════════
-               BOOT — parse safe server data
-            ═══════════════════════════════════════════════════════════════════ */
-            const ALL_VARIANTS = JSON.parse(document.getElementById('__data_variants__').textContent);
-            const CURRENT_VID = JSON.parse(document.getElementById('__data_currentVid__').textContent);
-            const MAX_CART_QTY = JSON.parse(document.getElementById('__data_maxCartQty__').textContent);
+            <% if (relatedProducts && relatedProducts.length > 0) { %>
+                <div class="related-grid">
+                    <% relatedProducts.forEach(product => { %>
+                        <a href="/product/<%= product._id %>?variant=<%= product.displayVariant._id %>"
+                            class="related-card">
+                            <div class="related-img">
+                                <img src="<%= product.displayVariant.images[0] || '/images/placeholder.png' %>"
+                                    alt="<%= product.productName %>" loading="lazy">
+                            </div>
+                            <div class="related-info">
+                                <div class="related-name"><%= product.productName %></div>
+                                <div style="display:flex;align-items:baseline;gap:4px;">
+                                    <span class="related-price">
+                                        ₹<%= Number(product.displayVariant.price).toLocaleString('en-IN') %>
+                                    </span>
+                                    <% if (product.displayVariant.oldPrice) { %>
+                                        <span class="related-old">
+                                            ₹<%= Number(product.displayVariant.oldPrice).toLocaleString('en-IN') %>
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </a>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <div style="margin-top:16px;padding:32px;border:1px dashed var(--border);border-radius:var(--radius);text-align:center;color:var(--muted);">
+                    <i class="fas fa-box-open" style="font-size:1.6rem;opacity:.4;display:block;margin-bottom:8px;"></i>
+                    No related products available right now.
+                </div>
+            <% } %>
+        </div>
 
-            let alreadyInCart = JSON.parse(document.getElementById('__data_cartQty__').textContent) || 0;
+    </main>
 
-            // Active selection state
-            let selRAM = null;
-            let selStorage = null;
-            let selColor = null;
+    <!-- Fullscreen Overlay -->
+    <div class="fs-overlay" id="fsOverlay" role="dialog" aria-modal="true" aria-label="Full size image">
+        <button class="fs-close" id="fsClose" aria-label="Close"><i class="fas fa-times"></i></button>
+        <img id="fsImg" src="" alt="">
+        <div class="fs-counter" id="fsCounter"></div>
+    </div>
 
-            // Current resolved variant (may be different from initial if user selects)
-            let currentVariantId = CURRENT_VID;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 
-            // ── Init selected from current variant ─────────────────────────────
-            const initVariant = ALL_VARIANTS.find(v => v._id === CURRENT_VID);
-            if (initVariant) {
-                selRAM = initVariant.RAM;
-                selStorage = initVariant.storage;
-                selColor = initVariant.color;
+    <!-- ═══════════════════════════════════════════════════════════
+         SECURE DATA INJECTION — server data via JSON script tags
+    ═══════════════════════════════════════════════════════════════ -->
+    <script id="__data_variants__" type="application/json"><%- JSON.stringify(
+        (allVariants || []).map(v => ({
+            _id:       String(v._id),
+            productId: String(v.productId && v.productId._id ? v.productId._id : v.productId),
+            RAM:       v.RAM     != null ? Number(v.RAM)     : null,
+            storage:   v.storage != null ? Number(v.storage) : null,
+            color:     v.color   || null,
+            price:     Number(v.price)   || 0,
+            oldPrice:  v.oldPrice ? Number(v.oldPrice) : null,
+            stock:     Number(v.stock)   || 0,
+            images:    Array.isArray(v.images) ? v.images : [],
+            IsActive:  v.IsActive !== false
+        }))
+    ).replace(/<\/script>/gi, '<\\/script>') %></script>
+
+    <script id="__data_currentVid__"   type="application/json">"<%- String(variant._id).replace(/"/g, '') %>"</script>
+    <script id="__data_cartQty__"      type="application/json"><%= parseInt((cartQuantityMap || {})[String(variant._id)] || 0, 10) %></script>
+    <script id="__data_stockQty__"     type="application/json"><%= parseInt(variant.stock || 0, 10) %></script>
+    <script id="__data_maxCartQty__"   type="application/json"><%= parseInt(MAX_CART_QTY, 10) %></script>
+    <script id="__data_isLoggedIn__"   type="application/json"><%= typeof user !== 'undefined' && !!user %></script>
+
+    <script>
+    /* ═══════════════════════════════════════════════════════════════
+       BOOT — parse safe server data
+    ═══════════════════════════════════════════════════════════════ */
+    const ALL_VARIANTS  = JSON.parse(document.getElementById('__data_variants__').textContent);
+    const CURRENT_VID   = JSON.parse(document.getElementById('__data_currentVid__').textContent);
+    const MAX_CART_QTY  = JSON.parse(document.getElementById('__data_maxCartQty__').textContent);
+    const IS_LOGGED_IN  = JSON.parse(document.getElementById('__data_isLoggedIn__').textContent);
+
+    // alreadyInCart = units of the CURRENT variant already in cart (from SSR)
+    let alreadyInCart = JSON.parse(document.getElementById('__data_cartQty__').textContent) || 0;
+
+    // Active selection state
+    let selRAM     = null;
+    let selStorage = null;
+    let selColor   = null;
+
+    // Current resolved variant id
+    let currentVariantId = CURRENT_VID;
+
+    // Init selection from current variant
+    const initVariant = ALL_VARIANTS.find(v => v._id === CURRENT_VID);
+    if (initVariant) {
+        selRAM     = initVariant.RAM;
+        selStorage = initVariant.storage;
+        selColor   = initVariant.color;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       GALLERY
+    ═══════════════════════════════════════════════════════════════ */
+    const mainImgWrap = document.getElementById('mainImgWrap');
+    const mainImg     = document.getElementById('mainImg');
+    const fsOverlay   = document.getElementById('fsOverlay');
+    const fsImg       = document.getElementById('fsImg');
+    const fsCounter   = document.getElementById('fsCounter');
+    const fsClose     = document.getElementById('fsClose');
+
+    let thumbEls      = [...document.querySelectorAll('.thumb')];
+    let currentImgIdx = 0;
+    let allImages     = thumbEls.map(t => t.dataset.src);
+
+    function setMainImage(src, idx) {
+        mainImg.style.transition = 'opacity 0.12s ease';
+        mainImg.style.opacity    = '0';
+        setTimeout(() => {
+            mainImg.src          = src;
+            mainImg.style.opacity = '1';
+        }, 120);
+
+        thumbEls.forEach(t => t.classList.remove('active'));
+        if (thumbEls[idx]) thumbEls[idx].classList.add('active');
+        currentImgIdx = idx;
+    }
+
+    function bindThumbs() {
+        thumbEls = [...document.querySelectorAll('.thumb')];
+        thumbEls.forEach((t, i) => {
+            t.addEventListener('click', () => setMainImage(t.dataset.src, i));
+            t.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMainImage(t.dataset.src, i); }
+            });
+        });
+    }
+    bindThumbs();
+
+    /* ── In-place zoom ─────────────────────────────────────────── */
+    const ZOOM_SCALE = 2.5;
+    let zoomActive   = false;
+
+    mainImgWrap.addEventListener('mouseenter', () => {
+        zoomActive = true;
+        mainImg.style.transition  = 'transform 0.1s ease';
+        mainImg.style.transform   = `scale(${ZOOM_SCALE})`;
+    });
+
+    mainImgWrap.addEventListener('mouseleave', () => {
+        zoomActive = false;
+        mainImg.style.transition    = 'transform 0.3s ease';
+        mainImg.style.transform     = 'scale(1)';
+        mainImg.style.transformOrigin = '50% 50%';
+    });
+
+    mainImgWrap.addEventListener('mousemove', e => {
+        if (!zoomActive) return;
+        const rect = mainImgWrap.getBoundingClientRect();
+        const x    = ((e.clientX - rect.left) / rect.width)  * 100;
+        const y    = ((e.clientY - rect.top)  / rect.height) * 100;
+        mainImg.style.transformOrigin = `${x}% ${y}%`;
+    });
+
+    /* ── Fullscreen ─────────────────────────────────────────────── */
+    mainImgWrap.addEventListener('click', () => openFullscreen(currentImgIdx));
+
+    function openFullscreen(idx) {
+        fsImg.src          = allImages[idx] || mainImg.src;
+        fsImg.alt          = mainImg.alt;
+        fsCounter.textContent = allImages.length > 1 ? `${idx + 1} / ${allImages.length}` : '';
+        fsOverlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeFullscreen() {
+        fsOverlay.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    fsClose.addEventListener('click', closeFullscreen);
+    fsOverlay.addEventListener('click', e => { if (e.target === fsOverlay) closeFullscreen(); });
+    document.addEventListener('keydown', e => {
+        if (!fsOverlay.classList.contains('open')) return;
+        if (e.key === 'Escape')      closeFullscreen();
+        if (e.key === 'ArrowRight')  openFullscreen((currentImgIdx + 1) % allImages.length);
+        if (e.key === 'ArrowLeft')   openFullscreen((currentImgIdx - 1 + allImages.length) % allImages.length);
+    });
+
+    /* ═══════════════════════════════════════════════════════════════
+       COLOR HELPERS
+    ═══════════════════════════════════════════════════════════════ */
+    const COLOR_MAP = {
+        black: '#1a1a1a', white: '#f0f0f0', silver: '#c0c0c0', gold: '#cfb53b',
+        blue: '#3a7bd5', red: '#e63946', green: '#2ecc71', yellow: '#f1c40f',
+        purple: '#9b59b6', pink: '#e91e8c', orange: '#e67e22', gray: '#7f8c8d',
+        grey: '#7f8c8d', midnight: '#1a1a2e', starlight: '#f5f5dc', graphite: '#4b4b4b',
+        titanium: '#878681', alpine: '#f0f5f5', pacific: '#006994', coral: '#ff6f61',
+        navy: '#003087', rose: '#c5a3a5', deep: '#1c1c3a', space: '#3a3a5c'
+    };
+
+    function colorToCss(name) {
+        if (!name) return '#888';
+        const lower = name.toLowerCase();
+        for (const [key, val] of Object.entries(COLOR_MAP)) {
+            if (lower.includes(key)) return val;
+        }
+        return '#888';
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       VARIANT SELECTOR
+    ═══════════════════════════════════════════════════════════════ */
+    const ramRow       = document.getElementById('ramRow');
+    const storageRow   = document.getElementById('storageRow');
+    const colorRow     = document.getElementById('colorRow');
+    const variantMsg   = document.getElementById('variantMsg');
+    const variantMsgText = document.getElementById('variantMsgText');
+
+    function uniqueSorted(arr) {
+        return [...new Set(arr.filter(v => v != null))]
+            .sort((a, b) => (Number(a) - Number(b)) || String(a).localeCompare(String(b)));
+    }
+
+    const allRAMs     = uniqueSorted(ALL_VARIANTS.map(v => v.RAM));
+    const allStorages = uniqueSorted(ALL_VARIANTS.map(v => v.storage));
+    const allColors   = uniqueSorted(ALL_VARIANTS.map(v => v.color));
+
+    function findVariant(ram, storage, color) {
+        return ALL_VARIANTS.find(v =>
+            Number(v.RAM)     === Number(ram)     &&
+            Number(v.storage) === Number(storage) &&
+            v.color           === color
+        ) || null;
+    }
+
+    function isReachable(key, val) {
+        if (key === 'RAM') {
+            return ALL_VARIANTS.some(v => Number(v.RAM) === Number(val));
+        }
+        if (key === 'storage') {
+            return ALL_VARIANTS.some(v =>
+                Number(v.storage) === Number(val) &&
+                (selRAM == null || Number(v.RAM) === Number(selRAM))
+            );
+        }
+        if (key === 'color') {
+            return ALL_VARIANTS.some(v =>
+                v.color === val &&
+                (selRAM     == null || Number(v.RAM)     === Number(selRAM))     &&
+                (selStorage == null || Number(v.storage) === Number(selStorage))
+            );
+        }
+        return false;
+    }
+
+    function isReachableWith(key, val, ram, storage) {
+        if (key === 'storage') {
+            return ALL_VARIANTS.some(v =>
+                Number(v.storage) === Number(val) &&
+                (ram == null || Number(v.RAM) === Number(ram))
+            );
+        }
+        if (key === 'color') {
+            return ALL_VARIANTS.some(v =>
+                v.color === val &&
+                (ram     == null || Number(v.RAM)     === Number(ram))     &&
+                (storage == null || Number(v.storage) === Number(storage))
+            );
+        }
+        return false;
+    }
+
+    function renderRAM() {
+        if (!ramRow) return;
+        ramRow.innerHTML = '';
+        allRAMs.forEach(ram => {
+            const reachable = isReachable('RAM', ram);
+            const selected  = selRAM != null && Number(selRAM) === Number(ram);
+
+            const btn = document.createElement('button');
+            btn.className   = 'v-chip' + (selected ? ' v-selected' : '') + (!reachable ? ' v-disabled' : '');
+            btn.textContent = ram + ' GB';
+            btn.dataset.val = ram;
+            if (!reachable) { btn.disabled = true; btn.title = 'Not available'; }
+
+            btn.addEventListener('click', () => {
+                if (!reachable) return;
+                selRAM = Number(ram);
+                if (selStorage != null && !isReachableWith('storage', selStorage, selRAM, null)) selStorage = null;
+                if (selColor   != null && !isReachableWith('color',   selColor,   selRAM, selStorage)) selColor = null;
+
+                const match = (selRAM && selStorage && selColor) ? findVariant(selRAM, selStorage, selColor) : null;
+                if (match) {
+                    window.location.href = `/product/${match.productId}?variant=${match._id}`;
+                } else {
+                    renderAll();
+                    resolveVariant();
+                }
+            });
+            ramRow.appendChild(btn);
+        });
+    }
+
+    function renderStorage() {
+        if (!storageRow) return;
+        storageRow.innerHTML = '';
+        allStorages.forEach(storage => {
+            const reachable = isReachable('storage', storage);
+            const selected  = selStorage != null && Number(selStorage) === Number(storage);
+
+            const btn = document.createElement('button');
+            btn.className   = 'v-chip' + (selected ? ' v-selected' : '') + (!reachable ? ' v-disabled' : '');
+            btn.textContent = storage + ' GB';
+            btn.dataset.val = storage;
+            if (!reachable) { btn.disabled = true; btn.title = 'Not available for selected RAM'; }
+
+            btn.addEventListener('click', () => {
+                if (!reachable) return;
+                selStorage = Number(storage);
+                if (selColor != null && !isReachableWith('color', selColor, selRAM, selStorage)) selColor = null;
+
+                const match = (selRAM && selStorage && selColor) ? findVariant(selRAM, selStorage, selColor) : null;
+                if (match) {
+                    window.location.href = `/product/${match.productId}?variant=${match._id}`;
+                } else {
+                    renderAll();
+                    resolveVariant();
+                }
+            });
+            storageRow.appendChild(btn);
+        });
+    }
+
+    function renderColors() {
+        if (!colorRow) return;
+        colorRow.innerHTML = '';
+        allColors.forEach(color => {
+            const reachable = isReachable('color', color);
+            const selected  = selColor === color;
+
+            const wrap = document.createElement('div');
+            wrap.className = 'v-color-wrap' + (selected ? ' v-selected' : '') + (!reachable ? ' v-disabled' : '');
+            if (!reachable) wrap.title = 'Not available for selected options';
+
+            const dot = document.createElement('span');
+            dot.className      = 'color-dot';
+            dot.style.background = colorToCss(color);
+            if (['white', 'starlight'].includes(color.toLowerCase())) {
+                dot.style.border = '1.5px solid rgba(255,255,255,.4)';
             }
 
-            /* ═══════════════════════════════════════════════════════════════════
-               GALLERY
-            ═══════════════════════════════════════════════════════════════════ */
-            const mainImgWrap = document.getElementById('mainImgWrap');
-            const mainImg = document.getElementById('mainImg');
-            const fsOverlay = document.getElementById('fsOverlay');
-            const fsImg = document.getElementById('fsImg');
-            const fsCounter = document.getElementById('fsCounter');
-            const fsClose = document.getElementById('fsClose');
+            const label = document.createElement('span');
+            label.textContent = color;
 
-            const thumbEls = [...document.querySelectorAll('.thumb')];
-            let currentImgIdx = 0;
-            const allImages = thumbEls.map(t => t.dataset.src);
+            wrap.appendChild(dot);
+            wrap.appendChild(label);
 
-            // ── Set main image ──────────────────────────────────────────────────
-            function setMainImage(src, idx) {
-                mainImg.style.transition = 'opacity 0.12s ease';
-                mainImg.style.opacity = '0';
-                setTimeout(() => {
-                    mainImg.src = src;
-                    mainImg.style.opacity = '1';
-                }, 120);
-
-                thumbEls.forEach(t => t.classList.remove('active'));
-                if (thumbEls[idx]) thumbEls[idx].classList.add('active');
-                currentImgIdx = idx;
-            }
-
-            // Thumb click / keyboard
-            thumbEls.forEach((t, i) => {
-                t.addEventListener('click', () => setMainImage(t.dataset.src, i));
-                t.addEventListener('keydown', e => {
-                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMainImage(t.dataset.src, i); }
+            if (reachable) {
+                wrap.addEventListener('click', () => {
+                    selColor = color;
+                    const match = (selRAM && selStorage && selColor) ? findVariant(selRAM, selStorage, selColor) : null;
+                    if (match) {
+                        window.location.href = `/product/${match.productId}?variant=${match._id}`;
+                    } else {
+                        renderAll();
+                        resolveVariant();
+                    }
                 });
+            }
+            colorRow.appendChild(wrap);
+        });
+    }
+
+    function renderAll() {
+        renderRAM();
+        renderStorage();
+        renderColors();
+    }
+
+    /* ── Resolve variant from current selection ────────────────── */
+    function resolveVariant() {
+        if (!variantMsg) return;
+        variantMsg.classList.remove('show', 'msg-unavail', 'msg-stock');
+
+        if (selRAM == null || selStorage == null || selColor == null) return;
+
+        const match = findVariant(selRAM, selStorage, selColor);
+
+        if (!match) {
+            variantMsgText.textContent =
+                `No product available for ${selRAM} GB RAM · ${selStorage} GB · ${selColor}. ` +
+                `Please choose a different combination.`;
+            variantMsg.classList.add('show', 'msg-unavail');
+            setActionsDisabled(true);
+            return;
+        }
+
+        if (!match.IsActive) {
+            variantMsgText.textContent = 'This product is unavailable.';
+            variantMsg.classList.add('show', 'msg-unavail');
+            setActionsDisabled(true);
+
+            const sb = document.getElementById('stockBlock');
+            if (sb) sb.innerHTML = '';
+            const qtyBlock = document.getElementById('qtyBlock');
+            if (qtyBlock) qtyBlock.style.display = 'none';
+
+            setMainImage('/images/placeholder.png', 0);
+            const thumbsContainer = document.querySelector('.gallery-thumbs');
+            if (thumbsContainer) thumbsContainer.innerHTML = '';
+            allImages.length = 0;
+            allImages.push('/images/placeholder.png');
+
+            updateURL(match);
+            currentVariantId = match._id;
+            // FIX: don't reset alreadyInCart here — fetch from cartQuantityMap or leave unchanged
+            return;
+        }
+
+        if (match.stock <= 0) {
+            variantMsgText.textContent = 'This variant is currently out of stock. Check back soon.';
+            variantMsg.classList.add('show', 'msg-stock');
+            setActionsDisabled(true);
+            updatePriceUI(match);
+            updateStockUI(match);
+            const qtyBlock = document.getElementById('qtyBlock');
+            if (qtyBlock) qtyBlock.style.display = 'none';
+            updateButtonVariant(match);
+            updateURL(match);
+            currentVariantId = match._id;
+            // Reset alreadyInCart to 0 when switching to a new out-of-stock variant
+            // (page will reload on next add anyway, so this is safe)
+            alreadyInCart = 0;
+            return;
+        }
+
+        variantMsg.classList.remove('show');
+        updatePriceUI(match);
+        updateStockUI(match);
+        updateButtonVariant(match);
+        updateQtyBlock(match);
+        updateGalleryImages(match);
+        updateURL(match);
+
+        currentVariantId = match._id;
+        // FIX: reset to 0 only when switching to a NEW variant (not the initial load variant)
+        // On next add success, alreadyInCart is updated from server response
+        if (match._id !== CURRENT_VID) {
+            alreadyInCart = 0;
+        }
+
+        setActionsDisabled(false);
+    }
+
+    /* ── UI updaters ───────────────────────────────────────────── */
+    function updatePriceUI(v) {
+        const priceMain = document.getElementById('priceMain');
+        const oldEl     = document.getElementById('priceOld');
+        const saveEl    = document.getElementById('priceSave');
+
+        if (priceMain) priceMain.textContent = '₹' + Number(v.price).toLocaleString('en-IN');
+
+        if (v.oldPrice && v.oldPrice > v.price) {
+            const pct = Math.round(((v.oldPrice - v.price) / v.oldPrice) * 100);
+            if (oldEl)  { oldEl.textContent  = '₹' + Number(v.oldPrice).toLocaleString('en-IN'); oldEl.style.display  = ''; }
+            if (saveEl) { saveEl.textContent = pct + '% OFF'; saveEl.style.display = ''; }
+        } else {
+            if (oldEl)  oldEl.style.display  = 'none';
+            if (saveEl) saveEl.style.display = 'none';
+        }
+    }
+
+    function updateStockUI(v) {
+        const sb = document.getElementById('stockBlock');
+        if (!sb) return;
+        if (v.stock > 10) {
+            sb.innerHTML = `<span class="stock-badge badge-in-stock"><i class="fas fa-check-circle"></i> In Stock</span>`;
+        } else if (v.stock > 0) {
+            sb.innerHTML = `<span class="stock-badge badge-low-stock"><i class="fas fa-exclamation-triangle"></i> Only ${v.stock} left</span>`;
+        } else {
+            sb.innerHTML = `<span class="stock-badge badge-out-stock"><i class="fas fa-times-circle"></i> Sold Out</span>`;
+        }
+    }
+
+    function updateButtonVariant(v) {
+        ['btnAddToCart', 'btnBuyNow'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) { btn.dataset.pid = v.productId; btn.dataset.vid = v._id; }
+        });
+    }
+
+    function updateQtyBlock(v) {
+        const qtyBlock = document.getElementById('qtyBlock');
+        const qtyVal   = document.getElementById('qtyVal');
+
+        if (!qtyBlock) return;
+
+        if (v.stock <= 0) {
+            qtyBlock.style.display = 'none';
+            return;
+        }
+
+        qtyBlock.style.display = 'flex';
+        const maxQty = Math.min(MAX_CART_QTY, v.stock);
+
+        if (qtyVal) qtyVal.value = '1';
+
+        const minus = document.getElementById('qtyMinus');
+        const plus  = document.getElementById('qtyPlus');
+        if (minus) minus.disabled = true;
+        if (plus)  plus.disabled  = (maxQty <= 1);
+    }
+
+    function updateGalleryImages(v) {
+        if (!v.images || v.images.length === 0) return;
+
+        setMainImage(v.images[0], 0);
+
+        const thumbsContainer = document.querySelector('.gallery-thumbs');
+        if (!thumbsContainer) return;
+        thumbsContainer.innerHTML = '';
+
+        v.images.forEach((src, i) => {
+            const d = document.createElement('div');
+            d.className   = 'thumb' + (i === 0 ? ' active' : '');
+            d.dataset.src = src;
+            d.dataset.idx = String(i);
+            d.setAttribute('role', 'button');
+            d.setAttribute('tabindex', '0');
+            d.setAttribute('aria-label', `View image ${i + 1} of ${v.images.length}`);
+            d.innerHTML   = `<img src="${src}" alt="Product image ${i + 1}">`;
+            d.addEventListener('click',   () => setMainImage(src, i));
+            d.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMainImage(src, i); }
+            });
+            thumbsContainer.appendChild(d);
+        });
+
+        // Rebind thumbEls reference and sync allImages
+        bindThumbs();
+        allImages.length = 0;
+        v.images.forEach(s => allImages.push(s));
+    }
+
+    function updateURL(v) {
+        const url = `/product/${encodeURIComponent(v.productId)}?variant=${encodeURIComponent(v._id)}`;
+        window.history.replaceState({ variantId: v._id }, '', url);
+    }
+
+    function setActionsDisabled(off) {
+        ['btnAddToCart', 'btnBuyNow'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) btn.disabled = off;
+        });
+    }
+
+    // Initial render
+    renderAll();
+    resolveVariant();
+
+    /* ═══════════════════════════════════════════════════════════════
+       QUANTITY CONTROL
+    ═══════════════════════════════════════════════════════════════ */
+    function getCurrentStock() {
+        const v = ALL_VARIANTS.find(x => x._id === currentVariantId);
+        return v ? v.stock : (parseInt(document.getElementById('__data_stockQty__').textContent, 10) || 0);
+    }
+
+    function changeQty(delta) {
+        const inp = document.getElementById('qtyVal');
+        if (!inp) return;
+
+        const stock  = getCurrentStock();
+        const maxQty = Math.min(MAX_CART_QTY, stock);
+        const current = parseInt(inp.value, 10);
+
+        if (delta > 0 && current >= maxQty) {
+            Swal.fire({
+                ...swalBase,
+                icon: 'warning',
+                title: 'Quantity Limit Reached',
+                html: `You can only buy <strong>${MAX_CART_QTY}</strong> of this product at once.`,
+                confirmButtonText: 'Got it'
+            });
+            return;
+        }
+
+        const newVal = Math.max(1, Math.min(current + delta, maxQty));
+        inp.value = newVal;
+
+        const minus = document.getElementById('qtyMinus');
+        const plus  = document.getElementById('qtyPlus');
+        if (minus) minus.disabled = (newVal <= 1);
+        if (plus)  plus.disabled  = (newVal >= maxQty);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SWEETALERT BASE CONFIG
+    ═══════════════════════════════════════════════════════════════ */
+    const swalBase = {
+        background:           '#1c1c1f',
+        color:                '#f1f5f9',
+        confirmButtonColor:   '#6366f1',
+        cancelButtonColor:    '#334155',
+    };
+
+    /* ═══════════════════════════════════════════════════════════════
+       ADD TO CART
+    ═══════════════════════════════════════════════════════════════ */
+    async function addToCart() {
+        const btn = document.getElementById('btnAddToCart');
+        if (!btn || btn.disabled) return;
+
+        const pid = btn.dataset.pid;
+        const vid = btn.dataset.vid;
+
+        if (!pid || !vid) {
+            Swal.fire({ ...swalBase, icon: 'error', title: 'Error', text: 'Product information missing. Please refresh the page.' });
+            return;
+        }
+
+        // Check login state
+        if (!IS_LOGGED_IN) {
+            const currentPath = window.location.pathname + window.location.search;
+            window.location.href = `/signin?returnTo=${encodeURIComponent(currentPath)}`;
+            return;
+        }
+
+        // Pre-flight: already at max for this variant?
+        if (alreadyInCart >= MAX_CART_QTY) {
+            Swal.fire({
+                ...swalBase,
+                icon: 'warning',
+                title: 'Cart Limit Reached',
+                html: `You already have the maximum of <strong>${MAX_CART_QTY}</strong> units in your cart.`,
+                confirmButtonText: 'View Cart',
+                showCancelButton: true,
+                cancelButtonText: 'Continue Shopping'
+            }).then(r => { if (r.isConfirmed) window.location.href = '/cart'; });
+            return;
+        }
+
+        // Loading state
+        btn.disabled   = true;
+        btn.innerHTML  = '<i class="fas fa-spinner fa-spin"></i> Adding…';
+
+        try {
+            const res = await fetch('/cart/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    productId: pid,
+                    variantId: vid,
+                    quantity:  1          // always 1 per click; backend increments
+                })
             });
 
-            /* ═══════════════════════════════════════════════════════════════════
-               IN-PLACE ZOOM (hover to magnify)
-            ═══════════════════════════════════════════════════════════════════ */
-            const ZOOM_SCALE = 2.5;
-            let zoomActive = false;
-
-            function initZoom() {
-                mainImgWrap.addEventListener('mouseenter', onZoomEnter);
-                mainImgWrap.addEventListener('mouseleave', onZoomLeave);
-                mainImgWrap.addEventListener('mousemove', onZoomMove);
+            // Parse JSON safely
+            let data;
+            try {
+                data = await res.json();
+            } catch {
+                throw new Error(`HTTP ${res.status} — non-JSON response`);
             }
 
-            function onZoomEnter() {
-                zoomActive = true;
-                mainImg.style.transition = 'transform 0.1s ease';
-                mainImg.style.transform = 'scale(' + ZOOM_SCALE + ')';
+            // Restore button
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
+
+            // Auth redirect from server
+            if (data.requiresAuth || data.redirect) {
+                const currentPath = window.location.pathname + window.location.search;
+                window.location.href = `/signin?returnTo=${encodeURIComponent(currentPath)}`;
+                return;
             }
 
-            function onZoomLeave() {
-                zoomActive = false;
-                mainImg.style.transition = 'transform 0.3s ease';
-                mainImg.style.transform = 'scale(1)';
-                mainImg.style.transformOrigin = '50% 50%';
-            }
-
-            function onZoomMove(e) {
-                if (!zoomActive) return;
-                const rect = mainImgWrap.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
-                mainImg.style.transformOrigin = x + '% ' + y + '%';
-            }
-
-            initZoom();
-
-            // ── Fullscreen on click ─────────────────────────────────────────────
-            mainImgWrap.addEventListener('click', () => openFullscreen(currentImgIdx));
-
-            function openFullscreen(idx) {
-                fsImg.src = allImages[idx] || mainImg.src;
-                fsImg.alt = mainImg.alt;
-                fsCounter.textContent = allImages.length > 1
-                    ? `${idx + 1} / ${allImages.length}`
-                    : '';
-                fsOverlay.classList.add('open');
-                document.body.style.overflow = 'hidden';
-            }
-            function closeFullscreen() {
-                fsOverlay.classList.remove('open');
-                document.body.style.overflow = '';
-            }
-            fsClose.addEventListener('click', closeFullscreen);
-            fsOverlay.addEventListener('click', e => { if (e.target === fsOverlay) closeFullscreen(); });
-            document.addEventListener('keydown', e => {
-                if (!fsOverlay.classList.contains('open')) return;
-                if (e.key === 'Escape') closeFullscreen();
-                if (e.key === 'ArrowRight') openFullscreen((currentImgIdx + 1) % allImages.length);
-                if (e.key === 'ArrowLeft') openFullscreen((currentImgIdx - 1 + allImages.length) % allImages.length);
-            });
-
-            /* ═══════════════════════════════════════════════════════════════════
-               COLOR HELPERS
-            ═══════════════════════════════════════════════════════════════════ */
-            // Map color names → CSS colors for the dot swatch
-            const COLOR_MAP = {
-                black: '#1a1a1a', white: '#f0f0f0', silver: '#c0c0c0', gold: '#cfb53b',
-                blue: '#3a7bd5', red: '#e63946', green: '#2ecc71', yellow: '#f1c40f',
-                purple: '#9b59b6', pink: '#e91e8c', orange: '#e67e22', gray: '#7f8c8d',
-                grey: '#7f8c8d', midnight: '#1a1a2e', starlight: '#f5f5dc', graphite: '#4b4b4b',
-                titanium: '#878681', alpine: '#f0f5f5', pacific: '#006994', coral: '#ff6f61',
-                navy: '#003087', rose: '#c5a3a5', deep: '#1c1c3a', space: '#3a3a5c'
-            };
-            function colorToCss(name) {
-                if (!name) return '#888';
-                const lower = name.toLowerCase();
-                for (const [key, val] of Object.entries(COLOR_MAP)) {
-                    if (lower.includes(key)) return val;
-                }
-                return '#888';
-            }
-
-            /* ═══════════════════════════════════════════════════════════════════
-               VARIANT SELECTOR
-            ═══════════════════════════════════════════════════════════════════ */
-            const ramRow = document.getElementById('ramRow');
-            const storageRow = document.getElementById('storageRow');
-            const colorRow = document.getElementById('colorRow');
-            const variantMsg = document.getElementById('variantMsg');
-            const variantMsgText = document.getElementById('variantMsgText');
-
-            // ── Unique sorted values ────────────────────────────────────────────
-            function uniqueSorted(arr) {
-                return [...new Set(arr.filter(v => v != null))]
-                    .sort((a, b) => (Number(a) - Number(b)) || String(a).localeCompare(String(b)));
-            }
-            const allRAMs = uniqueSorted(ALL_VARIANTS.map(v => v.RAM));
-            const allStorages = uniqueSorted(ALL_VARIANTS.map(v => v.storage));
-            const allColors = uniqueSorted(ALL_VARIANTS.map(v => v.color));
-
-            // ── Find exact match ────────────────────────────────────────────────
-            function findVariant(ram, storage, color) {
-                return ALL_VARIANTS.find(v =>
-                    Number(v.RAM) === Number(ram) &&
-                    Number(v.storage) === Number(storage) &&
-                    v.color === color
-                ) || null;
-            }
-
-            // ── Is this option reachable from current other selections? ─────────
-            function isReachable(key, val) {
-                if (key === 'RAM') {
-                    return ALL_VARIANTS.some(v => Number(v.RAM) === Number(val));
-                }
-                if (key === 'storage') {
-                    return ALL_VARIANTS.some(v =>
-                        Number(v.storage) === Number(val) &&
-                        (selRAM == null || Number(v.RAM) === Number(selRAM))
-                    );
-                }
-                if (key === 'color') {
-                    return ALL_VARIANTS.some(v =>
-                        v.color === val &&
-                        (selRAM == null || Number(v.RAM) === Number(selRAM)) &&
-                        (selStorage == null || Number(v.storage) === Number(selStorage))
-                    );
-                }
-                return false;
-            }
-
-            // ── Render RAM chips ────────────────────────────────────────────────
-            function renderRAM() {
-                ramRow.innerHTML = '';
-                allRAMs.forEach(ram => {
-                    const reachable = isReachable('RAM', ram);
-                    const selected = selRAM != null && Number(selRAM) === Number(ram);
-
-                    const btn = document.createElement('button');
-                    btn.className = 'v-chip' + (selected ? ' v-selected' : '') + (!reachable ? ' v-disabled' : '');
-                    btn.textContent = ram + ' GB';
-                    btn.dataset.val = ram;
-                    if (!reachable) { btn.disabled = true; btn.title = 'Not available'; }
-
-                    btn.addEventListener('click', () => {
-                        if (!reachable) return;
-                        selRAM = Number(ram);
-                        if (selStorage != null && !isReachableWith('storage', selStorage, selRAM, null, null)) selStorage = null;
-                        if (selColor != null && !isReachableWith('color', selColor, selRAM, selStorage, null)) selColor = null;
-
-                        const match = (selRAM && selStorage && selColor) ? findVariant(selRAM, selStorage, selColor) : null;
-                        if (match) {
-                            window.location.href = `/product/${match.productId}?variant=${match._id}`;
-                        } else {
-                            renderAll();
-                            resolveVariant();
-                        }
-                    });
-                    ramRow.appendChild(btn);
-                });
-            }
-
-            // ── Render Storage chips ────────────────────────────────────────────
-            function renderStorage() {
-                storageRow.innerHTML = '';
-                allStorages.forEach(storage => {
-                    const reachable = isReachable('storage', storage);
-                    const selected = selStorage != null && Number(selStorage) === Number(storage);
-
-                    const btn = document.createElement('button');
-                    btn.className = 'v-chip' + (selected ? ' v-selected' : '') + (!reachable ? ' v-disabled' : '');
-                    btn.textContent = storage + ' GB';
-                    btn.dataset.val = storage;
-                    if (!reachable) { btn.disabled = true; btn.title = 'Not available for selected RAM'; }
-
-                    btn.addEventListener('click', () => {
-                        if (!reachable) return;
-                        selStorage = Number(storage);
-                        if (selColor != null && !isReachableWith('color', selColor, selRAM, selStorage, null)) selColor = null;
-
-                        const match = (selRAM && selStorage && selColor) ? findVariant(selRAM, selStorage, selColor) : null;
-                        if (match) {
-                            window.location.href = `/product/${match.productId}?variant=${match._id}`;
-                        } else {
-                            renderAll();
-                            resolveVariant();
-                        }
-                    });
-                    storageRow.appendChild(btn);
-                });
-            }
-
-            // ── Render Color swatches ───────────────────────────────────────────
-            function renderColors() {
-                colorRow.innerHTML = '';
-                allColors.forEach(color => {
-                    const reachable = isReachable('color', color);
-                    const selected = selColor === color;
-
-                    const wrap = document.createElement('div');
-                    wrap.className = 'v-color-wrap' + (selected ? ' v-selected' : '') + (!reachable ? ' v-disabled' : '');
-                    if (!reachable) wrap.title = 'Not available for selected options';
-
-                    const dot = document.createElement('span');
-                    dot.className = 'color-dot';
-                    dot.style.background = colorToCss(color);
-                    if (color.toLowerCase() === 'white' || color.toLowerCase() === 'starlight') {
-                        dot.style.border = '1.5px solid rgba(255,255,255,.4)';
-                    }
-
-                    const label = document.createElement('span');
-                    label.textContent = color;
-
-                    wrap.appendChild(dot);
-                    wrap.appendChild(label);
-
-                    if (reachable) {
-                        wrap.addEventListener('click', () => {
-                            selColor = color;
-                            const match = (selRAM && selStorage && selColor) ? findVariant(selRAM, selStorage, selColor) : null;
-                            if (match) {
-                                window.location.href = `/product/${match.productId}?variant=${match._id}`;
-                            } else {
-                                renderAll();
-                                resolveVariant();
-                            }
-                        });
-                    }
-                    colorRow.appendChild(wrap);
-                });
-            }
-
-            // Helper: check reachability with hypothetical state
-            function isReachableWith(key, val, ram, storage, color) {
-                if (key === 'storage') {
-                    return ALL_VARIANTS.some(v =>
-                        Number(v.storage) === Number(val) &&
-                        (ram == null || Number(v.RAM) === Number(ram))
-                    );
-                }
-                if (key === 'color') {
-                    return ALL_VARIANTS.some(v =>
-                        v.color === val &&
-                        (ram == null || Number(v.RAM) === Number(ram)) &&
-                        (storage == null || Number(v.storage) === Number(storage))
-                    );
-                }
-                return false;
-            }
-
-            function renderAll() {
-                renderRAM();
-                renderStorage();
-                renderColors();
-            }
-
-            // ── Resolve which variant matches selection & update UI ─────────────
-            function resolveVariant() {
-                variantMsg.classList.remove('show', 'msg-unavail', 'msg-stock');
-
-                if (selRAM == null || selStorage == null || selColor == null) return;
-
-                const match = findVariant(selRAM, selStorage, selColor);
-
-                if (!match) {
-                    variantMsgText.textContent =
-                        `No product available for ${selRAM} GB RAM · ${selStorage} GB · ${selColor}. ` +
-                        `Please choose a different combination.`;
-                    variantMsg.classList.add('show', 'msg-unavail');
-                    setActionsDisabled(true);
-                    return;
-                }
-
-                // Inactive variant
-                if (!match.IsActive) {
-                    variantMsgText.textContent = 'This product is unavailable.';
-                    variantMsg.classList.add('show', 'msg-unavail');
-                    setActionsDisabled(true);
-
-                    // Hide stock block and qty
-                    const sb = document.getElementById('stockBlock');
-                    if (sb) sb.innerHTML = '';
-                    document.getElementById('qtyBlock').style.display = 'none';
-
-                    // Show generic placeholder instead of real images
-                    setMainImage('/images/placeholder.png', 0);
-                    const thumbsContainer = document.querySelector('.gallery-thumbs');
-                    if (thumbsContainer) thumbsContainer.innerHTML = '';
-                    allImages.length = 0;
-                    allImages.push('/images/placeholder.png');
-
-                    updateURL(match);
-                    currentVariantId = match._id;
-                    return;
-                }
-
-                // Allow purchase if at least 1 is in stock
-                if (match.stock <= 0) {
-                    variantMsgText.textContent = 'This variant is currently out of stock. Check back soon.';
-                    variantMsg.classList.add('show', 'msg-stock');
-                    setActionsDisabled(true);
-                    updatePriceUI(match);
-                    updateStockUI(match);
-                    document.getElementById('qtyBlock').style.display = 'none';
-                    return;
-                }
-
-                variantMsg.classList.remove('show');
-                updatePriceUI(match);
-                updateStockUI(match);
-                updateButtonVariant(match);
-                updateQtyBlock(match);
-                updateGalleryImages(match);
-                updateURL(match);
-
-                currentVariantId = match._id;
-                alreadyInCart = 0; // Reset — actual server value fetched on next page load
-                // (For live tracking, would need a quick fetch, but this is fine UX-wise)
-
-                setActionsDisabled(false);
-            }
-
-            // ── Update price display ────────────────────────────────────────────
-            function updatePriceUI(v) {
-                document.getElementById('priceMain').textContent =
-                    '₹' + Number(v.price).toLocaleString('en-IN');
-
-                const oldEl = document.getElementById('priceOld');
-                const saveEl = document.getElementById('priceSave');
-
-                if (v.oldPrice && v.oldPrice > v.price) {
-                    const pct = Math.round(((v.oldPrice - v.price) / v.oldPrice) * 100);
-                    oldEl.textContent = '₹' + Number(v.oldPrice).toLocaleString('en-IN');
-                    saveEl.textContent = pct + '% OFF';
-                    oldEl.style.display = '';
-                    saveEl.style.display = '';
-                } else {
-                    oldEl.style.display = 'none';
-                    saveEl.style.display = 'none';
-                }
-            }
-
-            // ── Update stock badge ──────────────────────────────────────────────
-            function updateStockUI(v) {
-                const sb = document.getElementById('stockBlock');
-                if (!sb) return;
-                if (v.stock > 10) {
-                    sb.innerHTML = `<span class="stock-badge badge-in-stock"><i class="fas fa-check-circle"></i> In Stock</span>`;
-                } else if (v.stock > 0) {
-                    sb.innerHTML = `<span class="stock-badge badge-low-stock"><i class="fas fa-exclamation-triangle"></i> Only ${v.stock} left</span>`;
-                } else {
-                    sb.innerHTML = `<span class="stock-badge badge-out-stock"><i class="fas fa-times-circle"></i> Sold Out</span>`;
-                }
-            }
-
-            // ── Update action buttons with new pid/vid ──────────────────────────
-            function updateButtonVariant(v) {
-                ['btnAddToCart', 'btnBuyNow'].forEach(id => {
-                    const btn = document.getElementById(id);
-                    if (btn) { btn.dataset.pid = v.productId; btn.dataset.vid = v._id; }
-                });
-            }
-
-            // ── Update qty block & hint ─────────────────────────────────────────
-            function updateQtyBlock(v) {
-                const qtyBlock = document.getElementById('qtyBlock');
-                const qtyVal = document.getElementById('qtyVal');
-                const qtyHint = document.getElementById('qtyHint');
-
-                if (v.stock <= 1) { qtyBlock.style.display = 'none'; return; }
-
-                qtyBlock.style.display = 'flex';
-                const maxQty = Math.min(MAX_CART_QTY, v.stock);
-
-                qtyVal.value = 1;
-                document.getElementById('qtyMinus').disabled = true;
-                document.getElementById('qtyPlus').disabled = maxQty <= 1;
-            }
-
-            // ── Update gallery if variant has different images ──────────────────
-            function updateGalleryImages(v) {
-                if (!v.images || v.images.length === 0) return;
-                // Update main image
-                setMainImage(v.images[0], 0);
-                // Rebuild thumbnails
-                const thumbsContainer = document.querySelector('.gallery-thumbs');
-                if (!thumbsContainer) return;
-                thumbsContainer.innerHTML = '';
-                v.images.forEach((src, i) => {
-                    const d = document.createElement('div');
-                    d.className = 'thumb' + (i === 0 ? ' active' : '');
-                    d.dataset.src = src;
-                    d.dataset.idx = i;
-                    d.setAttribute('role', 'button');
-                    d.setAttribute('tabindex', '0');
-                    d.setAttribute('aria-label', `View image ${i + 1} of ${v.images.length}`);
-                    d.innerHTML = `<img src="${src}" alt="Product image ${i + 1}">`;
-                    d.addEventListener('click', () => setMainImage(src, i));
-                    d.addEventListener('keydown', e => {
-                        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setMainImage(src, i); }
-                    });
-                    thumbsContainer.appendChild(d);
-                });
-                // Re-sync allImages array for fullscreen
-                allImages.length = 0;
-                v.images.forEach(s => allImages.push(s));
-            }
-
-            // ── Push new URL without reload ─────────────────────────────────────
-            function updateURL(v) {
-                const url = `/product/${encodeURIComponent(v.productId)}?variant=${encodeURIComponent(v._id)}`;
-                window.history.replaceState({ variantId: v._id }, '', url);
-            }
-
-            function setActionsDisabled(off) {
-                ['btnAddToCart', 'btnBuyNow'].forEach(id => {
-                    const btn = document.getElementById(id);
-                    if (btn) btn.disabled = off;
-                });
-            }
-
-            // ── Render all variant sections ────────────────────────────────────
-            renderAll();
-            resolveVariant();
-
-            /* ═══════════════════════════════════════════════════════════════════
-               QUANTITY CONTROL
-               Max = min(MAX_CART_QTY - alreadyInCart, currentStock)
-            ═══════════════════════════════════════════════════════════════════ */
-            function getCurrentStock() {
-                const v = ALL_VARIANTS.find(x => x._id === currentVariantId);
-                return v ? v.stock : parseInt(document.getElementById('__data_stockQty__').textContent, 10) || 0;
-            }
-
-            function changeQty(delta) {
-                const inp = document.getElementById('qtyVal');
-                if (!inp) return;
-
-                const stock = getCurrentStock();
-                const maxQty = Math.min(MAX_CART_QTY, stock);
-
-                const current = parseInt(inp.value, 10);
-
-                if (delta > 0 && current >= maxQty) {
+            // Failure cases
+            if (!data.success) {
+                if (data.limitReached) {
+                    alreadyInCart = MAX_CART_QTY;
                     Swal.fire({
                         ...swalBase,
                         icon: 'warning',
-                        title: 'Quantity Limit Reached',
-                        html: `Only can buy ${MAX_CART_QTY} products at once`,
-                        confirmButtonText: 'Got it',
-                        customClass: { popup: 'swal-dark-popup' }
-                    })
+                        title: 'Cart Limit Reached',
+                        html: `<span style="color:var(--text-dim)">${data.message || `You can only add up to <strong>${MAX_CART_QTY}</strong> units.`}</span>`,
+                        confirmButtonText: 'View Cart',
+                        showCancelButton: true,
+                        cancelButtonText: 'Continue Shopping'
+                    }).then(r => { if (r.isConfirmed) window.location.href = '/cart'; });
                     return;
                 }
 
-                let newVal = Math.max(1, Math.min(current + delta, maxQty));
-                inp.value = newVal;
-
-                document.getElementById('qtyMinus').disabled = (newVal <= 1);
-                document.getElementById('qtyPlus').disabled = (newVal >= maxQty);
-            }
-
-            /* ═══════════════════════════════════════════════════════════════════
-               SWEETALERT HELPERS
-            ═══════════════════════════════════════════════════════════════════ */
-            const swalBase = {
-                background: '#1c1c1f',
-                color: '#f1f5f9',
-                confirmButtonColor: '#6366f1',
-                cancelButtonColor: '#334155',
-            };
-
-            function showLimitSwal(canAddMore) {
-                const isHard = canAddMore <= 0;
                 Swal.fire({
                     ...swalBase,
-                    icon: 'warning',
-                    title: isHard ? 'Cart Limit Reached' : 'Added to Cart',
-                    html: isHard
-                        ? `<span style="color:var(--text-dim)">You already have the maximum of <strong style="color:var(--accentt)">${MAX_CART_QTY}</strong> units in your cart.</span>`
-                        : `<span style="color:var(--text-dim)">You can still add <strong style="color:var(--accentt)">${canAddMore}</strong> more unit${canAddMore === 1 ? '' : 's'}.</span>`,
-                    confirmButtonText: 'View Cart',
-                    showCancelButton: true,
-                    cancelButtonText: 'Continue Shopping',
-                }).then(r => { if (r.isConfirmed) window.location.href = '/cart'; });
+                    icon: 'error',
+                    title: 'Could not add to cart',
+                    text: data.message || 'Something went wrong. Please try again.'
+                });
+                return;
             }
 
-            /* ═══════════════════════════════════════════════════════════════════
-               ADD TO CART
-            ═══════════════════════════════════════════════════════════════════ */
-            async function addToCart() {
-                const btn = document.getElementById('btnAddToCart');
-                const pid = btn.dataset.pid;
-                const vid = btn.dataset.vid;
+            /* ── SUCCESS ─────────────────────────────────────── */
+            // Update local tracker with server truth
+            alreadyInCart = data.newQty;
 
-                const qty = 1; // ✅ FIX: Always 1 for Add to Cart
-
-                if (!pid || !vid) return;
-
-                // Pre-flight: already at max?
-                if (alreadyInCart >= MAX_CART_QTY) {
-                    showLimitSwal(0);
-                    return;
-                }
-
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding…';
-
-                try {
-                    const res = await fetch('/cart/add', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-                            productId: pid,
-                            variantId: vid,
-                            quantity: qty // ✅ always 1
-                        }),
-                    });
-
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
-
-                    if (data.requiresAuth || data.redirect) {
-                        window.location.href = '/signin';
-                        return;
-                    }
-
-                    if (!data.success) {
-                        if (data.limitReached) {
-                            alreadyInCart = MAX_CART_QTY;
-                            showLimitSwal(0);
-                            return;
-                        }
-                        Swal.fire({
-                            ...swalBase,
-                            icon: 'error',
-                            title: 'Oops!',
-                            text: data.message || 'Something went wrong.'
-                        });
-                        return;
-                    }
-
-                    // ── Success ──────────────────────────────────────────────
-                    alreadyInCart = data.newQty;
-
-                    // Update navbar badge
-                    const badge = document.querySelector('.cart-badge');
-                    if (badge && data.cartCount !== undefined) {
-                        badge.textContent = data.cartCount;
-                    }
-
-                    const canAddMore = MAX_CART_QTY - alreadyInCart;
-
-                    updateQtyBlock(
-                        ALL_VARIANTS.find(v => v._id === currentVariantId)
-                        || { stock: getCurrentStock() }
-                    );
-
-                    if (data.limitReached || canAddMore <= 0) {
-                        showLimitSwal(0);
-                    } else {
-                        Swal.fire({
-                            ...swalBase,
-                            toast: true,
-                            position: 'top-end',
-                            icon: 'success',
-                            title: 'Added to cart!',
-                            html: `<span style="font-size:.76rem;color:var(--text-dim)">
-                        You can add <strong style="color:#00ff04">${canAddMore}</strong> more unit${canAddMore === 1 ? '' : 's'}
-                       </span>`,
-                            showConfirmButton: false,
-                            timer: 1500,
-                            timerProgressBar: true,
-                            iconColor: '#00d4a0',
-                        }).then(() => {
-                            window.location.reload();
-                        });
-                       
-                    } // end else
-
-                } catch (err) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
-                    console.error('addToCart error:', err);
-                    Swal.fire({
-                        ...swalBase,
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Something went wrong. Please try again.',
-                    });
-                }
-            }
-            /* ═══════════════════════════════════════════════════════════════════
-               BUY NOW — redirects directly to dedicated checkout (bypasses cart)
-            ═══════════════════════════════════════════════════════════════════ */
-            function buyNow() {
-                const btn = document.getElementById('btnBuyNow');
-                const pid = btn.dataset.pid;
-                const vid = btn.dataset.vid;
-                const qty = parseInt(document.getElementById('qtyVal')?.value || '1', 10);
-
-                if (!pid || !vid) return;
-
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing…';
-
-                // Redirect straight to the buy-now checkout; no cart mutation needed.
-                window.location.href = `/checkout/buy-now?product=${encodeURIComponent(pid)}&variant=${encodeURIComponent(vid)}&qty=${qty}`;
-            }
-            // Wishlist Toggle
-            async function toggleWishlistDetail(productId) {
-                const btn = document.getElementById('btnWishlist');
-                const icon = btn.querySelector('i');
-                const text = document.getElementById('wishlistText');
-                const originalIconClass = icon.className;
-                const originalText = text.textContent;
-
-                try {
-                    btn.style.pointerEvents = 'none';
-                    icon.className = 'fas fa-spinner fa-spin';
-                    text.textContent = 'Processing...';
-
-                    const response = await fetch('/wishlist/toggle', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ productId })
-                    });
-
-                    if (response.status === 401) {
-                        icon.className = originalIconClass;
-                        text.textContent = originalText;
-                        btn.style.pointerEvents = '';
-                        return Swal.fire({
-                            background: '#141416',
-                            color: '#eaeaea',
-                            confirmButtonColor: '#00ff04',
-                            icon: 'warning',
-                            title: 'Sign In Required',
-                            text: 'Please log in to add items to your wishlist.',
-                            confirmButtonText: 'Sign In',
-                            showCancelButton: true
-                        }).then(r => { if (r.isConfirmed) window.location.href = '/signin'; });
-                    }
-
-                    const data = await response.json();
-                    if (data.success) {
-                        const btn = document.getElementById('btnWishlist');
-                        const icon = btn.querySelector('i');
-                        const text = document.getElementById('wishlistText');
-
-                        if (data.action === 'added') {
-                            btn.classList.add('active');
-                            icon.className = 'fas fa-heart';
-                            icon.style.color = '#e63946';
-                            text.textContent = 'Remove from Wishlist';
-                        } else {
-                            btn.classList.remove('active');
-                            icon.className = 'far fa-heart';
-                            icon.style.color = '';
-                            text.textContent = 'Add to Wishlist';
-                        }
-
-                        Swal.fire({
-                            toast: true, position: 'top-end', icon: 'success',
-                            title: data.action === 'added' ? 'Added to wishlist!' : 'Removed from wishlist',
-                            showConfirmButton: false, timer: 1500,
-                            background: '#1a1d24', color: '#f0f0f2',
-                            iconColor: data.action === 'added' ? '#4ade80' : '#e63946'
-                        }).then(() => {
-                            window.location.reload();
-                        });
-                    }
-                } catch (err) {
-                    console.error("Wishlist Toggle Error:", err);
-                    icon.className = originalIconClass;
-                    text.textContent = originalText;
-                } finally {
-                    btn.style.pointerEvents = '';
-                }
+            // Update navbar badge (FIX: server now returns distinct item count)
+            const badge = document.querySelector('.cart-badge');
+            if (badge && data.cartCount !== undefined) {
+                badge.textContent = data.cartCount;
             }
 
+            const canAddMore = MAX_CART_QTY - alreadyInCart;
 
-        </script>
+            const toastHtml = canAddMore <= 0
+                ? `<span style="font-size:.76rem;color:var(--text-dim)">You've reached the maximum limit for this product.</span>`
+                : `<span style="font-size:.76rem;color:var(--text-dim)">You can add <strong style="color:#4f6ef7">${canAddMore}</strong> more unit${canAddMore === 1 ? '' : 's'}</span>`;
+
+            Swal.fire({
+                ...swalBase,
+                toast:            true,
+                position:         'top-end',
+                icon:             'success',
+                title:            'Added to cart!',
+                html:             toastHtml,
+                showConfirmButton: false,
+                timer:            1500,
+                timerProgressBar: true,
+                iconColor:        '#00d4a0',
+            }).then(() => {
+                window.location.reload();
+            });
+
+        } catch (err) {
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
+            console.error('addToCart error:', err);
+            Swal.fire({
+                ...swalBase,
+                icon:  'error',
+                title: 'Error',
+                text:  'Something went wrong. Please try again.',
+            });
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       BUY NOW
+    ═══════════════════════════════════════════════════════════════ */
+    function buyNow() {
+        const btn = document.getElementById('btnBuyNow');
+        if (!btn || btn.disabled) return;
+
+        const pid = btn.dataset.pid;
+        const vid = btn.dataset.vid;
+        const qty = parseInt(document.getElementById('qtyVal')?.value || '1', 10);
+
+        if (!pid || !vid) return;
+
+        if (!IS_LOGGED_IN) {
+            const currentPath = window.location.pathname + window.location.search;
+            window.location.href = `/signin?returnTo=${encodeURIComponent(currentPath)}`;
+            return;
+        }
+
+        btn.disabled  = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing…';
+
+        window.location.href = `/checkout/buy-now?product=${encodeURIComponent(pid)}&variant=${encodeURIComponent(vid)}&qty=${qty}`;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       WISHLIST TOGGLE
+    ═══════════════════════════════════════════════════════════════ */
+    async function toggleWishlistDetail(productId) {
+        const btn  = document.getElementById('btnWishlist');
+        const icon = btn.querySelector('i');
+        const text = document.getElementById('wishlistText');
+
+        const originalIconClass = icon.className;
+        const originalText      = text.textContent;
+
+        btn.style.pointerEvents = 'none';
+        icon.className          = 'fas fa-spinner fa-spin';
+        text.textContent        = 'Processing...';
+
+        try {
+            const response = await fetch('/wishlist/toggle', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({ productId })
+            });
+
+            if (response.status === 401) {
+                icon.className          = originalIconClass;
+                text.textContent        = originalText;
+                btn.style.pointerEvents = '';
+
+                return Swal.fire({
+                    background:           '#141416',
+                    color:                '#eaeaea',
+                    confirmButtonColor:   '#4f6ef7',
+                    icon:                 'warning',
+                    title:                'Sign In Required',
+                    text:                 'Please log in to add items to your wishlist.',
+                    confirmButtonText:    'Sign In',
+                    showCancelButton:     true
+                }).then(r => { if (r.isConfirmed) window.location.href = '/signin'; });
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                const isAdded = data.action === 'added';
+
+                btn.classList.toggle('active', isAdded);
+                icon.className      = isAdded ? 'fas fa-heart' : 'far fa-heart';
+                icon.style.color    = isAdded ? '#e63946' : '';
+                text.textContent    = isAdded ? 'Remove from Wishlist' : 'Add to Wishlist';
+
+                Swal.fire({
+                    toast:              true,
+                    position:           'top-end',
+                    icon:               'success',
+                    title:              isAdded ? 'Added to wishlist!' : 'Removed from wishlist',
+                    showConfirmButton:   false,
+                    timer:              1500,
+                    background:         '#1a1d24',
+                    color:              '#f0f0f2',
+                    iconColor:          isAdded ? '#4ade80' : '#e63946'
+                }).then(() => {
+                    window.location.reload();
+                });
+            } else {
+                icon.className   = originalIconClass;
+                text.textContent = originalText;
+            }
+
+        } catch (err) {
+            console.error('Wishlist Toggle Error:', err);
+            icon.className          = originalIconClass;
+            text.textContent        = originalText;
+        } finally {
+            btn.style.pointerEvents = '';
+        }
+    }
+    </script>
 </body>
-
 </html>

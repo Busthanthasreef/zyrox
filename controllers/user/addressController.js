@@ -1,4 +1,8 @@
 import Address from "../../models/address.js";
+import User from "../../models/user.js";
+import Category from "../../models/category.js";
+import Cart from "../../models/cart.js";
+import Wishlist from "../../models/wishlist.js";
 
 const LoadUserAddress = async (req, res) => {
   try {
@@ -15,10 +19,22 @@ const LoadUserAddress = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
+    const [user, categories, cartItemCount, wishlist] = await Promise.all([
+      User.findById(userId),
+      Category.find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } }).lean(),
+      Cart.findOne({ User_id: userId }).select("Items").lean().then(cart => cart?.Items?.length || 0),
+      Wishlist.findOne({ User_id: userId }).select("Products").lean().then(w => w?.Products?.length || 0)
+    ]);
+
     res.render('user/address/userAddress', { 
+      user,
       address: addresses.length > 0 ? addresses : null,
-      currentPage: page,
-      totalPages: totalPages
+      currentPage: 'address',
+      page: page,
+      totalPages: totalPages,
+      categories,
+      cartItemCount,
+      wishlistCount: wishlist
     });
   } catch (error) {
     console.error("Load Address Error:", error);
@@ -31,11 +47,18 @@ const loadAddAddress = async (req, res) => {
   const formData  = req.session.addressFormData || {};
   const isDuplicate = req.session.isDuplicate   || false;
 
+  const userId = req.session.user._id;
+  const [categories, cartItemCount, wishlist] = await Promise.all([
+    Category.find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } }).lean(),
+    Cart.findOne({ User_id: userId }).select("Items").lean().then(cart => cart?.Items?.length || 0),
+    Wishlist.findOne({ User_id: userId }).select("Products").lean().then(w => w?.Products?.length || 0)
+  ]);
+
   delete req.session.addressErrors;
   delete req.session.addressFormData;
   delete req.session.isDuplicate;
 
-  res.render('user/address/addAddress', { errors, isDuplicate, ...formData });
+  res.render('user/address/addAddress', { errors, isDuplicate, ...formData, categories, cartItemCount, wishlistCount: wishlist, currentPage: 'address', user: req.session.user });
 }
 
 const addAddress = async (req, res) => {
@@ -154,7 +177,12 @@ const loadEditAddress = async (req, res) => {
   try {
     const addressId = req.params.id;
     const userId = req.session.user._id;
-    const address = await Address.findOne({ _id: addressId, userId });
+    const [address, categories, cartItemCount, wishlist] = await Promise.all([
+      Address.findOne({ _id: addressId, userId }),
+      Category.find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } }).lean(),
+      Cart.findOne({ User_id: userId }).select("Items").lean().then(cart => cart?.Items?.length || 0),
+      Wishlist.findOne({ User_id: userId }).select("Products").lean().then(w => w?.Products?.length || 0)
+    ]);
     
     if (!address) {
       return res.redirect("/address");
@@ -171,7 +199,12 @@ const loadEditAddress = async (req, res) => {
     res.render('user/address/editAddress', { 
       address: formData ? { ...formData, _id: addressId } : address, 
       errors, 
-      isDuplicate 
+      isDuplicate,
+      categories,
+      cartItemCount,
+      wishlistCount: wishlist,
+      currentPage: 'address',
+      user: req.session.user
     });
   } catch (error) {
     console.error("Load Edit Address Error:", error);

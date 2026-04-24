@@ -2,155 +2,332 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Addresses - Zyrox</title>
-  <link rel="stylesheet" href="/userStyles/profile/profileShared.css">
-  <link rel="stylesheet" href="/userStyles/address/userAddress.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Addresses - Zyrox</title>
+    <link rel="stylesheet" href="/userStyles/profile/profileShared.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --bg-deep: #0c0f1a;
+            --bg-card: #141824;
+            --bg-band: #1c2233;
+            --accent-green: #00d4aa;
+            --accent-blue: #4f6ef7;
+            --text-main: #f0f2ff;
+            --text-dim: #8b92b8;
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        body { background: var(--bg-deep); color: var(--text-main); font-family: 'Inter', sans-serif; }
+
+        .main-container { display: flex; min-height: 100vh; align-items: flex-start; padding-top: 80px; }
+
+        /* ── DESKTOP SIDEBAR ── */
+        .sidebar-container { width: 280px; border-right: 1px solid var(--border); }
+        @media (max-width: 992px) { .sidebar-container { display: none; } }
+
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; }
+
+        /* ── MOBILE HEADER ── */
+        .mobile-page-title {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        /* ── CONTENT AREA ── */
+        .content-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+
+        /* ── ADD BUTTON ── */
+        .btn-add-new {
+            background: #64a1f4;
+            color: #fff;
+            width: 100%;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            text-decoration: none;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(100, 161, 244, 0.3);
+        }
+        .btn-add-new:hover { transform: translateY(-2px); filter: brightness(1.1); color: #fff; }
+
+        /* ── ADDRESS CARDS ── */
+        .address-card-zyrox {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: 0.3s;
+            position: relative;
+        }
+        .address-card-zyrox.active {
+            border-color: rgba(0, 212, 170, 0.3);
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.1);
+        }
+        
+        .card-top-section {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .user-name-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .status-dot-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.2);
+            color: transparent;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .active .status-dot-icon {
+            background: rgba(0, 212, 170, 0.2);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            box-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+        }
+        
+        .user-name-text { font-size: 1.15rem; font-weight: 700; color: #fff; }
+        
+        .card-actions { display: flex; gap: 8px; }
+        .action-btn-zyrox {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .action-btn-zyrox:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+        .address-details-body { padding: 0 20px 20px 56px; }
+        .address-line {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+            position: relative;
+        }
+        .address-line::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 8px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-green);
+        }
+
+        /* ── BOTTOM BAND ── */
+        .card-bottom-band {
+            background: var(--bg-band);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+        }
+        
+        .default-indicator {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+        }
+        .active .default-indicator { color: var(--accent-green); }
+        
+        .type-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #4f8cf7;
+            text-transform: uppercase;
+        }
+        
+        .phone-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+        .phone-indicator i { color: #4f8cf7; }
+
+        /* ── PAGINATION ── */
+        .pagination-zyrox { display: flex; justify-content: center; gap: 8px; margin-top: 20px; margin-bottom: 100px; }
+        .pag-item {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .pag-item.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(79, 110, 247, 0.3); }
+        .pag-item:hover:not(.active) { background: rgba(255,255,255,0.05); }
+
+        /* Mobile specific spacing */
+        @media (max-width: 992px) {
+            .main-wrapper { padding-bottom: 80px; }
+            .content-container { padding: 15px; }
+        }
+    </style>
 </head>
 
 <body>
-  <div class="main-container" style="background-color: #111422;">
-    <%- include('../../partials/user/profileSidebar', { activePage: 'address' }) %>
+    <%- include('../../partials/user/navigationbar') %>
+    <div class="main-container">
+        <aside class="sidebar-container">
+            <%- include('../../partials/user/profileSidebar', { activePage: 'address' }) %>
+        </aside>
 
-      <main class="main-wrapper" style="background-color: #111422; margin-top: 50px; ">
-        <div id="profile-card-container">
-          <div class="card" style="background-color: #111422; border: 4px aliceblue;">
+        <main class="main-wrapper">
+            
+            <div class="content-container">
+                <h1 class="mobile-page-title">Shipping Addresses</h1>
+                
+                <a href="/address-add" class="btn-add-new">
+                    <i class="fa-solid fa-plus"></i> Add New Address
+                </a>
 
-          <div class="d-flex justify-content-between align-items-center mb-5">
-            <h3 class="m-0" style="color: white;">Shipping Addresses</h3>
-            <a href="/address-add" class="btn-add">
-              <i class="fa-solid fa-plus"></i> Add New Address
-            </a>
-          </div>
+                <% if (address && address.length > 0) { %>
+                    <div class="address-list-zyrox">
+                        <% address.forEach(function(addr) { %>
+                            <div class="address-card-zyrox <%= addr.isDefault ? 'active' : '' %>" id="address-<%= addr._id %>">
+                                <div class="card-top-section">
+                                    <div class="user-name-row">
+                                        <div class="status-dot-icon" onclick="setDefaultAddress('<%= addr._id %>')">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <div class="user-name-text"><%= addr.name %></div>
+                                    </div>
+                                    <div class="card-actions">
+                                        <a href="/address-edit/<%= addr._id %>" class="action-btn-zyrox"><i class="fas fa-pen"></i></a>
+                                        <button class="action-btn-zyrox" onclick="deleteAddress('<%= addr._id %>')"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
 
-            <% if (address && address.length> 0) { %>
-              <div class="address-list">
-                <% address.forEach(function(addr) { %>
+                                <div class="address-details-body">
+                                    <div class="address-line">
+                                        <%= addr.houseName %>, <%= addr.locality %><br>
+                                        <%= addr.city %>, <%= addr.state %> <%= addr.pincode %>
+                                    </div>
+                                </div>
 
-                  <div class="address-card <%= addr.isDefault ? 'active' : '' %>" id="address-<%= addr._id %>">
-                    <div class="card-topbar">
-                      <div class="topbar-left">
-                        <div class="custom-radio-wrap">
-                          <input type="radio" name="defaultAddress" id="radio-<%= addr._id %>" class="default-radio"
-                            <%=addr.isDefault ? 'checked' : '' %>
-                          onclick="setDefaultAddress('<%= addr._id %>')"/>
-                            <label for="radio-<%= addr._id %>" class="radio-label"></label>
-                        </div>
-
-                        <span class="status-badge <%= addr.isDefault ? 'default' : 'set-default' %>"
-                          onclick="setDefaultAddress('<%= addr._id %>')">
-                          <% if (addr.isDefault) { %>
-                            <i class="bi bi-patch-check-fill me-1"></i> Default
-                            <% } else { %>
-                              Set as Default
-                              <% } %>
-                        </span>
-                      </div>
-
-                      <span class="type-tag">
-                        <i
-                          class="fa-solid fa-<%= addr.addressType === 'Work' ? 'briefcase' : addr.addressType === 'Others' ? 'map-pin' : 'house' %> me-1"></i>
-                        <%= addr.addressType %>
-                      </span>
+                                <div class="card-bottom-band">
+                                    <div class="default-indicator" onclick="setDefaultAddress('<%= addr._id %>')">
+                                        <%= addr.isDefault ? 'DEFAULT' : 'SET AS DEFAULT' %>
+                                    </div>
+                                    <div class="type-indicator">
+                                        <i class="fas fa-home"></i> <%= addr.addressType %>
+                                    </div>
+                                    <div class="phone-indicator">
+                                        <i class="fas fa-phone"></i> <%= addr.phone %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
                     </div>
 
-                    <div class="card-body-inner">
-                      <div class="addr-left">
-                        <p class="customer-name">
-                          <%= addr.name %>
-                        </p>
-                        <div class="addr-detail-block">
-                          <div class="addr-row">
-                            <span class="dot"></span>
-                            <span>
-                              <%= addr.houseName %>, <%= addr.locality %>
-                            </span>
-                          </div>
-                          <div class="addr-row">
-                            <span style="width: 8px; flex-shrink: 0;"></span>
-                            <span>
-                              <%= addr.city %>, <%= addr.state %>
-                                  <%= addr.pincode %>
-                            </span>
-                          </div>
+                    <% if (totalPages > 1) { %>
+                        <div class="pagination-zyrox">
+                            <% if (currentPage > 1) { %>
+                                <a href="/address?page=<%= currentPage - 1 %>" class="pag-item"><i class="fas fa-chevron-left"></i></a>
+                            <% } %>
+                            
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                <a href="/address?page=<%= i %>" class="pag-item <%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+                            <% } %>
+
+                            <% if (currentPage < totalPages) { %>
+                                <a href="/address?page=<%= currentPage + 1 %>" class="pag-item"><i class="fas fa-chevron-right"></i></a>
+                            <% } %>
                         </div>
-                      </div>
-
-                      <div class="addr-center">
-                        <div class="phone-block">
-                          <div class="ph-num">
-                            <i class="fa-solid fa-phone"></i>
-                            <%= addr.phone %>
-                          </div>
-                          <div class="ph-country">
-                            <%= addr.country %>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="addr-right">
-                        <div class="action-btns">
-                          <a href="/address-edit/<%= addr._id %>" class="btn-action-sm btn-edit-sm" title="Edit">
-                            <i class="fa-solid fa-pen"></i>
-                          </a>
-                          <button class="btn-action-sm btn-delete-sm" onclick="deleteAddress('<%= addr._id %>')"
-                            title="Delete">
-                            <i class="fa-solid fa-trash"></i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <% }); %>
-              </div>
-
-              <% if (totalPages> 1) { %>
-                <div class="pagination-container mt-5">
-                  <a href="/address?page=<%= currentPage - 1 %>"
-                    class="pagination-link ajax-link <%= currentPage === 1 ? 'disabled' : '' %>">
-                    <i class="bi bi-chevron-left"></i>
-                  </a>
-                  <% for (let i=1; i <=totalPages; i++) { %>
-                    <a href="/address?page=<%= i %>"
-                      class="pagination-link ajax-link <%= currentPage === i ? 'active' : '' %>">
-                      <%= i %>
-                    </a>
                     <% } %>
-                      <a href="/address?page=<%= currentPage + 1 %>"
-                        class="pagination-link ajax-link <%= currentPage === totalPages ? 'disabled' : '' %>">
-                        <i class="bi bi-chevron-right"></i>
-                      </a>
-                </div>
+
+                <% } else { %>
+                    <div class="text-center py-5">
+                        <i class="fas fa-location-dot fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No addresses saved yet.</p>
+                    </div>
                 <% } %>
+            </div>
+            
+            <% if (typeof addressSuccess !== 'undefined' && addressSuccess) { %>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: '<%= addressSuccess %>',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            background: '#141824',
+                            color: '#e8eaf6'
+                        });
+                    });
+                </script>
+            <% } %>
+        </main>
+    </div>
 
-                  <% } else { %>
-                    <div class="empty-state">
-                      <div class="empty-icon-wrap">
-                        <i class="fa-solid fa-location-dot"></i>
-                      </div>
-                      <h4 class="fw-bold text-white mb-2">No addresses saved</h4>
-                      <p class="text-muted mb-4">You haven't added any shipping addresses to your account yet.</p>
-                      <a href="/address-add" class="btn-add-empty">
-                        <i class="fa-solid fa-plus me-2"></i> Add Your First Address
-                      </a>
-                    </div>
-                    <% } %>
-          </div>
-        </div>
-      </main>
-  </div>
+    <%- include('../../partials/user/bottomNav', { activePage: 'address' }) %>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/js/userProfile.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/userProfile.js"></script>
 </body>
 
 </html>

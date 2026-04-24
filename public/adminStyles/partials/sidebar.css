@@ -2,11 +2,21 @@
    SIDEBAR NAVIGATION (ZYROX ADMIN)
    ===================== */
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
 :root {
   --admin-sidebar-w: 260px;
   --admin-sidebar-bg: #111827;
   /* Deep Navy/Dark Gray */
-  --admin-accent: #e8522a;
+  --admin-accent: #4f6ef7;
   /* Zyrox Orange */
   --admin-text-dim: rgba(255, 255, 255, 0.6);
   --admin-text-bright: #ffffff;
@@ -32,7 +42,7 @@
   display: flex !important;
   flex-direction: column !important;
   padding: 0 !important;
-  position: sticky !important;
+  position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   z-index: 1000 !important;
@@ -92,24 +102,31 @@
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-item i {
   font-size: 16px;
   width: 20px;
   text-align: center;
+  transition: transform 0.2s ease;
 }
 
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.05);
   color: var(--admin-text-bright);
+  transform: translateX(4px);
+}
+
+.nav-item:hover i {
+  transform: scale(1.1);
 }
 
 .nav-item.active {
   background: rgba(255, 255, 255, 0.1);
   color: var(--admin-text-bright);
   font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .nav-item.text-danger:hover {
@@ -178,13 +195,60 @@
   border-radius: 10px;
 }
 
+/* Animation Utilities */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.animate-slide-in {
+  animation: slideInLeft 0.4s ease forwards;
+}
+
+.card-hover-effect {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease !important;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-5px) scale(1.01) !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Global Action Animations */
+button, .btn, .nav-item, .search-btn, .action-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+button:active, .btn:active {
+  transform: scale(0.96) !important;
+}
+
+input, select, textarea {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 110, 247, 0.15) !important;
+}
+
+.table tr {
+  transition: background-color 0.2s ease;
+}
+
+.table tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
 /* Main Content Wrapper (Consistency) */
 .admin-main {
   flex: 1;
   min-width: 0;
   min-height: 100vh;
+  margin-left: var(--admin-sidebar-w);
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeIn 0.5s ease-out;
 }
 
 /* Responsive */
@@ -195,9 +259,15 @@
 }
 
 @media (max-width: 992px) {
+  :root {
+    --admin-sidebar-w: 80px;
+  }
   .sidebar {
-    width: 80px !important;
-    min-width: 80px !important;
+    width: var(--admin-sidebar-w) !important;
+    min-width: var(--admin-sidebar-w) !important;
+  }
+  .admin-main {
+    margin-left: var(--admin-sidebar-w);
   }
 
   .sidebar-logo span,
@@ -263,8 +333,8 @@
     position: fixed !important;
     left: -100% !important;
     transition: left 0.3s ease !important;
-    width: var(--admin-sidebar-w) !important;
-    min-width: var(--admin-sidebar-w) !important;
+    width: 260px !important;
+    min-width: 260px !important;
   }
 
   .sidebar.mobile-show {
@@ -272,6 +342,7 @@
   }
 
   .admin-main {
+    margin-left: 0 !important;
     padding-top: 60px !important;
   }
 

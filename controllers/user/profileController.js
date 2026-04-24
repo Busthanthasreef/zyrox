@@ -1,6 +1,9 @@
 import generateOtp from "../../utils/otpGenerator.js"
 import userSchema from "../../models/user.js";
 import otpSchema from "../../models/otp.js"
+import Category from "../../models/category.js";
+import Cart from "../../models/cart.js";
+import Wishlist from "../../models/wishlist.js";
 import { sendOtpEmail } from "../../utils/otpController.js";
 import bcrypt from "bcryptjs";
 
@@ -37,7 +40,12 @@ const userProfile = async (req, res) => {
       return res.redirect("/signin");
     }
 
-    const user = await userSchema.findById(req.session.user._id);
+    const [user, categories, cartItemCount, wishlist] = await Promise.all([
+      userSchema.findById(req.session.user._id),
+      Category.find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } }).lean(),
+      Cart.findOne({ User_id: req.session.user._id }).select("Items").lean().then(cart => cart?.Items?.length || 0),
+      Wishlist.findOne({ User_id: req.session.user._id }).select("Products").lean().then(w => w?.Products?.length || 0)
+    ]);
 
     if (!user) {
       return res.redirect("/signin");
@@ -55,6 +63,8 @@ const userProfile = async (req, res) => {
     delete req.session.passwordErrors;
     delete req.session.passwordError;
     delete req.session.passwordSuccess;
+    const profileSuccess = req.session.profileSuccess || null;
+    delete req.session.profileSuccess;
 
     res.render("user/profile/userProfile", {
       user,
@@ -67,6 +77,11 @@ const userProfile = async (req, res) => {
       errors,
       errorMessage,
       successMessage,
+      profileSuccess,
+      categories,
+      cartItemCount,
+      wishlistCount: wishlist,
+      currentPage: 'profile'
     });
   } catch (error) {
     console.log("Profile Error:", error);
@@ -79,7 +94,12 @@ const userProfile = async (req, res) => {
 ========================= */
 const loadEditProfile = async (req, res) => {
   try {
-    const user = await userSchema.findById(req.session.user._id);
+    const [user, categories, cartItemCount, wishlist] = await Promise.all([
+      userSchema.findById(req.session.user._id),
+      Category.find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } }).lean(),
+      Cart.findOne({ User_id: req.session.user._id }).select("Items").lean().then(cart => cart?.Items?.length || 0),
+      Wishlist.findOne({ User_id: req.session.user._id }).select("Products").lean().then(w => w?.Products?.length || 0)
+    ]);
     const isGoogleUser = !!user.googleId;
 
     res.render("user/profile/editProfile", {
@@ -94,6 +114,10 @@ const loadEditProfile = async (req, res) => {
       phoneError: null,
       emailError: null,
       nameError: null,
+      categories,
+      cartItemCount,
+      wishlistCount: wishlist,
+      currentPage: 'profile'
     });
   } catch (error) {
     console.log("Edit Profile Load Error:", error);
@@ -193,6 +217,8 @@ const editProfile = async (req, res) => {
     req.session.user.Email = user.Email;
     req.session.user.Profile_image = user.Profile_image;
 
+    req.session.profileSuccess = "Profile updated successfully!";
+
     res.redirect("/profile");
   } catch (error) {
     console.log("Edit Profile Error:", error);
@@ -201,15 +227,20 @@ const editProfile = async (req, res) => {
 };
 
 
-const loadEditEmail=(req,res)=>{
+const loadEditEmail = async (req, res) => {
    try{
   
   const user= req.session.user;
   const userId=user._id;
+  const [categories, cartItemCount, wishlist] = await Promise.all([
+    Category.find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } }).lean(),
+    Cart.findOne({ User_id: userId }).select("Items").lean().then(cart => cart?.Items?.length || 0),
+    Wishlist.findOne({ User_id: userId }).select("Products").lean().then(w => w?.Products?.length || 0)
+  ]);
   const errors=req.session.formErrors ||{};
   delete req.session.formErrors;
 
-    res.render("user/profile/editEmail",{user,errors,userId})
+    res.render("user/profile/editEmail",{user,errors,userId, categories, cartItemCount, wishlistCount: wishlist, currentPage: 'profile'})
    }catch(error){
     console.log(error.message)
    }
@@ -306,7 +337,12 @@ const verifyEditEmailOtp = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    const user = await userSchema.findById(req.session.user._id);
+    const [user, categories, cartItemCount, wishlist] = await Promise.all([
+      userSchema.findById(req.session.user._id),
+      Category.find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } }).lean(),
+      Cart.findOne({ User_id: req.session.user._id }).select("Items").lean().then(cart => cart?.Items?.length || 0),
+      Wishlist.findOne({ User_id: req.session.user._id }).select("Products").lean().then(w => w?.Products?.length || 0)
+    ]);
     const isGoogleUser = !!user.googleId;
     const hasPassword = !!user.Password;
 
@@ -324,6 +360,10 @@ const changePassword = async (req, res) => {
       errorMessage,
       isGoogleUser,
       hasPassword,
+      categories,
+      cartItemCount,
+      wishlistCount: wishlist,
+      currentPage: 'profile'
     });
   } catch (error) {
     console.log("Change Password Load Error:", error);
@@ -359,6 +399,9 @@ const updatePassword = async (req, res) => {
 
     const isMatch = await bcrypt.compare(currentPassword, user.Password);
     if (!isMatch) {
+      if (req.headers.accept && req.headers.accept.includes('application/json')) {
+        return res.status(400).json({ success: false, message: "Incorrect current password" });
+      }
       req.session.passwordErrors = {
         currentPassword: "Incorrect current password",
       };
@@ -368,6 +411,10 @@ const updatePassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.Password = hashedPassword;
     await user.save();
+
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      return res.json({ success: true, message: "Password updated successfully!" });
+    }
 
     req.session.passwordSuccess = "Password updated successfully!";
     res.redirect("/profile");
@@ -404,6 +451,10 @@ const addPassword = async (req, res) => {
     user.Password = hashedPassword;
     await user.save();
 
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      return res.json({ success: true, message: "Password set successfully!" });
+    }
+
     req.session.passwordAddedToast = true;
     res.redirect("/profile");
   } catch (error) {
@@ -411,6 +462,28 @@ const addPassword = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
+
+const verifyCurrentPassword = async (req, res) => {
+  try {
+    const { currentPassword } = req.body;
+    const user = await userSchema.findById(req.session.user._id);
+
+    if (!user || !user.Password) {
+      return res.status(400).json({ success: false, message: "User not found or password not set" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.Password);
+    if (isMatch) {
+      return res.json({ success: true });
+    } else {
+      return res.status(400).json({ success: false, message: "Incorrect current password" });
+    }
+  } catch (error) {
+    console.error("Verify Password Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 
 export {
   userProfile,
@@ -422,4 +495,5 @@ export {
   updatePassword,
   addPassword,
   verifyEditEmailOtp,
+  verifyCurrentPassword,
 };

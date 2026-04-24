@@ -17,7 +17,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.loadCardContent = function (url, pushState = true) {
         const container = document.getElementById('profile-card-container');
-        if (!container) return;
+        if (!container) {
+            window.location.href = url;
+            return;
+        }
 
         container.style.opacity = '0.5';
         container.style.pointerEvents = 'none';
@@ -142,18 +145,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
 window.setDefaultAddress = function (id) {
     const card = document.getElementById(`address-${id}`);
-    const otherCards = document.querySelectorAll(`.address-card:not(#address-${id})`);
-    const statusBadge = card?.querySelector('.status-badge');
-    const listContainer = document.querySelector('.address-list');
+    const otherCards = document.querySelectorAll(`.address-card-zyrox:not(#address-${id})`);
+    const defaultIndicator = card?.querySelector('.default-indicator');
+    const listContainer = document.querySelector('.address-list-zyrox');
 
-    if (!card || !statusBadge) return;
+    if (!card) return;
+    if (card.classList.contains('active')) return; // Already default
 
-    const originalContent = statusBadge.innerHTML;
-    const originalClass   = statusBadge.className;
+    const originalContent = defaultIndicator ? defaultIndicator.innerHTML : '';
+    const originalClass   = defaultIndicator ? defaultIndicator.className : '';
 
     card.classList.add('switching');
     otherCards.forEach(c => c.classList.add('fade-out'));
-    statusBadge.innerHTML = `<span class="switching-text"><span class="spinner-small"></span> Updating...</span>`;
+    if (defaultIndicator) {
+        defaultIndicator.innerHTML = `<span class="switching-text"><span class="spinner-small"></span> Updating...</span>`;
+    }
 
     fetch(`/address-default/${id}`, { method: 'PATCH' })
         .then(res => res.json())
@@ -163,40 +169,42 @@ window.setDefaultAddress = function (id) {
                     if (listContainer) listContainer.prepend(card);
                     card.classList.remove('switching');
                     card.classList.add('active');
-                    statusBadge.innerHTML = `<i class="bi bi-patch-check-fill me-1"></i> Default Address`;
-                    statusBadge.className = 'status-badge default';
-                    const radio = card.querySelector('.default-radio');
-                    if (radio) radio.checked = true;
+                    
+                    if (defaultIndicator) {
+                        defaultIndicator.innerHTML = `DEFAULT`;
+                    }
 
                     otherCards.forEach(c => {
                         c.classList.remove('active', 'fade-out');
-                        const badge = c.querySelector('.status-badge');
-                        if (badge) { badge.innerHTML = 'Set as Default'; badge.className = 'status-badge set-default'; }
-                        const r = c.querySelector('.default-radio');
-                        if (r) r.checked = false;
+                        const ind = c.querySelector('.default-indicator');
+                        if (ind) { ind.innerHTML = 'SET AS DEFAULT'; }
                     });
 
                     setTimeout(() => {
-                        const url = window.location.pathname + window.location.search;
-                        window.loadCardContent ? window.loadCardContent(url, false) : window.location.reload();
+                        window.location.reload();
                     }, 800);
                 }, 600);
             } else {
                 card.classList.remove('switching');
                 otherCards.forEach(c => c.classList.remove('fade-out'));
-                statusBadge.innerHTML = originalContent;
-                statusBadge.className = originalClass;
+                if (defaultIndicator) {
+                    defaultIndicator.innerHTML = originalContent;
+                    defaultIndicator.className = originalClass;
+                }
                 Swal?.fire({ icon: 'error', title: 'Error', text: data.message || 'Could not update' });
             }
         })
         .catch(err => {
             card.classList.remove('switching');
             otherCards.forEach(c => c.classList.remove('fade-out'));
-            statusBadge.innerHTML = originalContent;
-            statusBadge.className = originalClass;
+            if (defaultIndicator) {
+                defaultIndicator.innerHTML = originalContent;
+                defaultIndicator.className = originalClass;
+            }
             console.error(err);
         });
 };
+
 
 window.deleteAddress = function (id) {
     const doDelete = () => window.performDelete(id);

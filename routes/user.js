@@ -57,6 +57,7 @@ userRoutes.get("/edit-email", isUserAuthenticated, profileController.loadEditEma
 userRoutes.post("/edit-email", isUserAuthenticated, profileController.editEmail)
 userRoutes.post("/verify-edit-email-otp", isUserAuthenticated, profileController.verifyEditEmailOtp);
 userRoutes.post("/resend-edit-email-otp", isUserAuthenticated, userController.resendOtp);
+userRoutes.post("/verify-current-password", isUserAuthenticated, profileController.verifyCurrentPassword);
 userRoutes.get("/change-password", isUserAuthenticated, profileController.changePassword);
 userRoutes.post("/change-password", isUserAuthenticated, profileController.updatePassword);
 userRoutes.get("/add-password", isUserAuthenticated, profileController.changePassword);

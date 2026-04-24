@@ -2,6 +2,8 @@ import walletSchema from "../../models/wallet.js";
 import categorySchema from "../../models/category.js";
 import WalletTransactions from "../../models/walletTransactions.js";
 import User from "../../models/user.js";
+import Cart from "../../models/cart.js";
+import Wishlist from "../../models/wishlist.js";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 
@@ -36,15 +38,22 @@ const getWallet = async (req, res) => {
         const totalTransactions = await WalletTransactions.countDocuments({ user: user._id });
         const totalPages = Math.ceil(totalTransactions / limit);
 
-        const categories = await categorySchema.find();
+        const [categories, cartItemCount, wishlist] = await Promise.all([
+            categorySchema.find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } }).lean(),
+            Cart.findOne({ User_id: user._id }).select("Items").lean().then(cart => cart?.Items?.length || 0),
+            Wishlist.findOne({ User_id: user._id }).select("Products").lean().then(w => w?.Products?.length || 0)
+        ]);
         
         res.render('user/wallet/walletPage', {
             wallet,
             user,
             categories,
             transactions,
-            currentPage: page,
+            currentPage: 'wallet',
+            page: page,
             totalPages,
+            cartItemCount,
+            wishlistCount: wishlist,
             razorpayKeyId: process.env.RAZORPAY_KEY_ID
         });
 

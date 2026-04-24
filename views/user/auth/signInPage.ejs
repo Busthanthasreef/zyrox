@@ -34,7 +34,7 @@
 
                 <!-- Backend error -->
                 <% if(emailError){ %>
-                    <p class="validation-error">
+                    <p class="validation-error" id="emailBackendError">
                         <%= emailError %>
                     </p>
                     <% } %>
@@ -62,7 +62,7 @@
 
                 <!-- Backend error -->
                 <% if(passError){ %>
-                    <p class="validation-error">
+                    <p class="validation-error" id="passwordBackendError">
                         <%= passError %>
                     </p>
                     <% } %>
@@ -99,21 +99,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <% if (typeof loginSuccess !=='undefined' && loginSuccess) { %>
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Login Successful',
-                text: 'You have logged in successfully! click ok to continue',
-                confirmButtonText: 'OK',
-                allowOutsideClick: false
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "/";
-                }
-            });
-        </script>
-        <% } %>
+
 
 
             <% if (typeof error !=='undefined' && error==='blocked' ) { %>
@@ -159,6 +145,8 @@
 
                             const emailValidation = document.getElementById("emailValidation");
                             const passwordValidation = document.getElementById("passwordValidation");
+                            const emailBackendError = document.getElementById("emailBackendError");
+                            const passwordBackendError = document.getElementById("passwordBackendError");
 
                             const emailRegex = /^[a-zA-Z0-9+._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -169,12 +157,17 @@
                                 passwordInput.classList.remove("input-error");
                             }
 
+                            function clearBackendError(el) {
+                                if (!el) return;
+                                el.textContent = "";
+                                el.style.display = "none";
+                            }
+
                             emailInput.addEventListener('input', function() {
                                 if (emailRegex.test(this.value.trim())) {
                                     emailValidation.textContent = "";
                                     emailInput.classList.remove("input-error");
-                                    const backendErrors = document.querySelectorAll('.validation-error');
-                                    backendErrors.forEach(err => { if(err.id !== 'emailValidation' && err.id !== 'passwordValidation') err.style.display = 'none'; });
+                                    clearBackendError(emailBackendError);
                                 }
                             });
 
@@ -182,6 +175,7 @@
                                 if (this.value.trim() !== "") {
                                     passwordValidation.textContent = "";
                                     passwordInput.classList.remove("input-error");
+                                    clearBackendError(passwordBackendError);
                                 }
                             });
 
@@ -229,9 +223,18 @@
                                     .then(response => response.json())
                                     .then(data => {
                                         if (data.success) {
-                                            // Use server-provided returnTo, or fall back to home
-                                            const dest = data.returnTo && data.returnTo !== '/' ? data.returnTo : '/?loginSuccess=true';
-                                            window.location.href = dest;
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'Login Successful',
+                                                text: 'You have logged in successfully!',
+                                                showConfirmButton: false,
+                                                timer: 1500,
+                                                background: '#141416', 
+                                                color: '#eaeaea'
+                                            }).then(() => {
+                                                const dest = data.returnTo && data.returnTo !== '/' ? data.returnTo : '/';
+                                                window.location.href = dest;
+                                            });
 
                                         } else {
                                             if (data.blocked) {

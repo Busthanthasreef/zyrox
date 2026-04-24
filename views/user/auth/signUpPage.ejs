@@ -164,6 +164,9 @@
 
             const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
             const confirmPassword = document.getElementById("confirmPassword");
+            const fullNameInput = document.getElementById("fullName");
+            const emailInput = document.getElementById("Email");
+            const phoneInput = document.getElementById("Phone");
 
             if (toggleConfirmPassword) {
                 toggleConfirmPassword.addEventListener("click", function () {
@@ -182,11 +185,11 @@
             }
 
             formElement.addEventListener("submit", function (event) {
-                const Name = document.getElementById('fullName').value.trim();
-                const emailValue = document.getElementById("Email").value.trim();
-                const phoneValue = document.getElementById("Phone").value.trim();
-                const passwordValue = document.getElementById("Password").value.trim();
-                const confirmPasswordValue = document.getElementById("confirmPassword").value.trim();
+                const Name = fullNameInput.value.trim();
+                const emailValue = emailInput.value.trim();
+                const phoneValue = phoneInput.value.trim();
+                const passwordValue = password.value.trim();
+                const confirmPasswordValue = confirmPassword.value.trim();
 
 
                 const nameRegex = /^[a-zA-Z\s]{3,50}$/;
@@ -257,34 +260,44 @@
             });
 
             // Dynamic validation clearing
-            document.getElementById('fullName').addEventListener('input', function() {
+            function clearPasswordErrorWhenValid() {
+                const passwordValue = password.value.trim();
+                const confirmPasswordValue = confirmPassword.value.trim();
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+                const passError = document.getElementById("passError");
+
+                if (passwordRegex.test(passwordValue) && (!confirmPasswordValue || confirmPasswordValue === passwordValue)) {
+                    passError.textContent = "";
+                    return;
+                }
+
+                if (confirmPasswordValue && confirmPasswordValue !== passwordValue) {
+                    passError.textContent = "Passwords do not match";
+                }
+            }
+
+            fullNameInput.addEventListener('input', function() {
                 const nameError = document.getElementById("nameError");
                 if (/^[a-zA-Z\s]{3,50}$/.test(this.value.trim())) {
                     nameError.textContent = "";
                 }
             });
 
-            document.getElementById("Email").addEventListener('input', function() {
+            emailInput.addEventListener('input', function() {
                 const emailError = document.getElementById("emailError");
                 if (/^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/.test(this.value.trim())) {
                     emailError.textContent = "";
                 }
             });
 
-            document.getElementById("Phone").addEventListener('input', function() {
+            phoneInput.addEventListener('input', function() {
                 const phoneError = document.getElementById("phoneError");
                 if (/^(?:\+91|91|0)?[6-9]\d{9}$/.test(this.value.trim())) {
                     phoneError.textContent = "";
                 }
             });
 
-            document.getElementById("confirmPassword").addEventListener('input', function() {
-                const passError = document.getElementById("passError");
-                const passwordValue = document.getElementById("Password").value.trim();
-                if (this.value.trim() === passwordValue && passwordValue !== "") {
-                    passError.textContent = "";
-                }
-            });
+            confirmPassword.addEventListener('input', clearPasswordErrorWhenValid);
 
             // Password strength logic
             const strengthMeter = document.getElementById("strengthMeter");
@@ -336,7 +349,7 @@
 
                 // Dynamic validation for password
                 const passError = document.getElementById("passError");
-                const confirmPasswordValue = document.getElementById("confirmPassword").value.trim();
+                const confirmPasswordValue = confirmPassword.value.trim();
                 if (val.length >= 8 && metCount === 5) { // Regex passed roughly
                     if (!confirmPasswordValue || val === confirmPasswordValue) {
                         passError.textContent = "";
@@ -344,6 +357,7 @@
                         passError.textContent = "Passwords do not match";
                     }
                 }
+                clearPasswordErrorWhenValid();
             });
 
         });

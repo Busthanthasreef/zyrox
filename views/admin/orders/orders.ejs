@@ -22,7 +22,7 @@
             --surface: #ffffff;
             --surface2: #f0f0f0;
             --border: #e8eaf0;
-            --accent: #eb8525;
+            --accent: #4f6ef7;
             --accent-soft: rgba(124, 110, 245, 0.12);
             --accent-glow: rgba(124, 110, 245, 0.3);
             --text-primary: #000000;
@@ -855,35 +855,26 @@
 
                 <!-- Stats Row -->
                 <div class="stat-grid">
-                    <div class="stat-card">
+                    <div class="stat-card card-hover-effect animate-fade-in" style="animation-delay: 0.1s">
                         <span class="stat-card-title">Total Revenue</span>
-                        <div class="stat-card-val">₹<%= stats.totalRevenue %>
-                        </div>
+                        <div class="stat-card-val">₹<%= stats.totalRevenue %></div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card card-hover-effect animate-fade-in" style="animation-delay: 0.2s">
                         <span class="stat-card-title">Total Orders</span>
-                        <div class="stat-card-val">+<%= stats.totalOrders %>
-                        </div>
-                       
-                       
+                        <div class="stat-card-val">+<%= stats.totalOrders %></div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card card-hover-effect animate-fade-in" style="animation-delay: 0.3s">
                         <span class="stat-card-title">Pending Fulfillment</span>
-                        <div class="stat-card-val">
-                            <%= stats.pendingOrders %>
-                        </div>
-                        
+                        <div class="stat-card-val"><%= stats.pendingOrders %></div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card card-hover-effect animate-fade-in" style="animation-delay: 0.4s">
                         <span class="stat-card-title">Return/Cancel Rate</span>
-                        <div class="stat-card-val">
-                            <%= stats.returns %>
-                    </div>
+                        <div class="stat-card-val"><%= stats.returns %></div>
                     </div>
                 </div>
 
                 <!-- Orders Table Card -->
-                <div class="orders-card">
+                <div class="orders-card card-hover-effect animate-fade-in" style="animation-delay: 0.5s">
                     <div class="card-header">
                         <form action="/admin/orders" method="GET" class="search-area-wrapper">
                             <div class="search-pill">

@@ -17,7 +17,7 @@
             --bg-page: #f8f9faae;
             --white: #ffffffa2;
             --primary: #111318;
-            --accent: #4f46e5;
+            --accent: #4f6ef7;
             --border: #012d5a;
             --text-main: #1e293b;
             --text-light: #64748b;
@@ -30,17 +30,11 @@
             margin: 0;
         }
 
-        .admin-layout {
-            display: flex;
-            min-height: 100vh;
-        }
 
-        .sidebar-space {
-            width: 280px;
-            flex-shrink: 0;
-        }
 
-        .main-container {
+
+
+        .main-content {
             flex: 1;
             padding: 2.5rem 3rem;
             max-width: 1440px;
@@ -304,14 +298,10 @@
     </style>
 </head>
 
-<body>
-    <div class="admin-layout">
-        <div class="sidebar-space bg-white border-r">
-            <%- include('../../partials/admin/sidebar', { currentPage: 'orders' , currentUser: (typeof admin
-                !=='undefined' ? admin : null) }) %>
-        </div>
-
-        <div class="main-container">
+<body class="admin-body">
+    <%- include('../../partials/admin/sidebar', { currentPage: 'orders' , currentUser: (typeof admin !=='undefined' ? admin : null) }) %>
+    <main class="admin-main">
+        <div class="main-content">
             <!-- Top Controls -->
             <div class="flex items-center justify-between mb-8">
                 <a href="/admin/orders" class="btn-action">
@@ -580,7 +570,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
 
 

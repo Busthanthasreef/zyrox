@@ -57,8 +57,6 @@ const loadCart = async (req, res) => {
     /* ================= PAGINATION ================= */
     const paginatedItems = cart.Items.slice(skip, skip + limit);
 
-
-
     /* ================= MAP CART ITEMS ================= */
     const cartItems = await Promise.all(paginatedItems.map(async (item) => {
       const prod = item.Product_id;
@@ -88,14 +86,14 @@ const loadCart = async (req, res) => {
         isAdminInactive,
         
         product: {
-          name:    prod?.productName,
-          image:   vari?.images?.[0] || "/images/placeholder.png",
+          name:          prod?.productName,
+          image:         vari?.images?.[0] || "/images/placeholder.png",
           originalPrice: originalPrice,
-          price:   discountedPrice, // This is what the UI uses for row total
-          color:   vari?.color,
-          ram:     vari?.RAM,
-          storage: vari?.storage,
-          stock:   vari?.stock || 0,
+          price:         discountedPrice,
+          color:         vari?.color,
+          ram:           vari?.RAM,
+          storage:       vari?.storage,
+          stock:         vari?.stock || 0,
         }
       };
     }));
@@ -111,7 +109,7 @@ const loadCart = async (req, res) => {
       
       const isActiveProduct = prod?.status === 'active' && prod?.IsDeleted !== true;
       const isActiveVariant = vari?.IsActive !== false && vari?.IsDeleted !== true;
-      const isInStock       = (vari?.stock || 0) >= item.Quantity; // Matching checkout logic
+      const isInStock       = (vari?.stock || 0) >= item.Quantity;
 
       if (isActiveProduct && isActiveVariant && isInStock) {
         const originalPrice = vari.price || 0;
@@ -151,6 +149,9 @@ const loadCart = async (req, res) => {
   }
 };
 
+/* ═══════════════════════════════════════════════════════════════
+   ADD TO CART
+═══════════════════════════════════════════════════════════════ */
 const addToCart = async (req, res) => {
   try {
     const userId = req.session.user?._id || req.session.user?.id;
@@ -167,26 +168,31 @@ const addToCart = async (req, res) => {
     const { productId, variantId, quantity = 1 } = req.body;
     const requestedQty = Math.max(1, Math.min(parseInt(quantity, 10) || 1, MAX_CART_QTY));
 
+    // Validate IDs
     if (!productId || !/^[a-f\d]{24}$/i.test(productId) ||
         !variantId || !/^[a-f\d]{24}$/i.test(variantId)) {
       return res.status(400).json({ success: false, message: "Invalid product or variant." });
     }
 
+    // Validate variant exists and is purchasable
     const { variant, error } = await validateVariantForCart(productId, variantId);
     if (error) {
       return res.status(400).json({ success: false, message: error });
     }
 
+    // Get or create cart
     let cart = await cartSchema.findOne({ User_id: userId });
     if (!cart) {
       cart = new cartSchema({ User_id: userId, Items: [] });
     }
 
+    // Find existing item for this variant
     const existingIndex = cart.Items.findIndex(
       (item) => item.Variant_id.toString() === variantId.toString()
     );
     const existingQty = existingIndex >= 0 ? cart.Items[existingIndex].Quantity : 0;
 
+    // Hard cap: already at or over MAX_CART_QTY
     if (existingQty >= MAX_CART_QTY) {
       return res.json({
         success:      false,
@@ -196,27 +202,29 @@ const addToCart = async (req, res) => {
       });
     }
 
-    const canAdd   = MAX_CART_QTY - existingQty;
-    const stockCap = variant.stock - existingQty; 
+    // FIX: stockCap uses Math.max(0, ...) to prevent negative values
+    const canAdd     = MAX_CART_QTY - existingQty;
+    const stockCap   = Math.max(0, variant.stock - existingQty);
     const allowedQty = Math.min(requestedQty, canAdd, stockCap);
 
     if (allowedQty <= 0) {
       let message = "";
       if (stockCap <= 0) {
-        message = variant.stock <= 1 
-          ? "This item is currently unavailable for purchase (minimum stock requirement)."
-          : `You can only add up to ${variant.stock - 1} units of this product.`;
+        message = `Only ${variant.stock} unit${variant.stock === 1 ? "" : "s"} available and you already have ${existingQty} in your cart.`;
       } else if (canAdd <= 0) {
         message = `You can only add up to ${MAX_CART_QTY} units of this product.`;
+      } else {
+        message = "Cannot add more of this item.";
       }
 
       return res.json({
         success:      false,
         limitReached: true,
-        message:      message || "Cannot add more of this item."
+        message
       });
     }
 
+    // Update or insert item
     if (existingIndex >= 0) {
       cart.Items[existingIndex].Quantity += allowedQty;
     } else {
@@ -230,19 +238,22 @@ const addToCart = async (req, res) => {
 
     await cart.save();
 
+    // Remove from wishlist (best-effort, non-fatal)
     await wishlistSchema.updateOne(
       { User_id: userId },
       { $pull: { Products: productId } }
     ).catch(() => {});
 
     const newQty = existingQty + allowedQty;
-    const cartCount = cart.Items.reduce((sum, item) => sum + (item.Quantity || 0), 0);
+
+    // FIX: cartCount = distinct items in cart, not sum of quantities
+    const cartCount = cart.Items.length;
     req.session.cartItemCount = cartCount;
 
     return res.json({
       success:      true,
-      cartCount:    cartCount,
-      newQty:       newQty,
+      cartCount,                                              // distinct item count for navbar badge
+      newQty,                                                 // total units of THIS variant in cart
       limitReached: newQty >= MAX_CART_QTY || newQty >= variant.stock,
       canAddMore:   Math.min(MAX_CART_QTY, variant.stock) - newQty,
       message:      "Item added to cart",
@@ -254,7 +265,9 @@ const addToCart = async (req, res) => {
   }
 };
 
-
+/* ═══════════════════════════════════════════════════════════════
+   UPDATE QUANTITY
+═══════════════════════════════════════════════════════════════ */
 const updateQuantity = async (req, res) => {
   try {
     if (!req.session.user) {
@@ -269,7 +282,6 @@ const updateQuantity = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid quantity" });
     }
 
-    
     const { variant, error } = await validateVariantForCart(productId, variantId);
     if (error) {
       return res.status(400).json({ success: false, message: error });
@@ -281,7 +293,7 @@ const updateQuantity = async (req, res) => {
         success: false,
         message: maxAllowed === 0 
           ? "This item is currently unavailable for purchase."
-          : `Only ${maxAllowed} unit${maxAllowed > 1 ? "s" : ""} can be added to cart.`
+          : `Only ${maxAllowed} unit${maxAllowed > 1 ? "s" : ""} available.`
       });
     }
     
@@ -307,7 +319,7 @@ const updateQuantity = async (req, res) => {
     cart.Items[itemIndex].Quantity = newQty;
     await cart.save();
 
-    // Recalculate full subtotal and discount
+    // Recalculate totals
     const populatedCart = await cartSchema
       .findOne({ User_id: userId })
       .populate("Items.Variant_id")
@@ -320,11 +332,11 @@ const updateQuantity = async (req, res) => {
       const prod = item.Product_id;
       const vari = item.Variant_id;
       if (prod && vari) {
-        const originalPrice = vari.price || 0;
-        const bestOffer = await calculateBestOffer(prod._id, prod.categoryId, originalPrice);
+        const originalPrice   = vari.price || 0;
+        const bestOffer       = await calculateBestOffer(prod._id, prod.categoryId, originalPrice);
         const discountedPrice = bestOffer ? applyOffer(originalPrice, bestOffer) : originalPrice;
         
-        subtotal += originalPrice * item.Quantity;
+        subtotal           += originalPrice   * item.Quantity;
         totalOfferDiscount += (originalPrice - discountedPrice) * item.Quantity;
       }
     }
@@ -333,7 +345,6 @@ const updateQuantity = async (req, res) => {
       success:     true,
       message:     "Quantity updated",
       newQuantity: newQty,
-      rowTotal:    (subtotal / populatedCart.Items.length), // Placeholder, UI handles row total
       subtotal,
       discount:    totalOfferDiscount,
       total:       subtotal - totalOfferDiscount
@@ -347,8 +358,6 @@ const updateQuantity = async (req, res) => {
 
 /* ═══════════════════════════════════════════════════════════════
    REMOVE ITEM FROM CART
-   - Pulls the item from the cart's Items array
-   - Returns updated cart count for navbar badge
 ═══════════════════════════════════════════════════════════════ */
 const removeFromCart = async (req, res) => {
   try {
@@ -356,7 +365,7 @@ const removeFromCart = async (req, res) => {
       return res.status(401).json({ success: false, message: "Not authenticated" });
     }
 
-    const { variantId, productId } = req.body;
+    const { variantId } = req.body;
     const userId = req.session.user._id;
 
     const cart = await cartSchema.findOne({ User_id: userId });
@@ -391,7 +400,7 @@ const removeFromCart = async (req, res) => {
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   CLEAR ENTIRE CART  (utility — useful for post-order cleanup)
+   CLEAR ENTIRE CART
 ═══════════════════════════════════════════════════════════════ */
 const clearCart = async (req, res) => {
   try {
@@ -415,8 +424,3 @@ const clearCart = async (req, res) => {
 };
 
 export { loadCart, addToCart, updateQuantity, removeFromCart, clearCart };
-
-
-
-
-

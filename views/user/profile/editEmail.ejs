@@ -18,13 +18,14 @@
 
 <body>
 
+    <%- include('../../partials/user/navigationbar') %>
     <div class="main-container">
         <!-- Sidebar Partial -->
         <%- include('../../partials/user/profileSidebar', { activePage: 'profile' }) %>
 
             <!-- Main Content -->
             <main class="main-wrapper">
-                <div id="profile-card-container" class="w-100 d-flex justify-content-center">
+                <div id="profile-card-container" class="w-100 d-flex justify-content-center" style="padding-top: 20px;">
                     <div class="card col-12 col-sm-10 col-md-8">
 
                         <!-- Header -->
@@ -52,8 +53,9 @@
                                         <label>New Email Address</label>
                                         <input type="email" id="Email" name="Email" class="form-control"
                                             placeholder="Enter new email address" required autocomplete="email">
+                                        <p id="emailLiveError" class="text-danger small mt-1 mb-0"></p>
                                         <% if (errors && errors.email) { %>
-                                            <p class="text-danger small mt-1 mb-0">
+                                            <p class="text-danger small mt-1 mb-0" id="emailServerError">
                                                 <%= errors.email %>
                                             </p>
                                             <% } %>
@@ -76,9 +78,52 @@
             </main>
     </div>
 
+    <%- include('../../partials/user/bottomNav', { activePage: 'profile' }) %>
+
     <!-- SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.querySelector('form[action="/edit-email"]');
+            const emailInput = document.getElementById("Email");
+            const emailLiveError = document.getElementById("emailLiveError");
+            const emailServerError = document.getElementById("emailServerError");
+            const emailRegex = /^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/;
+
+            function clearServerError() {
+                if (!emailServerError) return;
+                emailServerError.textContent = "";
+                emailServerError.style.display = "none";
+            }
+
+            emailInput.addEventListener("input", function () {
+                const value = this.value.trim();
+                if (emailRegex.test(value)) {
+                    emailLiveError.textContent = "";
+                    this.classList.remove("is-invalid");
+                    clearServerError();
+                }
+            });
+
+            form.addEventListener("submit", function (e) {
+                const value = emailInput.value.trim();
+                emailLiveError.textContent = "";
+                emailInput.classList.remove("is-invalid");
+
+                if (!value) {
+                    e.preventDefault();
+                    emailLiveError.textContent = "Email is required.";
+                    emailInput.classList.add("is-invalid");
+                    return;
+                }
+                if (!emailRegex.test(value)) {
+                    e.preventDefault();
+                    emailLiveError.textContent = "Please enter a valid email address.";
+                    emailInput.classList.add("is-invalid");
+                }
+            });
+        });
+
         // Show Swal Toast for Email Errors (like Duplicate Email)
         <% if (typeof errors !== 'undefined' && errors.email && (errors.email.toLowerCase().includes('exist') || errors.email.toLowerCase().includes('in use'))) { %>
             document.addEventListener("DOMContentLoaded", function () {
