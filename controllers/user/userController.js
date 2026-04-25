@@ -19,7 +19,7 @@ import Coupon from "../../models/coupon.js";
 const landingPage = async (req, res) => {
   try {
 
-    const categories = await Categories.find({IsActive:true,IsDeleted:false});
+    const categories = await Categories.find({ IsActive: true, IsDeleted: false });
     const loginSuccess = req.query.loginSuccess === "true";
     const currentUser = req.session.user?._id || null;
 
@@ -44,6 +44,15 @@ const landingPage = async (req, res) => {
       if (v) trendingVariants.push({ product: p, variant: v });
     }
 
+    // Fetch all active variants for "All Products" section
+    const allProducts = await Product.find({ status: { $ne: 'inactive' }, IsDeleted: { $ne: true } });
+    const allVariants = [];
+    for (const p of allProducts) {
+      const v = await Variant.findOne({ productId: p._id, IsActive: { $ne: false }, IsDeleted: { $ne: true }, IsDefault: true })
+        || await Variant.findOne({ productId: p._id, IsActive: { $ne: false }, IsDeleted: { $ne: true } });
+      if (v) allVariants.push({ product: p, variant: v });
+    }
+
     // Fetch latest active, non-expired coupon for hero banner
     const latestCoupon = await Coupon.findOne({
       isActive: true,
@@ -55,6 +64,7 @@ const landingPage = async (req, res) => {
       cartItemCount: totalItems,
       categories,
       trendingVariants,
+      allVariants, // Added allVariants
       user: req.session.user || null,
       loginSuccess,
       latestCoupon: latestCoupon || null,
@@ -292,7 +302,7 @@ const resendOtp = async (req, res) => {
 ========================= */
 const loadSignIn = (req, res) => {
   const { error, returnTo: queryReturnTo } = req.query;
-  
+
   if (queryReturnTo) {
     req.session.returnTo = queryReturnTo;
   }
@@ -342,7 +352,7 @@ const userSignIn = async (req, res) => {
     const adminSession = req.session.admin;
     const returnTo = req.session.returnTo || '/';
 
-    
+
     req.session.regenerate((err) => {
       if (err) return res.json({ success: false, message: "Session error" });
 
@@ -358,8 +368,8 @@ const userSignIn = async (req, res) => {
 
       req.session.save((err) => {
         if (err) return res.json({ success: false, message: "Session save error" });
-        res.json({ success: true, message: "Login Successful", returnTo });
       });
+      res.json({ success: true, message: "Login Successful", returnTo });
     });
   } catch (error) {
     console.log("Signin Error:", error);
@@ -511,7 +521,7 @@ const resetPassword = async (req, res) => {
     delete req.session.resetEmail;
     delete req.session.isOtpVerified;
 
-    req.session.passSwal = true; 
+    req.session.passSwal = true;
     res.redirect("/new-password");
   } catch (error) {
     console.log("Reset Password Error:", error);

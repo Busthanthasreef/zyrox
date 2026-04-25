@@ -792,6 +792,150 @@
             .btn-save:hover {
                 background: #1d4ed8;
             }
+
+        /* ── QUICK CATEGORY MODAL ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px;
+            border-bottom: 1px solid #e8eaf0;
+            background: #fafbfd;
+        }
+
+        .modal-header h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .modal-header h3 i { color: #2563eb; }
+
+        .modal-close {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #9ca3af;
+            font-size: 17px;
+            transition: background 0.2s, color 0.2s;
+            background: transparent;
+            border: none;
+        }
+
+        .modal-close:hover { background: #fef2f2; color: #ef4444; }
+
+        .modal-body {
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-body label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .toggle-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 13px 15px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            gap: 12px;
+        }
+
+        .toggle-box strong { font-size: 13px; font-weight: 600; color: #1e293b; display: block; }
+        .toggle-box p { font-size: 11.5px; color: #64748b; margin: 0; }
+
+        .status-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            margin-left: 6px;
+        }
+        .status-badge.active { background: #dcfce7; color: #15803d; }
+        .status-badge.inactive { background: #fee2e2; color: #b91c1c; }
+
+        .modal-error-area {
+            display: none;
+            background: #fef2f2;
+            color: #b91c1c;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            border: 1px solid #fee2e2;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .modal-error-area.show { display: flex; }
+        .modal-error-area i { font-size: 16px; margin-top: 1px; }
+
+        /* Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background: #cbd5e1; border-radius: 24px; transition: background 0.25s; }
+        .slider::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform 0.25s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .switch input:checked + .slider { background: #2563eb; }
+        .switch input:checked + .slider::before { transform: translateX(20px); }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 14px 22px;
+            border-top: 1px solid #e8eaf0;
+            background: #fafbfd;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
     </style>
 </head>
 
@@ -832,7 +976,7 @@
                                     <div class="row g-3 mb-3">
                                         <div class="col-md-6">
                                             <label class="form-label">Category</label>
-                                            <select name="category" id="category" class="form-select">
+                                            <select name="category" id="category" class="form-select" onchange="handleCategoryChange(this)">
                                                 <option value="">Select a category</option>
                                                 <% if (typeof categories !=='undefined' ) { %>
                                                     <% categories.forEach(cat=> { %>
@@ -843,6 +987,9 @@
                                                         </option>
                                                         <% }) %>
                                                             <% } %>
+                                                <option value="ADD_NEW" style="color: #2563eb; font-weight: 700; background: #f0f4ff;">
+                                                    + Add New Category
+                                                </option>
                                             </select>
                                         </div>
                                         <div class="col-md-6">
@@ -1031,6 +1178,44 @@
                 <button class="lightbox-close" onclick="closeLightbox()"><i class="bi bi-x-lg"></i></button>
                 <img class="lightbox-img" id="lightboxImg" src="" alt="">
                 <div class="lightbox-label" id="lightboxLabel"></div>
+            </div>
+
+            <!-- ══ QUICK ADD CATEGORY MODAL ══ -->
+            <div class="modal-overlay" id="quickCategoryModal">
+                <div class="modal-box">
+                    <div class="modal-header">
+                        <h3><i class="bi bi-plus-circle-fill"></i> Quick Add Category</h3>
+                        <button type="button" class="modal-close" onclick="closeCategoryModal()">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="quickCatError" class="modal-error-area">
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                            <span class="error-msg"></span>
+                        </div>
+                        <div>
+                            <label>Category Name</label>
+                            <input type="text" id="quickCatName" class="form-control" placeholder="e.g. Laptops, Smartwatches">
+                        </div>
+                        <div class="toggle-box">
+                            <div>
+                                <strong>Category Status <span id="quickStatusBadge" class="status-badge active">Active</span></strong>
+                                <p>Enable this category for use immediately</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="quickCatStatus" checked onchange="updateQuickStatusBadge(this)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" style="padding: 7px 18px; border: 1px solid #e2e8f0; font-size: 13px; font-weight: 600;" onclick="closeCategoryModal()">Cancel</button>
+                        <button type="button" class="btn btn-primary" style="padding: 7px 22px; background: #2563eb; font-size: 13px; font-weight: 700;" id="saveQuickCatBtn" onclick="saveQuickCategory()">
+                            Save Category
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -1320,6 +1505,113 @@
                         showCancelButton: true,
                         confirmButtonText: 'Yes, discard'
                     }).then(res => { if (res.isConfirmed) window.location.href = '/admin/products'; });
+                }
+
+                /* ── QUICK ADD CATEGORY LOGIC ── */
+                let lastSelectedCategory = document.getElementById('category').value;
+
+                function handleCategoryChange(select) {
+                    if (select.value === "ADD_NEW") {
+                        openCategoryModal();
+                        // Reset to last valid selection while modal is open
+                        select.value = lastSelectedCategory;
+                    } else {
+                        lastSelectedCategory = select.value;
+                        updateLivePreview();
+                    }
+                }
+
+                function openCategoryModal() {
+                    document.getElementById('quickCategoryModal').classList.add('show');
+                    document.getElementById('quickCatName').value = "";
+                    const errorArea = document.getElementById('quickCatError');
+                    errorArea.classList.remove('show');
+                    errorArea.querySelector('.error-msg').textContent = "";
+                    document.getElementById('quickCatName').focus();
+                }
+
+                function closeCategoryModal() {
+                    document.getElementById('quickCategoryModal').classList.remove('show');
+                }
+
+                function updateQuickStatusBadge(checkbox) {
+                    const badge = document.getElementById('quickStatusBadge');
+                    if (checkbox.checked) {
+                        badge.textContent = "Active";
+                        badge.className = "status-badge active";
+                    } else {
+                        badge.textContent = "Inactive";
+                        badge.className = "status-badge inactive";
+                    }
+                }
+
+                async function saveQuickCategory() {
+                    const name = document.getElementById('quickCatName').value.trim();
+                    const status = document.getElementById('quickCatStatus').checked;
+                    const btn = document.getElementById('saveQuickCatBtn');
+
+                    const errorArea = document.getElementById('quickCatError');
+                    const errorMsg = errorArea.querySelector('.error-msg');
+                    errorArea.classList.remove('show');
+
+                    if (!name) {
+                        errorMsg.textContent = 'Please enter a category name';
+                        errorArea.classList.add('show');
+                        return;
+                    }
+
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
+
+                    try {
+                        const resp = await fetch('/admin/categories-add', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                            body: JSON.stringify({ categoryName: name, status: status })
+                        });
+                        const data = await resp.json();
+
+                        if (data.success || data.message) {
+                            const select = document.getElementById('category');
+                            const catId = data.category?._id || data.categoryId || "";
+                            const option = new Option(name, catId);
+                            
+                            select.add(option, select.options[select.options.length - 1]);
+                            select.value = option.value;
+                            lastSelectedCategory = option.value;
+                            
+                            closeCategoryModal();
+                            updateLivePreview();
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Category Added!',
+                                text: `"${name}" is now available.`,
+                                timer: 2000,
+                                showConfirmButton: false,
+                                background: '#fff',
+                                color: '#111827'
+                            });
+                        } else {
+                            errorMsg.textContent = data.message || 'Failed to add category';
+                            errorArea.classList.add('show');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        errorMsg.textContent = 'Failed to add category';
+                        errorArea.classList.add('show');
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = 'Save Category';
+                    }
+                }
+
+                function toast(icon, title) {
+                    Swal.fire({
+                        icon, title, toast: true, position: 'top-end',
+                        timer: 2200, showConfirmButton: false,
+                        background: '#fff', color: '#111827',
+                    });
                 }
             </script>
 </body>

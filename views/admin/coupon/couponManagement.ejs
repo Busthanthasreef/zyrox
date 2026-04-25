@@ -599,9 +599,20 @@
                       <% }) %>
                         <% } else { %>
                           <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">No coupons found.</td>
+                            <td colspan="7" style="text-align: center; padding: 60px 20px;">
+                                <div class="empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                    <i class="bi bi-ticket-perforated" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;"></i>
+                                    <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 8px;">No Coupons Found</h4>
+                                    <p style="color: #64748b; font-size: 14px; max-width: 300px; margin: 0 auto;">We couldn't find any coupons matching your search criteria.</p>
+                                    <% if (search) { %>
+                                        <a href="/admin/coupons" class="btn btn-dark px-4 py-2 mt-3" style="border-radius: 8px; font-weight: 600; font-size: 13px;">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i> Clear Filter
+                                        </a>
+                                    <% } %>
+                                </div>
+                            </td>
                           </tr>
-                          <% } %>
+                        <% } %>
               </tbody>
             </table>
           </div>

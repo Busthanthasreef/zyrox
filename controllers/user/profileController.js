@@ -430,19 +430,26 @@ const addPassword = async (req, res) => {
     const user = await userSchema.findById(req.session.user._id);
     const isGoogleUser = !!user.googleId;
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    const isJsonRequest = req.headers.accept && req.headers.accept.includes('application/json');
+
     if (!isGoogleUser) {
+      if (isJsonRequest) return res.status(403).json({ success: false, message: "This action is only available for Google accounts." });
       return res.redirect("/change-password");
     }
 
     const errors = {};
     if (!newPassword) errors.newPassword = "Password is required";
     else if (!passwordRegex.test(newPassword))
-      errors.newPassword = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.";
-    if (!confirmPassword) errors.confirmPassword = "confirm password is required";
-    if (newPassword !== confirmPassword)
+      errors.newPassword = "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.";
+    if (!confirmPassword) errors.confirmPassword = "Please confirm your password";
+    if (newPassword && confirmPassword && newPassword !== confirmPassword)
       errors.confirmPassword = "Passwords do not match";
 
     if (Object.keys(errors).length > 0) {
+      if (isJsonRequest) {
+        const firstError = Object.values(errors)[0];
+        return res.status(400).json({ success: false, message: firstError });
+      }
       req.session.passwordErrors = errors;
       return res.redirect("/profile");
     }
@@ -451,14 +458,17 @@ const addPassword = async (req, res) => {
     user.Password = hashedPassword;
     await user.save();
 
-    if (req.headers.accept && req.headers.accept.includes('application/json')) {
-      return res.json({ success: true, message: "Password set successfully!" });
+    if (isJsonRequest) {
+      return res.json({ success: true, message: "Password set successfully! You can now log in with your email too." });
     }
 
     req.session.passwordAddedToast = true;
     res.redirect("/profile");
   } catch (error) {
     console.log("Add Password Error:", error);
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      return res.status(500).json({ success: false, message: "Server error. Please try again." });
+    }
     res.status(500).send("Server Error");
   }
 };

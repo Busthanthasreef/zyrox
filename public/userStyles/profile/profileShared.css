@@ -39,7 +39,7 @@ body {
     min-height: 100vh;
     width: 100%;
     align-items: flex-start;
-    padding-top: 80px; /* Added padding for fixed navbar */
+    padding-top: 56px;
 }
 
 /* ── SIDEBAR ── */
@@ -48,14 +48,14 @@ body {
     background: rgba(17, 20, 34, .85);
     backdrop-filter: blur(14px);
     border-right: 1px solid var(--border);
-    padding: 2.5rem 1.5rem;
+    padding: 1.25rem 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     z-index: 100;
     position: sticky;
-    top: 80px; /* Adjusted for navbar */
-    height: calc(100vh - 80px); /* Adjusted for navbar */
+    top: 56px;
+    height: calc(100vh - 56px);
     flex-shrink: 0;
     overflow-y: auto;
 }

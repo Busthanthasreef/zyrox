@@ -10,6 +10,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Product Page Entry Animation -->
+  <link rel="stylesheet" href="/userStyles/products/productPageAnimation.css">
 
   <style>
     :root {
@@ -274,33 +276,81 @@
     /* Grid Loading state */
     #productContainer {
       position: relative;
-      transition: opacity 0.3s ease;
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     #productContainer.is-loading {
-      opacity: 0.5;
       pointer-events: none;
+    }
+
+    #productContainer.is-loading > *:not(.loading-overlay) {
+      filter: blur(8px) grayscale(0.2);
+      opacity: 0.4;
+      transition: filter 0.4s ease, opacity 0.4s ease;
     }
 
     .loading-overlay {
       display: none;
-      position: absolute;
-      top: 100px;
+      position: fixed;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      z-index: 100;
-      background: var(--bg-card);
-      padding: 15px 25px;
-      border-radius: 12px;
-      border: 1px solid var(--border2);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      background: rgba(15, 18, 22, 0.75);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      padding: 40px 60px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 
+        0 30px 70px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(79, 110, 247, 0.15),
+        inset 0 0 20px rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      flex-direction: column;
+      align-items: center;
+      gap: 25px;
+      min-width: 260px;
     }
 
     #productContainer.is-loading .loading-overlay {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      animation: pzxLoadingPopIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
+
+    @keyframes pzxLoadingPopIn {
+      from { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
+      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    .loading-overlay i {
+      font-size: 3rem;
+      color: var(--accent);
+      filter: drop-shadow(0 0 15px rgba(79, 110, 247, 0.5));
+      animation: pzxSpinnerPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pzxSpinnerPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+      50% { transform: scale(1.1) rotate(180deg); opacity: 0.8; }
+    }
+
+    .loading-overlay span {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: linear-gradient(45deg, #fff, var(--accent), #fff);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: pzxTextShimmer 2s linear infinite;
+    }
+
+    @keyframes pzxTextShimmer {
+      to { background-position: 200% center; }
+    }
+
 
     .price-labels {
       display: flex;
@@ -483,7 +533,7 @@
     }
 
     .product-card {
-      background: var(--bg-card);
+      background: var(--bg-card-h);
       border: 1px solid var(--border);
       border-radius: 16px;
       overflow: hidden;
@@ -493,23 +543,29 @@
       position: relative;
       transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
       backdrop-filter: blur(10px);
+      animation: productIdleSwing 4s ease-in-out infinite;
+    }
+
+    @keyframes productIdleSwing {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-2px) rotate(0.8deg); }
+      50% { transform: translateY(0) rotate(0deg); }
+      75% { transform: translateY(-2px) rotate(-0.8deg); }
     }
 
     .product-card:hover {
       background: var(--bg-card-h);
       border-color: rgba(var(--accent-rgb), 0.3);
-      transform: translateY(-8px);
+      transform: translateY(-10px) scale(1.03) !important;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(var(--accent-rgb), 0.1);
-      animation: smoothShake 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+      animation: productHoverSwing 1.5s ease-in-out infinite;
     }
 
-    @keyframes smoothShake {
-      0%, 100% { transform: translateY(-8px) rotate(0deg); }
-      15% { transform: translateY(-8px) rotate(1deg); }
-      30% { transform: translateY(-8px) rotate(-1deg); }
-      45% { transform: translateY(-8px) rotate(0.6deg); }
-      60% { transform: translateY(-8px) rotate(-0.6deg); }
-      75% { transform: translateY(-8px) rotate(0.3deg); }
+    @keyframes productHoverSwing {
+      0%, 100% { transform: translateY(-10px) scale(1.03) rotate(0deg); }
+      25% { transform: translateY(-10px) scale(1.03) rotate(1.5deg); }
+      50% { transform: translateY(-10px) scale(1.03) rotate(0deg); }
+      75% { transform: translateY(-10px) scale(1.03) rotate(-1.5deg); }
     }
 
     .product-card.is-inactive {
@@ -1090,7 +1146,7 @@
             </div>
 
             <!-- ===== PRODUCTS ===== -->
-            <div class="content-area" id="productContainer">
+            <div class="content-area product-page-animation" id="productContainer">
               <div class="loading-overlay">
                 <i class="fas fa-circle-notch fa-spin"></i>
                 <span>Updating results...</span>
@@ -1454,6 +1510,132 @@
             }
           }
 
+        </script>
+
+        <!-- ═══ PRODUCT PAGE EXPLOSION + REASSEMBLY ANIMATION ENGINE ═══
+             Scope: .products-animation-scope only.
+             No global CSS touched. No EJS modified. No libraries.
+             12-fragment grid explosion, soft scatter, smooth reassembly.
+        ═══════════════════════════════════════════════════════════════ -->
+        <script>
+        (function () {
+            'use strict';
+
+            /* ── Config ── */
+            const COLS         = 4;    // fragment columns
+            const ROWS         = 3;    // fragment rows  → 12 pieces total
+            const SCATTER_PX   = 42;   // max scatter distance in px
+            const EXPLODE_MS   = 180;  // delay before explosion starts (card visible first)
+            const REASSEM_MS   = 2200; // delay before reassembly starts
+            const REMOVE_MS    = 2900; // delay before overlay removed
+            const STAGGER_CARD = 90;   // ms between each card's animation
+            const isMobile     = window.innerWidth <= 768;
+            const prefersRed   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            /* ── Scatter vectors: 12 pieces get pseudo-random directions ── */
+            const SCATTER_DIRS = [
+                [-1.2, -1.4], [ 0,   -1.6], [ 0.8, -1.4], [ 1.4, -1.2],
+                [-1.6, -0.2], [ 0.3, -0.5], [-0.3,  0.4], [ 1.6,  0.3],
+                [-1.3,  1.2], [-0.2,  1.5], [ 0.9,  1.3], [ 1.3,  1.1]
+            ];
+
+    /* =================================================================
+       ZYROX — Product Listing Page: Modern Animation Engine
+       Flow: Staggered Zoom-In → Subtle Swing → Interactive Hover
+       ================================================================= */
+    /* =================================================================
+       ZYROX — Product Listing Page: Modern Animation Engine
+       Flow: Staggered Zoom-In → Subtle Swing → Interactive Hover
+       ================================================================= */
+    (function() {
+        const CONFIG = {
+            INITIAL_DELAY: 100,   // Reduced delay for faster visibility
+            STAGGER_DELAY: 70,    // Faster stagger
+            OBSERVER_THRESH: 0.01,
+        };
+
+        function startAnimations(cards) {
+            if (!cards || !cards.length) return;
+            
+            // Step 1: Force hide them just before starting the stagger
+            // This prevents the "blank screen" if JS fails earlier
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0)';
+            });
+
+            // Step 2: Staggered reveal
+            setTimeout(() => {
+                cards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.classList.add('animate-in');
+                        card.style.opacity = ''; // Let CSS take over
+                        card.style.transform = '';
+                    }, index * CONFIG.STAGGER_DELAY);
+                });
+            }, CONFIG.INITIAL_DELAY);
+        }
+
+        function initProductPageAnimations() {
+            const scope = document.querySelector('.product-page-animation');
+            if (!scope) return;
+
+            const cards = scope.querySelectorAll('.product-card');
+            if (!cards.length) return;
+
+            // Mark as found but don't hide yet
+            let hasStarted = false;
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !hasStarted) {
+                        hasStarted = true;
+                        observer.disconnect();
+                        startAnimations(cards);
+                    }
+                });
+            }, {
+                threshold: CONFIG.OBSERVER_THRESH,
+                rootMargin: '150px'
+            });
+
+            observer.observe(scope);
+
+            // Safety Fallback: Ensure visibility after 1s
+            setTimeout(() => {
+                if (!hasStarted) {
+                    hasStarted = true;
+                    observer.disconnect();
+                    startAnimations(cards);
+                }
+            }, 1000);
+
+            // Cursor-based tilt
+            if (window.innerWidth > 1024) {
+                cards.forEach(card => {
+                    card.addEventListener('mousemove', (e) => {
+                        if (!card.classList.contains('animate-in')) return;
+                        const rect = card.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        const xPercent = (x / rect.width - 0.5) * 8;
+                        const yPercent = (y / rect.height - 0.5) * -8;
+                        card.style.transform = `translateY(-8px) scale(1.04) rotateY(${xPercent}deg) rotateX(${yPercent}deg)`;
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = ''; 
+                    });
+                });
+            }
+        }
+
+        // Run immediately or on DOMContentLoaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            initProductPageAnimations();
+        } else {
+            document.addEventListener('DOMContentLoaded', initProductPageAnimations);
+        }
+    })();
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

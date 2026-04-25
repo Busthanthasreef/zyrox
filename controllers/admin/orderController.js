@@ -10,16 +10,22 @@ const getOrders = async (req, res) => {
         const limit = 3;
         const skip = (page - 1) * limit;
         const search = req.query.search || "";
+        const status = req.query.status || "";
 
         let query = {};
+        
+        // Build status filter
+        if (status) {
+            query.orderStatus = status;
+        }
+
+        // Build search filter
         if (search) {
-            query = {
-                $or: [
-                    { orderId: { $regex: search, $options: "i" } },
-                    { paymentMethod: { $regex: search, $options: "i" } },
-                    { orderStatus: { $regex: search, $options: "i" } }
-                ]
-            };
+            const searchConditions = [
+                { orderId: { $regex: search, $options: "i" } },
+                { paymentMethod: { $regex: search, $options: "i" } },
+                { orderStatus: { $regex: search, $options: "i" } }
+            ];
             
             // Search by user name or email
             const users = await User.find({
@@ -31,7 +37,19 @@ const getOrders = async (req, res) => {
             
             if (users.length > 0) {
                 const userIds = users.map(u => u._id);
-                query.$or.push({ userId: { $in: userIds } });
+                searchConditions.push({ userId: { $in: userIds } });
+            }
+
+            // Combine with status if exists
+            if (status) {
+                query = {
+                    $and: [
+                        { orderStatus: status },
+                        { $or: searchConditions }
+                    ]
+                };
+            } else {
+                query = { $or: searchConditions };
             }
         }
 
@@ -91,6 +109,7 @@ const getOrders = async (req, res) => {
             totalOrdersCount,
             limit,
             search,
+            status,
             stats,
             returnRequests,
             successSwal: req.session.successSwal || null

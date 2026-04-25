@@ -13,7 +13,7 @@
 }
 
 :root {
-  --bg: #0f1117;
+  --bg: #fdfbf7;
   --card-bg: #ffffff;
   --form-bg: #f4f5f7;
   --accent: #4f6ef7;
@@ -33,7 +33,7 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background: var(--bg);
+  background: var(--bg) !important;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -69,7 +69,7 @@ body {
   font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(0, 0, 0, 0.3);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   align-self: flex-start;

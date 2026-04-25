@@ -12,6 +12,12 @@
 </head>
 
 <body>
+    <div class="space-background">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+        <div class="nebula"></div>
+    </div>
 
     <div class="login-container">
         <h2>SIGN IN</h2>
@@ -102,178 +108,206 @@
 
 
 
-            <% if (typeof error !=='undefined' && error==='blocked' ) { %>
-                <script>
-                    Swal.fire({
-                        toast: true,
-                        position: 'top',
-                        icon: 'error',
-                        title: 'Your account has been blocked by admin',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
+    <% if (typeof error !=='undefined' && error==='blocked' ) { %>
+        <script>
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'error',
+                title: 'Your account has been blocked by admin',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        </script>
+        <% } %>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+
+                    const form = document.getElementById("loginForm");
+                    const emailInput = document.getElementById("email");
+                    const passwordInput = document.getElementById("password");
+
+                    const togglePassword = document.getElementById("togglePassword");
+                    const submitBtn = form.querySelector(".sign-in-btn");
+
+                    // Toggle Password Visibility
+                    if (togglePassword) {
+                        togglePassword.addEventListener("click", function () {
+                            const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+                            passwordInput.setAttribute("type", type);
+
+                            // Toggle icon
+                            const icon = this.querySelector('i');
+                            if (type === "text") {
+                                icon.classList.remove('bi-eye-slash');
+                                icon.classList.add('bi-eye');
+                            } else {
+                                icon.classList.remove('bi-eye');
+                                icon.classList.add('bi-eye-slash');
+                            }
+                        });
+                    }
+
+                    const emailValidation = document.getElementById("emailValidation");
+                    const passwordValidation = document.getElementById("passwordValidation");
+                    const emailBackendError = document.getElementById("emailBackendError");
+                    const passwordBackendError = document.getElementById("passwordBackendError");
+
+                    const emailRegex = /^[a-zA-Z0-9+._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+                    function clearErrors() {
+                        emailValidation.textContent = "";
+                        passwordValidation.textContent = "";
+                        emailInput.classList.remove("input-error");
+                        passwordInput.classList.remove("input-error");
+                    }
+
+                    function clearBackendError(el) {
+                        if (!el) return;
+                        el.textContent = "";
+                        el.style.display = "none";
+                    }
+
+                    emailInput.addEventListener('input', function () {
+                        if (emailRegex.test(this.value.trim())) {
+                            emailValidation.textContent = "";
+                            emailInput.classList.remove("input-error");
+                            clearBackendError(emailBackendError);
+                        }
                     });
-                </script>
-                <% } %>
 
-                    <script>
-                        document.addEventListener("DOMContentLoaded", function () {
+                    passwordInput.addEventListener('input', function () {
+                        if (this.value.trim() !== "") {
+                            passwordValidation.textContent = "";
+                            passwordInput.classList.remove("input-error");
+                            clearBackendError(passwordBackendError);
+                        }
+                    });
 
-                            const form = document.getElementById("loginForm");
-                            const emailInput = document.getElementById("email");
-                            const passwordInput = document.getElementById("password");
+                    form.addEventListener("submit", function (event) {
+                        event.preventDefault();
+                        clearErrors();
 
-                            const togglePassword = document.getElementById("togglePassword");
+                        const emailValue = emailInput.value.trim();
+                        const passwordValue = passwordInput.value.trim();
 
-                            // Toggle Password Visibility
-                            if (togglePassword) {
-                                togglePassword.addEventListener("click", function () {
-                                    const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
-                                    passwordInput.setAttribute("type", type);
+                        let hasError = false;
 
-                                    // Toggle icon
-                                    const icon = this.querySelector('i');
-                                    if (type === "text") {
-                                        icon.classList.remove('bi-eye-slash');
-                                        icon.classList.add('bi-eye');
+                        // Email Validation
+                        if (!emailValue) {
+                            emailValidation.textContent = "Email is required";
+                            emailInput.classList.add("input-error");
+                            hasError = true;
+                        } else if (!emailRegex.test(emailValue)) {
+                            emailValidation.textContent = "Invalid email address";
+                            emailInput.classList.add("input-error");
+                            hasError = true;
+                        }
+
+                        // Password Validation
+                        if (!passwordValue) {
+                            passwordValidation.textContent = "Password is required";
+                            passwordInput.classList.add("input-error");
+                            hasError = true;
+                        }
+
+                        if (hasError) {
+                            return;
+                        }
+
+                        // Reset State Function
+                        const resetBtn = () => {
+                            submitBtn.textContent = "Sign In";
+                            submitBtn.classList.remove("btn-loading");
+                            submitBtn.disabled = false;
+                        };
+
+                        // Show Loading State
+                        submitBtn.textContent = "Loading...";
+                        submitBtn.classList.add("btn-loading");
+                        submitBtn.disabled = true;
+
+                        fetch("/signin", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                Email: emailValue,
+                                Password: passwordValue
+                            })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Login Successful',
+                                        text: 'You have logged in successfully!',
+                                        showConfirmButton: false,
+                                        timer: 1500,
+                                        background: '#141416',
+                                        color: '#eaeaea'
+                                    }).then(() => {
+                                        const dest = data.returnTo && data.returnTo !== '/' ? data.returnTo : '/';
+                                        window.location.href = dest;
+                                    });
+
+                                } else {
+                                    resetBtn();
+                                    if (data.blocked) {
+                                        Swal.fire({
+                                            toast: true,
+                                            position: 'top',
+                                            icon: 'error',
+                                            title: data.message,
+                                            showConfirmButton: false,
+                                            timer: 3000,
+                                            timerProgressBar: true
+                                        });
+                                    } else if (data.target === "email") {
+                                        emailValidation.textContent = data.message;
+                                        emailInput.classList.add("input-error");
+                                    } else if (data.target === "password") {
+                                        passwordValidation.textContent = data.message;
+                                        passwordInput.classList.add("input-error");
                                     } else {
-                                        icon.classList.remove('bi-eye');
-                                        icon.classList.add('bi-eye-slash');
-                                    }
-                                });
-                            }
-
-                            const emailValidation = document.getElementById("emailValidation");
-                            const passwordValidation = document.getElementById("passwordValidation");
-                            const emailBackendError = document.getElementById("emailBackendError");
-                            const passwordBackendError = document.getElementById("passwordBackendError");
-
-                            const emailRegex = /^[a-zA-Z0-9+._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-                            function clearErrors() {
-                                emailValidation.textContent = "";
-                                passwordValidation.textContent = "";
-                                emailInput.classList.remove("input-error");
-                                passwordInput.classList.remove("input-error");
-                            }
-
-                            function clearBackendError(el) {
-                                if (!el) return;
-                                el.textContent = "";
-                                el.style.display = "none";
-                            }
-
-                            emailInput.addEventListener('input', function() {
-                                if (emailRegex.test(this.value.trim())) {
-                                    emailValidation.textContent = "";
-                                    emailInput.classList.remove("input-error");
-                                    clearBackendError(emailBackendError);
-                                }
-                            });
-
-                            passwordInput.addEventListener('input', function() {
-                                if (this.value.trim() !== "") {
-                                    passwordValidation.textContent = "";
-                                    passwordInput.classList.remove("input-error");
-                                    clearBackendError(passwordBackendError);
-                                }
-                            });
-
-                            form.addEventListener("submit", function (event) {
-                                event.preventDefault();
-                                clearErrors();
-
-                                const emailValue = emailInput.value.trim();
-                                const passwordValue = passwordInput.value.trim();
-
-                                let hasError = false;
-
-                                // Email Validation
-                                if (!emailValue) {
-                                    emailValidation.textContent = "Email is required";
-                                    emailInput.classList.add("input-error");
-                                    hasError = true;
-                                } else if (!emailRegex.test(emailValue)) {
-                                    emailValidation.textContent = "Invalid email address";
-                                    emailInput.classList.add("input-error");
-                                    hasError = true;
-                                }
-
-                                // Password Validation
-                                if (!passwordValue) {
-                                    passwordValidation.textContent = "Password is required";
-                                    passwordInput.classList.add("input-error");
-                                    hasError = true;
-                                }
-
-                                if (hasError) {
-                                    return;
-                                }
-
-                                fetch("/signin", {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    },
-                                    body: JSON.stringify({
-                                        Email: emailValue,
-                                        Password: passwordValue
-                                    })
-                                })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        if (data.success) {
-                                            Swal.fire({
-                                                icon: 'success',
-                                                title: 'Login Successful',
-                                                text: 'You have logged in successfully!',
-                                                showConfirmButton: false,
-                                                timer: 1500,
-                                                background: '#141416', 
-                                                color: '#eaeaea'
-                                            }).then(() => {
-                                                const dest = data.returnTo && data.returnTo !== '/' ? data.returnTo : '/';
-                                                window.location.href = dest;
-                                            });
-
-                                        } else {
-                                            if (data.blocked) {
-                                                Swal.fire({
-                                                    toast: true,
-                                                    position: 'top',
-                                                    icon: 'error',
-                                                    title: data.message,
-                                                    showConfirmButton: false,
-                                                    timer: 3000,
-                                                    timerProgressBar: true
-                                                });
-                                            } else if (data.target === "email") {
-                                                emailValidation.textContent = data.message;
-                                                emailInput.classList.add("input-error");
-                                            } else if (data.target === "password") {
-                                                passwordValidation.textContent = data.message;
-                                                passwordInput.classList.add("input-error");
-                                            } else {
-                                                Swal.fire({
-                                                    icon: 'error',
-                                                    title: 'Error',
-                                                    text: data.message || 'Something went wrong!'
-                                                });
-                                            }
-                                        }
-                                    })
-                                    .catch(error => {
-                                        console.error("Error:", error);
                                         Swal.fire({
                                             icon: 'error',
                                             title: 'Error',
-                                            text: 'Something went wrong. Please try again.'
+                                            text: data.message || 'Something went wrong!'
                                         });
-                                    });
+                                    }
+                                }
+                            })
+                                    })
+                        .catch(error => {
+                            resetBtn();
+                            console.error("Error:", error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Something went wrong. Please try again.'
                             });
-
                         });
-                    </script>
+                });
+
+
+                // Parallax Effect
+                document.addEventListener('mousemove', (e) => {
+                    const planets = document.querySelectorAll('.planet');
+                    const x = (window.innerWidth - e.pageX * 2) / 100;
+                    const y = (window.innerHeight - e.pageY * 2) / 100;
+
+                    planets.forEach(planet => {
+                        const speed = planet.classList.contains('earth') ? 2 :
+                            planet.classList.contains('mars') ? 4 : 1;
+                        planet.style.transform = `translateX(${x * speed}px) translateY(${y * speed}px)`;
+                    });
+                });
+            </script>
 
 </body>
 

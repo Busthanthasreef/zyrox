@@ -12,6 +12,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Trending Products Animation -->
+    <link rel="stylesheet" href="userStyles/home/trendingAnimation.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        accent: '#4ade80',
+                        deep: '#0a0a0a',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 
 <body>
@@ -61,49 +77,49 @@
             </div>
         </section>
 
-        <!-- Categories -->
-        <section class="categories">
-            <div class="section-header">
-                <h2 class="section-title">Shop by category</h2>
-                <a href="/products" class="view-all-link">View all categories →</a>
+        <!-- Categories Section -->
+        <section class="max-w-[1400px] mx-auto px-10 my-16">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-white">Shop by Brand</h2>
+                <a href="/products" class="text-accent hover:text-green-400 transition-colors text-sm font-medium">View all brands →</a>
             </div>
 
-            <div class="categories-grid">
-                <div class="category-item">
-                    <div class="category-icon"><i class="fab fa-apple"></i></div>
-                    <div class="category-name">Apple</div>
-                </div>
-                <div class="category-item">
-                    <div class="category-icon"><i class="fas fa-laptop"></i></div>
-                    <div class="category-name">Samsung</div>
-                </div>
-                <div class="category-item">
-                    <div class="category-icon"><i class="fas fa-basketball-ball" style="color: #ff9800;"></i></div>
-                    <div class="category-name">Realme</div>
-                </div>
-                <div class="category-item">
-                    <div class="category-icon"><i class="fas fa-mobile-alt" style="color: #9e9e9e;"></i></div>
-                    <div class="category-name">Oppo</div>
-                </div>
-                <div class="category-item">
-                    <div class="category-icon"><i class="fas fa-sun" style="color: #ffc107;"></i></div>
-                    <div class="category-name">Xiaomi</div>
-                </div>
-                <div class="category-item">
-                    <div class="category-icon"><i class="fas fa-moon" style="color: #2196f3;"></i></div>
-                    <div class="category-name">Vivo</div>
-                </div>
+            <div class="flex flex-nowrap overflow-x-auto gap-4 md:gap-6 justify-start md:justify-center py-4 no-scrollbar">
+                <% if(typeof categories !== 'undefined' && categories.length > 0) { %>
+                    <% categories.forEach(category => { %>
+                        <div onclick="window.location.href='/products?brand=<%= category.categoryName %>'" 
+                             class="group cursor-pointer bg-[#1a1a1a] border border-white/5 hover:border-accent/50 p-4 sm:p-6 md:p-8 rounded-xl md:rounded-2xl text-center transition-all duration-300 hover:-translate-y-2 hover:bg-[#222] min-w-[120px] sm:min-w-[150px] md:min-w-[180px] flex-shrink-0 backdrop-blur-sm">
+                            <div class="text-2xl sm:text-3xl md:text-4xl mb-3 md:mb-4 text-white/80 group-hover:text-accent transition-colors">
+                                <% if(category.categoryName.toLowerCase() === 'apple') { %>
+                                    <i class="fab fa-apple"></i>
+                                <% } else if(category.categoryName.toLowerCase() === 'samsung') { %>
+                                    <i class="fas fa-mobile-screen" style="color: #034ea2;"></i>
+                                <% } else if(category.categoryName.toLowerCase() === 'realme') { %>
+                                    <i class="fas fa-bolt" style="color: #ff9800;"></i>
+                                <% } else { %>
+                                    <i class="fas fa-tag text-accent"></i>
+                                <% } %>
+                            </div>
+                            <div class="text-xs sm:text-sm font-semibold text-gray-300 group-hover:text-white"><%= category.categoryName %></div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="bg-[#1a1a1a] p-4 sm:p-6 md:p-8 rounded-xl md:rounded-2xl text-center min-w-[120px] sm:min-w-[150px] md:min-w-[180px] flex-shrink-0">
+                        <div class="text-2xl sm:text-3xl md:text-4xl mb-3 md:mb-4 text-accent"><i class="fas fa-mobile-alt"></i></div>
+                        <div class="text-xs sm:text-sm font-semibold text-gray-300">New Brands Coming</div>
+                    </div>
+                <% } %>
             </div>
         </section>
 
         <!-- Trending Products -->
-        <section class="products">
+        <section class="products trending-section">
             <div class="section-header">
                 <h2 class="section-title">Trending Products</h2>
                 <a href="/products" class="view-all-link">View all →</a>
             </div>
 
-            <div class="products-grid">
+            <div class="products-grid no-scrollbar">
                 <% if(trendingVariants && trendingVariants.length> 0) { %>
                     <% trendingVariants.forEach((item, index)=> { %>
                         <div class="product-card"
@@ -116,9 +132,13 @@
                                         <div class="product-badge new">NEW</div>
                                         <% } %>
                                             
-                                            <img src="<%= (item.variant.images && item.variant.images.length > 0) ? item.variant.images[0] : 'https://via.placeholder.com/300' %>"
-                                                alt="<%= item.product.productName %>" class="product-image"
-                                                style="object-fit: cover;">
+                                            <% 
+                                                let imgPath = (item.variant.images && item.variant.images.length > 0) ? item.variant.images[0] : 'https://via.placeholder.com/300';
+                                                if (!imgPath.startsWith('http') && !imgPath.startsWith('/')) {
+                                                    imgPath = '/' + imgPath.replace(/\\/g, '/');
+                                                }
+                                            %>
+                                            <img src="<%= imgPath %>" alt="<%= item.product.productName %>" class="product-image">
                                             <div class="product-name">
                                                 <%= item.product.productName %>
                                             </div>
@@ -132,6 +152,41 @@
                             <% } else { %>
                                 <p style="text-align: center; width: 100%; color: #999; padding: 40px 0;">Explore our
                                     latest arrivals in the Shop section!</p>
+                                <% } %>
+            </div>
+        </section>
+
+        <!-- All Products -->
+        <section class="products" style="margin-top: 0;">
+            <div class="section-header">
+                <h2 class="section-title">Explore Our Collection</h2>
+            </div>
+
+            <div class="products-grid no-scrollbar">
+                <% if(typeof allVariants !== 'undefined' && allVariants.length > 0) { %>
+                    <% allVariants.forEach((item, index)=> { %>
+                        <div class="product-card"
+                            onclick="window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'"
+                            style="cursor: pointer;">
+                                            <% 
+                                                let imgPath = (item.variant.images && item.variant.images.length > 0) ? item.variant.images[0] : 'https://via.placeholder.com/300';
+                                                if (!imgPath.startsWith('http') && !imgPath.startsWith('/')) {
+                                                    imgPath = '/' + imgPath.replace(/\\/g, '/');
+                                                }
+                                            %>
+                                            <img src="<%= imgPath %>" alt="<%= item.product.productName %>" class="product-image">
+                                            <div class="product-name">
+                                                <%= item.product.productName %>
+                                            </div>
+                                            <div class="product-price">₹<%= item.variant.price.toLocaleString('en-IN')
+                                                    %>.00</div>
+                                            <button class="buy-now-btn"
+                                                onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">Buy
+                                                now</button>
+                        </div>
+                        <% }) %>
+                            <% } else { %>
+                                <p style="text-align: center; width: 100%; color: #999; padding: 40px 0;">Our full collection is coming soon!</p>
                                 <% } %>
             </div>
         </section>
@@ -150,22 +205,23 @@
                         cutting-edge technology and competitive prices. Your trusted partner for all your mobile needs.
                     </p>
                     <div class="social-links">
-                        <a href="/products" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                        <a href="/products" class="social-link"><i class="fab fa-twitter"></i></a>
-                        <a href="/products" class="social-link"><i class="fab fa-instagram"></i></a>
-                        <a href="/products" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.instagram.com/busthan_c/" target="_blank" class="social-link instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.instagram.com/busthan_c/" target="_blank" class="social-link instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.instagram.com/busthan_c/" target="_blank" class="social-link instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://github.com/busthanthasreef/" target="_blank" class="social-link github"><i class="fab fa-github"></i></a>
                     </div>
                 </div>
 
                 <div class="footer-column">
-                    <h3 onclick="window.location.href='/products'">Shop Now</h3>
+                    <h3 class="cursor-pointer hover:text-accent transition-colors" onclick="window.location.href='/products'">Shop Brands</h3>
                     <ul class="footer-links">
-                        <li><a href="/products">Apple</a></li>
-                        <li><a href="/products">Samsung</a></li>
-                        <li><a href="/products">Realme</a></li>
-                        <li><a href="/products">Oppo</a></li>
-                        <li><a href="/products">Xiaomi</a></li>
-                        <li><a href="/products">Vivo</a></li>
+                        <% if(typeof categories !== 'undefined' && categories.length > 0) { %>
+                            <% categories.slice(0, 6).forEach(category => { %>
+                                <li><a href="/products?brand=<%= category.categoryName %>" class="hover:text-accent transition-colors"><%= category.categoryName %></a></li>
+                            <% }) %>
+                        <% } else { %>
+                            <li><a href="/products">All Smartphones</a></li>
+                        <% } %>
                     </ul>
                 </div>
 
@@ -218,6 +274,177 @@
                     Swal.fire({ icon: 'info', title: code, text: 'Copy this coupon code!', timer: 2000, showConfirmButton: false });
                 });
             }
+
+            // Scroll Reveal Intersection Observer
+            document.addEventListener('DOMContentLoaded', () => {
+                const observerOptions = {
+                    threshold: 0.15,
+                    rootMargin: '0px 0px -50px 0px'
+                };
+
+                const revealObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                            revealObserver.unobserve(entry.target);
+                        }
+                    });
+                }, observerOptions);
+
+                // Target sections and cards
+                const sections = document.querySelectorAll('.hero, .categories, .products, .footer');
+                const productCards = document.querySelectorAll('.product-card');
+
+                sections.forEach(sec => {
+                    sec.classList.add('reveal');
+                    revealObserver.observe(sec);
+                });
+
+                productCards.forEach((card, idx) => {
+                    card.classList.add('reveal');
+                    // Add staggered delay class (cycle 1-4)
+                    card.classList.add(`stagger-${(idx % 4) + 1}`);
+                    revealObserver.observe(card);
+                });
+            });
+        </script>
+
+        <!-- ═══ TRENDING PRODUCTS ANIMATION ENGINE ═══
+             Pure CSS + minimal JS. No libraries. Intersection Observer fires once.
+             Fragment effect: image sliced into 5×2 grid, scattered, reassembled.
+        ══════════════════════════════════════════════ -->
+        <script>
+        (function () {
+            'use strict';
+
+            const COLS = 5, ROWS = 2;          // fragment grid
+            const SCATTER_DIST = 38;           // px each piece flies out
+            const isMobile = window.innerWidth <= 768;
+            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            /* ── Utility: build fragment overlay on a card ── */
+            function buildFragments(card) {
+                if (isMobile || prefersReduced) return;
+
+                const img = card.querySelector('.product-image');
+                if (!img || !img.src) return;
+
+                const wrap = document.createElement('div');
+                wrap.className = 'zyx-fragment-wrap';
+                wrap.style.position = 'absolute';
+                wrap.style.inset = '0';
+
+                // Position wrap relative to card (card already has position:relative)
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        const piece = document.createElement('div');
+                        piece.className = 'zyx-piece';
+                        // Use background-image + background-position to slice the image
+                        piece.style.backgroundImage = `url(${img.src})`;
+                        piece.style.backgroundSize  = `${COLS * 100}% ${ROWS * 100}%`;
+                        piece.style.backgroundPosition = `${(c / (COLS - 1)) * 100}% ${(r / (ROWS - 1)) * 100}%`;
+                        // Determine scatter direction (vector from center of grid)
+                        const dx = (c - (COLS - 1) / 2);
+                        const dy = (r - (ROWS - 1) / 2);
+                        piece.dataset.dx = dx;
+                        piece.dataset.dy = dy;
+                        piece.style.transition = `transform 4.0s cubic-bezier(0.22, 1, 0.36, 1) ${(r * COLS + c) * 35}ms,
+                                                  opacity 0.75s ease ${(r * COLS + c) * 25}ms`;
+                        wrap.appendChild(piece);
+                    }
+                }
+
+                // Insert behind text, over image
+                const imgParent = img.parentNode;
+                imgParent.style.position = 'relative';
+                img.parentNode.insertBefore(wrap, img.nextSibling);
+                return wrap;
+            }
+
+            /* ── Play fragment animation on a card ── */
+            function playFragment(card) {
+                if (isMobile || prefersReduced) return;
+
+                const wrap = card.querySelector('.zyx-fragment-wrap');
+                if (!wrap) return;
+
+                const pieces = wrap.querySelectorAll('.zyx-piece');
+
+                // Phase 1: show overlay + scatter pieces
+                wrap.classList.add('active');
+                pieces.forEach(p => {
+                    const dx = parseFloat(p.dataset.dx);
+                    const dy = parseFloat(p.dataset.dy);
+                    p.style.transform = `translate(${dx * SCATTER_DIST}px, ${dy * SCATTER_DIST}px) scale(0.85)`;
+                    p.style.opacity   = '0';
+                });
+
+                // Phase 2: reassemble (after scatter settles)
+                setTimeout(() => {
+                    pieces.forEach(p => {
+                        p.style.transform = 'translate(0,0) scale(1)';
+                        p.style.opacity   = '1';
+                    });
+                }, 650); // Delayed joining (Phase 2)
+
+                // Phase 3: remove overlay so real image shows clean
+                setTimeout(() => {
+                    wrap.classList.remove('active');
+                    wrap.style.opacity = '0';
+                }, 5000); // Extended finish (Phase 3) for 4s transition
+            }
+
+            /* ── Main: set up Intersection Observer ── */
+            function initTrendingAnimation() {
+                const section = document.querySelector('.trending-section');
+                if (!section) return;
+
+                const header = section.querySelector('.section-header');
+                const cards  = section.querySelectorAll('.product-card');
+
+                if (!cards.length) return;
+
+                // Build fragment overlays now (before animation fires)
+                cards.forEach(card => buildFragments(card));
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (!entry.isIntersecting) return;
+                        observer.unobserve(entry.target); // fires only once
+
+                        // Animate header in
+                        if (header) {
+                            requestAnimationFrame(() => header.classList.add('zyx-header-in'));
+                        }
+
+                        // Spread cards in with stagger
+                        cards.forEach((card, i) => {
+                            setTimeout(() => {
+                                card.classList.add('zyx-spread');
+
+                                // Play fragment effect after card has arrived
+                                setTimeout(() => playFragment(card), 300);
+
+                                // Enable idle swing after everything settles
+                                setTimeout(() => card.classList.add('zyx-idle'), 900);
+                            }, i * 100);
+                        });
+                    });
+                }, {
+                    threshold: 0.12,
+                    rootMargin: '0px 0px -40px 0px'
+                });
+
+                observer.observe(section);
+            }
+
+            // Boot after DOM ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initTrendingAnimation);
+            } else {
+                initTrendingAnimation();
+            }
+        })();
         </script>
 
 </body>

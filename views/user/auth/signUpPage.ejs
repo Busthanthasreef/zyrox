@@ -16,6 +16,12 @@
 </head>
 
 <body>
+    <div class="space-background">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+        <div class="nebula"></div>
+    </div>
 
     <div class="signup-card">
         <h1 class="h4 fw-bold mb-1">SIGN UP</h1>
@@ -48,6 +54,7 @@
             <div class="mb-3">
                 <label class="form-label">Phone Number</label>
                 <input type="tel" id="Phone" name="phone" class="form-control" placeholder="Enter your Phone Number"
+                    inputmode="numeric" pattern="[0-9+]*" maxlength="14"
                     value="<%= (typeof Phone !== 'undefined' && Phone !== '') ? (Phone.includes('+91') ? Phone : '+91' + Phone) : '+91' %>">
             </div>
             <p style="color:red; font-size: small;" id="phoneError">
@@ -142,6 +149,7 @@
         document.addEventListener("DOMContentLoaded", function () {
 
             const formElement = document.querySelector("form");
+            const submitBtn = formElement.querySelector(".btn-create");
 
             const togglePassword = document.getElementById("togglePassword");
             const password = document.getElementById("Password");
@@ -256,6 +264,11 @@
                     return;
                 }
 
+                // Show Loading State
+                submitBtn.textContent = "Loading...";
+                submitBtn.classList.add("btn-loading");
+                submitBtn.disabled = true;
+
                 localStorage.removeItem("otp_timer_expiry");
             });
 
@@ -277,27 +290,42 @@
             }
 
             fullNameInput.addEventListener('input', function() {
-                const nameError = document.getElementById("nameError");
-                if (/^[a-zA-Z\s]{3,50}$/.test(this.value.trim())) {
-                    nameError.textContent = "";
-                }
+                document.getElementById("nameError").textContent = "";
             });
 
             emailInput.addEventListener('input', function() {
-                const emailError = document.getElementById("emailError");
-                if (/^(?!.*\.\.)(?!\.)(?!.*\.$)[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9-]+(\.[A-Za-z]{2,})+$/.test(this.value.trim())) {
-                    emailError.textContent = "";
-                }
+                document.getElementById("emailError").textContent = "";
             });
 
             phoneInput.addEventListener('input', function() {
-                const phoneError = document.getElementById("phoneError");
-                if (/^(?:\+91|91|0)?[6-9]\d{9}$/.test(this.value.trim())) {
-                    phoneError.textContent = "";
+                document.getElementById("phoneError").textContent = "";
+            });
+
+            // Block non-numeric characters (allow +, digits, Backspace, Delete, Tab, Arrow keys)
+            phoneInput.addEventListener('keydown', function(e) {
+                const allowedKeys = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+                const isDigit = e.key >= '0' && e.key <= '9';
+                const isPlus = e.key === '+' && this.selectionStart === 0;
+                const isCtrlCmd = e.ctrlKey || e.metaKey; // allow copy/paste shortcuts
+                if (!isDigit && !isPlus && !allowedKeys.includes(e.key) && !isCtrlCmd) {
+                    e.preventDefault();
                 }
             });
 
-            confirmPassword.addEventListener('input', clearPasswordErrorWhenValid);
+            // Strip any non-numeric chars on paste (except leading +)
+            phoneInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pasted = (e.clipboardData || window.clipboardData).getData('text');
+                const cleaned = pasted.replace(/[^0-9+]/g, '').replace(/(?!^)\+/g, '');
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                const current = this.value;
+                this.value = current.slice(0, start) + cleaned + current.slice(end);
+            });
+
+            confirmPassword.addEventListener('input', function() {
+                clearPasswordErrorWhenValid();
+            });
 
             // Password strength logic
             const strengthMeter = document.getElementById("strengthMeter");
@@ -359,7 +387,19 @@
                 }
                 clearPasswordErrorWhenValid();
             });
+        });
 
+        // Parallax Effect
+        document.addEventListener('mousemove', (e) => {
+            const planets = document.querySelectorAll('.planet');
+            const x = (window.innerWidth - e.pageX * 2) / 100;
+            const y = (window.innerHeight - e.pageY * 2) / 100;
+
+            planets.forEach(planet => {
+                const speed = planet.classList.contains('earth') ? 2 : 
+                              planet.classList.contains('mars') ? 4 : 1;
+                planet.style.transform = `translateX(${x * speed}px) translateY(${y * speed}px)`;
+            });
         });
     </script>
     <% if (typeof emailError !=='undefined' && emailError && (emailError.toLowerCase().includes('exist') ||

@@ -1,0 +1,74 @@
+/* ========== SPACE BACKGROUND ========== */
+.space-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #1B2735 0%, #090A0F 100%);
+    z-index: -9999;
+    overflow: hidden;
+    pointer-events: none; /* Let clicks pass through to content */
+}
+
+.stars, .stars2, .stars3 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.stars {
+    background: transparent url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
+    animation: spaceMove 100s linear infinite;
+    opacity: 0.4;
+}
+
+.stars2 {
+    background: transparent url('https://www.transparenttextures.com/patterns/stardust.png') repeat;
+    animation: spaceMove 150s linear infinite reverse;
+    opacity: 0.25;
+}
+
+.stars3 {
+    background: radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0));
+    background-repeat: repeat;
+    background-size: 200px 200px;
+    opacity: 0.1;
+    animation: twinkle 4s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+    from { opacity: 0.1; }
+    to { opacity: 0.3; }
+}
+
+@keyframes spaceMove {
+    from { background-position: 0 0; }
+    to { background-position: 10000px 5000px; }
+}
+
+.nebula {
+    position: absolute;
+    width: 150%;
+    height: 150%;
+    top: -25%;
+    left: -25%;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(79, 110, 247, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+    filter: blur(100px);
+    z-index: -1;
+    animation: nebulaPulse 15s ease-in-out infinite alternate;
+}
+
+@keyframes nebulaPulse {
+    0% { opacity: 0.4; transform: scale(1) rotate(0deg); }
+    100% { opacity: 0.7; transform: scale(1.1) rotate(5deg); }
+}

@@ -12,7 +12,7 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--bg-deep);
+    background-color: transparent !important;
     color: var(--text-dark);
     min-height: 100vh;
     display: flex;
@@ -231,4 +231,30 @@ body {
     .otp-subtitle {
         font-size: 12px;
     }
+}
+
+/* ========== LOADING SPINNER ========== */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.8;
+    padding-right: 40px !important;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    top: 50%;
+    right: 15px;
+    margin-top: -9px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: btn-spin 0.8s linear infinite;
+}
+
+@keyframes btn-spin {
+    to { transform: rotate(360deg); }
 }

@@ -44,7 +44,7 @@
 
 
         /* ── LAYOUT ── */
-        .page-wrapper { display: flex; min-height: 100vh; align-items: flex-start; padding-top: 80px; }
+        .page-wrapper { display: flex; min-height: 100vh; align-items: flex-start; padding-top: 56px; }
         .main-wrapper { flex: 1; padding-bottom: 80px; }
         .content-container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
 
@@ -118,8 +118,47 @@
         /* ── SECURITY SECTION ── */
         .security-section { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 25px; text-align: center; }
         .security-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; }
-        .btn-update-password { width: 100%; background: var(--bg-card); border: 1px solid var(--border2); color: var(--text); padding: 12px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; }
+        .btn-update-password { width: 100%; background: var(--bg-card); border: 1px solid var(--border2); color: var(--text); padding: 12px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; cursor: pointer; }
+        .btn-update-password:hover { background: var(--bg-card-h); border-color: var(--primary-blue); color: #fff; }
         .btn-update-password i { color: var(--sub); }
+
+        /* ── ADD PASSWORD (Google) ── */
+        .google-add-pass-hint {
+            display: flex; align-items: flex-start; gap: 14px;
+            background: rgba(79, 110, 247, 0.07);
+            border: 1px solid rgba(79, 110, 247, 0.2);
+            border-radius: 12px; padding: 14px 16px;
+            margin-bottom: 16px; text-align: left;
+        }
+        .google-icon { font-size: 1.4rem; color: #4285F4; margin-top: 2px; flex-shrink: 0; }
+        .google-hint-text { display: flex; flex-direction: column; gap: 4px; }
+        .hint-title { font-size: 0.88rem; font-weight: 700; color: var(--text); }
+        .hint-sub { font-size: 0.78rem; color: var(--sub); line-height: 1.5; }
+        .btn-add-password {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(79, 110, 247, 0.15), rgba(108, 92, 231, 0.15));
+            border: 1px solid rgba(79, 110, 247, 0.4);
+            color: #7b9fff;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+        }
+        .btn-add-password:hover {
+            background: linear-gradient(135deg, rgba(79, 110, 247, 0.3), rgba(108, 92, 231, 0.3));
+            border-color: var(--primary-blue);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(79, 110, 247, 0.2);
+        }
+        .btn-add-password i { font-size: 1rem; }
 
         @media (min-width: 768px) {
             .info-cards-grid { grid-template-columns: repeat(2, 1fr); }
@@ -254,9 +293,23 @@
 
                     <div class="security-section">
                         <h4 class="security-title">Security</h4>
-                        <button class="btn-update-password" data-bs-toggle="modal" data-bs-target="#passwordModal">
-                            <i class="fas fa-shield-alt"></i> Update Password
-                        </button>
+                        <% if (isGoogleUser && !hasPassword) { %>
+                            <!-- Google user with NO password yet -->
+                            <div class="google-add-pass-hint">
+                                <i class="fab fa-google google-icon"></i>
+                                <div class="google-hint-text">
+                                    <span class="hint-title">Your account is managed by Google</span>
+                                    <span class="hint-sub">You can set a Zyrox password to log in directly without Google.</span>
+                                </div>
+                            </div>
+                            <button class="btn-add-password" data-bs-toggle="modal" data-bs-target="#passwordModal">
+                                <i class="fas fa-plus-circle"></i> Add Password
+                            </button>
+                        <% } else { %>
+                            <button class="btn-update-password" data-bs-toggle="modal" data-bs-target="#passwordModal">
+                                <i class="fas fa-shield-alt"></i> Update Password
+                            </button>
+                        <% } %>
                     </div>
                 <% } %>
             </div>
@@ -273,10 +326,19 @@
                 <div class="modal-header border-0 px-4 pt-4 pb-2">
                     <div>
                         <h5 class="modal-title fw-bold mb-1" style="color:#f0f2ff;">
-                            <i class="bi bi-shield-lock me-2" style="color:#4f6ef7;"></i>
-                            <%= hasPassword ? 'Update Password' : 'Add Password' %>
+                            <% if (isGoogleUser && !hasPassword) { %>
+                                <i class="fab fa-google me-2" style="color:#4285F4;"></i> Add a Password
+                            <% } else { %>
+                                <i class="bi bi-shield-lock me-2" style="color:#4f6ef7;"></i> Update Password
+                            <% } %>
                         </h5>
-                        <p class="mb-0 small" style="color:#8b92b8;">Keep your account secure with a strong password</p>
+                        <p class="mb-0 small" style="color:#8b92b8;">
+                            <% if (isGoogleUser && !hasPassword) { %>
+                                Set a Zyrox password to also log in without Google
+                            <% } else { %>
+                                Keep your account secure with a strong password
+                            <% } %>
+                        </p>
                     </div>
                     <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
                 </div>
@@ -397,7 +459,19 @@
                 icon: 'success',
                 title: '<%= profileSuccess %>',
                 showConfirmButton: false,
-                timer: 2000,
+                timer: 2500,
+                background: '#141824',
+                color: '#e8eaf6'
+            });
+        <% } %>
+
+        <% if (typeof passwordToast !== 'undefined' && passwordToast) { %>
+            Swal.fire({
+                icon: 'success',
+                title: '🎉 Password Set!',
+                text: 'You can now log in with your email and this new password.',
+                confirmButtonText: 'Great!',
+                confirmButtonColor: '#4f6ef7',
                 background: '#141824',
                 color: '#e8eaf6'
             });
@@ -478,16 +552,38 @@
                 if (!ok) return;
                 const submitBtn = _modalForm.querySelector('button[type="submit"]');
                 const originalHtml = submitBtn.innerHTML;
+                const isAddFlow = _modalForm.action.includes('/add-password');
                 try {
                     submitBtn.disabled = true;
-                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Updating...';
-                    const res = await fetch(_modalForm.action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.fromEntries(new FormData(_modalForm))) });
+                    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> ${isAddFlow ? 'Setting Password...' : 'Updating...'}`;
+                    // Collect only the visible / relevant fields manually to avoid hidden section issues
+                    const payload = {
+                        newPassword: document.getElementById('modal_newPassword').value,
+                        confirmPassword: document.getElementById('modal_confirmPassword').value
+                    };
+                    // Include currentPassword only for the change-password flow
+                    const currentPassEl = document.getElementById('modal_currentPassword');
+                    if (currentPassEl) payload.currentPassword = currentPassEl.value;
+
+                    const res = await fetch(_modalForm.action, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
                     const result = await res.json();
                     if (result.success) {
                         bootstrap.Modal.getInstance(document.getElementById('passwordModal')).hide();
-                        Swal.fire({ icon: 'success', title: 'Success!', text: result.message, timer: 2000, showConfirmButton: false, background: '#1a1a1a', color: '#fff' }).then(() => window.location.reload());
+                        Swal.fire({
+                            icon: 'success',
+                            title: isAddFlow ? '🎉 Password Set!' : 'Password Updated!',
+                            text: result.message,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#4f6ef7',
+                            background: '#141824',
+                            color: '#e8eaf6'
+                        }).then(() => window.location.reload());
                     } else {
-                        newErr.textContent = result.message || 'Update failed.';
+                        newErr.textContent = result.message || (isAddFlow ? 'Failed to set password.' : 'Update failed.');
                         submitBtn.disabled = false; submitBtn.innerHTML = originalHtml;
                     }
                 } catch (err) { submitBtn.disabled = false; submitBtn.innerHTML = originalHtml; }

@@ -242,10 +242,21 @@
                                                 </tr>
                                                 <% }) %>
                                                     <%}else{%>
-
-                                                        <h4>no Products found</h4>
-
-                                                        <%}%>
+                                        <tr>
+                                            <td colspan="7" style="text-align: center; padding: 80px 20px;">
+                                                <div class="empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                                    <i class="bi bi-search" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;"></i>
+                                                    <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 8px;">No Products Found</h4>
+                                                    <p style="color: #64748b; font-size: 14px; max-width: 300px; margin: 0 auto 20px;">We couldn't find any products matching your current search or filters.</p>
+                                                    <% if (search || (typeof categoryFilter !== 'undefined' && categoryFilter) || (typeof statusFilter !== 'undefined' && statusFilter)) { %>
+                                                        <a href="/admin/products" class="btn btn-dark px-4 py-2" style="border-radius: 8px; font-weight: 600; font-size: 13px;">
+                                                            <i class="bi bi-arrow-counterclockwise me-1"></i> Clear All Filters
+                                                        </a>
+                                                    <% } %>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <%}%>
                             </tbody>
                         </table>
                     </div>

@@ -19,65 +19,69 @@
     <p class="sidebar-section-label">Management</p>
 
     <nav class="sidebar-nav">
-        <a href="/admin/dashboard" class="nav-item <%= currentPage === 'dashboard' ? 'active' : '' %>">
-            <i class="bi bi-grid-1x2"></i> Dashboard
+        <a href="/admin/dashboard" class="nav-item <%= currentPage === 'dashboard' ? 'active' : '' %>" data-tooltip="Dashboard">
+            <i class="bi bi-grid-1x2"></i> <span>Dashboard</span>
         </a>
-        <a href="/admin/orders" class="nav-item <%= currentPage === 'orders' ? 'active' : '' %>">
-            <i class="bi bi-receipt"></i> Orders
+        <a href="/admin/orders" class="nav-item <%= currentPage === 'orders' ? 'active' : '' %>" data-tooltip="Orders">
+            <i class="bi bi-receipt"></i> <span>Orders</span>
         </a>
-        <a href="/admin/products" class="nav-item <%= currentPage === 'products' ? 'active' : '' %>">
-            <i class="bi bi-box-seam"></i> Products
+        <a href="/admin/products" class="nav-item <%= currentPage === 'products' ? 'active' : '' %>" data-tooltip="Products">
+            <i class="bi bi-box-seam"></i> <span>Products</span>
         </a>
-        <a href="/admin/categories" class="nav-item <%= currentPage === 'categories' ? 'active' : '' %>">
-            <i class="bi bi-tag"></i> Categories
+        <a href="/admin/categories" class="nav-item <%= currentPage === 'categories' ? 'active' : '' %>" data-tooltip="Categories">
+            <i class="bi bi-tag"></i> <span>Categories</span>
         </a>
-        <a href="/admin/coupons" class="nav-item <%= currentPage === 'coupons' ? 'active' : '' %>">
-            <i class="bi bi-ticket-perforated"></i> Coupons
+        <a href="/admin/coupons" class="nav-item <%= currentPage === 'coupons' ? 'active' : '' %>" data-tooltip="Coupons">
+            <i class="bi bi-ticket-perforated"></i> <span>Coupons</span>
         </a>
-        <a href="/admin/offers" class="nav-item <%= currentPage === 'offers' ? 'active' : '' %>">
-            <i class="bi bi-stars"></i> Offers
+        <a href="/admin/offers" class="nav-item <%= currentPage === 'offers' ? 'active' : '' %>" data-tooltip="Offers">
+            <i class="bi bi-stars"></i> <span>Offers</span>
         </a>
-        <a href="/admin/sales-report" class="nav-item <%= currentPage === 'sales-report' ? 'active' : '' %>">
-            <i class="bi bi-bar-chart"></i> Sales Report
+        <a href="/admin/sales-report" class="nav-item <%= currentPage === 'sales-report' ? 'active' : '' %>" data-tooltip="Sales Report">
+            <i class="bi bi-bar-chart"></i> <span>Sales Report</span>
         </a>
-        <a href="/admin/users" class="nav-item <%= currentPage === 'users' ? 'active' : '' %>">
-            <i class="bi bi-people"></i> User Management
-        </a>
-        <a href="" class="nav-item text-danger" onclick="confirmLogout(); return false;">
-            <i class="bi bi-box-arrow-right"></i> Logout
+        <a href="/admin/users" class="nav-item <%= currentPage === 'users' ? 'active' : '' %>" data-tooltip="User Management">
+            <i class="bi bi-people"></i> <span>User Management</span>
         </a>
     </nav>
 
-    <!-- Admin Info -->
-    <div class="sidebar-user">
-        <% 
-            const displayUser = (typeof currentUser !== 'undefined' && currentUser) 
-                             ? currentUser 
-                             : (typeof admin !== 'undefined' && admin) 
-                             ? admin 
-                             : (typeof user !== 'undefined' && user) 
-                             ? user 
-                             : null;
-        %>
-        <% if (displayUser) { %>
-            <div class="user-avatar">
-                <%= (displayUser.Name || displayUser.Email || 'A').charAt(0).toUpperCase() %>
-            </div>
-            <div class="user-info">
-                <p class="user-name">
-                    <%= displayUser.Name || 'Admin' %>
-                </p>
-                <p class="user-email">
-                    <%= displayUser.Email || 'admin@zyrox.com' %>
-                </p>
-            </div>
-        <% } else { %>
-            <div class="user-avatar">A</div>
-            <div class="user-info">
-                <p class="user-name">Admin</p>
-                <p class="user-email">admin@zyrox.com</p>
-            </div>
-        <% } %>
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+        <div class="sidebar-section-label" style="margin-top: 0; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">Account</div>
+        <a href="" class="nav-item text-danger" onclick="confirmLogout(); return false;" style="margin: 0 14px 10px;" data-tooltip="Logout">
+            <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
+        </a>
+
+        <div class="sidebar-user">
+            <% 
+                const displayUser = (typeof currentUser !== 'undefined' && currentUser) 
+                                 ? currentUser 
+                                 : (typeof admin !== 'undefined' && admin) 
+                                 ? admin 
+                                 : (typeof user !== 'undefined' && user) 
+                                 ? user 
+                                 : null;
+            %>
+            <% if (displayUser) { %>
+                <div class="user-avatar">
+                    <%= (displayUser.Name || displayUser.Email || 'A').charAt(0).toUpperCase() %>
+                </div>
+                <div class="user-info">
+                    <p class="user-name">
+                        <%= displayUser.Name || 'Admin' %>
+                    </p>
+                    <p class="user-email">
+                        <%= displayUser.Email || 'admin@zyrox.com' %>
+                    </p>
+                </div>
+            <% } else { %>
+                <div class="user-avatar">A</div>
+                <div class="user-info">
+                    <p class="user-name">Admin</p>
+                    <p class="user-email">admin@zyrox.com</p>
+                </div>
+            <% } %>
+        </div>
     </div>
 
 </aside>
