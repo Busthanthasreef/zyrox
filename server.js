@@ -13,7 +13,7 @@ import crypto from "node:crypto";
 
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
-const sessionSecret = process.env.SESSION_SECRET || (isProduction ? "" : crypto.randomUUID());
+const sessionSecret = process.env.SESSION_SECRET;
 
 if (!sessionSecret) {
     throw new Error("SESSION_SECRET is required in production.");

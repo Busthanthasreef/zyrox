@@ -228,19 +228,43 @@
         </div>
 
         <!-- Order Header -->
-        <div class="flex items-center gap-4 mb-8">
-            <h1 class="text-3xl font-extrabold tracking-tight">Order ID: <span class="text-white">
-                    <%= order.orderId %>
-                </span></h1>
-            <% let hC='#ffc107' ; const os=order.orderStatus.toLowerCase(); if(os.includes('pending')) hC='#fd7e14' ;
-                else if(os.includes('processing')) hC='#ffc107' ; else if(os.includes('shipped')) hC='#0ea5e9' ; else
-                if(os.includes('delivered')) hC='#22c55e' ; else if(os.includes('cancel')) hC='#ef4444' ; else
-                if(os.includes('return')) hC='#f59e0b' ; %>
-                <span class="px-3 py-1 rounded-full text-[0.7rem] font-bold border"
-                    style="border-color: <%= hC %>; color: <%= hC %>; background: <%= hC %>1a">
-                    <i class="fas fa-circle text-[6px] mr-1 align-middle"></i>
-                    <%= order.orderStatus %>
-                </span>
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div class="flex items-center gap-4">
+                <h1 class="text-3xl font-extrabold tracking-tight">Order ID: <span class="text-white">
+                        <%= order.orderId %>
+                    </span></h1>
+                <% let hC='#ffc107' ; const os=order.orderStatus.toLowerCase(); if(os.includes('pending')) hC='#fd7e14' ;
+                    else if(os.includes('processing')) hC='#ffc107' ; else if(os.includes('shipped')) hC='#0ea5e9' ; else
+                    if(os.includes('delivered')) hC='#22c55e' ; else if(os.includes('cancel')) hC='#ef4444' ; else
+                    if(os.includes('return')) hC='#f59e0b' ; %>
+                    <span class="px-3 py-1 rounded-full text-[0.7rem] font-bold border"
+                        style="border-color: <%= hC %>; color: <%= hC %>; background: <%= hC %>1a">
+                        <i class="fas fa-circle text-[6px] mr-1 align-middle"></i>
+                        <%= order.orderStatus %>
+                    </span>
+            </div>
+
+            <!-- Top Desktop Actions -->
+            <div class="hidden lg:flex items-center gap-3">
+                <% if (['Pending', 'Processing'].includes(order.orderStatus)) { %>
+                    <button onclick="handleCancelEntireOrder()" 
+                        class="px-5 py-2.5 bg-red-600/10 border border-red-600/50 text-red-500 rounded-xl font-bold hover:bg-red-600 hover:text-white transition uppercase tracking-wider text-[0.65rem]">
+                        Cancel Order
+                    </button>
+                <% } %>
+                <% if (order.orderStatus === 'Delivered') { %>
+                    <% 
+                        const delivDate = order.deliveredAt || order.updatedAt;
+                        const daysSince = Math.floor((Date.now() - new Date(delivDate).getTime()) / (1000 * 60 * 60 * 24));
+                    %>
+                    <% if (daysSince <= 7) { %>
+                        <button onclick="handleReturnEntireOrder()" 
+                            class="px-5 py-2.5 bg-orange-600/10 border border-orange-600/50 text-orange-500 rounded-xl font-bold hover:bg-orange-600 hover:text-white transition uppercase tracking-wider text-[0.65rem]">
+                            Return Order
+                        </button>
+                    <% } %>
+                <% } %>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -440,12 +464,14 @@
                         <div class="flex justify-between pb-4 border-b border-[#30363d]"><span>Tax (GST)</span><span
                                 class="text-white font-bold">₹<%= (order.tax || 0).toLocaleString('en-IN') %></span>
                         </div>
-                        <div class="flex justify-between items-center pt-2"><span
-                                class="text-xl font-extrabold uppercase">Total</span><span
-                                class="text-2xl font-extrabold text-white">₹<%= order.finalPrice.toLocaleString('en-IN')
-                                    %></span></div>
+                        <div class="flex justify-between items-center pt-2">
+                            <span class="text-xl font-extrabold uppercase">Total</span>
+                            <span class="text-2xl font-extrabold text-white">₹<%= order.finalPrice.toLocaleString('en-IN') %></span>
+                        </div>
                     </div>
                 </div>
+
+
 
                 <div class="space-y-3">
                     <% if (['Pending', 'Processing' ].includes(order.orderStatus)) { %>
@@ -453,12 +479,22 @@
                             class="w-full bg-red-600/10 border border-red-600/50 text-red-500 py-3 rounded-xl font-bold hover:bg-red-600 hover:text-white transition uppercase tracking-wider text-xs">Cancel
                             Entire Order</button>
                         <% } %>
-                            <% if (order.orderStatus==='Delivered' ) { %>
-                                <button onclick="downloadInvoiceBill()"
-                                    class="w-full border border-blue-600/50 text-blue-400 py-3 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition uppercase tracking-wider text-xs">
-                                    <i class="fas fa-download mr-1"></i> Download Invoice
+                        <% if (order.orderStatus==='Delivered' ) { %>
+                            <% 
+                                const delivDate = order.deliveredAt || order.updatedAt;
+                                const daysSince = Math.floor((Date.now() - new Date(delivDate).getTime()) / (1000 * 60 * 60 * 24));
+                            %>
+                            <% if (daysSince <= 7) { %>
+                                <button onclick="handleReturnEntireOrder()" 
+                                    class="w-full bg-orange-600/10 border border-orange-600/50 text-orange-500 py-3 rounded-xl font-bold hover:bg-orange-600 hover:text-white transition uppercase tracking-wider text-xs">
+                                    Return Entire Order
                                 </button>
-                                <% } %>
+                            <% } %>
+                            <button onclick="downloadInvoiceBill()"
+                                class="w-full border border-blue-600/50 text-blue-400 py-3 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition uppercase tracking-wider text-xs">
+                                <i class="fas fa-download mr-1"></i> Download Invoice
+                            </button>
+                            <% } %>
                 </div>
             </div>
         </div>
@@ -752,6 +788,72 @@
                 .then(res => {
                     if (res.data.success) {
                         Swal.fire({ title: 'Cancelled!', text: 'Your order has been cancelled.', icon: 'success', background: '#161b22', color: '#fff' })
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire({ title: 'Error', text: res.data.message, icon: 'error', background: '#161b22', color: '#fff' });
+                    }
+                });
+        }
+
+        function handleReturnEntireOrder() {
+            const reasonOptions = {
+                defective: 'Product is defective',
+                not_as_described: 'Product not as described',
+                wrong_item: 'Received wrong item',
+                others: ' Others'
+            };
+
+            Swal.fire({
+                title: 'Return Entire Order?',
+                text: 'Select a reason for return',
+                input: 'select',
+                inputOptions: reasonOptions,
+                inputPlaceholder: 'Choose a reason…',
+                showCancelButton: true,
+                confirmButtonColor: '#f59e0b',
+                cancelButtonColor: '#334155',
+                confirmButtonText: 'Next →',
+                cancelButtonText: 'Go Back',
+                background: '#161b22',
+                color: '#fff',
+                inputValidator: (value) => {
+                    if (!value) return 'Please select a reason!';
+                }
+            }).then(r => {
+                if (!r.isConfirmed || !r.value) return;
+
+                if (r.value === 'others') {
+                    Swal.fire({
+                        title: 'Describe your reason',
+                        input: 'textarea',
+                        inputPlaceholder: 'Please describe why you want to return…',
+                        inputAttributes: { maxlength: 300 },
+                        showCancelButton: true,
+                        confirmButtonColor: '#f59e0b',
+                        cancelButtonColor: '#334155',
+                        confirmButtonText: 'Confirm Return',
+                        cancelButtonText: 'Go Back',
+                        background: '#161b22',
+                        color: '#fff',
+                        inputValidator: (value) => {
+                            if (!value || !value.trim()) return 'Please describe your reason!';
+                        }
+                    }).then(r2 => {
+                        if (r2.isConfirmed && r2.value) {
+                            submitReturnOrder(r2.value.trim());
+                        }
+                    });
+                } else {
+                    submitReturnOrder(r.value);
+                }
+            });
+        }
+
+        function submitReturnOrder(reason) {
+            axios.post('/return-order', { orderId: selectedOrder, reason })
+                .then(res => {
+                    if (res.data.success) {
+                        Swal.fire({ title: 'Return Requested!', text: 'Your return request has been submitted.', icon: 'success', background: '#161b22', color: '#fff' })
                             .then(() => location.reload());
                     } else {
                         Swal.fire({ title: 'Error', text: res.data.message, icon: 'error', background: '#161b22', color: '#fff' });
