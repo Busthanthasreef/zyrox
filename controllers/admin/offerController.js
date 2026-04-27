@@ -203,10 +203,76 @@ const deleteOffer = async (req, res) => {
     }
 };
 
+// Add Referral Offer
+const addReferralOffer = async (req, res) => {
+    try {
+        const errors = validateOfferData({ ...req.body, offerType: 'referral' });
+        if (errors) return res.status(400).json({ success: false, errors });
+
+        const { offerName, discountValue, startDate, endDate, isActive } = req.body;
+
+        const existingOffer = await Offer.findOne({ offerType: 'referral', isDeleted: false });
+        if (existingOffer) {
+            return res.status(400).json({ success: false, message: "Referral offer already exists. Please edit the existing one." });
+        }
+
+        const newOffer = new Offer({
+            offerName,
+            offerType: 'referral',
+            discountType: 'flat', // Referral usually uses flat amounts
+            discountValue,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            isActive: isActive !== undefined ? isActive : true
+        });
+
+        await newOffer.save();
+        res.json({ success: true, message: "Referral offer added successfully" });
+    } catch (error) {
+        console.error("Error adding referral offer:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
+// Add All Products Offer
+const addAllOffer = async (req, res) => {
+    try {
+        const errors = validateOfferData({ ...req.body, offerType: 'all' });
+        if (errors) return res.status(400).json({ success: false, errors });
+
+        const { offerName, discountType, discountValue, minPurchaseAmount, maxDiscountAmount, startDate, endDate, isActive } = req.body;
+
+        const existingOffer = await Offer.findOne({ offerType: 'all', isDeleted: false });
+        if (existingOffer) {
+            return res.status(400).json({ success: false, message: "A store-wide offer already exists." });
+        }
+
+        const newOffer = new Offer({
+            offerName,
+            offerType: 'all',
+            discountType,
+            discountValue,
+            minPurchaseAmount: minPurchaseAmount || 0,
+            maxDiscountAmount: maxDiscountAmount || null,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            isActive: isActive !== undefined ? isActive : true
+        });
+
+        await newOffer.save();
+        res.json({ success: true, message: "Store-wide offer added successfully" });
+    } catch (error) {
+        console.error("Error adding store-wide offer:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
 export {
     getOffers,
     addProductOffer,
     addCategoryOffer,
+    addReferralOffer,
+    addAllOffer,
     editOffer,
     toggleOfferStatus,
     deleteOffer

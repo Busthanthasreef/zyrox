@@ -145,18 +145,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
 window.setDefaultAddress = function (id) {
     const card = document.getElementById(`address-${id}`);
-    const otherCards = document.querySelectorAll(`.address-card-zyrox:not(#address-${id})`);
-    const defaultIndicator = card?.querySelector('.default-indicator');
     const listContainer = document.querySelector('.address-list-zyrox');
+    if (!card || !listContainer) return;
+    if (card.classList.contains('active')) return;
 
-    if (!card) return;
-    if (card.classList.contains('active')) return; // Already default
-
+    const otherCards = Array.from(document.querySelectorAll(`.address-card-zyrox:not(#address-${id})`));
+    const defaultIndicator = card.querySelector('.default-indicator');
     const originalContent = defaultIndicator ? defaultIndicator.innerHTML : '';
-    const originalClass   = defaultIndicator ? defaultIndicator.className : '';
 
+    // Phase 1: Visual State change
     card.classList.add('switching');
-    otherCards.forEach(c => c.classList.add('fade-out'));
     if (defaultIndicator) {
         defaultIndicator.innerHTML = `<span class="switching-text"><span class="spinner-small"></span> Updating...</span>`;
     }
@@ -165,42 +163,46 @@ window.setDefaultAddress = function (id) {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                setTimeout(() => {
-                    if (listContainer) listContainer.prepend(card);
-                    card.classList.remove('switching');
-                    card.classList.add('active');
-                    
-                    if (defaultIndicator) {
-                        defaultIndicator.innerHTML = `DEFAULT`;
-                    }
+                // Phase 2: Smooth Animation logic
+                const firstCard = listContainer.querySelector('.address-card-zyrox');
+                if (firstCard && firstCard !== card) {
+                    // Get positions
+                    const cardRect = card.getBoundingClientRect();
+                    const firstRect = firstCard.getBoundingClientRect();
+                    const offset = firstRect.top - cardRect.top;
 
+                    // Fade out others slightly
+                    otherCards.forEach(c => c.classList.add('fade-out'));
+
+                    // Smooth glide to top
+                    card.classList.add('moving-to-top');
+                    card.style.transform = `translateY(${offset}px)`;
+
+                    // Slide others down
                     otherCards.forEach(c => {
-                        c.classList.remove('active', 'fade-out');
-                        const ind = c.querySelector('.default-indicator');
-                        if (ind) { ind.innerHTML = 'SET AS DEFAULT'; }
+                        const cRect = c.getBoundingClientRect();
+                        if (cRect.top < cardRect.top) {
+                            c.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                            c.style.transform = `translateY(${cardRect.height + 20}px)`; // 20 is margin
+                        }
                     });
 
+                    // Finalize after animation
                     setTimeout(() => {
                         window.location.reload();
-                    }, 800);
-                }, 600);
+                    }, 700);
+                } else {
+                    window.location.reload();
+                }
             } else {
                 card.classList.remove('switching');
-                otherCards.forEach(c => c.classList.remove('fade-out'));
-                if (defaultIndicator) {
-                    defaultIndicator.innerHTML = originalContent;
-                    defaultIndicator.className = originalClass;
-                }
+                if (defaultIndicator) defaultIndicator.innerHTML = originalContent;
                 Swal?.fire({ icon: 'error', title: 'Error', text: data.message || 'Could not update' });
             }
         })
         .catch(err => {
             card.classList.remove('switching');
-            otherCards.forEach(c => c.classList.remove('fade-out'));
-            if (defaultIndicator) {
-                defaultIndicator.innerHTML = originalContent;
-                defaultIndicator.className = originalClass;
-            }
+            if (defaultIndicator) defaultIndicator.innerHTML = originalContent;
             console.error(err);
         });
 };

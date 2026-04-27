@@ -60,8 +60,17 @@ const loadProducts = async (req, res) => {
 
         const userId = req.session.user?._id || req.session.user?.id || null;
 
+        const userAgent = req.headers['user-agent'] || '';
+        let limit = 12; // Default for Desktop
+        if (/tablet|ipad|playbook|silk/i.test(userAgent)) {
+            limit = 8;
+        } else if (/mobile|iphone|ipod|android|blackberry|opera mini|windows phone/i.test(userAgent)) {
+            limit = 6;
+        }
+
         const filters = {
             page: Math.max(1, parseInt(req.query.page, 10) || 1),
+            limit: limit,
             sortParam: req.query.sort || "",
             search: req.query.search || "",
             brandFilter: toArray(req.query.brand),

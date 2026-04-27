@@ -56,6 +56,8 @@ adminRoutes.delete('/coupons/delete/:id', isAdminAuthenticated, couponController
 adminRoutes.get('/offers', isAdminAuthenticated, offerController.getOffers);
 adminRoutes.post('/offers/add-product', isAdminAuthenticated, offerController.addProductOffer);
 adminRoutes.post('/offers/add-category', isAdminAuthenticated, offerController.addCategoryOffer);
+adminRoutes.post('/offers/add-referral', isAdminAuthenticated, offerController.addReferralOffer);
+adminRoutes.post('/offers/add-all', isAdminAuthenticated, offerController.addAllOffer);
 adminRoutes.put('/offers/edit/:id', isAdminAuthenticated, offerController.editOffer);
 adminRoutes.patch('/offers/toggle/:id', isAdminAuthenticated, offerController.toggleOfferStatus);
 adminRoutes.delete('/offers/delete/:id', isAdminAuthenticated, offerController.deleteOffer);

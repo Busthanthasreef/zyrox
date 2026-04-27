@@ -114,7 +114,9 @@
                     value="<%= typeof referralCode !== 'undefined' ? referralCode : '' %>" maxlength="8"
                     style="text-transform:uppercase;">
             </div>
-            <p style="color:red; font-size: small;" id="referralError"></p>
+            <p style="color:red; font-size: small;" id="referralError">
+                <%= typeof referralError !=='undefined' && referralError ? referralError : '' %>
+            </p>
 
             <button type="submit" class="btn btn-create w-100">Create Account</button>
         </form>
@@ -325,6 +327,11 @@
 
             confirmPassword.addEventListener('input', function() {
                 clearPasswordErrorWhenValid();
+            });
+
+            const referralCodeInput = document.getElementById("referralCode");
+            referralCodeInput.addEventListener('input', function() {
+                document.getElementById("referralError").textContent = "";
             });
 
             // Password strength logic

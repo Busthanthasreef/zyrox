@@ -115,4 +115,39 @@
         const sidebar = document.getElementById('adminSidebar');
         sidebar.classList.toggle('mobile-show');
     }
+
+    // Global Number Input Validation
+    document.addEventListener('keydown', function(e) {
+        if (e.target.type === 'number') {
+            // Prevent minus sign and 'e' / 'E'
+            if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+                e.preventDefault();
+            }
+        }
+    });
+
+    document.addEventListener('paste', function(e) {
+        if (e.target.type === 'number') {
+            const pasteData = e.clipboardData.getData('text');
+            if (pasteData.includes('-') || pasteData.toLowerCase().includes('e') || pasteData.includes('+')) {
+                e.preventDefault();
+            }
+        }
+    });
+
+    document.addEventListener('input', function(e) {
+        if (e.target.type === 'number') {
+            if (parseFloat(e.target.value) < 0) {
+                e.target.value = 0;
+            }
+        }
+    });
+
+    document.addEventListener('focusin', function(e) {
+        if (e.target.type === 'number') {
+            if (!e.target.hasAttribute('min')) {
+                e.target.setAttribute('min', '0');
+            }
+        }
+    });
 </script>

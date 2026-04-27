@@ -117,18 +117,20 @@
 
 /* ── 7. Mobile: reduce animation intensity ── */
 @media (max-width: 768px) {
-    .trending-section .product-card {
-        transform: scale(0.85) translateY(30px);
-    }
-    .trending-section .product-card.zyx-spread {
-        transform: scale(1) translateY(0);
-    }
-    .trending-section .product-card.zyx-spread:hover {
-        transform: translateY(-6px) scale(1.02) !important;
-    }
-    /* Disable fragment effect on mobile for perf */
+    /* Disable fragment effect and animations on mobile for perf and stability */
     .zyx-fragment-wrap {
         display: none !important;
+    }
+    .trending-section .product-card {
+        animation: none !important;
+        transform: none !important;
+        opacity: 1 !important; /* Ensure they are visible even if animation doesn't fire */
+    }
+    .trending-section .product-card.zyx-spread {
+        transform: none !important;
+    }
+    .trending-section .product-card.zyx-spread.zyx-idle {
+        animation: none !important;
     }
 }
 

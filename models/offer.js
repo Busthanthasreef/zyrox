@@ -9,7 +9,7 @@ const offerSchema = new mongoose.Schema({
     offerType: {
         type: String,
         required: true,
-        enum: ['product', 'category']
+        enum: ['product', 'category', 'referral', 'all']
     },
     productId: {
         type: mongoose.Schema.Types.ObjectId,

@@ -57,11 +57,20 @@ const userSignUpService = async (bodyData) => {
     }
 
     const existingUser = await userSchema.findOne({ Email: trimmedEmail });
-
     if (existingUser) {
         error = { Email: "User with this email already exists" };
         data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
         return { error, data };
+    }
+
+    // Validate Referral Code
+    if (referralCode) {
+        const referrer = await userSchema.findOne({ referralCode: referralCode });
+        if (!referrer) {
+            error = { referralError: "Invalid referral code" };
+            data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, Password: trimmedPassword, referralCode };
+            return { error, data };
+        }
     }
 
     const hashedPassword = await bcrypt.hash(trimmedPassword, 10);

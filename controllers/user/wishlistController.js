@@ -56,28 +56,54 @@ const loadWishlist = async (req, res) => {
         const skip = (page - 1) * limit;
 
         const [categories, wishlistData] = await Promise.all([
-            Category.find({ IsDeleted: false }),
+            Category.find({ IsDeleted: { $ne: true } }).lean(),
             Wishlist.findOne({ User_id: userId }).populate({
                 path: "Products",
-                match: { IsDeleted: false }
+                match: { IsDeleted: { $ne: true } },
+                populate: { path: "categoryId" } // To get brand name
             })
         ]);
 
-        let wishlistProducts = wishlistData ? wishlistData.Products : [];
+        let wishlistProducts = wishlistData ? wishlistData.Products.filter(p => p !== null) : [];
         
         // Fetch display variant for each product
         const products = await Promise.all(wishlistProducts.map(async (p) => {
-            const variant = await Variant.findOne({ productId: p._id, IsDeleted: false, IsActive: true }).sort({ IsDefault: -1 });
+            // Find default or first non-deleted variant
+            const variant = await Variant.findOne({ 
+                productId: p._id, 
+                IsDeleted: { $ne: true }
+            }).sort({ IsActive: -1, IsDefault: -1 }).lean();
+            
             if (!variant) return null;
+            
+            let imagePath = (variant.images && variant.images.length > 0) ? variant.images[0] : "/images/placeholder.png";
+            
+            // Normalize path for web
+            if (imagePath && typeof imagePath === 'string') {
+                imagePath = imagePath.replace(/\\/g, '/');
+                if (imagePath.startsWith('public/')) {
+                    imagePath = imagePath.replace('public/', '/');
+                } else if (imagePath.startsWith('public\\')) {
+                    imagePath = imagePath.replace('public\\', '/');
+                }
+                if (!imagePath.startsWith('/') && !imagePath.startsWith('http')) {
+                    imagePath = '/' + imagePath;
+                }
+            }
+
+            // Check if available: Product status must be 'active' AND Variant must be IsActive
+            const isAvailable = p.status === 'active' && variant.IsActive === true;
+
             return {
                 id: p._id,
                 name: p.productName,
-                brand: p.brandName || "Zyrox Premium",
-                image: (variant.images && variant.images.length > 0) ? variant.images[0] : "/images/placeholder.png",
+                brand: p.categoryId ? p.categoryId.categoryName : "Zyrox Premium",
+                image: imagePath,
                 price: variant.price,
                 oldPrice: variant.oldPrice,
                 variantId: variant._id,
                 stock: variant.stock,
+                isAvailable: isAvailable
             };
         }));
 

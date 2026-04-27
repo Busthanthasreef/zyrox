@@ -287,14 +287,167 @@ body {
     flex-shrink: 0;
 }
 
-@media (max-width: 575px) {
+@media (max-width: 1024px) {
+    .products {
+        padding: 0 15px !important;
+        margin: 30px auto !important;
+    }
+    .products-grid {
+        flex-wrap: nowrap !important;
+        display: flex !important;
+        flex-direction: row !important;
+        padding: 15px 0 !important;
+        gap: 16px !important;
+        overflow-x: auto !important;
+        scroll-behavior: smooth;
+        justify-content: flex-start !important;
+    }
+    
+    @media (min-width: 768px) {
+        .products-grid {
+            justify-content: center !important;
+            gap: 24px !important;
+        }
+    }
+
     .product-card {
-        flex: 0 0 240px; /* Narrower on small screens */
-        padding: 15px;
+        flex: 0 0 120px !important;
+        height: auto !important;
+        min-height: 180px !important;
+        padding: 12px !important;
+        border-radius: 12px !important;
+        background-color: #1a1a1a !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        box-shadow: none !important;
+        text-align: center !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
     }
+
+    @media (min-width: 576px) {
+        .product-card { flex: 0 0 150px !important; min-height: 220px !important; }
+    }
+    @media (min-width: 768px) {
+        .product-card { flex: 0 0 180px !important; min-height: 250px !important; padding: 20px !important; }
+    }
+
     .product-image {
-        height: 200px !important;
+        height: 80px !important;
+        width: 100% !important;
+        object-fit: contain !important;
+        margin-bottom: 10px !important;
+        border-radius: 8px !important;
+        filter: none !important;
+        background-color: transparent !important;
+        transition: transform 0.3s ease !important;
     }
+    
+    @media (min-width: 576px) { .product-image { height: 100px !important; } }
+    @media (min-width: 768px) { .product-image { height: 130px !important; } }
+
+    .product-card:hover .product-image {
+        transform: translateY(-5px) !important;
+    }
+
+    .product-name {
+        position: static !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        color: #e0e0e0 !important;
+        padding: 0 !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+        border: none !important;
+        margin-top: 5px !important;
+        white-space: normal !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        box-shadow: none !important;
+    }
+    
+    @media (min-width: 576px) { .product-name { font-size: 13px !important; } }
+
+    .product-price, 
+    .buy-now-btn, 
+    .product-badge,
+    .wishlist-btn {
+        display: none !important;
+    }
+    .scroll-arrow {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 12px !important;
+        display: flex !important;
+    }
+    
+    @media (min-width: 768px) {
+        .scroll-arrow { width: 40px !important; height: 40px !important; font-size: 14px !important; }
+    }
+}
+
+/* Scroll Arrows Styling */
+.products-container {
+    position: relative;
+    width: 100%;
+}
+
+.scroll-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 45px;
+    height: 45px;
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    transition: all 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.products-container:hover .scroll-arrow {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.scroll-arrow:hover {
+    background: #4ade80;
+    color: #0a0a0a;
+    border-color: #4ade80;
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+}
+
+.scroll-arrow.left {
+    left: -20px;
+}
+
+.scroll-arrow.right {
+    right: -20px;
+}
+
+@media (max-width: 992px) {
+    .scroll-arrow {
+        opacity: 0.8;
+        pointer-events: auto;
+        width: 38px;
+        height: 38px;
+    }
+    .scroll-arrow.left { left: 5px; }
+    .scroll-arrow.right { right: 5px; }
 }
 
 @keyframes productIdleSwingLanding {

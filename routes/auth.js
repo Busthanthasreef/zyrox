@@ -26,6 +26,7 @@ router.get("/google/callback", (req, res, next) => {
         _id: req.user._id,
         Name: req.user.Name,
         Email: req.user.Email,
+        Profile_image: req.user.Profile_image,
       };
       req.session.save((err) => {
         if (err) {

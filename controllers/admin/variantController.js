@@ -82,14 +82,14 @@ const addVariant = async (req, res) => {
         // 🔴 CHECK DUPLICATE VARIANT
         const existingVariant = await VariantSchema.findOne({
             productId,
-            color,
+            color: color.toLowerCase(),
             RAM,
             storage,
             IsDeleted: false
         });
 
         if (existingVariant) {
-            req.session.errorMsg = "Variant already exists (same color, RAM, storage)";
+            req.session.errorMsg = `A variant with this configuration (Color: ${color.charAt(0).toUpperCase() + color.slice(1)}, RAM: ${RAM}GB, Storage: ${storage}GB) already exists.`;
             return res.redirect(`/admin/products/${productId}/variants`);
         }
 
@@ -120,7 +120,7 @@ const addVariant = async (req, res) => {
             await VariantSchema.updateMany({ productId }, { IsDefault: false });
         }
 
-        const existingCount = await VariantSchema.countDocuments({ productId });
+        const existingCount = await VariantSchema.countDocuments({ productId, IsDeleted: false });
         const shouldBeDefault = (isDefault === "on") || existingCount === 0;
 
         // ✅ CREATE VARIANT
@@ -182,7 +182,7 @@ const editVariant = async (req, res) => {
         });
 
         if (duplicate) {
-            req.session.errorMsg = "Another variant with same specs already exists";
+            req.session.errorMsg = `Another variant with this configuration (Color: ${color.charAt(0).toUpperCase() + color.slice(1)}, RAM: ${RAM}GB, Storage: ${storage}GB) already exists.`;
             return res.redirect(`/admin/products/${productId}/variants`);
         }
 
@@ -238,7 +238,7 @@ const editVariant = async (req, res) => {
         // UPDATE FIELDS
         variant.productId = productId;
         variant.categoryId = product.categoryId;
-        variant.color = color;
+        variant.color = color.toLowerCase();
         variant.colorCode = req.body.colorCode || variant.colorCode || "#000000";
         variant.storage = storage;
         variant.RAM = RAM;

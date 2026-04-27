@@ -20,14 +20,27 @@ passport.use(
           return done(null, user);
         }
 
+        const googlePhoto = profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null;
+
         user = await userSchema.findOne({ Email: profile.emails[0].value });
 
         if (user) {
           if (!user.isActive) {
             return done(null, false, { message: "blocked" });
           }
-          user.googleId = profile.id;
-          await user.save();
+          // Link Google ID if not present
+          let modified = false;
+          if (!user.googleId) {
+            user.googleId = profile.id;
+            modified = true;
+          }
+          // If user has no profile image or has the default one, update it with Google photo
+          if (googlePhoto && (!user.Profile_image || user.Profile_image === "/images/default-avatar.png")) {
+            user.Profile_image = googlePhoto;
+            modified = true;
+          }
+
+          if (modified) await user.save();
           return done(null, user);
         }
 
@@ -35,7 +48,7 @@ passport.use(
           Name: profile.displayName,
           Email: profile.emails[0].value,
           googleId: profile.id,
-          Profile_image: profile.photos && profile.photos.length > 0 ? profile.photos[0].value : undefined,
+          Profile_image: googlePhoto || "/images/default-avatar.png",
           isAdmin: false,
           isActive: true,
           createdAt: new Date(),

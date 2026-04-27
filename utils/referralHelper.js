@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import User from '../models/user.js';
+import Offer from '../models/offer.js';
 
 /**
  * Generates a unique referral code.
@@ -20,19 +21,28 @@ export const generateReferralCode = async () => {
  */
 export const rewardReferrer = async (referrerId, newUserId) => {
     try {
-        const rewardAmount = 100; // Hardcoded reward for now, could be dynamic
+        const now = new Date();
+        const referralOffer = await Offer.findOne({
+            offerType: 'referral',
+            isActive: true,
+            isDeleted: false,
+            startDate: { $lte: now },
+            endDate: { $gte: now }
+        }).lean();
+
+        const rewardAmount = referralOffer ? referralOffer.discountValue : 500; // Default to 500 if no offer
+        
         const referrer = await User.findById(referrerId);
         if (referrer) {
             referrer.referralRewards += rewardAmount;
             referrer.referredUsers.push(newUserId);
             await referrer.save();
             
-            // Note: Wallet update should happen here too if wallet model is used
-            return true;
+            return rewardAmount; // Return the amount so controller can update wallet
         }
-        return false;
+        return 0;
     } catch (error) {
         console.error("Error rewarding referrer:", error);
-        return false;
+        return 0;
     }
 };

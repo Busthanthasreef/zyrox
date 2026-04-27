@@ -995,6 +995,25 @@
             border-radius: 0;
         }
 
+        .sku-gen-btn {
+            background: #f3f4f6;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sku-gen-btn:hover {
+            background: var(--text);
+            color: #fff;
+            border-color: var(--text);
+        }
+
         @media (max-width: 992px) {
             .main-content {
                 padding: 1.2rem;
@@ -1143,8 +1162,10 @@
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <div class="variant-attrs"><span style="color:black;">Color</span> :
-                                                        <%= variant.color %>
+                                                    <div class="variant-attrs" style="display: flex; align-items: center; gap: 6px;">
+                                                        <span style="color:black;">Color</span> :
+                                                        <span style="width: 10px; height: 10px; border-radius: 50%; background: <%= variant.colorCode %>; border: 1px solid rgba(0,0,0,0.1); display: inline-block;"></span>
+                                                        <span style="text-transform: capitalize;"><%= variant.color %></span>
                                                     </div>
                                                     <div class="variant-attrs">
                                                         <% if (variant.RAM) { %><span style="color:black;">RAM</span> :
@@ -1346,7 +1367,7 @@
                         <div class="form-group">
                             <label class="form-label">RAM (GB) <span style="color:var(--red)">*</span></label>
                             <input type="number" name="RAM" id="addRAM" class="form-input" placeholder="e.g. 8" min="1"
-                                oninput="clearError(this, 'addRAMError')">
+                                oninput="clearError(this, 'addRAMError'); autoSKU('add')">
                             <span class="field-error" id="addRAMError">
                                 <i class="bi bi-exclamation-circle-fill"></i> RAM is required and must be at least 1
                                 GB.
@@ -1357,7 +1378,7 @@
                         <div class="form-group">
                             <label class="form-label">Storage (GB) <span style="color:var(--red)">*</span></label>
                             <input type="number" name="storage" id="addStorage" class="form-input"
-                                placeholder="e.g. 128" min="1" oninput="clearError(this, 'addStorageError')">
+                                placeholder="e.g. 128" min="1" oninput="clearError(this, 'addStorageError'); autoSKU('add')">
                             <span class="field-error" id="addStorageError">
                                 <i class="bi bi-exclamation-circle-fill"></i> Storage is required and must be at
                                 least 1 GB.
@@ -1393,8 +1414,13 @@
                         <!-- SKU -->
                         <div class="form-group full">
                             <label class="form-label">SKU <span style="color:var(--red)">*</span></label>
-                            <input type="text" name="SKU" id="addSKU" class="form-input" placeholder="e.g. PRD-BLK-128"
-                                oninput="clearError(this, 'addSKUError')">
+                            <div class="d-flex gap-2">
+                                <input type="text" name="SKU" id="addSKU" class="form-input" placeholder="e.g. PRD-BLK-128"
+                                    oninput="clearError(this, 'addSKUError')">
+                                <button type="button" class="sku-gen-btn" onclick="generateSKU('add')">
+                                    <i class="bi bi-shuffle"></i>
+                                </button>
+                            </div>
                             <span class="field-error" id="addSKUError">
                                 <i class="bi bi-exclamation-circle-fill"></i> SKU code is required.
                             </span>
@@ -1427,11 +1453,12 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="modal-footer-btns">
                         <button type="button" class="btn-cancel" onclick="closeModal('addModal')">Cancel</button>
-                        <button type="submit" class="btn-save"><i class="bi bi-plus-circle me-1"></i>Add
-                            Variant</button>
+                        <button type="submit" class="btn-save" id="addSaveBtn">
+                            <span class="btn-text"><i class="bi bi-plus-lg me-1"></i>Add Variant</span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -1522,7 +1549,7 @@
                         <div class="form-group">
                             <label class="form-label">RAM (GB) <span style="color:var(--red)">*</span></label>
                             <input type="number" name="RAM" id="editRAM" class="form-input" placeholder="e.g. 8" min="1"
-                                oninput="clearError(this, 'editRAMError')">
+                                oninput="clearError(this, 'editRAMError'); autoSKU('edit')">
                             <span class="field-error" id="editRAMError">
                                 <i class="bi bi-exclamation-circle-fill"></i> RAM is required and must be at least 1
                                 GB.
@@ -1533,7 +1560,7 @@
                         <div class="form-group">
                             <label class="form-label">Storage (GB) <span style="color:var(--red)">*</span></label>
                             <input type="number" name="storage" id="editStorage" class="form-input"
-                                placeholder="e.g. 128" min="1" oninput="clearError(this, 'editStorageError')">
+                                placeholder="e.g. 128" min="1" oninput="clearError(this, 'editStorageError'); autoSKU('edit')">
                             <span class="field-error" id="editStorageError">
                                 <i class="bi bi-exclamation-circle-fill"></i> Storage is required and must be at
                                 least 1 GB.
@@ -1568,8 +1595,13 @@
                         <!-- SKU -->
                         <div class="form-group full">
                             <label class="form-label">SKU <span style="color:var(--red)">*</span></label>
-                            <input type="text" name="SKU" id="editSKU" class="form-input" placeholder="e.g. PRD-BLK-128"
-                                oninput="clearError(this, 'editSKUError')">
+                            <div class="d-flex gap-2">
+                                <input type="text" name="SKU" id="editSKU" class="form-input" placeholder="e.g. PRD-BLK-128"
+                                    oninput="clearError(this, 'editSKUError')">
+                                <button type="button" class="sku-gen-btn" onclick="generateSKU('edit')">
+                                    <i class="bi bi-shuffle"></i>
+                                </button>
+                            </div>
                             <span class="field-error" id="editSKUError">
                                 <i class="bi bi-exclamation-circle-fill"></i> SKU code is required.
                             </span>
@@ -1605,8 +1637,10 @@
 
                     <div class="modal-footer-btns">
                         <button type="button" class="btn-cancel" onclick="closeModal('editModal')">Cancel</button>
-                        <button type="submit" class="btn-save"><i class="bi bi-check2 me-1"></i>Save
-                            Changes</button>
+                        <button type="submit" class="btn-save" id="editSaveBtn">
+                            <span class="btn-text"><i class="bi bi-check2 me-1"></i>Save Changes</span>
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -1805,11 +1839,14 @@
             }
 
             function updateColorValue(hex, valueId, pickerId) {
+                const prefix = valueId.startsWith('add') ? 'add' : 'edit';
                 document.getElementById(valueId).value = getColorName(hex);
                 document.getElementById(pickerId).value = hex;
+                autoSKU(prefix);
             }
 
             function handleColorInput(val, pickerId, valueId) {
+                const prefix = pickerId.startsWith('add') ? 'add' : 'edit';
                 const key = val.trim().toLowerCase();
                 const foundEntry = Object.entries(COLOR_MAP).find(([hex, name]) => name.toLowerCase() === key);
 
@@ -1830,6 +1867,7 @@
                         if (ctx.fillStyle) document.getElementById(pickerId).value = ctx.fillStyle;
                     }
                 }
+                autoSKU(prefix);
             }
 
             // ══ Trigger hidden file input ══
@@ -1988,6 +2026,15 @@
                     if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
 
+                if (valid) {
+                    const saveBtn = document.getElementById(`${prefix}SaveBtn`);
+                    if (saveBtn) {
+                        saveBtn.disabled = true;
+                        saveBtn.querySelector('.btn-text').classList.add('d-none');
+                        saveBtn.querySelector('.spinner-border').classList.remove('d-none');
+                    }
+                }
+
                 return valid;
             }
 
@@ -2066,6 +2113,79 @@
                     currentCropInput = null;
                 }, 'image/jpeg', 0.92);
             }
+
+            // ══ SKU Generation ══
+            const productName = '<%= product.productName %>';
+
+            function getShortColor(color) {
+                const c = color.toUpperCase();
+                const map = { 'BLACK': 'BLK', 'WHITE': 'WHT', 'GRAY': 'GRY', 'GREY': 'GRY', 'SILVER': 'SLV', 'GOLD': 'GLD', 'YELLOW': 'YLW', 'GREEN': 'GRN' };
+                if (map[c]) return map[c];
+                const noVowels = c.replace(/[AEIOU]/g, '');
+                return noVowels.length >= 3 ? noVowels.substring(0, 3) : c.substring(0, 3);
+            }
+            function autoSKU(prefix) {
+                const skuInput = document.getElementById(prefix + 'SKU');
+                if (skuInput.dataset.custom === 'true') return;
+                skuInput.value = buildSKU(prefix);
+            }
+
+            function generateSKU(prefix) {
+                const skuInput = document.getElementById(prefix + 'SKU');
+                skuInput.value = buildSKU(prefix);
+                skuInput.dataset.custom = 'true';
+            }
+
+            function buildSKU(prefix) {
+                const color = document.getElementById(prefix + 'ColorValue').value.trim().toUpperCase();
+                const ram = document.getElementById(prefix + 'RAM').value.toString();
+                const storage = document.getElementById(prefix + 'Storage').value.toString();
+                
+                const nameClean = productName.trim().toUpperCase();
+                const words = nameClean.split(/\s+/);
+                
+                const parts = [];
+                
+                // 1. Brand/Prefix (First 3 of first word)
+                if (words.length > 0) parts.push(words[0].substring(0, 3));
+
+                // 2. Model Code (Initials of remaining words, keeping numbers)
+                let modelCode = "";
+                for (let i = 1; i < words.length; i++) {
+                    const w = words[i];
+                    if (w === '5G') continue;
+                    if (/[0-9]/.test(w)) {
+                        modelCode += w;
+                    } else if (w.length > 0) {
+                        modelCode += w[0];
+                    }
+                }
+                if (modelCode) parts.push(modelCode);
+
+                // 3. 5G Tag
+                if (nameClean.includes('5G')) parts.push('5G');
+
+                // 4. Color Code
+                if (color) parts.push(getShortColor(color));
+
+                // 5. RAM
+                if (ram) parts.push(ram.replace(/[^0-9]/g, ''));
+
+                // 6. Storage
+                if (storage) parts.push(storage.replace(/[^0-9]/g, ''));
+                
+                return parts.join('-');
+            }
+
+            // Initialize custom state for SKU inputs
+            ['addSKU', 'editSKU'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        this.dataset.custom = this.value.trim() !== '' ? 'true' : 'false';
+                    });
+                }
+            });
         </script>
 </body>
 

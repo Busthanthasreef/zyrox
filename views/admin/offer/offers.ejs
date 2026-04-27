@@ -475,6 +475,8 @@
                             <option value="all">All Types</option>
                             <option value="product">Product</option>
                             <option value="category">Category</option>
+                            <option value="all">Global (All)</option>
+                            <option value="referral">Referral</option>
                         </select>
                         <select class="form-select border-0 shadow-none border-bottom" id="statusFilter"
                             style="width: 140px; cursor: pointer;" onchange="applyFilters()">
@@ -509,13 +511,14 @@
                                         <div style="font-size:11.5px; color:#9ca3af; margin-top:2px;">
                                             <i class="bi bi-tag-fill me-1"></i>
                                             <%= offer.offerType==='product' ? offer.productId?.productName :
-                                                offer.categoryId?.categoryName %>
+                                                offer.offerType==='category' ? offer.categoryId?.categoryName :
+                                                offer.offerType==='all' ? 'All Products in Store' : 'Referral Reward' %>
                                         </div>
                                     </td>
                                     <td>
                                         <span
-                                            class="badge-pill-custom <%= offer.offerType === 'category' ? 'badge-category' : 'badge-product' %>">
-                                            <%= offer.offerType.charAt(0).toUpperCase() + offer.offerType.slice(1) %>
+                                            class="badge-pill-custom <%= offer.offerType === 'category' ? 'badge-category' : (offer.offerType === 'product' ? 'badge-product' : 'bg-dark text-white') %>">
+                                            <%= offer.offerType === 'all' ? 'Global' : (offer.offerType.charAt(0).toUpperCase() + offer.offerType.slice(1)) %>
                                         </span>
                                     </td>
                                     <td>
@@ -629,7 +632,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Apply To <span>*</span></label>
-                                    <div class="option-card-group">
+                                    <div class="option-card-group" style="grid-template-columns: repeat(2, 1fr);">
                                         <label class="option-card" data-radio-group="offerType">
                                             <input type="radio" name="offerType" value="product" checked
                                                 onclick="toggleApplyFields()">
@@ -641,6 +644,18 @@
                                                 onclick="toggleApplyFields()">
                                             <div class="radio-indicator"></div>
                                             <span>Category</span>
+                                        </label>
+                                        <label class="option-card" data-radio-group="offerType">
+                                            <input type="radio" name="offerType" value="all"
+                                                onclick="toggleApplyFields()">
+                                            <div class="radio-indicator"></div>
+                                            <span>Global</span>
+                                        </label>
+                                        <label class="option-card" data-radio-group="offerType">
+                                            <input type="radio" name="offerType" value="referral"
+                                                onclick="toggleApplyFields()">
+                                            <div class="radio-indicator"></div>
+                                            <span>Referral</span>
                                         </label>
                                     </div>
                                 </div>
@@ -849,17 +864,44 @@
                 const type = document.querySelector('input[name="offerType"]:checked').value;
                 const select = document.getElementById('targetId');
                 const targetLabel = document.getElementById('targetLabel');
+                const percentRadio = document.querySelector('input[name="discountType"][value="percentage"]');
+                const percentCard = percentRadio.closest('.option-card');
+                const targetGroup = select.closest('.zyrax-input-group');
 
-                targetLabel.innerHTML = `Select ${type.charAt(0).toUpperCase() + type.slice(1)} <span>*</span>`;
-                select.innerHTML = '<option value="" disabled selected>Choose target...</option>';
+                if (type === 'all' || type === 'referral') {
+                    targetGroup.style.display = 'none';
+                    targetLabel.innerHTML = `Target <span>*</span>`;
+                    select.innerHTML = '<option value="none" selected>Auto-target</option>';
+                    
+                    if (type === 'referral') {
+                        // Force flat discount for referral
+                        document.querySelector('input[name="discountType"][value="flat"]').checked = true;
+                        percentRadio.disabled = true;
+                        percentCard.style.opacity = '0.5';
+                        percentCard.style.pointerEvents = 'none';
+                        toggleValFields();
+                    } else {
+                        percentRadio.disabled = false;
+                        percentCard.style.opacity = '1';
+                        percentCard.style.pointerEvents = 'auto';
+                    }
+                } else {
+                    percentRadio.disabled = false;
+                    percentCard.style.opacity = '1';
+                    percentCard.style.pointerEvents = 'auto';
+                    
+                    targetGroup.style.display = 'block';
+                    targetLabel.innerHTML = `Select ${type.charAt(0).toUpperCase() + type.slice(1)} <span>*</span>`;
+                    select.innerHTML = '<option value="" disabled selected>Choose target...</option>';
 
-                const list = type === 'product' ? products : categories;
-                list.forEach(item => {
-                    const opt = document.createElement('option');
-                    opt.value = item._id;
-                    opt.textContent = type === 'product' ? item.productName : item.categoryName;
-                    select.appendChild(opt);
-                });
+                    const list = type === 'product' ? products : categories;
+                    list.forEach(item => {
+                        const opt = document.createElement('option');
+                        opt.value = item._id;
+                        opt.textContent = type === 'product' ? item.productName : item.categoryName;
+                        select.appendChild(opt);
+                    });
+                }
                 updateOptionCards();
             }
 
@@ -966,7 +1008,7 @@
                     isValid = false;
                 }
 
-                if (!targetId) {
+                if (!targetId && (offerType === 'product' || offerType === 'category')) {
                     showFieldError('targetId', 'Please select a product or category.');
                     isValid = false;
                 }
@@ -1005,7 +1047,13 @@
                 }
 
                 const isEdit = !!body.offerId;
-                const url = isEdit ? `/admin/offers/edit/${body.offerId}` : (body.offerType === 'product' ? '/admin/offers/add-product' : '/admin/offers/add-category');
+                let url = isEdit ? `/admin/offers/edit/${body.offerId}` : '';
+                if (!isEdit) {
+                    if (body.offerType === 'product') url = '/admin/offers/add-product';
+                    else if (body.offerType === 'category') url = '/admin/offers/add-category';
+                    else if (body.offerType === 'referral') url = '/admin/offers/add-referral';
+                    else if (body.offerType === 'all') url = '/admin/offers/add-all';
+                }
                 const method = isEdit ? 'PUT' : 'POST';
 
                 try {

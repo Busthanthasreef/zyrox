@@ -95,6 +95,7 @@ const loadSignUp = (req, res) => {
     emailError: signupErrors.Email || null,
     passError: signupErrors.Password || null,
     phoneError: signupErrors.Phone || null,
+    referralError: signupErrors.referralError || null,
     Name: signupData.Name || "",
     Email: signupData.Email || "",
     Phone: signupData.Phone || "",
@@ -223,24 +224,26 @@ const verifyEmail = async (req, res) => {
       balance: 0
     });
 
-    // Reward only the REFERRER (the user whose code was used) with ₹500
+    // Reward only the REFERRER (the user whose code was used)
     if (referredBy) {
-      await rewardReferrer(referredBy, newUser._id);
+      const actualReward = await rewardReferrer(referredBy, newUser._id);
 
-      const referrerWallet = await Wallet.findOne({ user_id: referredBy });
-      if (referrerWallet) {
-        referrerWallet.balance += 500;
-        await referrerWallet.save();
+      if (actualReward > 0) {
+        const referrerWallet = await Wallet.findOne({ user_id: referredBy });
+        if (referrerWallet) {
+          referrerWallet.balance += actualReward;
+          await referrerWallet.save();
 
-        await WalletTransactions.create({
-          user: referredBy,
-          Amount: 500,
-          Payment_status: 'credited',
-          Wallet_id: referrerWallet._id,
-          Payment_date: new Date(),
-          Payment_time: new Date(),
-          Description: `Referral reward – your friend ${newUser.Name} joined Zyrox`,
-        });
+          await WalletTransactions.create({
+            user: referredBy,
+            Amount: actualReward,
+            Payment_status: 'credited',
+            Wallet_id: referrerWallet._id,
+            Payment_date: new Date(),
+            Payment_time: new Date(),
+            Description: `Referral reward – your friend ${newUser.Name} joined Zyrox`,
+          });
+        }
       }
     }
 
@@ -254,6 +257,7 @@ const verifyEmail = async (req, res) => {
       Name: newUser.Name,
       Email: newUser.Email,
       isAdmin: newUser.isAdmin,
+      Profile_image: newUser.Profile_image,
     };
 
     req.session.otpSuccess = "Registration Successful! Welcome to Zyrox.";
@@ -341,9 +345,8 @@ const userSignIn = async (req, res) => {
     if (!user.isActive)
       return res.json({ success: false, blocked: true, message: "Your account has been Deactivated by admin" });
 
-    if (!user.Password)
-      return res.json({ success: false, target: "email", message: "This account was created using Google. Please sign in with Google." });
-
+    if (user.googleId)
+      return res.json({ success: false, target: "email", message: "This is a Google managed account" });
     const isMatch = await bcrypt.compare(Password, user.Password);
 
     if (!isMatch)
@@ -364,6 +367,7 @@ const userSignIn = async (req, res) => {
         _id: user._id,
         Name: user.Name,
         Email: user.Email,
+        Profile_image: user.Profile_image,
       };
 
       req.session.save((err) => {

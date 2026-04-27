@@ -95,12 +95,6 @@
             }
         }
 
-        @media (max-width: 992px) {
-            .wishlist-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
         @media (max-width: 575px) {
             .wishlist-grid {
                 grid-template-columns: 1fr;
@@ -127,24 +121,24 @@
 
         .img-wrap {
             position: relative;
-            padding-top: 80%;
-            background: rgba(255, 255, 255, 0.012);
+            height: 200px;
+            background: transparent;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
         }
 
         .img-wrap img {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 75%;
-            height: 75%;
+            max-width: 100%;
+            max-height: 100%;
             object-fit: contain;
-            transform: translate(-50%, -50%);
             transition: transform .6s cubic-bezier(.165, .84, .44, 1);
         }
 
         .wishlist-card:hover .img-wrap img {
-            transform: translate(-50%, -50%) scale(1.1);
+            transform: scale(1.08);
         }
 
         /* Float Badge */
@@ -480,9 +474,13 @@
                                         <span class="old-price">₹<%= product.oldPrice.toLocaleString('en-IN') %></span>
                                         <% } %>
                                 </div>
-
                                 <div class="stock-status">
-                                    <% if (product.stock <=0) { %>
+                                    <% if (!product.isAvailable) { %>
+                                        <span class="stock-badge-pill"
+                                            style="background: rgba(255, 77, 107, 0.1); color: #ff4d6b;">
+                                            <i class="fas fa-ban"></i> Unavailable
+                                        </span>
+                                    <% } else if (product.stock <=0) { %>
                                         <span class="stock-badge-pill"
                                             style="background: rgba(255, 77, 107, 0.1); color: #ff4d6b;">
                                             <i class="fas fa-times-circle"></i> Out of Stock
@@ -500,7 +498,6 @@
                                                 </span>
                                                 <% } %>
                                 </div>
-
                                 <div class="actions-wrap">
                                     <a href="/product/<%= product.id %>?variant=<%= product.variantId %>"
                                         class="btn-action-view" title="View Details">
@@ -508,10 +505,9 @@
                                     </a>
                                     <button class="btn-action-cart"
                                         onclick="addToCart('<%= product.id %>', '<%= product.variantId %>', event)"
-                                        <%=product.stock <=1 ? 'disabled' : '' %>>
+                                        <%= (!product.isAvailable || product.stock <= 0) ? 'disabled' : '' %>>
                                         <i class="fas fa-cart-plus"></i>
-                                        <%= product.stock <=0 ? 'Out of Stock' : (product.stock===1 ? 'Unavailable'
-                                            : 'Add to Cart' ) %>
+                                        <%= !product.isAvailable ? 'PRODUCT UNAVAILABLE' : (product.stock <= 0 ? 'OUT OF STOCK' : 'Add to Cart') %>
                                     </button>
                                 </div>
                             </div>

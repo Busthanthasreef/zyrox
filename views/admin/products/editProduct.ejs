@@ -936,7 +936,184 @@
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
-    </style>
+        .crop-slider::-webkit-slider-thumb:hover {
+        background: #0f172a;
+        transform: scale(1.1);
+    }
+
+    /* ── QUICK ADD CATEGORY MODAL ── */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(8px);
+        z-index: 5000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+    .modal-overlay.show {
+        display: flex;
+        animation: quickFadeIn 0.3s ease;
+    }
+    .modal-box {
+        background: #fff;
+        border-radius: 24px;
+        width: 100%;
+        max-width: 520px;
+        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transform-origin: center;
+        animation: quickPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes quickFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes quickPopIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    .modal-header {
+        padding: 24px 32px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fff;
+    }
+    .modal-header h3 {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .modal-header h3 i { color: #4f6ef7; font-size: 1.6rem; }
+    
+    .modal-close {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .modal-close:hover { background: #fee2e2; color: #ef4444; transform: rotate(90deg); }
+
+    .modal-body { padding: 32px; display: flex; flex-direction: column; gap: 24px; }
+    .modal-body label { font-size: 0.85rem; font-weight: 700; color: #334155; margin-bottom: 8px; display: block; }
+    
+    .modal-error-area {
+        display: none;
+        background: #fff1f2;
+        border: 1px solid #ffe4e6;
+        color: #e11d48;
+        padding: 14px 18px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        align-items: center;
+        gap: 12px;
+    }
+    .modal-error-area.show { display: flex; animation: quickShake 0.4s ease-in-out; }
+    
+    .modal-success-area {
+        display: none;
+        background: #f0fdf4;
+        border: 1px solid #dcfce7;
+        color: #15803d;
+        padding: 14px 18px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    .modal-success-area.show { display: flex; animation: quickPopIn 0.3s ease; }
+
+    .modal-dismiss-btn {
+        margin-left: auto;
+        background: none;
+        border: none;
+        padding: 4px;
+        line-height: 1;
+        cursor: pointer;
+        opacity: 0.5;
+        transition: opacity 0.2s;
+        color: inherit;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .modal-dismiss-btn:hover { opacity: 1; }
+    .modal-dismiss-btn i { font-size: 1.1rem; }
+
+    @keyframes quickShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+    .toggle-box {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 24px;
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 16px;
+        gap: 16px;
+    }
+    .toggle-box strong { font-size: 0.95rem; font-weight: 700; color: #1e293b; display: block; }
+    .toggle-box p { font-size: 0.85rem; color: #64748b; margin: 0; margin-top: 2px; }
+    
+    .status-badge { font-size: 0.65rem; padding: 3px 10px; border-radius: 8px; font-weight: 800; text-transform: uppercase; margin-left: 10px; letter-spacing: 0.5px; }
+    .status-badge.active { background: #dcfce7; color: #15803d; }
+    .status-badge.inactive { background: #f1f5f9; color: #475569; }
+
+    .modal-footer {
+        padding: 24px 32px;
+        background: #f8fafc;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: flex-end;
+        gap: 14px;
+    }
+    .modal-footer .btn-cancel {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        padding: 10px 24px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+    .modal-footer .btn-save {
+        background: #4f6ef7;
+        color: #fff;
+        border: none;
+        padding: 10px 28px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        box-shadow: 0 4px 12px rgba(79, 110, 247, 0.25);
+    }
+    .modal-footer .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(79, 110, 247, 0.35); }
+    .modal-footer .btn-save:active { transform: translateY(0); }
+
+    /* Custom Switch */
+    .switch { position: relative; display: inline-block; width: 48px; height: 26px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background: #e2e8f0; border-radius: 34px; transition: 0.4s; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; transition: 0.4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    input:checked + .slider { background: #4f6ef7; }
+    input:checked + .slider:before { transform: translateX(22px); }
+</style>
 </head>
 
 <body class="admin-body">
@@ -1083,12 +1260,12 @@
                                         <div class="col-6">
                                             <label class="form-label">Price (₹)</label>
                                             <input type="number" name="price" id="variantPrice" class="form-control"
-                                                value="<%= defaultVariant ? defaultVariant.price : '' %>">
+                                                value="<%= defaultVariant ? defaultVariant.price : '' %>" min="0">
                                         </div>
                                         <div class="col-6">
                                             <label class="form-label">Stock</label>
                                             <input type="number" name="stock" id="variantStock" class="form-control"
-                                                value="<%= defaultVariant ? defaultVariant.stock : '' %>">
+                                                value="<%= defaultVariant ? defaultVariant.stock : '' %>" min="0">
                                         </div>
                                     </div>
                                     <div class="mb-0">
@@ -1190,11 +1367,17 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div id="quickCatError" class="modal-error-area">
-                            <i class="bi bi-exclamation-circle-fill"></i>
+                        <div id="quickCatError" class="modal-error-area mb-3">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
                             <span class="error-msg"></span>
+                            <button type="button" class="modal-dismiss-btn" onclick="clearQuickMessages()"><i class="bi bi-x"></i></button>
                         </div>
-                        <div>
+                        <div id="quickCatSuccess" class="modal-success-area mb-3">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span class="success-msg"></span>
+                            <button type="button" class="modal-dismiss-btn" onclick="clearQuickMessages()"><i class="bi bi-x"></i></button>
+                        </div>
+                        <div class="mb-2">
                             <label>Category Name</label>
                             <input type="text" id="quickCatName" class="form-control" placeholder="e.g. Laptops, Smartwatches">
                         </div>
@@ -1210,8 +1393,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-light" style="padding: 7px 18px; border: 1px solid #e2e8f0; font-size: 13px; font-weight: 600;" onclick="closeCategoryModal()">Cancel</button>
-                        <button type="button" class="btn btn-primary" style="padding: 7px 22px; background: #2563eb; font-size: 13px; font-weight: 700;" id="saveQuickCatBtn" onclick="saveQuickCategory()">
+                        <button type="button" class="btn-cancel" onclick="closeCategoryModal()">Cancel</button>
+                        <button type="button" class="btn-save" id="saveQuickCatBtn" onclick="saveQuickCategory()">
                             Save Category
                         </button>
                     </div>
@@ -1524,10 +1707,13 @@
                 function openCategoryModal() {
                     document.getElementById('quickCategoryModal').classList.add('show');
                     document.getElementById('quickCatName').value = "";
-                    const errorArea = document.getElementById('quickCatError');
-                    errorArea.classList.remove('show');
-                    errorArea.querySelector('.error-msg').textContent = "";
+                    clearQuickMessages();
                     document.getElementById('quickCatName').focus();
+                }
+
+                function clearQuickMessages() {
+                    document.getElementById('quickCatError').classList.remove('show');
+                    document.getElementById('quickCatSuccess').classList.remove('show');
                 }
 
                 function closeCategoryModal() {
@@ -1546,17 +1732,23 @@
                 }
 
                 async function saveQuickCategory() {
-                    const name = document.getElementById('quickCatName').value.trim();
+                    const nameInput = document.getElementById('quickCatName');
+                    const name = nameInput.value.trim();
                     const status = document.getElementById('quickCatStatus').checked;
                     const btn = document.getElementById('saveQuickCatBtn');
 
                     const errorArea = document.getElementById('quickCatError');
                     const errorMsg = errorArea.querySelector('.error-msg');
+                    const successArea = document.getElementById('quickCatSuccess');
+                    const successMsg = successArea.querySelector('.success-msg');
+                    
                     errorArea.classList.remove('show');
+                    successArea.classList.remove('show');
 
                     if (!name) {
                         errorMsg.textContent = 'Please enter a category name';
                         errorArea.classList.add('show');
+                        nameInput.focus();
                         return;
                     }
 
@@ -1572,6 +1764,9 @@
                         const data = await resp.json();
 
                         if (data.success || data.message) {
+                            successMsg.textContent = `"${name}" added successfully!`;
+                            successArea.classList.add('show');
+
                             const select = document.getElementById('category');
                             const catId = data.category?._id || data.categoryId || "";
                             const option = new Option(name, catId);
@@ -1580,27 +1775,26 @@
                             select.value = option.value;
                             lastSelectedCategory = option.value;
                             
-                            closeCategoryModal();
-                            updateLivePreview();
+                            setTimeout(() => {
+                                closeCategoryModal();
+                                updateLivePreview();
+                                nameInput.value = '';
+                                successArea.classList.remove('show');
+                                btn.disabled = false;
+                                btn.innerHTML = 'Save Category';
+                            }, 1500);
 
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Category Added!',
-                                text: `"${name}" is now available.`,
-                                timer: 2000,
-                                showConfirmButton: false,
-                                background: '#fff',
-                                color: '#111827'
-                            });
+                            toast('success', 'Category updated in list');
                         } else {
                             errorMsg.textContent = data.message || 'Failed to add category';
                             errorArea.classList.add('show');
+                            btn.disabled = false;
+                            btn.innerHTML = 'Save Category';
                         }
                     } catch (err) {
                         console.error(err);
                         errorMsg.textContent = 'Failed to add category';
                         errorArea.classList.add('show');
-                    } finally {
                         btn.disabled = false;
                         btn.innerHTML = 'Save Category';
                     }

@@ -1652,13 +1652,23 @@
         const current = parseInt(inp.value, 10);
 
         if (delta > 0 && current >= maxQty) {
-            Swal.fire({
-                ...swalBase,
-                icon: 'warning',
-                title: 'Quantity Limit Reached',
-                html: `You can only buy <strong>${MAX_CART_QTY}</strong> of this product at once.`,
-                confirmButtonText: 'Got it'
-            });
+            if (current >= stock) {
+                Swal.fire({
+                    ...swalBase,
+                    icon: 'warning',
+                    title: 'Out of Stock',
+                    html: `Only <strong>${stock}</strong> units are available in stock.`,
+                    confirmButtonText: 'Got it'
+                });
+            } else {
+                Swal.fire({
+                    ...swalBase,
+                    icon: 'warning',
+                    title: 'Quantity Limit Reached',
+                    html: `You can only buy up to <strong>${MAX_CART_QTY}</strong> units of this product at once.`,
+                    confirmButtonText: 'Got it'
+                });
+            }
             return;
         }
 
@@ -1704,16 +1714,31 @@
         }
 
         // Pre-flight: already at max for this variant?
-        if (alreadyInCart >= MAX_CART_QTY) {
-            Swal.fire({
-                ...swalBase,
-                icon: 'warning',
-                title: 'Cart Limit Reached',
-                html: `You already have the maximum of <strong>${MAX_CART_QTY}</strong> units in your cart.`,
-                confirmButtonText: 'View Cart',
-                showCancelButton: true,
-                cancelButtonText: 'Continue Shopping'
-            }).then(r => { if (r.isConfirmed) window.location.href = '/cart'; });
+        const stock = getCurrentStock();
+        const maxAllowed = Math.min(MAX_CART_QTY, stock);
+        
+        if (alreadyInCart >= maxAllowed) {
+            if (alreadyInCart >= stock) {
+                Swal.fire({
+                    ...swalBase,
+                    icon: 'warning',
+                    title: 'Out of Stock',
+                    html: `You already have all <strong>${stock}</strong> available units in your cart.`,
+                    confirmButtonText: 'View Cart',
+                    showCancelButton: true,
+                    cancelButtonText: 'Continue Shopping'
+                }).then(r => { if (r.isConfirmed) window.location.href = '/cart'; });
+            } else {
+                Swal.fire({
+                    ...swalBase,
+                    icon: 'warning',
+                    title: 'Cart Limit Reached',
+                    html: `You already have the maximum of <strong>${MAX_CART_QTY}</strong> units in your cart.`,
+                    confirmButtonText: 'View Cart',
+                    showCancelButton: true,
+                    cancelButtonText: 'Continue Shopping'
+                }).then(r => { if (r.isConfirmed) window.location.href = '/cart'; });
+            }
             return;
         }
 
@@ -1786,10 +1811,12 @@
                 badge.textContent = data.cartCount;
             }
 
-            const canAddMore = MAX_CART_QTY - alreadyInCart;
+            const stock = getCurrentStock();
+            const maxAllowed = Math.min(MAX_CART_QTY, stock);
+            const canAddMore = maxAllowed - alreadyInCart;
 
             const toastHtml = canAddMore <= 0
-                ? `<span style="font-size:.76rem;color:var(--text-dim)">You've reached the maximum limit for this product.</span>`
+                ? `<span style="font-size:.76rem;color:var(--text-dim)">You've reached the ${alreadyInCart >= stock ? 'stock' : 'maximum'} limit for this product.</span>`
                 : `<span style="font-size:.76rem;color:var(--text-dim)">You can add <strong style="color:#4f6ef7">${canAddMore}</strong> more unit${canAddMore === 1 ? '' : 's'}</span>`;
 
             Swal.fire({

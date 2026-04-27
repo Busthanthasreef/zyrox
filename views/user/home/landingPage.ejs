@@ -119,40 +119,48 @@
                 <a href="/products" class="view-all-link">View all →</a>
             </div>
 
-            <div class="products-grid no-scrollbar">
-                <% if(trendingVariants && trendingVariants.length> 0) { %>
-                    <% trendingVariants.forEach((item, index)=> { %>
-                        <div class="product-card"
-                            onclick="window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'"
-                            style="cursor: pointer;">
-                            <% if(index===0) { %>
-                                <div class="product-badge">10% OFF</div>
-                                <% } %>
-                                    <% if(index===1) { %>
-                                        <div class="product-badge new">NEW</div>
-                                        <% } %>
-                                            
-                                            <% 
-                                                let imgPath = (item.variant.images && item.variant.images.length > 0) ? item.variant.images[0] : 'https://via.placeholder.com/300';
-                                                if (!imgPath.startsWith('http') && !imgPath.startsWith('/')) {
-                                                    imgPath = '/' + imgPath.replace(/\\/g, '/');
-                                                }
-                                            %>
-                                            <img src="<%= imgPath %>" alt="<%= item.product.productName %>" class="product-image">
-                                            <div class="product-name">
-                                                <%= item.product.productName %>
-                                            </div>
-                                            <div class="product-price">₹<%= item.variant.price.toLocaleString('en-IN')
-                                                    %>.00</div>
-                                            <button class="buy-now-btn"
-                                                onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">Buy
-                                                now</button>
-                        </div>
-                        <% }) %>
-                            <% } else { %>
-                                <p style="text-align: center; width: 100%; color: #999; padding: 40px 0;">Explore our
-                                    latest arrivals in the Shop section!</p>
-                                <% } %>
+            <div class="products-container">
+                <button class="scroll-arrow left" onclick="scrollGrid('trending-grid', -200)" aria-label="Scroll left">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="products-grid no-scrollbar" id="trending-grid">
+                    <% if(trendingVariants && trendingVariants.length> 0) { %>
+                        <% trendingVariants.forEach((item, index)=> { %>
+                            <div class="product-card"
+                                onclick="window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'"
+                                style="cursor: pointer;">
+                                <% if(index===0) { %>
+                                    <div class="product-badge">10% OFF</div>
+                                    <% } %>
+                                        <% if(index===1) { %>
+                                            <div class="product-badge new">NEW</div>
+                                            <% } %>
+                                                
+                                                <% 
+                                                    let imgPath = (item.variant.images && item.variant.images.length > 0) ? item.variant.images[0] : 'https://via.placeholder.com/300';
+                                                    if (!imgPath.startsWith('http') && !imgPath.startsWith('/')) {
+                                                        imgPath = '/' + imgPath.replace(/\\/g, '/');
+                                                    }
+                                                %>
+                                                <img src="<%= imgPath %>" alt="<%= item.product.productName %>" class="product-image">
+                                                <div class="product-name">
+                                                    <%= item.product.productName %>
+                                                </div>
+                                                <div class="product-price">₹<%= item.variant.price.toLocaleString('en-IN')
+                                                        %>.00</div>
+                                                <button class="buy-now-btn"
+                                                    onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">Buy
+                                                    now</button>
+                            </div>
+                            <% }) %>
+                                <% } else { %>
+                                    <p style="text-align: center; width: 100%; color: #999; padding: 40px 0;">Explore our
+                                        latest arrivals in the Shop section!</p>
+                                    <% } %>
+                </div>
+                <button class="scroll-arrow right" onclick="scrollGrid('trending-grid', 200)" aria-label="Scroll right">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </section>
 
@@ -162,32 +170,40 @@
                 <h2 class="section-title">Explore Our Collection</h2>
             </div>
 
-            <div class="products-grid no-scrollbar">
-                <% if(typeof allVariants !== 'undefined' && allVariants.length > 0) { %>
-                    <% allVariants.forEach((item, index)=> { %>
-                        <div class="product-card"
-                            onclick="window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'"
-                            style="cursor: pointer;">
-                                            <% 
-                                                let imgPath = (item.variant.images && item.variant.images.length > 0) ? item.variant.images[0] : 'https://via.placeholder.com/300';
-                                                if (!imgPath.startsWith('http') && !imgPath.startsWith('/')) {
-                                                    imgPath = '/' + imgPath.replace(/\\/g, '/');
-                                                }
-                                            %>
-                                            <img src="<%= imgPath %>" alt="<%= item.product.productName %>" class="product-image">
-                                            <div class="product-name">
-                                                <%= item.product.productName %>
-                                            </div>
-                                            <div class="product-price">₹<%= item.variant.price.toLocaleString('en-IN')
-                                                    %>.00</div>
-                                            <button class="buy-now-btn"
-                                                onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">Buy
-                                                now</button>
-                        </div>
-                        <% }) %>
-                            <% } else { %>
-                                <p style="text-align: center; width: 100%; color: #999; padding: 40px 0;">Our full collection is coming soon!</p>
-                                <% } %>
+            <div class="products-container">
+                <button class="scroll-arrow left" onclick="scrollGrid('collection-grid', -200)" aria-label="Scroll left">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="products-grid no-scrollbar" id="collection-grid">
+                    <% if(typeof allVariants !== 'undefined' && allVariants.length > 0) { %>
+                        <% allVariants.forEach((item, index)=> { %>
+                            <div class="product-card"
+                                onclick="window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'"
+                                style="cursor: pointer;">
+                                                <% 
+                                                    let imgPath = (item.variant.images && item.variant.images.length > 0) ? item.variant.images[0] : 'https://via.placeholder.com/300';
+                                                    if (!imgPath.startsWith('http') && !imgPath.startsWith('/')) {
+                                                        imgPath = '/' + imgPath.replace(/\\/g, '/');
+                                                    }
+                                                %>
+                                                <img src="<%= imgPath %>" alt="<%= item.product.productName %>" class="product-image">
+                                                <div class="product-name">
+                                                    <%= item.product.productName %>
+                                                </div>
+                                                <div class="product-price">₹<%= item.variant.price.toLocaleString('en-IN')
+                                                        %>.00</div>
+                                                <button class="buy-now-btn"
+                                                    onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">Buy
+                                                    now</button>
+                            </div>
+                            <% }) %>
+                                <% } else { %>
+                                    <p style="text-align: center; width: 100%; color: #999; padding: 40px 0;">Our full collection is coming soon!</p>
+                                    <% } %>
+                </div>
+                <button class="scroll-arrow right" onclick="scrollGrid('collection-grid', 200)" aria-label="Scroll right">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </section>
 
@@ -257,6 +273,13 @@
 
 
         <script>
+            function scrollGrid(gridId, amount) {
+                const grid = document.getElementById(gridId);
+                if (grid) {
+                    grid.scrollBy({ left: amount, behavior: 'smooth' });
+                }
+            }
+
             function copyCoupon() {
                 const code = document.getElementById('couponCode')?.textContent;
                 if (!code) return;

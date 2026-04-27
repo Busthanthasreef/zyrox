@@ -28,7 +28,8 @@ export const calculateBestOffer = async (productId, categoryId, price) => {
             endDate: { $gte: now },
             $or: [
                 { productId: productId, offerType: 'product' },
-                { categoryId: categoryId, offerType: 'category' }
+                { categoryId: categoryId, offerType: 'category' },
+                { offerType: 'all' }
             ]
         });
 

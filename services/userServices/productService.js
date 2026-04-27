@@ -178,12 +178,13 @@ export const getFilteredProducts = async ({ categories, filters }) => {
     if (sortParam === "name_desc") products.sort((a, b) => b.name.localeCompare(a.name));
 
     // Paginate
+    const limit = filters.limit || 8;
     const totalProducts = products.length;
-    const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE) || 1;
+    const totalPages = Math.ceil(totalProducts / limit) || 1;
     const currentPage = Math.min(Math.max(parseInt(page, 10) || 1, 1), totalPages);
     const paginatedProducts = products.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
+        (currentPage - 1) * limit,
+        currentPage * limit
     );
 
     return { products: paginatedProducts, totalProducts, totalPages, currentPage };
