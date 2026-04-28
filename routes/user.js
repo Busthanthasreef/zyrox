@@ -10,6 +10,7 @@ import * as orderController from "../controllers/user/orderController.js"
 import * as walletController from "../controllers/user/walletController.js"
 import { isUserAuthenticated, isUserGuest } from "../middlewares/auth.js";
 import upload from "../middlewares/multer.js";
+import { validateFiles } from "../utils/validation/fileValidator.js";
 import Coupon from "../models/coupon.js";
 
 const userRoutes = express.Router();
@@ -52,7 +53,7 @@ userRoutes.post("/new-password", userController.resetPassword);
 //PROFILE
 userRoutes.get("/profile", isUserAuthenticated, profileController.userProfile);
 userRoutes.get("/profile-edit", isUserAuthenticated, profileController.loadEditProfile);
-userRoutes.post("/profile-edit", isUserAuthenticated, upload.single("profileImage"), profileController.editProfile);
+userRoutes.post("/profile-edit", isUserAuthenticated, upload.single("profileImage"), validateFiles, profileController.editProfile);
 userRoutes.get("/edit-email", isUserAuthenticated, profileController.loadEditEmail)
 userRoutes.post("/edit-email", isUserAuthenticated, profileController.editEmail)
 userRoutes.post("/verify-edit-email-otp", isUserAuthenticated, profileController.verifyEditEmailOtp);

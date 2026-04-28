@@ -9,6 +9,7 @@ import * as orderController from "../controllers/admin/orderController.js";
 import * as couponController from "../controllers/admin/couponController.js";
 import * as offerController from "../controllers/admin/offerController.js";
 import upload from "../middlewares/multer.js";
+import { validateFiles } from "../utils/validation/fileValidator.js";
 
 const adminRoutes = express.Router();
 adminRoutes.get("/", isAdminGuest, adminController.loadLogin);
@@ -29,14 +30,14 @@ adminRoutes.get("/products", isAdminAuthenticated, productController.loadProduct
 adminRoutes.get("/products-add", isAdminAuthenticated, productController.loadAddProduct);
 adminRoutes.get("/products-edit/:id", isAdminAuthenticated, productController.loadEditProduct);
 
-adminRoutes.post("/products-add", isAdminAuthenticated, upload.any(), productController.addProduct);
-adminRoutes.post("/products-edit/:id", isAdminAuthenticated, upload.any(), productController.editProduct);
+adminRoutes.post("/products-add", isAdminAuthenticated, upload.any(), validateFiles, productController.addProduct);
+adminRoutes.post("/products-edit/:id", isAdminAuthenticated, upload.any(), validateFiles, productController.editProduct);
 adminRoutes.get("/products-delete/:id", isAdminAuthenticated, productController.deleteProduct)
 
 adminRoutes.get('/products/:id/variants-delete/:variantId', isAdminAuthenticated,variantController.deleteVariant);
 adminRoutes.get('/products/:id/variants', isAdminAuthenticated, variantController.loadVariantListing);
-adminRoutes.post('/products/:id/variants-add', isAdminAuthenticated, upload.array('images', 5), variantController.addVariant);
-adminRoutes.post('/products/:id/variants-edit/:variantId', isAdminAuthenticated, upload.array('images', 5), variantController.editVariant);
+adminRoutes.post('/products/:id/variants-add', isAdminAuthenticated, upload.array('images', 5), validateFiles, variantController.addVariant);
+adminRoutes.post('/products/:id/variants-edit/:variantId', isAdminAuthenticated, upload.array('images', 5), validateFiles, variantController.editVariant);
 adminRoutes.patch('/variants/:variantId/set-default', isAdminAuthenticated, variantController.setDefaultVariant);
 
 adminRoutes.get('/orders',isAdminAuthenticated,orderController.getOrders)

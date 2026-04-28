@@ -210,28 +210,35 @@ const placeOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: "COD limited to ₹30,000." });
         }
 
+        const orderId = 'ORD-' + uuidv4().slice(0, 8).toUpperCase();
+        let transaction = null;
+
         if (paymentMethod === 'Wallet') {
             const wallet = await Wallet.findOne({ user_id: userId });
-            if (!wallet || wallet.balance < summary.finalPrice) return res.status(400).json({ success: false, message: "Insufficient wallet balance" });
+            if (!wallet || wallet.balance < summary.finalPrice) {
+                return res.status(400).json({ success: false, message: "Insufficient wallet balance" });
+            }
 
+            // Debit wallet
             wallet.balance -= summary.finalPrice;
             await wallet.save();
 
+            // Create transaction record
             const now = new Date();
-            await new WalletTransactions({
+            transaction = new WalletTransactions({
                 user: userId,
-                 Amount: -summary.finalPrice,
-                 Payment_status: "Debited",
+                Amount: -summary.finalPrice,
+                Payment_status: "Debited",
                 Wallet_id: wallet._id, 
                 Payment_date: now,
                 Payment_time: now,
-                Order_id: null, 
-                Description: `Order payment`
-            }).save();
+                Description: `Paid for Order #${orderId}`
+            });
+            await transaction.save();
         }
 
         const newOrder = await new Order({
-            userId, orderId: 'ORD-' + uuidv4().slice(0, 8).toUpperCase(), 
+            userId, orderId, 
             items: summary.orderItems,
             shippingAddress: { fullName: address.name, phone: address.phone, houseName: address.houseName, locality: address.locality, city: address.city, state: address.state, pincode: address.pincode },
             paymentMethod: paymentMethod === 'Wallet' ? 'Wallet' : (isOnline ? 'Online' : 'COD'),
@@ -239,6 +246,12 @@ const placeOrder = async (req, res) => {
             orderStatus: "Pending", subtotal: summary.subtotal, discount: summary.totalOfferDiscount + summary.couponDiscount,
             couponDiscount: summary.couponDiscount, couponCode: summary.couponCode, shippingCharge: summary.shippingCharge, finalPrice: summary.finalPrice
         }).save();
+
+        // Link transaction to the order
+        if (transaction) {
+            transaction.Order_id = newOrder._id;
+            await transaction.save();
+        }
 
         if (summary.couponCode) {
             const appliedCoupon = await Coupon.findOne({ code: summary.couponCode });

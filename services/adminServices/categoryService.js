@@ -8,7 +8,7 @@ export const getCategoriesService = async (page, search, statusFilter, sortBy) =
   const query = { IsDeleted: false };
 
   if (search) {
-    query.categoryName = { $regex: search, $options: "i" };
+    query.categoryName = { $regex: search, $options: "i" }
   }
 
   if (statusFilter === "active") {

@@ -867,6 +867,20 @@
                 };
 
                 const rzp = new Razorpay(options);
+                
+                // Add failure handler
+                rzp.on('payment.failed', function (response) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Failed',
+                        text: response.error.description || 'The transaction was unsuccessful.',
+                        background: '#111627',
+                        color: '#fff'
+                    });
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Add Money';
+                });
+
                 rzp.open();
 
             } catch (error) {

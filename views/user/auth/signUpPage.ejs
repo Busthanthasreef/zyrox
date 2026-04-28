@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/userStyles/auth/signUpPage.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <%- include('../../partials/alerts') %>
 </head>
 
 <body>
@@ -412,17 +413,8 @@
     <% if (typeof emailError !=='undefined' && emailError && (emailError.toLowerCase().includes('exist') ||
         emailError.toLowerCase().includes('in use'))) { %>
         <script>
-
-            Swal.fire({
-                toast: true,
-                position: 'top',
-                icon: 'error',
-                title: '<%= emailError %>',
-                showConfirmButton: false,
-                timer: 1500,
-                timerProgressBar: true,
-                background: '#1a2a30',
-                color: '#fff'
+            document.addEventListener('DOMContentLoaded', () => {
+                showToast('error', '<%= emailError %>');
             });
         </script>
         <% } %>

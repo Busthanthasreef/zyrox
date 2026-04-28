@@ -14,6 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet" />
 <link rel="stylesheet" href="/userStyles/global/background.css">
+<%- include('../alerts') %>
 
 <!-- Global Space Background Element -->
 <div class="space-background">
@@ -1114,19 +1115,8 @@
 
         <% if (typeof loginSuccess !=='undefined' && loginSuccess) { %>
             <script>
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 1800,
-                    didOpen: (toast) => {
-                        toast.onmouseenter = Swal.stopTimer;
-                        toast.onmouseleave = Swal.resumeTimer;
-                    }
-                });
-                Toast.fire({
-                    icon: "success",
-                    title: "Signed in successfully"
+                document.addEventListener('DOMContentLoaded', () => {
+                    showToast('success', "Signed in successfully");
                 });
 
                 // Remove the query parameter from the URL
@@ -1139,9 +1129,9 @@
                 <!-- ── GLOBAL SESSION ALERTS (Swal) ── -->
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
-                        const success = <%- JSON.stringify(successMessage || '') %>;
-                        const error = <%- JSON.stringify(errorMessage || '') %>;
-                        const info = <%- JSON.stringify(infoMessage || '') %>;
+                        const success = <%- JSON.stringify(successMessage || '').replace(/\//g, '\\/') %>;
+                        const error = <%- JSON.stringify(errorMessage || '').replace(/\//g, '\\/') %>;
+                        const info = <%- JSON.stringify(infoMessage || '').replace(/\//g, '\\/') %>;
 
                         if (success) {
                             Swal.fire({
@@ -1150,25 +1140,25 @@
                                 text: success,
                                 timer: 3000,
                                 timerProgressBar: true,
-                                background: '#0a0c14',
-                                color: '#f0f2ff'
+                                background: '#0f172a',
+                                color: '#fff',
+                                iconColor: '#10b981',
+                                confirmButtonColor: '#10b981',
+                                showClass: { popup: 'animate__animated animate__fadeInDown' }
                             });
                         } else if (error) {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
                                 text: error,
-                                background: '#0a0c14',
-                                color: '#f0f2ff'
+                                background: '#0f172a',
+                                color: '#fff',
+                                iconColor: '#ef4444',
+                                confirmButtonColor: '#ef4444',
+                                showClass: { popup: 'animate__animated animate__shakeX' }
                             });
                         } else if (info) {
-                            Swal.fire({
-                                icon: 'info',
-                                title: 'Notice',
-                                text: info,
-                                background: '#0a0c14',
-                                color: '#f0f2ff'
-                            });
+                            showToast('info', info);
                         }
                     });
                 </script>

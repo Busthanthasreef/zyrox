@@ -7,9 +7,12 @@
             text: '<%= successMessage %>',
             timer: 3000,
             timerProgressBar: true,
-            background: '#1a1a1a',
+            background: '#0f172a',
             color: '#fff',
-            confirmButtonColor: '#4f6ef7'
+            confirmButtonColor: '#10b981',
+            iconColor: '#10b981',
+            showClass: { popup: 'animate__animated animate__fadeInDown' },
+            hideClass: { popup: 'animate__animated animate__fadeOutUp' }
         });
     });
 </script>
@@ -22,46 +25,35 @@
             icon: 'error',
             title: 'Error!',
             text: '<%= errorMessage %>',
-            background: '#1a1a1a',
+            background: '#0f172a',
             color: '#fff',
-            confirmButtonColor: '#ff3333'
-        });
-    });
-</script>
-<% } %>
-
-<% if (locals.infoMessage) { %>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        Swal.fire({
-            icon: 'info',
-            title: 'Notice',
-            text: '<%= infoMessage %>',
-            timer: 3000,
-            timerProgressBar: true,
-            background: '#1a1a1a',
-            color: '#fff',
-            confirmButtonColor: '#2196f3'
+            confirmButtonColor: '#ef4444',
+            iconColor: '#ef4444',
+            showClass: { popup: 'animate__animated animate__shakeX' },
+            hideClass: { popup: 'animate__animated animate__fadeOutUp' }
         });
     });
 </script>
 <% } %>
 
 <script>
-    // Global function for AJAX toasts
+    // Global function for AJAX toasts with premium aesthetic
     window.showToast = (icon, message) => {
         const Toast = Swal.mixin({
             toast: true,
-            position: 'top-end',
+            position: 'top',
             showConfirmButton: false,
             timer: 3000,
             timerProgressBar: true,
-            background: '#1a1a1a',
-            color: '#fff',
+            background: '#1e293b',
+            color: '#f8fafc',
+            iconColor: icon === 'success' ? '#10b981' : (icon === 'error' ? '#ef4444' : '#3b82f6'),
             didOpen: (toast) => {
                 toast.addEventListener('mouseenter', Swal.stopTimer)
                 toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
+            },
+            showClass: { popup: 'animate__animated animate__slideInDown' },
+            hideClass: { popup: 'animate__animated animate__fadeOutUp' }
         });
         Toast.fire({
             icon: icon,
@@ -69,3 +61,4 @@
         });
     };
 </script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>

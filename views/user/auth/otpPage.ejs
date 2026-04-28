@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="/userStyles/auth/otpPage.css">
     <link rel="stylesheet" href="/userStyles/global/background.css">
+    <%- include('../../partials/alerts') %>
 </head>
 
 <body data-otp-swal="<%= otpSwal %>" data-otp-success="<%= otpSuccess %>" data-otp-error="<%= otpError %>"
@@ -101,9 +102,10 @@
                     text: otpSuccess,
                     showConfirmButton: false,
                     timer: 1500,
-                    background: '#1f2937',
+                    background: '#0f172a',
                     color: '#fff',
-                    iconColor: '#00ff88'
+                    iconColor: '#10b981',
+                    showClass: { popup: 'animate__animated animate__fadeInDown' }
                 }).then(() => {
                     if (purpose === "signup") {
                         window.location.href = '/';
@@ -117,16 +119,7 @@
             }
             // 2. Normal Success Toast (e.g. Resend)
             else if (otpSuccess) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'success',
-                    title: otpSuccess,
-                    showConfirmButton: false,
-                    timer: 2000,
-                    background: '#1f2937',
-                    color: '#fff'
-                });
+                showToast('success', otpSuccess);
             }
             // 3. Error Modal
             else if (otpError) {
@@ -134,9 +127,11 @@
                     icon: 'error',
                     title: 'Oops...',
                     text: otpError,
-                    background: '#1f2937',
+                    background: '#0f172a',
                     color: '#fff',
-                    confirmButtonColor: '#00ff88'
+                    confirmButtonColor: '#ef4444',
+                    iconColor: '#ef4444',
+                    showClass: { popup: 'animate__animated animate__shakeX' }
                 });
             }
 
@@ -216,10 +211,25 @@
                 localStorage.removeItem(timerKey);
             });
 
-            // --- INPUT HANDLING ---
-
             const inputs = document.querySelectorAll(".otp-input");
             inputs.forEach((input, index) => {
+                input.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, "").slice(0, inputs.length);
+                    if (pastedData) {
+                        for (let i = 0; i < pastedData.length; i++) {
+                            if (inputs[index + i]) {
+                                inputs[index + i].value = pastedData[i];
+                            }
+                        }
+                        const focusIndex = Math.min(index + pastedData.length, inputs.length - 1);
+                        inputs[focusIndex].focus();
+                        if (pastedData.length === inputs.length) {
+                            document.querySelector("form").submit();
+                        }
+                    }
+                });
+
                 input.addEventListener("input", (e) => {
                     e.target.value = e.target.value.replace(/[^0-9]/g, "");
                     if (e.target.value && index < inputs.length - 1) {

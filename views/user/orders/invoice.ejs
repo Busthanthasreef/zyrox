@@ -19,11 +19,12 @@
         }
 
         .invoice-box {
-            max-width: 1000px;
-            margin: auto;
+            max-width: 800px;
+            margin: 20px auto;
             background: #fff;
-            padding: 30px;
-            border: 1px solid #efefef;
+            padding: 40px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
         }
 
         .header-line {
@@ -267,12 +268,19 @@
         function downloadPDF() {
             const element = document.getElementById('invoice');
             const opt = {
-                margin: 0.2,
+                margin: [0.5, 0.5],
                 filename: 'Zyrox_Tax_Invoice_<%= order.orderId %>.pdf',
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true, 
+                    letterRendering: true,
+                    logging: false
+                },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
+            
+            // Generate PDF
             html2pdf().set(opt).from(element).save();
         }
     </script>

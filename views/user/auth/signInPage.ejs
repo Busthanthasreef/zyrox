@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" href="/userStyles/auth/signInPage.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+    <%- include('../../partials/alerts') %>
 </head>
 
 <body>
@@ -110,14 +110,8 @@
 
     <% if (typeof error !=='undefined' && error==='blocked' ) { %>
         <script>
-            Swal.fire({
-                toast: true,
-                position: 'top',
-                icon: 'error',
-                title: 'Your account has been blocked by admin',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true
+            document.addEventListener('DOMContentLoaded', () => {
+                showToast('error', 'Your account has been blocked by admin');
             });
         </script>
         <% } %>
@@ -248,8 +242,10 @@
                                         text: 'You have logged in successfully!',
                                         showConfirmButton: false,
                                         timer: 1500,
-                                        background: '#141416',
-                                        color: '#eaeaea'
+                                        background: '#0f172a',
+                                        color: '#fff',
+                                        iconColor: '#10b981',
+                                        showClass: { popup: 'animate__animated animate__fadeInDown' }
                                     }).then(() => {
                                         const dest = data.returnTo && data.returnTo !== '/' ? data.returnTo : '/';
                                         window.location.href = dest;
@@ -258,15 +254,7 @@
                                 } else {
                                     resetBtn();
                                     if (data.blocked) {
-                                        Swal.fire({
-                                            toast: true,
-                                            position: 'top',
-                                            icon: 'error',
-                                            title: data.message,
-                                            showConfirmButton: false,
-                                            timer: 3000,
-                                            timerProgressBar: true
-                                        });
+                                        showToast('error', data.message);
                                     } else if (data.target === "email") {
                                         emailValidation.textContent = data.message;
                                         emailInput.classList.add("input-error");
@@ -277,13 +265,15 @@
                                         Swal.fire({
                                             icon: 'error',
                                             title: 'Error',
-                                            text: data.message || 'Something went wrong!'
+                                            text: data.message || 'Something went wrong!',
+                                            background: '#0f172a',
+                                            color: '#fff',
+                                            confirmButtonColor: '#ef4444'
                                         });
                                     }
                                 }
                             })
-                                    })
-                        .catch(error => {
+                            .catch(error => {
                             resetBtn();
                             console.error("Error:", error);
                             Swal.fire({

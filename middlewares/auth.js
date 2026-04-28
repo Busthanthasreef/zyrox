@@ -1,3 +1,5 @@
+import userSchema from ".././models/user.js"
+
 // Admin authentication middleware
 const isAdminAuthenticated = (req, res, next) => {
   if (!req.session.admin) {
@@ -7,6 +9,14 @@ const isAdminAuthenticated = (req, res, next) => {
 };
 
 
+const isUserBlocked = async (req,res,next)=>{
+  const user= await userSchema.findOne({_id:req.session.user._id,isActive:true})
+  if(!user){
+    delete req.session.user
+    return res.redirect('/')
+  }
+  next();
+}
 
 // Check if admin is already logged in
 const isAdminGuest = (req, res, next) => {
@@ -53,5 +63,6 @@ export {
   isUserAuthenticated, 
   isAdminAuthenticated,
   isUserGuest,
+  isUserBlocked,
   isAdminGuest
 };
