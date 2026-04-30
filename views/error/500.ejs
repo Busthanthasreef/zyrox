@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Server Error | Zyrox</title>
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg-deep: #0a0c14;
+            --bg-card: #111422;
+            --error-red: #ef4444;
+            --error-glow: rgba(239, 68, 68, .2);
+            --text-1: #f0f2ff;
+            --text-2: #8b92b8;
+            --transition: .22s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-1);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+            background-image:
+                radial-gradient(ellipse 60% 40% at 75% -10%, rgba(239, 68, 68, .08) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 10% 90%, rgba(79, 110, 247, .05) 0%, transparent 60%);
+        }
+
+        .error-wrapper {
+            position: relative;
+            text-align: center;
+            z-index: 10;
+            padding: 2rem;
+            max-width: 600px;
+            animation: fadeIn .8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-code {
+            font-size: 10rem;
+            font-weight: 900;
+            line-height: .8;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--text-1) 0%, #4f566b 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: .1;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            user-select: none;
+        }
+
+        .icon-circle {
+            width: 120px;
+            height: 120px;
+            background: var(--bg-card);
+            border: 1px solid rgba(239, 68, 68, .2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2.5rem;
+            font-size: 3.5rem;
+            color: var(--error-red);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .4), 0 0 20px var(--error-glow);
+            position: relative;
+        }
+
+        .icon-circle::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 1px solid rgba(239, 68, 68, .1);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+
+        .error-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .error-subtitle {
+            color: var(--text-2);
+            font-size: 1.15rem;
+            line-height: 1.6;
+            margin-bottom: 3rem;
+            font-weight: 400;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: .8rem;
+            background: linear-gradient(135deg, var(--error-red) 0%, #ff6b6b 100%);
+            color: #fff;
+            padding: 1.1rem 2.8rem;
+            border-radius: 99px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, .3);
+            transition: all var(--transition);
+        }
+
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(239, 68, 68, .4);
+            color: #fff;
+        }
+
+        .floating-elements {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .element {
+            position: absolute;
+            background: var(--error-red);
+            opacity: .03;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-code">500</div>
+
+    <div class="error-wrapper">
+        <div class="icon-circle">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+
+        <h1 class="error-title">System <span>Glitch</span></h1>
+        <p class="error-subtitle">
+            Something went wrong on our end. We're already working to fix it. <br class="d-none d-md-block">
+            Please try again in a few moments.
+        </p>
+
+        <a href="/" class="btn-action">
+            <i class="bi bi-arrow-left"></i>
+            Back to Safety
+        </a>
+    </div>
+
+    <div class="floating-elements">
+        <div class="element" style="width: 300px; height: 300px; top: -150px; right: -150px;"></div>
+        <div class="element" style="width: 200px; height: 200px; bottom: 10%; left: -50px;"></div>
+    </div>
+</body>
+
+</html>

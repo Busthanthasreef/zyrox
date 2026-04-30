@@ -9,11 +9,13 @@ const isAdminAuthenticated = (req, res, next) => {
 };
 
 
-const isUserBlocked = async (req,res,next)=>{
-  const user= await userSchema.findOne({_id:req.session.user._id,isActive:true})
-  if(!user){
-    delete req.session.user
-    return res.redirect('/')
+const isUserBlocked = async (req, res, next) => {
+  if (req.session.user) {
+    const user = await userSchema.findOne({ _id: req.session.user._id, isActive: false })
+    if (user) {
+      delete req.session.user
+      return res.redirect('/')
+    }
   }
   next();
 }
@@ -33,7 +35,7 @@ const isAdminGuest = (req, res, next) => {
 // User authentication middleware
 const isUserAuthenticated = (req, res, next) => {
   if (!req.session.user) {
-    // Check if the request is an API/AJAX call
+    
     if (req.xhr || (req.headers.accept && req.headers.accept.includes('json')) || req.path.startsWith('/cart/') || req.path.startsWith('/wishlist/')) {
       // Save the Referer so the user returns to the referring page (like product details) after login
       req.session.returnTo = req.get('Referer') || '/';

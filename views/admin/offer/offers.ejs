@@ -935,6 +935,10 @@
                 document.querySelector('input[name="discountType"][value="percentage"]').checked = true;
                 document.querySelector('input[name="offerType"][value="product"]').checked = true;
 
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('startDate').min = today;
+                document.getElementById('endDate').min = today;
+
                 toggleApplyFields();
                 toggleValFields();
                 offerModal.show();
@@ -966,6 +970,13 @@
                 document.getElementById('startDate').value = new Date(data.startDate).toISOString().split('T')[0];
                 document.getElementById('endDate').value = new Date(data.endDate).toISOString().split('T')[0];
                 document.getElementById('isActive').checked = data.isActive;
+
+                const today = new Date().toISOString().split('T')[0];
+                const currentStart = new Date(data.startDate).toISOString().split('T')[0];
+                
+                // Allow current start date even if it's in the past, but don't allow selecting dates before it or today
+                document.getElementById('startDate').min = currentStart < today ? currentStart : today;
+                document.getElementById('endDate').min = today;
 
                 toggleValFields();
                 offerModal.show();
@@ -999,6 +1010,7 @@
                 const startDateVal = document.getElementById('startDate').value;
                 const endDateVal = document.getElementById('endDate').value;
                 const discountType = document.querySelector('input[name="discountType"]:checked').value;
+                const offerType = document.querySelector('input[name="offerType"]:checked').value;
 
                 if (!offerName) {
                     showFieldError('offerName', 'Offer name is required.');
@@ -1021,16 +1033,25 @@
                     isValid = false;
                 }
 
+                const isEdit = !!document.getElementById('offerId').value;
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+                const start = new Date(startDateVal);
+                const end = new Date(endDateVal);
+
                 if (!startDateVal) {
                     showFieldError('startDate', 'Start date is required.');
+                    isValid = false;
+                } else if (!isEdit && start < now) {
+                    showFieldError('startDate', 'Start date cannot be in the past.');
                     isValid = false;
                 }
 
                 if (!endDateVal) {
                     showFieldError('endDate', 'End date is required.');
                     isValid = false;
-                } else if (startDateVal && new Date(endDateVal) < new Date(startDateVal)) {
-                    showFieldError('endDate', 'End date cannot be earlier than start date.');
+                } else if (startDateVal && end <= start) {
+                    showFieldError('endDate', 'End date must be strictly after the start date.');
                     isValid = false;
                 }
 
@@ -1046,7 +1067,6 @@
                     body.categoryId = body.targetId;
                 }
 
-                const isEdit = !!body.offerId;
                 let url = isEdit ? `/admin/offers/edit/${body.offerId}` : '';
                 if (!isEdit) {
                     if (body.offerType === 'product') url = '/admin/offers/add-product';
@@ -1121,6 +1141,16 @@
                     }
                 });
             }
+
+            // Sync End Date Min with Start Date
+            document.getElementById('startDate').addEventListener('change', function() {
+                const startVal = this.value;
+                if (startVal) {
+                    const nextDay = new Date(startVal);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    document.getElementById('endDate').min = nextDay.toISOString().split('T')[0];
+                }
+            });
         </script>
 </body>
 

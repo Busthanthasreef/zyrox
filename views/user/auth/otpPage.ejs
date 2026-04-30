@@ -24,7 +24,7 @@
         <div class="nebula"></div>
     </div>
 
-    <div class="otp-card">
+    <div class="otp-card <%= otpError ? 'animate__animated animate__shakeX' : '' %>">
 
         <h1 class="otp-title">
             <%= purpose==="signup" ? "Verify Your Email" : "Verify OTP" %>
@@ -69,7 +69,7 @@
                 action="<%= purpose === 'signup' ? '/resend-otp' : purpose === 'reset' ? '/resend-reset-otp' : '/resend-edit-email-otp' %>"
                 method="post">
                 <p>Didn't receive the code?
-                    <button class="resend-link" type="submit" id="resendButton" class="disabled" disabled readonly>
+                    <button class="resend-link disabled" type="submit" id="resendButton" disabled readonly>
                         Resend
                     </button>
                 </p>
@@ -215,57 +215,163 @@
             inputs.forEach((input, index) => {
                 input.addEventListener('paste', (e) => {
                     e.preventDefault();
-                    const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, "").slice(0, inputs.length);
-                    if (pastedData) {
-                        for (let i = 0; i < pastedData.length; i++) {
-                            if (inputs[index + i]) {
-                                inputs[index + i].value = pastedData[i];
-                            }
+                    const pasteData = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, "");
+                    
+                    if (pasteData) {
+                        // If it's a full 6-digit OTP, always fill from the start.
+                        // Otherwise, fill starting from the currently focused field.
+                        const startIdx = (pasteData.length === inputs.length) ? 0 : index;
+                        
+                        let currentIdx = startIdx;
+                        for (let i = 0; i < pasteData.length && currentIdx < inputs.length; i++) {
+                            inputs[currentIdx].value = pasteData[i];
+                            currentIdx++;
                         }
-                        const focusIndex = Math.min(index + pastedData.length, inputs.length - 1);
-                        inputs[focusIndex].focus();
-                        if (pastedData.length === inputs.length) {
-                            document.querySelector("form").submit();
+                        
+                        // Focus the next available field or the last one
+                        const nextFocusIdx = Math.min(currentIdx, inputs.length - 1);
+                        inputs[nextFocusIdx].focus();
+                        
+                        // Auto-submit if all 6 digits are present
+                        const allFilled = Array.from(inputs).every(inp => inp.value !== "");
+                        if (allFilled) {
+                            const form = input.closest('form');
+                            if (form) form.submit();
                         }
                     }
                 });
 
                 input.addEventListener("input", (e) => {
+                    // Only allow numbers
                     e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                    
+                    // Move to next field if value is entered
                     if (e.target.value && index < inputs.length - 1) {
                         inputs[index + 1].focus();
                     }
                 });
 
                 input.addEventListener("keydown", (e) => {
+                    // Backspace to move to previous field
                     if (e.key === "Backspace" && !e.target.value && index > 0) {
                         inputs[index - 1].focus();
                     }
+                    // Enter key to submit
                     if (e.key === "Enter") {
                         e.preventDefault();
-                        document.querySelector("form").submit();
+                        const form = input.closest('form');
+                        if (form) form.submit();
                     }
                 });
             });
 
             if (inputs.length > 0) inputs[0].focus();
 
-            // --- LOADING STATE ---
+            // --- LOADING STATE & AJAX ---
             const verifyForm = document.querySelector('form[action*="verify"]');
             if (verifyForm) {
-                verifyForm.addEventListener('submit', () => {
+                verifyForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(verifyForm);
+                    const data = Object.fromEntries(formData.entries());
+
                     verifyButton.textContent = "Verifying...";
                     verifyButton.classList.add('btn-loading');
                     verifyButton.disabled = true;
+
+                    fetch(verifyForm.action, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            localStorage.removeItem(timerKey);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Verified!',
+                                text: result.message,
+                                showConfirmButton: false,
+                                timer: 1500,
+                                background: '#0f172a',
+                                color: '#fff',
+                                iconColor: '#10b981',
+                                showClass: { popup: 'animate__animated animate__fadeInDown' }
+                            }).then(() => {
+                                window.location.href = result.redirect;
+                            });
+                        } else {
+                            verifyButton.textContent = "Verify";
+                            verifyButton.classList.remove('btn-loading');
+                            verifyButton.disabled = false;
+
+                            if (result.redirect) {
+                                window.location.href = result.redirect;
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Verification Failed',
+                                    text: result.message,
+                                    background: '#0f172a',
+                                    color: '#fff',
+                                    confirmButtonColor: '#ef4444',
+                                    iconColor: '#ef4444',
+                                    showClass: { popup: 'animate__animated animate__shakeX' }
+                                });
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        verifyButton.textContent = "Verify";
+                        verifyButton.classList.remove('btn-loading');
+                        verifyButton.disabled = false;
+                        console.error("Verification Error:", error);
+                        showToast('error', "An unexpected error occurred");
+                    });
                 });
             }
 
-            const resendForm = document.querySelector('form[action*="resend"]');
+            const resendForm = document.querySelector('.resend-text form');
             if (resendForm) {
-                resendForm.addEventListener('submit', () => {
+                resendForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
                     resendButton.textContent = "Sending...";
                     resendButton.classList.add('btn-loading');
                     resendButton.disabled = true;
+
+                    fetch(resendForm.action, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            showToast('success', result.message);
+                            // Reset timer
+                            localStorage.removeItem(timerKey);
+                            location.reload(); // Reload to restart timer and clear inputs easily
+                        } else {
+                            resendButton.textContent = "Resend";
+                            resendButton.classList.remove('btn-loading');
+                            resendButton.disabled = false;
+                            showToast('error', result.message);
+                            if (result.redirect) window.location.href = result.redirect;
+                        }
+                    })
+                    .catch(error => {
+                        resendButton.textContent = "Resend";
+                        resendButton.classList.remove('btn-loading');
+                        resendButton.disabled = false;
+                        console.error("Resend Error:", error);
+                        showToast('error', "An unexpected error occurred");
+                    });
                 });
             }
         });

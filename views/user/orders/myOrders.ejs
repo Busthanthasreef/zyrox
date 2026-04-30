@@ -440,6 +440,30 @@
             border-color: rgba(255, 193, 7, 0.2);
         }
 
+        .receipt-download-btn {
+            font-size: 0.72rem;
+            color: var(--accent-blue);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 700;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .receipt-download-btn:hover {
+            background: rgba(79, 110, 247, 0.1);
+            color: var(--accent-blue);
+        }
+
+        .btn-mobile-receipt {
+            background: rgba(0, 212, 170, 0.1);
+            color: #00d4aa;
+            border-color: rgba(0, 212, 170, 0.2);
+        }
+
         /* ── EMPTY STATE ── */
         .empty-state {
             display: flex;
@@ -703,7 +727,12 @@
 
                                     <td>
                                         <% if (order.paymentStatus === 'Paid') { %>
-                                            <span class="status-badge badge-paid"><span class="dot"></span>Paid</span>
+                                            <div class="d-flex flex-column align-items-start gap-1">
+                                                <span class="status-badge badge-paid"><span class="dot"></span>Paid</span>
+                                                <a href="/myOrders/invoice?id=<%= order._id %>" class="receipt-download-btn">
+                                                    <i class="fas fa-download"></i> Download
+                                                </a>
+                                            </div>
                                         <% } else { %>
                                             <span class="status-badge badge-unpaid"><span class="dot"></span><%= order.paymentStatus %></span>
                                         <% } %>
@@ -780,6 +809,12 @@
 
                             <div class="order-card-footer">
                                 <a href="/myOrders/details?id=<%= order._id %>" class="mobile-action-btn btn-mobile-view">View Details</a>
+
+                                <% if (order.paymentStatus === 'Paid') { %>
+                                    <a href="/myOrders/invoice?id=<%= order._id %>" class="mobile-action-btn btn-mobile-receipt">
+                                        <i class="fas fa-file-invoice"></i> Receipt
+                                    </a>
+                                <% } %>
 
                                 <% if (order.orderStatus === 'Pending' || order.orderStatus === 'Processing') { %>
                                     <button onclick="openCancelModal('<%= order._id %>')" class="mobile-action-btn btn-mobile-cancel">Cancel</button>

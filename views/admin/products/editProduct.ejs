@@ -1508,15 +1508,33 @@
                     saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
 
                     const fd = new FormData(this);
+                    
+                    // Clear legacy field names to avoid confusion
                     fd.delete('newImages[]');
-                    removedSlots.forEach((val, i) => { if (val) fd.append('removedSlots[]', i); });
-
+                    
+                    // Correctly map slots to either new files or existing paths
                     for (let i = 0; i < 5; i++) {
-                        const fileInput = document.getElementById(`eFile_${i}`);
-                        if (croppedBlobs[i]) {
-                            fd.append('newImages[]', croppedBlobs[i], `crop_${i}.jpg`);
-                        } else if (fileInput && fileInput.files[0]) {
-                            fd.append('newImages[]', fileInput.files[0]);
+                        const box = document.getElementById(`eBox_${i}`);
+                        if (box && box.classList.contains('has-image')) {
+                            const fieldName = `image_slot_${i}`;
+                            
+                            if (croppedBlobs[i]) {
+                                // Newly cropped image
+                                fd.append(fieldName, croppedBlobs[i], `crop_${i}.jpg`);
+                            } else {
+                                const fileInput = document.getElementById(`eFile_${i}`);
+                                if (fileInput && fileInput.files[0]) {
+                                    // Newly selected (uncropped) image
+                                    fd.append(fieldName, fileInput.files[0]);
+                                } else {
+                                    // Existing image path
+                                    const preview = document.getElementById(`ePreview_${i}`);
+                                    if (preview && preview.src && !preview.src.startsWith('blob:') && !preview.src.startsWith('data:')) {
+                                        // Send the full URL (or relative path if that's what's used)
+                                        fd.append(fieldName, preview.src);
+                                    }
+                                }
+                            }
                         }
                     }
 

@@ -11,13 +11,34 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
     <link rel="stylesheet" href="/adminStyles/products/productListing.css">
-
     <style>
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --surface2: #f1f5f9;
+            --border: #e2e8f0;
+            --accent: #1e293b;
+            --accent-soft: rgba(30, 41, 59, 0.08);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --skeleton: #f1f5f9;
+        }
+
         /* ===== NON-SCROLLABLE FULL-HEIGHT LAYOUT ===== */
         html,
         body {
-            height: 100%;
-            overflow: hidden;
+            min-height: 100%;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
         }
 
         .layout-wrapper {
@@ -30,14 +51,43 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+            padding: 24px 32px;
+            width: 100%;
+            min-height: 0;
         }
+
+        /* ── Breadcrumbs ── */
+        .breadcrumb-nav {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .breadcrumb-nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb-nav a:hover {
+            color: var(--accent);
+        }
+
+        .breadcrumb-nav .separator { opacity: 0.5; }
+        .breadcrumb-nav .current { color: var(--text-primary); font-weight: 600; }
 
         /* Page header stays fixed at top */
         .page-header {
             flex-shrink: 0;
+            margin-bottom: 20px;
         }
+
+        .page-title { font-weight: 800; font-size: 24px; letter-spacing: -0.5px; }
+        .page-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px; }
 
         /* Panel fills remaining space and scrolls internally */
         .panel {
@@ -46,15 +96,24 @@
             flex-direction: column;
             overflow: hidden;
             min-height: 0;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         /* Topbar and pagination stay fixed */
         .panel-topbar {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
             flex-shrink: 0;
         }
 
         .pagination-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
             flex-shrink: 0;
+            background: var(--surface);
         }
 
         /* Only the table scrolls */
@@ -62,25 +121,170 @@
             flex: 1;
             overflow-y: auto;
             min-height: 0;
+            position: relative;
         }
 
-        /* Thin custom scrollbar for the table */
-        .table-responsive::-webkit-scrollbar {
-            width: 5px;
+        /* ── Sticky Header ── */
+        .users-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--surface2);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .table-responsive::-webkit-scrollbar-track {
-            background: transparent;
+        /* ── Table UX ── */
+        .users-table tbody tr {
+            cursor: pointer;
+            transition: background 0.15s;
         }
 
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: #333;
+        .users-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .users-table td {
+            padding: 14px 20px;
+            vertical-align: middle;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .numeric-cell { text-align: right; font-family: 'Inter', monospace; font-weight: 600; }
+        .text-truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            max-width: 250px;
+        }
+
+        /* ── Filter Chips ── */
+        .filter-chips-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 20px 14px;
+            flex-wrap: wrap;
+            margin-top: -8px;
+        }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--surface2);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+        }
+
+        .filter-chip .remove-chip {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .filter-chip .remove-chip:hover { opacity: 1; }
+        .clear-all-filters { font-size: 11px; font-weight: 700; color: var(--text-muted); cursor: pointer; margin-left: 4px; }
+        .clear-all-filters:hover { color: var(--danger); text-decoration: underline; }
+
+        /* ── Skeleton Loader ── */
+        .skeleton {
+            background-color: var(--skeleton);
+            background-image: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.5), rgba(255,255,255,0));
+            background-size: 200px 100%;
+            background-repeat: no-repeat;
+            display: inline-block;
             border-radius: 4px;
+            animation: skeleton-loading 1.5s infinite linear;
         }
 
-        .table-responsive::-webkit-scrollbar-thumb:hover {
-            background: #555;
+        @keyframes skeleton-loading {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
         }
+
+        .skeleton-text { height: 12px; width: 100%; }
+        .skeleton-badge { height: 20px; width: 60px; border-radius: 20px; }
+        .skeleton-thumb { height: 40px; width: 40px; border-radius: 8px; }
+
+        /* ── Loading Overlay ── */
+        .table-loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(1px);
+        }
+
+        .table-loading-overlay.active { display: flex; }
+
+        /* ── Responsive ── */
+        @media (max-width: 992px) {
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .users-table thead { display: none; }
+            .users-table tbody tr {
+                display: block;
+                padding: 16px;
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                margin: 12px 16px;
+                background: var(--surface);
+                box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            }
+            .users-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 0;
+                border-bottom: 1px solid var(--surface2);
+                text-align: right;
+            }
+            .users-table td::before {
+                content: attr(data-label);
+                font-weight: 700;
+                font-size: 11px;
+                text-transform: uppercase;
+                color: var(--text-muted);
+            }
+            .users-table td:last-child { border-bottom: none; justify-content: center; padding-top: 12px; }
+            .main-content { padding: 16px; height: auto; overflow: visible; }
+            .table-responsive { overflow: visible; }
+            .layout-wrapper, .main-content, .panel { height: auto; overflow: visible; }
+            body { overflow-y: auto; }
+        }
+
+        /* ── Column Sorting ── */
+        .sortable-th { cursor: pointer; user-select: none; transition: color 0.2s; }
+        .sortable-th:hover { color: var(--accent) !important; }
+        .sort-indicator { margin-left: 4px; opacity: 0.3; font-size: 10px; }
+        .sortable-th.active-sort .sort-indicator { opacity: 1; }
+
+        /* ── Micro-animations ── */
+        .animate-fade-in { animation: fadeIn 0.4s ease-out backwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .searching-indicator { display: none; align-items: center; gap: 6px; font-size: 11px; color: var(--accent); font-weight: 600; margin-left: 10px; }
+        .searching-indicator.active { display: flex; }
+        .spinner-sm { width: 14px; height: 14px; border: 2px solid var(--surface2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 
@@ -90,156 +294,167 @@
         <main class="admin-main">
             <div class="main-content">
 
+                <!-- Breadcrumbs -->
+                <nav class="breadcrumb-nav">
+                    <a href="/admin/dashboard">Dashboard</a>
+                    <span class="separator"><i class="bi bi-chevron-right"></i></span>
+                    <span class="current">Products</span>
+                </nav>
+
                 <div class="page-header d-flex justify-content-between align-items-center">
                     <div>
                         <p class="page-label">Product Management</p>
                         <h1 class="page-title">Products</h1>
                     </div>
-                    <a href="/admin/products-add" class="btn btn-dark">
-                        <i class="bi bi-plus"></i> Add Product
+                    <a href="/admin/products-add" class="btn btn-dark" style="border-radius: 8px; font-weight: 600; padding: 10px 20px;">
+                        <i class="bi bi-plus-lg me-1"></i> Add Product
                     </a>
                 </div>
 
                 <div class="panel">
 
-                    <div class="panel-topbar d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-                        <h2 class="panel-title">All Products</h2>
+                    <div class="panel-topbar d-flex justify-content-between align-items-center flex-wrap gap-3 mb-1">
+                        <h2 class="panel-title" style="font-weight: 700; font-size: 16px; color: var(--text-primary);">All Products</h2>
 
-                        <form method="GET" action="/admin/products" class="search-bar-group d-flex gap-2 flex-wrap" id="productFilterForm">
-                            <div class="search-input-wrap" style="position: relative;">
-                                <i class="bi bi-search search-icon-inner"></i>
-                                <input type="search" name="search" id="productSearchInput"
-                                    placeholder="Search products..." class="search-field" value="<%= search || '' %>"
-                                    style="padding-right: 30px;"
-                                    oninput="document.getElementById('productClearBtn').style.display = this.value.length > 0 ? 'block' : 'none'">
-                                <i class="bi bi-x" id="productClearBtn" title="Clear Search"
-                                    style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #999; cursor: pointer; display: <%= search ? 'block' : 'none' %>;"
-                                    onclick="document.getElementById('productSearchInput').value=''; this.style.display='none'; this.closest('form').submit();"></i>
+                        <div class="search-bar-group d-flex gap-2 flex-wrap">
+                            <div class="search-input-wrap" style="position: relative; width: 300px;">
+                                <i class="bi bi-search search-icon-inner" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+                                <input type="text" id="productSearchInput"
+                                    placeholder="Search by name or SKU..." class="form-control" value="<%= search || '' %>"
+                                    style="padding-left: 35px; padding-right: 35px; height: 40px; border-radius: 8px; font-size: 14px; border: 1px solid var(--border);">
+                                <i class="bi bi-x-lg" id="productClearBtn" title="Clear Search"
+                                    style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-muted); cursor: pointer; display: <%= search ? 'block' : 'none' %>;"></i>
                             </div>
 
-                            <select name="category" class="filter-select" onchange="this.form.submit()">
+                            <select id="categoryFilter" class="form-select" style="width: 160px; height: 40px; border-radius: 8px; font-size: 14px; border: 1px solid var(--border);">
                                 <option value="">All Categories</option>
                                 <% categories.forEach(cat=> { %>
-                                    <option value="<%= cat._id %>" <%=categoryFilter==cat._id.toString() ? 'selected'
-                                        : '' %>>
+                                    <option value="<%= cat._id %>" <%=categoryFilter==cat._id.toString() ? 'selected' : '' %>>
                                         <%= cat.categoryName %>
                                     </option>
-                                    <% }) %>
+                                <% }) %>
                             </select>
 
-                            <select name="status" class="filter-select" onchange="this.form.submit()">
+                            <select id="statusFilter" class="form-select" style="width: 130px; height: 40px; border-radius: 8px; font-size: 14px; border: 1px solid var(--border);">
                                 <option value="">All Status</option>
                                 <option value="active" <%=statusFilter==='active' ? 'selected' : '' %>>Active</option>
-                                <option value="inactive" <%=statusFilter==='inactive' ? 'selected' : '' %>>Inactive
-                                </option>
+                                <option value="inactive" <%=statusFilter==='inactive' ? 'selected' : '' %>>Inactive</option>
                             </select>
 
-                            <select name="sortBy" class="filter-select" onchange="this.form.submit()">
-                                <option value="newest" <%= sortBy === 'newest' ? 'selected' : '' %>>Newest First</option>
-                                <option value="oldest" <%= sortBy === 'oldest' ? 'selected' : '' %>>Oldest First</option>
-                                <option value="name_asc" <%= sortBy === 'name_asc' ? 'selected' : '' %>>Name: A-Z</option>
-                                <option value="name_desc" <%= sortBy === 'name_desc' ? 'selected' : '' %>>Name: Z-A</option>
-                            </select>
+                            <div class="searching-indicator" id="searchingIndicator">
+                                <div class="spinner-sm"></div>
+                                <span>Searching...</span>
+                            </div>
+                        </div>
+                    </div>
 
-                            <button type="submit" class="search-submit-btn">
-                                <i class="bi bi-funnel"></i> Apply
-                            </button>
-                        </form>
+                    <!-- Active Filter Chips -->
+                    <div class="filter-chips-wrapper" id="filterChips">
+                        <!-- Injected by JS -->
                     </div>
 
                     <div class="table-responsive">
-                        <table class="table users-table">
+                        <div class="table-loading-overlay" id="tableLoadingOverlay">
+                            <div class="spinner-border text-dark" role="status" style="width: 2rem; height: 2rem; border-width: 0.2em;"></div>
+                        </div>
+                        <table class="table users-table" id="productTable">
                             <thead>
                                 <tr>
-                                    <th>Sl.No</th>
-                                    <th>Product</th>
-                                    <th>Price</th>
-                                    <th>Category</th>
-                                    <th>Stock</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
+                                    <th width="5%">Sl.No</th>
+                                    <th width="35%" class="sortable-th" onclick="applySort('name_asc')">
+                                        Product <i class="bi bi-arrow-down-up sort-indicator"></i>
+                                    </th>
+                                    <th width="12%" class="sortable-th" onclick="applySort('price_low')">
+                                        Price <i class="bi bi-arrow-down-up sort-indicator"></i>
+                                    </th>
+                                    <th width="15%">Category</th>
+                                    <th width="10%" class="sortable-th" onclick="applySort('stock_low')">
+                                        Stock <i class="bi bi-arrow-down-up sort-indicator"></i>
+                                    </th>
+                                    <th width="10%" class="sortable-th" onclick="applySort('status')">
+                                        Status <i class="bi bi-arrow-down-up sort-indicator"></i>
+                                    </th>
+                                    <th width="13%">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="productTableBody">
                                 <%if(products){%>
                                     <% products.forEach((product, index)=> { %>
                                         <% const productVariants=variantsByProduct[product._id.toString()] || [] %>
                                             <% const defaultVariant=productVariants.find(v=> v.IsDefault) ||
                                                 productVariants[0] || null %>
 
-                                                <tr>
-                                                    <td>
-                                                        <%= (currentPage - 1) * limit + index + 1 %>
-                                                    </td>
+                                        <tr onclick="navigateToProduct('<%= product._id %>')">
+                                            <td data-label="Sl.No">
+                                                <%= (currentPage - 1) * limit + index + 1 %>
+                                            </td>
 
-                                                    <td>
-                                                        <div class="d-flex align-items-center gap-3">
-                                                            <div class="product-thumb">
-                                                                <img src="<%= defaultVariant?.images?.[0] ?? '/default-product.png' %>"
-                                                                    alt="<%= product.productName %>"
-                                                                    onerror="this.src='/default-product.png'">
-                                                            </div>
-                                                            <div>
-                                                                <p class="u-name mb-1">
-                                                                    <%= product.productName %>
-                                                                </p>
-                                                                <small class="text-muted">SKU: <%= defaultVariant?.SKU
-                                                                        || 'N/A' %></small>
-                                                            </div>
-                                                        </div>
-                                                    </td>
+                                            <td data-label="Product">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div class="product-thumb">
+                                                        <img src="<%= defaultVariant?.images?.[0] ?? '/default-product.png' %>"
+                                                            alt="<%= product.productName %>"
+                                                            onerror="this.src='/default-product.png'">
+                                                    </div>
+                                                    <div style="overflow: hidden;">
+                                                        <p class="u-name mb-0 text-truncate-2" title="<%= product.productName %>">
+                                                            <%= product.productName %>
+                                                        </p>
+                                                        <small class="text-muted" style="font-size: 11px;">SKU: <%= defaultVariant?.SKU || 'N/A' %></small>
+                                                    </div>
+                                                </div>
+                                            </td>
 
-                                                    <td>
-                                                        <% if (defaultVariant?.price !=null) { %>
-                                                            ₹<%= defaultVariant.price.toLocaleString('en-IN') %>
-                                                                <% } else { %>
-                                                                    <span class="text-muted">—</span>
-                                                                    <% } %>
-                                                    </td>
+                                            <td data-label="Price" class="numeric-cell">
+                                                <% if (defaultVariant?.price !=null) { %>
+                                                    ₹<%= defaultVariant.price.toLocaleString('en-IN') %>
+                                                <% } else { %>
+                                                    <span class="text-muted">—</span>
+                                                <% } %>
+                                            </td>
 
-                                                    <td>
-                                                        <%= product.categoryId?.categoryName || 'N/A' %>
-                                                    </td>
+                                            <td data-label="Category">
+                                                <span class="badge bg-light text-dark" style="font-weight: 500; font-size: 11px; border: 1px solid var(--border);">
+                                                    <%= product.categoryId?.categoryName || 'N/A' %>
+                                                </span>
+                                            </td>
 
-                                                    <td>
-                                                        <% if (defaultVariant?.stock !=null) { %>
-                                                            <span
-                                                                class="<%= defaultVariant.stock === 0 ? 'text-danger fw-bold' : defaultVariant.stock < 5 ? 'text-warning' : '' %>">
-                                                                <%= defaultVariant.stock %>
-                                                                    <% if (defaultVariant.stock===0) { %>
-                                                                        <small>(Out)</small>
-                                                                        <% } %>
-                                                            </span>
-                                                            <% } else { %>
-                                                                <span class="text-muted">—</span>
-                                                                <% } %>
-                                                    </td>
+                                            <td data-label="Stock" class="numeric-cell">
+                                                <% if (defaultVariant?.stock !=null) { %>
+                                                    <span class="<%= defaultVariant.stock === 0 ? 'text-danger fw-bold' : defaultVariant.stock < 5 ? 'text-warning' : '' %>">
+                                                        <%= defaultVariant.stock %>
+                                                        <% if (defaultVariant.stock===0) { %><small>(Out)</small><% } %>
+                                                    </span>
+                                                <% } else { %>
+                                                    <span class="text-muted">—</span>
+                                                <% } %>
+                                            </td>
 
-                                                    <td>
-                                                        <span
-                                                            class="status-badge <%= product.status === 'active' ? 'active' : 'blocked' %>">
-                                                            <%= product.status==='active' ? 'Active' : 'Inactive' %>
-                                                        </span>
-                                                    </td>
+                                            <td data-label="Status">
+                                                <span class="status-badge <%= product.status === 'active' ? 'active' : 'blocked' %>" 
+                                                      onclick="event.stopPropagation(); applyQuickFilter('status', '<%= product.status %>')"
+                                                      data-bs-toggle="tooltip" title="<%= product.status === 'active' ? 'Visible to customers' : 'Hidden from customers' %>">
+                                                    <%= product.status==='active' ? 'Active' : 'Inactive' %>
+                                                </span>
+                                            </td>
 
-                                                    <td>
-                                                        <div class="action-cell">
-                                                            <a href="/admin/products/<%= product._id %>/variants"
-                                                                class="btn-action edit" title="Variants">
-                                                                <i class="bi bi-layers"></i>
-                                                            </a>
-                                                            <a href="/admin/products-edit/<%= product._id %>"
-                                                                class="btn-action edit" title="Edit">
-                                                                <i class="bi bi-pencil"></i>
-                                                            </a>
-
-                                                            <button class="btn-action delete" title="Delete"
-                                                                onclick="confirmDelete('<%= product._id %>')">
-                                                                <i class="bi bi-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
+                                            <td data-label="Actions">
+                                                <div class="action-cell" onclick="event.stopPropagation()">
+                                                    <a href="/admin/products/<%= product._id %>/variants"
+                                                        class="btn-action edit" title="Variants" data-bs-toggle="tooltip">
+                                                        <i class="bi bi-layers"></i>
+                                                    </a>
+                                                    <a href="/admin/products-edit/<%= product._id %>"
+                                                        class="btn-action edit" title="Edit" data-bs-toggle="tooltip">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <button class="btn-action delete" title="Delete" data-bs-toggle="tooltip"
+                                                        onclick="confirmDelete('<%= product._id %>')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
                                                 <% }) %>
                                                     <%}else{%>
                                         <tr>
@@ -262,28 +477,29 @@
                     </div>
 
                     <div class="pagination-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <p>
-                            Showing
-                            <strong>
-                                <%= totalProducts> 0
-                                    ? ((currentPage - 1) * limit + 1) + '–' + Math.min(currentPage * limit,
-                                    totalProducts)
-                                    : '0' %>
-                            </strong>
-                            of <strong>
-                                <%= totalProducts %>
-                            </strong> products
-                        </p>
+                        <div class="d-flex align-items-center gap-3">
+                            <p class="mb-0" id="showingInfo">
+                                Showing
+                                <strong><%= totalProducts> 0 ? ((currentPage - 1) * limit + 1) + '–' + Math.min(currentPage * limit, totalProducts) : '0' %></strong>
+                                of <strong><%= totalProducts %></strong> products
+                            </p>
+                            <select id="limitSelect" class="form-select form-select-sm" style="width: 100px; border-radius: 6px;">
+                                <option value="4" <%= limit === 4 ? 'selected' : '' %>>4 / page</option>
+                                <option value="10" <%= limit === 10 ? 'selected' : '' %>>10 / page</option>
+                                <option value="25" <%= limit === 25 ? 'selected' : '' %>>25 / page</option>
+                                <option value="50" <%= limit === 50 ? 'selected' : '' %>>50 / page</option>
+                            </select>
+                        </div>
                         <nav>
-                            <ul class="pagination-list">
+                            <ul class="pagination-list" id="paginationList">
                                 <% for(let i=1; i <=totalPages; i++){ %>
                                     <li>
-                                        <a href="?page=<%= i %>&search=<%= search %>&category=<%= categoryFilter %>&status=<%= statusFilter %>&sortBy=<%= sortBy || '' %>"
+                                        <a href="javascript:void(0)" onclick="changePage(<%= i %>)"
                                             class="page-btn <%= currentPage === i ? 'active' : '' %>">
                                             <%= i %>
                                         </a>
                                     </li>
-                                    <% } %>
+                                <% } %>
                             </ul>
                         </nav>
                     </div>
@@ -296,29 +512,399 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script>
+            // State Management
+            let currentState = {
+                page: <%= currentPage %>,
+                search: '<%= search %>',
+                status: '<%= statusFilter %>',
+                category: '<%= categoryFilter %>',
+                sortBy: '<%= sortBy %>',
+                limit: <%= limit %>
+            };
+
+            // Elements
+            const tableBody = document.getElementById('productTableBody');
+            const searchInput = document.getElementById('productSearchInput');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const limitSelect = document.getElementById('limitSelect');
+            const clearBtn = document.getElementById('productClearBtn');
+            const tableOverlay = document.getElementById('tableLoadingOverlay');
+            const searchingIndicator = document.getElementById('searchingIndicator');
+            const filterChips = document.getElementById('filterChips');
+            const showingInfo = document.getElementById('showingInfo');
+            const paginationList = document.getElementById('paginationList');
+
+            // Initialize Tooltips
+            function initTooltips() {
+                const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
+
+            // Debounce
+            function debounce(func, timeout = 400) {
+                let timer;
+                return (...args) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+                };
+            }
+
+            // Fetch Data
+            async function fetchData(updateHistory = true) {
+                // Show skeletons
+                tableBody.innerHTML = Array(currentState.limit || 4).fill(0).map(() => `
+                    <tr>
+                        <td><div class="skeleton skeleton-text" style="width: 20px"></div></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="skeleton skeleton-thumb"></div>
+                                <div style="flex: 1">
+                                    <div class="skeleton skeleton-text mb-2" style="width: 80%"></div>
+                                    <div class="skeleton skeleton-text" style="width: 40%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><div class="skeleton skeleton-text numeric-cell"></div></td>
+                        <td><div class="skeleton skeleton-badge"></div></td>
+                        <td><div class="skeleton skeleton-text numeric-cell"></div></td>
+                        <td><div class="skeleton skeleton-badge"></div></td>
+                        <td><div class="skeleton skeleton-text" style="width: 100px"></div></td>
+                    </tr>
+                `).join('');
+
+                tableOverlay.classList.add('active');
+                if (currentState.search) searchingIndicator.classList.add('active');
+
+                const params = new URLSearchParams();
+                Object.keys(currentState).forEach(key => {
+                    if (currentState[key]) params.append(key, currentState[key]);
+                });
+
+                const url = `/admin/products?${params.toString()}`;
+
+                try {
+                    const response = await fetch(url, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        renderTable(data);
+                        renderPagination(data);
+                        updateChips();
+                        if (updateHistory) window.history.pushState(currentState, '', url);
+                    }
+                } catch (err) {
+                    console.error('Fetch error:', err);
+                    showError();
+                } finally {
+                    tableOverlay.classList.remove('active');
+                    searchingIndicator.classList.remove('active');
+                }
+            }
+
+            // Render Table
+            function renderTable(data) {
+                const products = data.products;
+                const variantsByProduct = data.variantsByProduct;
+                
+                if (!products || products.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state py-5 text-center">
+                                    <i class="bi bi-search mb-3 d-block" style="font-size: 40px; color: var(--text-muted); opacity: 0.5;"></i>
+                                    <h5 style="font-weight: 700;">No products found</h5>
+                                    <p class="text-muted" style="font-size: 13px;">Try adjusting your filters or search terms</p>
+                                    <button onclick="clearAllFilters()" class="btn btn-sm btn-dark mt-2">Clear All Filters</button>
+                                </div>
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                tableBody.innerHTML = products.map((product, index) => {
+                    const productVariants = variantsByProduct[product._id] || [];
+                    const defaultVariant = productVariants.find(v => v.IsDefault) || productVariants[0] || null;
+                    const rowNum = (data.currentPage - 1) * data.limit + index + 1;
+
+                    return `
+                        <tr onclick="navigateToProduct('${product._id}')" class="animate-fade-in" style="animation-delay: ${index * 0.05}s">
+                            <td data-label="Sl.No">${rowNum}</td>
+                            <td data-label="Product">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="product-thumb">
+                                        <img src="${defaultVariant?.images?.[0] ?? '/default-product.png'}" 
+                                             alt="${product.productName}"
+                                             onerror="this.src='/default-product.png'">
+                                    </div>
+                                    <div style="overflow: hidden;">
+                                        <p class="u-name mb-0 text-truncate-2" title="${product.productName}">${product.productName}</p>
+                                        <small class="text-muted" style="font-size: 11px;">SKU: ${defaultVariant?.SKU || 'N/A'}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td data-label="Price" class="numeric-cell">
+                                ${defaultVariant?.price != null ? `₹${defaultVariant.price.toLocaleString('en-IN')}` : '<span class="text-muted">—</span>'}
+                            </td>
+                            <td data-label="Category">
+                                <span class="badge bg-light text-dark" style="font-weight: 500; font-size: 11px; border: 1px solid var(--border);">
+                                    ${product.categoryId?.categoryName || 'N/A'}
+                                </span>
+                            </td>
+                            <td data-label="Stock" class="numeric-cell">
+                                ${defaultVariant?.stock != null ? `
+                                    <span class="${defaultVariant.stock === 0 ? 'text-danger fw-bold' : defaultVariant.stock < 5 ? 'text-warning' : ''}">
+                                        ${defaultVariant.stock} ${defaultVariant.stock === 0 ? '<small>(Out)</small>' : ''}
+                                    </span>
+                                ` : '<span class="text-muted">—</span>'}
+                            </td>
+                            <td data-label="Status">
+                                <span class="status-badge ${product.status === 'active' ? 'active' : 'blocked'}" 
+                                      onclick="event.stopPropagation(); applyQuickFilter('status', '${product.status}')">
+                                    ${product.status === 'active' ? 'Active' : 'Inactive'}
+                                </span>
+                            </td>
+                            <td data-label="Actions">
+                                <div class="action-cell" onclick="event.stopPropagation()">
+                                    <a href="/admin/products/${product._id}/variants" class="btn-action edit" title="Variants"><i class="bi bi-layers"></i></a>
+                                    <a href="/admin/products-edit/${product._id}" class="btn-action edit" title="Edit"><i class="bi bi-pencil"></i></a>
+                                    <button class="btn-action delete" title="Delete" onclick="confirmDelete('${product._id}')"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>`;
+                }).join('');
+                initTooltips();
+            }
+
+            // Render Pagination
+            function renderPagination(data) {
+                const { currentPage, totalPages, totalProducts, limit } = data;
+                showingInfo.innerHTML = `Showing <strong>${totalProducts > 0 ? ((currentPage - 1) * limit + 1) + '–' + Math.min(currentPage * limit, totalProducts) : '0'}</strong> of <strong>${totalProducts}</strong> products`;
+                
+                let html = '';
+                
+                // Prev button
+                html += `
+                    <li>
+                        <a href="javascript:void(0)" onclick="changePage(${currentPage - 1})" class="page-btn ${currentPage === 1 ? 'disabled' : ''}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>`;
+
+                // Page numbers (limit to 5)
+                const startPage = Math.max(1, currentPage - 2);
+                const endPage = Math.min(totalPages, currentPage + 2);
+
+                if (startPage > 1) html += `<li><span class="px-2">...</span></li>`;
+
+                for (let i = startPage; i <= endPage; i++) {
+                    html += `
+                        <li>
+                            <a href="javascript:void(0)" onclick="changePage(${i})" class="page-btn ${currentPage === i ? 'active' : ''}">
+                                ${i}
+                            </a>
+                        </li>`;
+                }
+
+                if (endPage < totalPages) html += `<li><span class="px-2">...</span></li>`;
+
+                // Next button
+                html += `
+                    <li>
+                        <a href="javascript:void(0)" onclick="changePage(${currentPage + 1})" class="page-btn ${currentPage >= totalPages ? 'disabled' : ''}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>`;
+
+                paginationList.innerHTML = html;
+            }
+
+            // Update Chips
+            function updateChips() {
+                let chipsHtml = '';
+                if (currentState.search) {
+                    chipsHtml += `<div class="filter-chip">Search: "${currentState.search}" <i class="bi bi-x-lg remove-chip" onclick="applyQuickFilter('search', '')"></i></div>`;
+                }
+                if (currentState.category) {
+                    const catName = Array.from(categoryFilter.options).find(o => o.value === currentState.category)?.text || 'Category';
+                    chipsHtml += `<div class="filter-chip">Category: ${catName} <i class="bi bi-x-lg remove-chip" onclick="applyQuickFilter('category', '')"></i></div>`;
+                }
+                if (currentState.status) {
+                    chipsHtml += `<div class="filter-chip">Status: ${currentState.status} <i class="bi bi-x-lg remove-chip" onclick="applyQuickFilter('status', '')"></i></div>`;
+                }
+                
+                const sortLabels = {
+                    'newest': 'Newest',
+                    'oldest': 'Oldest',
+                    'name_asc': 'Name (A-Z)',
+                    'name_desc': 'Name (Z-A)',
+                    'price_low': 'Price (Low to High)',
+                    'price_high': 'Price (High to Low)',
+                    'stock_low': 'Low Stock First'
+                };
+
+                if (currentState.sortBy && currentState.sortBy !== 'newest') {
+                    chipsHtml += `<div class="filter-chip">Sort: ${sortLabels[currentState.sortBy] || currentState.sortBy} <i class="bi bi-x-lg remove-chip" onclick="applySort('newest')"></i></div>`;
+                }
+
+                if (chipsHtml) chipsHtml += `<span class="clear-all-filters" onclick="clearAllFilters()">Clear All</span>`;
+                filterChips.innerHTML = chipsHtml;
+            }
+
+            // Handlers
+            const debouncedSearch = debounce((val) => {
+                currentState.search = val;
+                currentState.page = 1;
+                fetchData();
+            });
+
+            searchInput.oninput = (e) => {
+                const val = e.target.value;
+                clearBtn.style.display = val.length > 0 ? 'block' : 'none';
+                debouncedSearch(val);
+            };
+
+            clearBtn.onclick = () => {
+                searchInput.value = '';
+                clearBtn.style.display = 'none';
+                currentState.search = '';
+                currentState.page = 1;
+                fetchData();
+            };
+
+            categoryFilter.onchange = (e) => {
+                currentState.category = e.target.value;
+                currentState.page = 1;
+                fetchData();
+            };
+
+            statusFilter.onchange = (e) => {
+                currentState.status = e.target.value;
+                currentState.page = 1;
+                fetchData();
+            };
+
+            limitSelect.onchange = (e) => {
+                currentState.limit = parseInt(e.target.value);
+                currentState.page = 1;
+                fetchData();
+            };
+
+            function applySort(sort) {
+                // Toggle sorting logic if clicking the same header
+                if (currentState.sortBy === sort) {
+                    if (sort === 'name_asc') sort = 'name_desc';
+                    else if (sort === 'price_low') sort = 'price_high';
+                    else if (sort === 'name_desc') sort = 'name_asc';
+                    else if (sort === 'price_high') sort = 'price_low';
+                    else if (sort === 'stock_low') sort = 'newest'; // Cycle back
+                }
+
+                currentState.sortBy = sort;
+                currentState.page = 1;
+                
+                // Update header icons visually
+                document.querySelectorAll('.sortable-th').forEach(th => {
+                    th.classList.remove('active-sort');
+                    const icon = th.querySelector('.sort-indicator');
+                    if (icon) icon.className = 'bi bi-arrow-down-up sort-indicator';
+                });
+
+                const activeTh = Array.from(document.querySelectorAll('.sortable-th')).find(th => 
+                    th.getAttribute('onclick')?.includes(sort.split('_')[0]) // match prefix
+                );
+
+                if (activeTh) {
+                    activeTh.classList.add('active-sort');
+                    const icon = activeTh.querySelector('.sort-indicator');
+                    if (icon) {
+                        icon.className = (sort.includes('desc') || sort.includes('high')) 
+                            ? 'bi bi-arrow-down sort-indicator' 
+                            : 'bi bi-arrow-up sort-indicator';
+                    }
+                }
+
+                fetchData();
+            }
+
+            function applyQuickFilter(key, val) {
+                currentState[key] = val;
+                currentState.page = 1;
+                if (key === 'status') statusFilter.value = val;
+                if (key === 'category') categoryFilter.value = val;
+                if (key === 'search') {
+                    searchInput.value = val;
+                    clearBtn.style.display = val ? 'block' : 'none';
+                }
+                fetchData();
+            }
+
+            function changePage(p) {
+                if (p < 1) return;
+                currentState.page = p;
+                fetchData();
+            }
+
+            function clearAllFilters() {
+                currentState = { page: 1, search: '', status: '', category: '', sortBy: 'newest', limit: currentState.limit };
+                searchInput.value = '';
+                categoryFilter.value = '';
+                statusFilter.value = '';
+                clearBtn.style.display = 'none';
+                fetchData();
+            }
+
+            function navigateToProduct(id) {
+                window.location.href = `/admin/products-edit/${id}`;
+            }
+
+            function showError() {
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load products. Please try again.' });
+            }
+
             function confirmDelete(id) {
                 Swal.fire({
                     title: "Delete product?",
                     text: "This action can't be undone.",
                     icon: "warning",
-                    width: "720px",
-                    padding: "1.5em",
                     showCancelButton: true,
                     confirmButtonText: "Delete",
-                    cancelButtonText: "Cancel",
-                    confirmButtonColor: "#ff4d4f",
-                    cancelButtonColor: "#6c757d",
-                    customClass: {
-                        popup: 'rounded-4',
-                        confirmButton: 'px-3',
-                        cancelButton: 'px-3'
-                    }
+                    confirmButtonColor: "#ef4444",
+                    cancelButtonColor: "#64748b",
+                    borderRadius: '12px'
                 }).then((result) => {
                     if (result.isConfirmed) {
                         window.location.href = `/admin/products-delete/${id}`;
                     }
                 });
             }
+
+            // Keyboard Shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '/' && document.activeElement !== searchInput) {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+            });
+
+            // Browser Back/Forward
+            window.onpopstate = (event) => {
+                if (event.state) {
+                    currentState = event.state;
+                    searchInput.value = currentState.search || '';
+                    categoryFilter.value = currentState.category || '';
+                    statusFilter.value = currentState.status || '';
+                    fetchData(false);
+                }
+            };
+
+            // Init
+            initTooltips();
+            updateChips();
         </script>
 </body>
 

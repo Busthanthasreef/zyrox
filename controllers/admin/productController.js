@@ -26,6 +26,19 @@ const loadProducts = async (req, res) => {
             limit
         });
 
+        if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+            return res.json({
+                success: true,
+                ...data,
+                limit,
+                search,
+                statusFilter,
+                categoryFilter,
+                sortBy,
+                currentPage: page
+            });
+        }
+
         res.render("admin/products/productManagement", {
             ...data,
             admin,
@@ -36,10 +49,11 @@ const loadProducts = async (req, res) => {
             sortBy,
             currentPage: page
         });
-
-        
     } catch (error) {
         console.error(error);
+        if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+            return res.status(500).json({ success: false, message: "Server Error" });
+        }
         res.status(500).send("Server Error");
     }
 };

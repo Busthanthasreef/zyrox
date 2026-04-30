@@ -34,7 +34,7 @@ const formatDate = (date) => {
 /* =========================
    User Profile
 ========================= */
-const userProfile = async (req, res) => {
+const userProfile = async (req, res, next) => {
   try {
     if (!req.session.user) {
       return res.redirect("/signin");
@@ -84,15 +84,14 @@ const userProfile = async (req, res) => {
       currentPage: 'profile'
     });
   } catch (error) {
-    console.log("Profile Error:", error);
-    res.status(500).send("Server Error");
+    next(error);
   }
 };
 
 /* =========================4
    Load Edit Profile
 ========================= */
-const loadEditProfile = async (req, res) => {
+const loadEditProfile = async (req, res, next) => {
   try {
     const [user, categories, cartItemCount, wishlist] = await Promise.all([
       userSchema.findById(req.session.user._id),
@@ -120,15 +119,14 @@ const loadEditProfile = async (req, res) => {
       currentPage: 'profile'
     });
   } catch (error) {
-    console.log("Edit Profile Load Error:", error);
-    res.status(500).send("Server Error");
+    next(error);
   }
 };
 
 /* =========================
    Edit Profile
    ========================= */
-const editProfile = async (req, res) => {
+const editProfile = async (req, res, next) => {
   try {
     const { Name, Email, phoneNumber, removeImage } = req.body;
     const user = await userSchema.findById(req.session.user._id);
@@ -221,8 +219,7 @@ const editProfile = async (req, res) => {
 
     res.redirect("/profile");
   } catch (error) {
-    console.log("Edit Profile Error:", error);
-    res.status(500).send("Server Error");
+    next(error);
   }
 };
 
@@ -238,16 +235,18 @@ const loadEditEmail = async (req, res) => {
     Wishlist.findOne({ User_id: userId }).select("Products").lean().then(w => w?.Products?.length || 0)
   ]);
   const errors=req.session.formErrors ||{};
+  const Email = req.session.editEmail || "";
   delete req.session.formErrors;
+  delete req.session.editEmail;
 
-    res.render("user/profile/editEmail",{user,errors,userId, categories, cartItemCount, wishlistCount: wishlist, currentPage: 'profile'})
+    res.render("user/profile/editEmail",{user,errors,Email,userId, categories, cartItemCount, wishlistCount: wishlist, currentPage: 'profile'})
    }catch(error){
     console.log(error.message)
    }
 }
 
 
-const editEmail = async (req, res) => {
+const editEmail = async (req, res, next) => {
   try {
     const { Email } = req.body;
     const { OTP, hashedOtp } = await generateOtp();
@@ -266,6 +265,7 @@ const editEmail = async (req, res) => {
 
     if (Object.keys(errors).length > 0) {
       req.session.formErrors = errors;
+      req.session.editEmail = Email;
       return res.redirect("/edit-email");
     }
 
@@ -283,12 +283,11 @@ const editEmail = async (req, res) => {
     res.redirect("/otp-verification");
 
   } catch (error) {
-    console.log("Edit Email Error:", error);
-    res.status(500).send("Server Error"); // ✅ fix 3
+    next(error);
   }
 };
 
-const verifyEditEmailOtp = async (req, res) => {
+const verifyEditEmailOtp = async (req, res, next) => {
   try {
     const { A, B, C, D, E, F } = req.body;
     const Email = req.session.editEmail;
@@ -330,8 +329,7 @@ const verifyEditEmailOtp = async (req, res) => {
     req.session.otpSwal = true;
     res.redirect("/otp-verification");
   } catch (error) {
-    console.log("Verify Edit Email OTP Error:", error);
-    res.status(500).send("Server Error");
+    next(error);
   }
 };
 

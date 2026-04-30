@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Top-up Failed – ZYROX</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg-deep: #0a0c14;
+            --bg-card: #111422;
+            --bg-surface: #181c2e;
+            --border: #252a42;
+            --accent: #4f6ef7;
+            --accent-glow: rgba(79, 110, 247, .35);
+            --danger: #ff4d6d;
+            --danger-glow: rgba(255, 77, 109, .25);
+            --warning: #f4b942;
+            --text-1: #f0f2ff;
+            --text-2: #8b92b8;
+            --text-3: #4f566b;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --transition: .22s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-1);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image:
+                radial-gradient(ellipse 55% 40% at 80% -5%, rgba(255, 77, 109, .12) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 30% at 10% 95%, rgba(79, 110, 247, .08) 0%, transparent 60%);
+        }
+
+        /* ── CONTAINER ─────────────────────────── */
+        .fail-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        /* ── CARD ──────────────────────────────── */
+        .fail-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2.5rem;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .4);
+            animation: slideUp .55s cubic-bezier(.4, 0, .2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* red top glow accent */
+        .fail-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--danger), transparent);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(28px) scale(.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ── ICON ──────────────────────────────── */
+        .fail-icon-wrap {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            border-radius: 50%;
+            background: rgba(255, 77, 109, .1);
+            border: 2px solid rgba(255, 77, 109, .35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: var(--danger);
+            box-shadow: 0 0 40px rgba(255, 77, 109, .18);
+            animation: pulse 2.2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 40px rgba(255, 77, 109, .18);
+            }
+
+            50% {
+                box-shadow: 0 0 60px rgba(255, 77, 109, .35);
+            }
+        }
+
+        /* shake the X icon on load once */
+        .fail-icon-wrap i {
+            animation: shake .5s ease .6s;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: rotate(0);
+            }
+
+            20% {
+                transform: rotate(-12deg);
+            }
+
+            40% {
+                transform: rotate(12deg);
+            }
+
+            60% {
+                transform: rotate(-8deg);
+            }
+
+            80% {
+                transform: rotate(8deg);
+            }
+        }
+
+        /* ── TITLE ─────────────────────────────── */
+        .fail-title {
+            font-weight: 800;
+            font-size: 2.2rem;
+            margin-bottom: .6rem;
+            background: linear-gradient(135deg, #ff6b85 0%, #ff4d6d 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .fail-subtitle {
+            color: var(--text-2);
+            font-size: 1rem;
+            line-height: 1.65;
+            margin-bottom: 2rem;
+        }
+
+        /* ── DETAIL BOX ────────────────────────── */
+        .fail-detail {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: .45rem 0;
+            font-size: .9rem;
+            border-bottom: 1px solid rgba(37, 42, 66, .7);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-row .lbl {
+            color: var(--text-3);
+            font-weight: 500;
+        }
+
+        .detail-row .val {
+            color: var(--text-1);
+            font-weight: 600;
+        }
+
+        .error-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            background: rgba(255, 77, 109, .12);
+            color: var(--danger);
+            border: 1px solid rgba(255, 77, 109, .25);
+            border-radius: 99px;
+            padding: .2rem .65rem;
+            font-size: .78rem;
+            font-weight: 700;
+        }
+
+        /* ── HELP TEXT ─────────────────────────── */
+        .help-tips {
+            background: rgba(79, 110, 247, .06);
+            border: 1px solid rgba(79, 110, 247, .18);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.3rem;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .help-tips .tip-title {
+            font-size: .82rem;
+            font-weight: 700;
+            color: var(--text-2);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: .5rem;
+        }
+
+        .help-tips ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .help-tips ul li {
+            font-size: .83rem;
+            color: var(--text-2);
+            padding: .2rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: .5rem;
+        }
+
+        .help-tips ul li i {
+            color: var(--accent);
+            font-size: .75rem;
+            margin-top: .18rem;
+            flex-shrink: 0;
+        }
+
+        /* ── BUTTONS ───────────────────────────── */
+        .action-row {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-retry {
+            background: linear-gradient(135deg, var(--accent) 0%, #7b8cff 100%);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: .9rem 2.2rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: .95rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: .55rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: 0 4px 18px rgba(79, 110, 247, .3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-retry::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-retry:hover::after {
+            left: 100%;
+        }
+
+        .btn-retry:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 28px rgba(79, 110, 247, .45);
+            color: #fff;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-2);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: .9rem 1.8rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: .9rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            transition: all var(--transition);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--text-2);
+            color: var(--text-1);
+            background: rgba(255, 255, 255, .04);
+        }
+
+        /* countdown badge */
+        .redirect-note {
+            margin-top: 1.5rem;
+            font-size: .8rem;
+            color: var(--text-3);
+        }
+
+        .redirect-note span {
+            color: var(--warning);
+            font-weight: 700;
+        }
+
+        @media (max-width: 576px) {
+            .fail-card {
+                padding: 2rem 1.2rem;
+            }
+
+            .fail-title {
+                font-size: 1.65rem;
+            }
+
+            .btn-retry,
+            .btn-ghost {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('../../partials/user/navigationbar', { user, categories, cartItemCount: cartItemCount || 0,
+        wishlistCount: typeof wishlistCount !== 'undefined' ? wishlistCount : 0,
+        currentPage: 'wallet' }) %>
+
+        <div class="fail-container">
+            <div class="fail-card">
+
+                <!-- Icon -->
+                <div class="fail-icon-wrap">
+                    <i class="bi bi-x-circle-fill"></i>
+                </div>
+
+                <!-- Title -->
+                <h1 class="fail-title">Wallet Top-up Failed</h1>
+                <p class="fail-subtitle">
+                    Unfortunately, we couldn't add money to your wallet.<br>
+                    No funds have been deducted from your bank account.
+                </p>
+
+                <!-- Detail box -->
+                <div class="fail-detail">
+                    <div class="detail-row">
+                        <span class="lbl">Reason</span>
+                        <span class="val">
+                            <span class="error-pill">
+                                <i class="bi bi-exclamation-circle-fill"></i>
+                                <%= typeof reason !=='undefined' && reason ? reason
+                                    : 'Payment cancelled or declined' %>
+                            </span>
+                        </span>
+                    </div>
+                    <% if (typeof amount !=='undefined' && amount) { %>
+                        <div class="detail-row">
+                            <span class="lbl">Attempted Amount</span>
+                            <span class="val">₹<%= Number(amount).toLocaleString('en-IN') %></span>
+                        </div>
+                        <% } %>
+                            <div class="detail-row">
+                                <span class="lbl">Status</span>
+                                <span class="val">
+                                    <span class="error-pill"><i class="bi bi-dash-circle-fill"></i> Unsuccessful</span>
+                                </span>
+                            </div>
+                </div>
+
+                <!-- Help tips -->
+                <div class="help-tips">
+                    <div class="tip-title"><i class="bi bi-lightbulb-fill me-1"></i> What happened?</div>
+                    <ul>
+                        <li><i class="bi bi-x-octagon"></i> You might have cancelled the payment.</li>
+                        <li><i class="bi bi-credit-card-2-front"></i> The card/account might have insufficient funds.</li>
+                        <li><i class="bi bi-wifi-off"></i> Your internet connection might have dropped.</li>
+                        <li><i class="bi bi-bank"></i> Your bank may have temporarily blocked the request.</li>
+                    </ul>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="action-row">
+                    <a href="/wallet" class="btn-retry" id="retryBtn">
+                        <i class="bi bi-arrow-counterclockwise"></i> Return to Wallet
+                    </a>
+                    <a href="/products" class="btn-ghost">
+                        <i class="bi bi-grid"></i> Browse Products
+                    </a>
+                </div>
+
+                <!-- Auto redirect countdown -->
+                <p class="redirect-note">
+                    Redirecting to wallet in <span id="countdownEl">10</span>s &nbsp;·&nbsp;
+                    <a href="#" onclick="stopRedirect(event)"
+                        style="color: var(--text-3); text-decoration: underline;">Cancel</a>
+                </p>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            /* Auto-redirect countdown */
+            let seconds = 10;
+            let redirectTimer;
+            const countdownEl = document.getElementById('countdownEl');
+
+            function tick() {
+                seconds--;
+                if (countdownEl) countdownEl.textContent = seconds;
+                if (seconds <= 0) {
+                    clearInterval(redirectTimer);
+                    window.location.href = '/wallet';
+                }
+            }
+
+            redirectTimer = setInterval(tick, 1000);
+
+            function stopRedirect(e) {
+                e.preventDefault();
+                clearInterval(redirectTimer);
+                const note = document.querySelector('.redirect-note');
+                if (note) note.textContent = 'Auto-redirect cancelled.';
+            }
+        </script>
+</body>
+
+</html>

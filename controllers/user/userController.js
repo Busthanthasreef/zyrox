@@ -16,7 +16,7 @@ import Coupon from "../../models/coupon.js";
 /* =========================
    LANDING PAGE
 ========================= */
-const landingPage = async (req, res) => {
+const landingPage = async (req, res, next) => {
   try {
 
     const categories = await Categories.find({ IsActive: true, IsDeleted: false });
@@ -71,8 +71,7 @@ const landingPage = async (req, res) => {
     });
 
   } catch (error) {
-    console.log("Landing Page Error:", error);
-    res.status(500).send("Server Error");
+    next(error);
   }
 };
 /* =========================
@@ -106,23 +105,45 @@ const loadSignUp = (req, res) => {
   });
 };
 
-const userSignUp = async (req, res) => {
+const userSignUp = async (req, res, next) => {
   try {
+    const isAjax = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json')) || req.is('json');
+
     const result = await userService.userSignUpService(req.body);
 
     if (result.error) {
-      req.session.signupErrors = result.error;
-      req.session.signupData = result.data;
-      res.redirect("/signup");
-      return;
+      if (isAjax) {
+        return res.json({ success: false, errors: result.error });
+      } else {
+        req.session.signupErrors = result.error;
+        req.session.signupData = result.data;
+        return res.redirect("/signup");
+      }
     }
+
+    // Success - moving to OTP
+    req.session.signupData = {
+      Name: req.body.name || req.body.Name,
+      Email: req.body.email || req.body.Email,
+      Phone: req.body.phone || req.body.Phone,
+      Password: req.body.password || req.body.Password,
+      confirmPassword: req.body.confirmPassword,
+      referralCode: req.body.referralCode
+    };
 
     req.session.tempUser = result.tempUser;
     req.session.otpSuccess = "OTP sent to your email";
-    res.redirect("/otp-verification");
+
+    if (isAjax) {
+      return res.json({ success: true, message: "OTP sent to your email", redirect: "/otp-verification" });
+    } else {
+      res.redirect("/otp-verification");
+    }
   } catch (error) {
-    console.log("Signup Error:", error);
-    res.status(500).send("Server Error");
+    if (req.xhr) {
+      return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+    next(error);
   }
 };
 
@@ -165,7 +186,7 @@ const loadOtpPage = (req, res) => {
 /* =========================
    VERIFY SIGNUP OTP
 ========================= */
-const verifyEmail = async (req, res) => {
+const verifyEmail = async (req, res, next) => {
   try {
     if (!req.session.tempUser) return res.redirect("/signup");
 
@@ -251,6 +272,7 @@ const verifyEmail = async (req, res) => {
     req.session.lastEmail = Email;
     delete req.session.tempUser;
     delete req.session.referredByCode;
+    delete req.session.signupData;
 
     req.session.user = {
       _id: newUser._id,
@@ -260,27 +282,41 @@ const verifyEmail = async (req, res) => {
       Profile_image: newUser.Profile_image,
     };
 
+    const isAjax = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json')) || req.is('json');
+
+    if (isAjax) {
+      await otpSchema.deleteMany({ Email });
+      delete req.session.tempUser;
+      delete req.session.referredByCode;
+      delete req.session.signupData;
+      return res.json({ success: true, message: "Registration Successful! Welcome to Zyrox.", redirect: "/" });
+    }
+
     req.session.otpSuccess = "Registration Successful! Welcome to Zyrox.";
     req.session.otpSwal = true;
 
     res.redirect("/otp-verification");
   } catch (error) {
-    console.log("Verify OTP Error:", error);
-    res.status(500).send("Server Error");
+    if (req.xhr) return res.status(500).json({ success: false, message: "Internal server error" });
+    next(error);
   }
 };
 
 /* =========================
    RESEND OTP
 ========================= */
-const resendOtp = async (req, res) => {
+const resendOtp = async (req, res, next) => {
   try {
+    const isAjax = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json')) || req.is('json');
     const Email =
       req.session.tempUser?.Email ||
       req.session.resetEmail ||
       req.session.editEmail;
 
-    if (!Email) return res.redirect("/");
+    if (!Email) {
+      if (isAjax) return res.json({ success: false, message: "Session expired", redirect: "/" });
+      return res.redirect("/");
+    }
 
     const { OTP, hashedOtp } = await generateOtp();
 
@@ -293,10 +329,15 @@ const resendOtp = async (req, res) => {
 
     await sendOtpEmail(Email, OTP);
 
+    if (isAjax) {
+      return res.json({ success: true, message: "OTP resent successfully" });
+    }
+
     req.session.otpSuccess = "OTP resent successfully";
     res.redirect("/otp-verification");
   } catch (error) {
     console.log("Resend OTP Error:", error);
+    if (req.xhr) return res.status(500).json({ success: false, message: "Server Error" });
     res.status(500).send("Server Error");
   }
 };
@@ -312,52 +353,72 @@ const loadSignIn = (req, res) => {
   }
 
   const returnTo = req.session.returnTo || null;
+  const loginErrors = req.session.loginErrors || {};
+  const Email = req.session.loginEmail || "";
+
+  delete req.session.loginErrors;
+  delete req.session.loginEmail;
+
   res.render("user/auth/signInPage", {
-    emailError: null,
-    passError: null,
-    Email: "",
+    emailError: loginErrors.email || null,
+    passError: loginErrors.password || null,
+    Email,
     error: error || null,
     returnTo,
   });
 };
 
-const userSignIn = async (req, res) => {
+const userSignIn = async (req, res, next) => {
   try {
     const Email = req.body.email || req.body.Email;
     const Password = req.body.password || req.body.Password;
     const trimmedEmail = Email ? Email.trim().toLowerCase() : "";
 
     const emailRegex = /^[a-zA-Z0-9+._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const isAjax = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json')) || req.is('json');
+
+    const handleError = (target, message, blocked = false) => {
+      if (isAjax) {
+        return res.json({ success: false, target, message, blocked });
+      } else {
+        req.session.loginErrors = { [target]: message };
+        req.session.loginEmail = trimmedEmail;
+        return res.redirect("/signin");
+      }
+    };
 
     if (!emailRegex.test(trimmedEmail)) {
-      return res.json({ success: false, target: "email", message: "Invalid email format" });
+      return handleError("email", "Invalid email format");
     }
 
     if (!Password) {
-      return res.json({ success: false, target: "password", message: "Password is required" });
+      return handleError("password", "Password is required");
     }
 
     const user = await userSchema.findOne({ Email: trimmedEmail, isAdmin: false });
 
     if (!user)
-      return res.json({ success: false, target: "email", message: "User not found" });
+      return handleError("email", "User not found");
 
     if (!user.isActive)
-      return res.json({ success: false, blocked: true, message: "Your account has been Deactivated by admin" });
+      return handleError("email", "Your account has been Deactivated by admin", true);
 
     if (user.googleId)
-      return res.json({ success: false, target: "email", message: "This is a Google managed account" });
+      return handleError("email", "This is a Google managed account");
+
     const isMatch = await bcrypt.compare(Password, user.Password);
 
     if (!isMatch)
-      return res.json({ success: false, target: "password", message: "Incorrect Password" });
+      return handleError("password", "Incorrect Password");
 
     const adminSession = req.session.admin;
     const returnTo = req.session.returnTo || '/';
 
-
     req.session.regenerate((err) => {
-      if (err) return res.json({ success: false, message: "Session error" });
+      if (err) {
+        if (isAjax) return res.json({ success: false, message: "Session error" });
+        return res.redirect("/signin");
+      }
 
       if (adminSession) {
         req.session.admin = adminSession;
@@ -371,13 +432,20 @@ const userSignIn = async (req, res) => {
       };
 
       req.session.save((err) => {
-        if (err) return res.json({ success: false, message: "Session save error" });
+        if (err) {
+          if (isAjax) return res.json({ success: false, message: "Session save error" });
+          return res.redirect("/signin");
+        }
+        if (isAjax) {
+          res.json({ success: true, message: "Login Successful", returnTo });
+        } else {
+          res.redirect(returnTo);
+        }
       });
-      res.json({ success: true, message: "Login Successful", returnTo });
     });
   } catch (error) {
     console.log("Signin Error:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    next(error);
   }
 };
 
@@ -399,30 +467,43 @@ const logout = (req, res) => {
 ========================= */
 const loadForgotPassword = (req, res) => {
   const emailError = req.session.emailError || null;
+  const Email = req.session.resetEmail || "";
   delete req.session.emailError;
+  delete req.session.resetEmail;
 
   res.render("user/auth/forgotPassword", {
     emailError,
+    Email,
     clearLocalStorage: true,
   });
 };
 
-const sendResetOtp = async (req, res) => {
+const sendResetOtp = async (req, res, next) => {
   try {
-    const trimmedEmail = req.body.Email?.trim().toLowerCase();
+    const isAjax = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json')) || req.is('json');
+    const trimmedEmail = (req.body.Email || req.body.email)?.trim().toLowerCase();
+    req.session.resetEmail = trimmedEmail;
 
     const emailRegex = /^[a-zA-Z0-9+._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     if (!emailRegex.test(trimmedEmail)) {
-      req.session.emailError = "Invalid email format";
-      return res.redirect("/forgot-password");
+      if (isAjax) {
+        return res.json({ success: false, message: "Invalid email format" });
+      } else {
+        req.session.emailError = "Invalid email format";
+        return res.redirect("/forgot-password");
+      }
     }
 
     const user = await userSchema.findOne({ Email: trimmedEmail });
 
     if (!user) {
-      req.session.emailError = "User with this email does not exist";
-      return res.redirect("/forgot-password");
+      if (isAjax) {
+        return res.json({ success: false, message: "User with this email does not exist" });
+      } else {
+        req.session.emailError = "User with this email does not exist";
+        return res.redirect("/forgot-password");
+      }
     }
 
     const { OTP, hashedOtp } = await generateOtp();
@@ -438,21 +519,33 @@ const sendResetOtp = async (req, res) => {
 
     req.session.resetEmail = trimmedEmail;
     req.session.otpSuccess = "OTP sent to your email";
-    res.redirect("/otp-verification");
+
+    if (isAjax) {
+      return res.json({ success: true, message: "OTP sent to your email", redirect: "/otp-verification" });
+    } else {
+      res.redirect("/otp-verification");
+    }
   } catch (error) {
-    console.log("Send Reset OTP Error:", error);
-    res.status(500).send("Server Error");
+    if (req.xhr) {
+      return res.status(500).json({ success: false, message: "Internal server error" });
+    }
+    next(error);
   }
 };
 
-const verifyResetOtp = async (req, res) => {
+const verifyResetOtp = async (req, res, next) => {
   try {
+    const isAjax = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json')) || req.is('json');
     const { A, B, C, D, E, F } = req.body;
     const Email = req.session.resetEmail;
 
-    if (!Email) return res.redirect("/forgot-password");
+    if (!Email) {
+      if (isAjax) return res.json({ success: false, message: "Session expired", redirect: "/forgot-password" });
+      return res.redirect("/forgot-password");
+    }
 
     if (!A || !B || !C || !D || !E || !F) {
+      if (isAjax) return res.json({ success: false, message: "Please enter complete OTP" });
       req.session.otpError = "Please enter complete OTP";
       return res.redirect("/otp-verification");
     }
@@ -461,6 +554,7 @@ const verifyResetOtp = async (req, res) => {
     const validOTP = await otpSchema.findOne({ Email });
 
     if (!validOTP || validOTP.ExpiresAt < new Date()) {
+      if (isAjax) return res.json({ success: false, message: "Invalid or Expired OTP" });
       req.session.otpError = "Invalid or Expired OTP";
       return res.redirect("/otp-verification");
     }
@@ -468,19 +562,25 @@ const verifyResetOtp = async (req, res) => {
     const isMatch = await bcrypt.compare(otp, validOTP.Code);
 
     if (!isMatch) {
+      if (isAjax) return res.json({ success: false, message: "Incorrect OTP" });
       req.session.otpError = "Incorrect OTP";
       return res.redirect("/otp-verification");
     }
 
     await otpSchema.deleteMany({ Email });
     req.session.isOtpVerified = true;
+    
+    if (isAjax) {
+      return res.json({ success: true, message: "OTP Verified Successfully", redirect: "/new-password" });
+    }
+
     req.session.otpSuccess = "OTP Verified Successfully";
     req.session.otpSwal = true;
 
     res.redirect("/otp-verification");
   } catch (error) {
-    console.log("Verify Reset OTP Error:", error);
-    res.status(500).send("Server Error");
+    if (req.xhr) return res.status(500).json({ success: false, message: "Internal server error" });
+    next(error);
   }
 };
 
@@ -492,29 +592,44 @@ const loadNewPassword = (req, res) => {
 
   const passError = req.session.passError || null;
   const passSwal = !!req.session.passSwal;
+  const formData = req.session.resetPasswordData || {};
 
   delete req.session.passError;
   delete req.session.passSwal;
+  delete req.session.resetPasswordData;
 
-  res.render("user/auth/resetPassword", { passError, passSwal });
+  res.render("user/auth/resetPassword", { 
+    passError, 
+    passSwal,
+    Password: formData.Password || "",
+    confirmPassword: formData.confirmPassword || ""
+  });
 };
 
-const resetPassword = async (req, res) => {
+const resetPassword = async (req, res, next) => {
   try {
+    const isAjax = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json')) || req.is('json');
     const { Password, confirmPassword } = req.body;
     const Email = req.session.resetEmail;
 
-    if (!req.session.isOtpVerified || !Email)
+    if (!req.session.isOtpVerified || !Email) {
+      if (isAjax) return res.json({ success: false, message: "Session expired", redirect: "/forgot-password" });
       return res.redirect("/forgot-password");
+    }
 
     if (Password !== confirmPassword) {
+      if (isAjax) return res.json({ success: false, message: "Passwords do not match" });
       req.session.passError = "Passwords do not match";
+      req.session.resetPasswordData = { Password, confirmPassword };
       return res.redirect("/new-password");
     }
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     if (!Password || !passwordRegex.test(Password)) {
-      req.session.passError = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.";
+      const msg = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.";
+      if (isAjax) return res.json({ success: false, message: msg });
+      req.session.passError = msg;
+      req.session.resetPasswordData = { Password, confirmPassword };
       return res.redirect("/new-password");
     }
 
@@ -525,11 +640,15 @@ const resetPassword = async (req, res) => {
     delete req.session.resetEmail;
     delete req.session.isOtpVerified;
 
+    if (isAjax) {
+      return res.json({ success: true, message: "Password reset successfully", redirect: "/signin" });
+    }
+
     req.session.passSwal = true;
     res.redirect("/new-password");
   } catch (error) {
-    console.log("Reset Password Error:", error);
-    res.status(500).send("Server Error");
+    if (req.xhr) return res.status(500).json({ success: false, message: "Internal server error" });
+    next(error);
   }
 };
 

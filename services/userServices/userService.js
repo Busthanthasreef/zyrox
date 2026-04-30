@@ -28,38 +28,38 @@ const userSignUpService = async (bodyData) => {
 
     if (!trimmedName || !nameRegex.test(trimmedName)) {
         error = { Name: "Full name must be 3-50 characters long and contain only letters" };
-        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
+        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, Password: trimmedPassword, confirmPassword: confirmPassword, referralCode };
         return { error, data };
     }
 
     if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {
         error = { Email: "Invalid email address" };
-        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
+        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, Password: trimmedPassword, confirmPassword: confirmPassword, referralCode };
         return { error, data };
     }
 
     if (!trimmedPhone || !indianPhone.test(trimmedPhone)) {
         error = { Phone: "Enter a valid 10-digit Indian phone number" };
-        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
+        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, Password: trimmedPassword, confirmPassword: confirmPassword, referralCode };
         return { error, data };
     }
 
     if (!trimmedPassword || !passwordRegex.test(trimmedPassword)) {
         error = { Password: "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character." };
-        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
+        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, Password: trimmedPassword, confirmPassword: confirmPassword, referralCode };
         return { error, data };
     }
 
     if (trimmedPassword !== confirmPassword) {
         error = { Password: "Passwords do not match" };
-        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
+        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, Password: trimmedPassword, confirmPassword: confirmPassword, referralCode };
         return { error, data };
     }
 
     const existingUser = await userSchema.findOne({ Email: trimmedEmail });
     if (existingUser) {
         error = { Email: "User with this email already exists" };
-        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, referralCode };
+        data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, Password: trimmedPassword, confirmPassword: confirmPassword, referralCode };
         return { error, data };
     }
 
@@ -68,7 +68,7 @@ const userSignUpService = async (bodyData) => {
         const referrer = await userSchema.findOne({ referralCode: referralCode });
         if (!referrer) {
             error = { referralError: "Invalid referral code" };
-            data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, Password: trimmedPassword, referralCode };
+            data = { Name: trimmedName, Email: trimmedEmail, Phone: trimmedPhone, Password: trimmedPassword, confirmPassword: confirmPassword, referralCode };
             return { error, data };
         }
     }

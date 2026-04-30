@@ -8,7 +8,7 @@ import * as cartController from "../controllers/user/cartController.js"
 import * as wishlistController from "../controllers/user/wishlistController.js"
 import * as orderController from "../controllers/user/orderController.js"
 import * as walletController from "../controllers/user/walletController.js"
-import { isUserAuthenticated, isUserGuest } from "../middlewares/auth.js";
+import { isUserAuthenticated, isUserGuest,isUserBlocked } from "../middlewares/auth.js";
 import upload from "../middlewares/multer.js";
 import { validateFiles } from "../utils/validation/fileValidator.js";
 import Coupon from "../models/coupon.js";
@@ -16,16 +16,10 @@ import Coupon from "../models/coupon.js";
 const userRoutes = express.Router();
 
 /* LANDING */
-userRoutes.get("/", userController.landingPage);
+userRoutes.get("/", isUserBlocked, userController.landingPage);
 
-userRoutes.get('/products', productController.loadProducts);
-userRoutes.get('/product/:id', productController.loadProductDetails);
-
-userRoutes.get("/cart", isUserAuthenticated, cartController.loadCart);
-userRoutes.post("/cart/add", isUserAuthenticated, cartController.addToCart);
-userRoutes.post("/cart/update-quantity", isUserAuthenticated, cartController.updateQuantity);
-userRoutes.post("/cart/remove", isUserAuthenticated, cartController.removeFromCart);
-userRoutes.post("/cart/clear", isUserAuthenticated, cartController.clearCart);
+userRoutes.get('/products', isUserBlocked, productController.loadProducts);
+userRoutes.get('/product/:id', isUserBlocked, productController.loadProductDetails);
 
 
 /* SIGNUP */
@@ -50,61 +44,71 @@ userRoutes.get("/new-password", userController.loadNewPassword);
 userRoutes.post("/new-password", userController.resetPassword);
 
 /* PROFILE - PROTECTED ROUTES */
+
 //PROFILE
-userRoutes.get("/profile", isUserAuthenticated, profileController.userProfile);
-userRoutes.get("/profile-edit", isUserAuthenticated, profileController.loadEditProfile);
-userRoutes.post("/profile-edit", isUserAuthenticated, upload.single("profileImage"), validateFiles, profileController.editProfile);
-userRoutes.get("/edit-email", isUserAuthenticated, profileController.loadEditEmail)
-userRoutes.post("/edit-email", isUserAuthenticated, profileController.editEmail)
-userRoutes.post("/verify-edit-email-otp", isUserAuthenticated, profileController.verifyEditEmailOtp);
-userRoutes.post("/resend-edit-email-otp", isUserAuthenticated, userController.resendOtp);
-userRoutes.post("/verify-current-password", isUserAuthenticated, profileController.verifyCurrentPassword);
-userRoutes.get("/change-password", isUserAuthenticated, profileController.changePassword);
-userRoutes.post("/change-password", isUserAuthenticated, profileController.updatePassword);
-userRoutes.get("/add-password", isUserAuthenticated, profileController.changePassword);
-userRoutes.post("/add-password", isUserAuthenticated, profileController.addPassword);
+userRoutes.get("/profile", isUserAuthenticated, isUserBlocked, profileController.userProfile);
+userRoutes.get("/profile-edit", isUserAuthenticated, isUserBlocked, profileController.loadEditProfile);
+userRoutes.post("/profile-edit", isUserAuthenticated, isUserBlocked, upload.single("profileImage"), validateFiles, profileController.editProfile);
+userRoutes.get("/edit-email", isUserAuthenticated, isUserBlocked, profileController.loadEditEmail)
+userRoutes.post("/edit-email", isUserAuthenticated, isUserBlocked, profileController.editEmail)
+userRoutes.post("/verify-edit-email-otp", isUserAuthenticated, isUserBlocked, profileController.verifyEditEmailOtp);
+userRoutes.post("/resend-edit-email-otp", isUserAuthenticated, isUserBlocked, userController.resendOtp);
+userRoutes.post("/verify-current-password", isUserAuthenticated, isUserBlocked, profileController.verifyCurrentPassword);
+userRoutes.get("/change-password", isUserAuthenticated, isUserBlocked, profileController.changePassword);
+userRoutes.post("/change-password", isUserAuthenticated, isUserBlocked, profileController.updatePassword);
+userRoutes.get("/add-password", isUserAuthenticated, isUserBlocked, profileController.changePassword);
+userRoutes.post("/add-password", isUserAuthenticated, isUserBlocked, profileController.addPassword);
 
 //ADDRESS
-userRoutes.get("/address", isUserAuthenticated, addressController.LoadUserAddress);
-userRoutes.get("/address-add", isUserAuthenticated, addressController.loadAddAddress);
-userRoutes.post("/address-add", isUserAuthenticated, addressController.addAddress);
-userRoutes.get("/address-edit/:id", isUserAuthenticated, addressController.loadEditAddress);
-userRoutes.post("/address-edit/:id", isUserAuthenticated, addressController.updateAddress);
-userRoutes.patch("/address-default/:id", isUserAuthenticated, addressController.setDefaultAddress);
-userRoutes.delete("/address-delete/:id", isUserAuthenticated, addressController.deleteAddress);
+userRoutes.get("/address", isUserAuthenticated, isUserBlocked, addressController.LoadUserAddress);
+userRoutes.get("/address-add", isUserAuthenticated, isUserBlocked, addressController.loadAddAddress);
+userRoutes.post("/address-add", isUserAuthenticated, isUserBlocked, addressController.addAddress);
+userRoutes.get("/address-edit/:id", isUserAuthenticated, isUserBlocked, addressController.loadEditAddress);
+userRoutes.post("/address-edit/:id", isUserAuthenticated, isUserBlocked, addressController.updateAddress);
+userRoutes.patch("/address-default/:id", isUserAuthenticated, isUserBlocked, addressController.setDefaultAddress);
+userRoutes.delete("/address-delete/:id", isUserAuthenticated, isUserBlocked, addressController.deleteAddress);
+
+
+//Cart
+userRoutes.get("/cart", isUserAuthenticated,isUserBlocked, cartController.loadCart);
+userRoutes.post("/cart/add", isUserAuthenticated,isUserBlocked, cartController.addToCart);
+userRoutes.post("/cart/update-quantity", isUserAuthenticated, isUserBlocked,cartController.updateQuantity);
+userRoutes.post("/cart/remove", isUserAuthenticated,isUserBlocked, cartController.removeFromCart);
+userRoutes.post("/cart/clear", isUserAuthenticated,isUserBlocked, cartController.clearCart);
 
 
 /*WISHLIST */
-userRoutes.post('/wishlist/toggle', wishlistController.toggleWishlist);
-userRoutes.get('/wishlist', isUserAuthenticated, wishlistController.loadWishlist);
+userRoutes.post('/wishlist/toggle', isUserAuthenticated, isUserBlocked, wishlistController.toggleWishlist);
+userRoutes.get('/wishlist', isUserAuthenticated, isUserBlocked, wishlistController.loadWishlist);
 
 //CHECKOUT
-userRoutes.get("/checkout", isUserAuthenticated, checkoutController.loadCheckout);
-userRoutes.get("/checkout/buy-now", isUserAuthenticated, checkoutController.loadBuyNowCheckout);
-userRoutes.post("/checkout/create-razorpay-order", isUserAuthenticated, checkoutController.createRazorpayOrder);
-userRoutes.post("/checkout/verify-razorpay", isUserAuthenticated, checkoutController.verifyRazorpayPayment);
-userRoutes.post("/checkout/place-order", isUserAuthenticated, checkoutController.placeOrder);
-userRoutes.get("/order-success/:orderId", isUserAuthenticated, checkoutController.getOrderSuccess);
-userRoutes.get("/payment-failed", isUserAuthenticated, checkoutController.getPaymentFailed);
+userRoutes.get("/checkout", isUserAuthenticated, isUserBlocked, checkoutController.loadCheckout);
+userRoutes.get("/checkout/buy-now", isUserAuthenticated, isUserBlocked, checkoutController.loadBuyNowCheckout);
+userRoutes.post("/checkout/create-razorpay-order", isUserAuthenticated, isUserBlocked, checkoutController.createRazorpayOrder);
+userRoutes.post("/checkout/verify-razorpay", isUserAuthenticated, isUserBlocked, checkoutController.verifyRazorpayPayment);
+userRoutes.post("/checkout/place-order", isUserAuthenticated, isUserBlocked, checkoutController.placeOrder);
+userRoutes.get("/order-success/:orderId", isUserAuthenticated, isUserBlocked, checkoutController.getOrderSuccess);
+userRoutes.get("/payment-failed", isUserAuthenticated, isUserBlocked, checkoutController.getPaymentFailed);
 
 /* COUPONS */
-userRoutes.post("/api/coupon/apply", isUserAuthenticated, checkoutController.applyCoupon);
-userRoutes.post("/api/coupon/remove", isUserAuthenticated, checkoutController.removeCoupon);
+userRoutes.post("/api/coupon/apply", isUserAuthenticated, isUserBlocked, checkoutController.applyCoupon);
+userRoutes.post("/api/coupon/remove", isUserAuthenticated, isUserBlocked, checkoutController.removeCoupon);
 
 
 //ORDERS
-userRoutes.get("/myOrders", isUserAuthenticated, orderController.getOrdersPage);
-userRoutes.get("/myOrders/details", isUserAuthenticated, orderController.getOrdersDetailsPage);
-userRoutes.get("/myOrders/invoice", isUserAuthenticated, orderController.getInvoicePage);
-userRoutes.post("/cancel-order", isUserAuthenticated, orderController.cancelOrder);
-userRoutes.post("/cancel-item", isUserAuthenticated, orderController.cancelItem);
-userRoutes.post("/return-item", isUserAuthenticated, orderController.returnItem);
-userRoutes.post("/return-order", isUserAuthenticated, orderController.returnOrder);
+userRoutes.get("/myOrders", isUserAuthenticated, isUserBlocked, orderController.getOrdersPage);
+userRoutes.get("/myOrders/details", isUserAuthenticated, isUserBlocked, orderController.getOrdersDetailsPage);
+userRoutes.get("/myOrders/invoice", isUserAuthenticated, isUserBlocked, orderController.getInvoicePage);
+userRoutes.post("/cancel-order", isUserAuthenticated, isUserBlocked, orderController.cancelOrder);
+userRoutes.post("/cancel-item", isUserAuthenticated, isUserBlocked, orderController.cancelItem);
+userRoutes.post("/return-item", isUserAuthenticated, isUserBlocked, orderController.returnItem);
+userRoutes.post("/return-order", isUserAuthenticated, isUserBlocked, orderController.returnOrder);
 
 /*WALLET*/
-userRoutes.get('/wallet', isUserAuthenticated, walletController.getWallet);
-userRoutes.post('/wallet/add-money', isUserAuthenticated, walletController.createWalletOrder);
-userRoutes.post('/wallet/verify-payment', isUserAuthenticated, walletController.verifyWalletPayment);
+userRoutes.get('/wallet', isUserAuthenticated, isUserBlocked, walletController.getWallet);
+userRoutes.post('/wallet/add-money', isUserAuthenticated, isUserBlocked, walletController.createWalletOrder);
+userRoutes.post('/wallet/verify-payment', isUserAuthenticated, isUserBlocked, walletController.verifyWalletPayment);
+userRoutes.get('/wallet/payment-failure', isUserAuthenticated, isUserBlocked, walletController.getPaymentFailure);
 
 // ,isUserAuthenticated
 

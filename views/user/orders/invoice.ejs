@@ -4,272 +4,547 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tax Invoice | Order #<%= order.orderId %>
-    </title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Payment Receipt | Order #<%= order.orderId %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        :root {
+            --primary-color: #1a2a4d;
+            --accent-color: #4f6ef7;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --border-color: #e5e7eb;
+            --success-bg: #ecfdf5;
+            --success-text: #059669;
+        }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: #fdfdfd;
-            padding: 40px;
-            color: #111;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 40px 20px;
+            color: var(--text-dark);
         }
 
-        .invoice-box {
-            max-width: 800px;
-            margin: 20px auto;
-            background: #fff;
-            padding: 40px;
-            border: 1px solid #eee;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        .receipt-actions {
+            max-width: 850px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
         }
 
-        .header-line {
-            border-bottom: 2px solid #000;
-            margin-bottom: 25px;
-        }
-
-        .label-text {
-            font-size: 13px;
-            font-weight: 800;
-            color: #000;
-            margin-bottom: 2px;
-        }
-
-        .value-text {
-            font-size: 13px;
+        .btn-action {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
             font-weight: 600;
-            margin-bottom: 12px;
-            color: #333;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
         }
 
-        .inv-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 30px;
+        .btn-download {
+            background-color: var(--primary-color);
+            color: white;
         }
 
-        .inv-table th {
-            border-top: 2px solid #444;
-            border-bottom: 2px solid #444;
-            padding: 12px 10px;
-            font-size: 11px;
-            font-weight: 800;
-            text-align: center;
+        .btn-download:hover {
+            background-color: #111b33;
+            transform: translateY(-1px);
+        }
+
+        .btn-print {
+            background-color: white;
+            color: var(--text-dark);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-print:hover {
+            background-color: #f9fafb;
+        }
+
+        .receipt-container {
+            max-width: 850px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 60px;
+            border-radius: 4px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .receipt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 50px;
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .brand-logo {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary-color);
+            letter-spacing: -1px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo i {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+        }
+
+        .brand-tagline {
+            font-size: 0.8rem;
+            color: var(--text-light);
             text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .inv-table td {
-            padding: 15px 10px;
-            font-size: 12px;
-            vertical-align: top;
-            border-bottom: 1px solid #eee;
-        }
-
-        .summary-row td {
-            border-top: 2px solid #444;
-            border-bottom: 2px solid #444;
-            font-weight: 800;
-            padding: 10px;
-        }
-
-        .grand-total-box {
-            margin-top: 30px;
+        .receipt-title-box {
             text-align: right;
         }
 
-        .no-print-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #111;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 10px;
+        .receipt-title {
+            font-size: 1.8rem;
             font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: 0.3s;
-            z-index: 100;
+            color: var(--primary-color);
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
         }
 
-        .no-print-btn:hover {
-            background: #333;
-            transform: translateY(-2px);
+        .receipt-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .info-section-title {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .info-content p {
+            margin: 4px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .info-content .name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .order-meta {
+            text-align: right;
+        }
+
+        .meta-item {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .meta-label {
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .meta-value {
+            font-weight: 700;
+            min-width: 140px;
+        }
+
+        .status-badge-paid {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-badge-paid::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background-color: var(--success-text);
+            border-radius: 50%;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+
+        .items-table th {
+            background-color: #f9fafb;
+            padding: 15px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .items-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .item-desc {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .item-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--primary-color);
+        }
+
+        .item-meta {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+
+        .summary-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 50px;
+        }
+
+        .summary-box {
+            width: 350px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 1rem;
+        }
+
+        .summary-label {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .summary-row.total {
+            margin-top: 15px;
+            padding-top: 20px;
+            border-top: 2px solid var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        .summary-row.total .summary-label {
+            color: var(--primary-color);
+            font-weight: 800;
+        }
+
+        .summary-row.total .summary-value {
+            color: var(--primary-color);
+            font-weight: 900;
+        }
+
+        .payment-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 30px;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 40px;
+        }
+
+        .payment-method-box {
+            background-color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .payment-method-title {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .payment-method-value {
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .transaction-note {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: var(--text-light);
+        }
+
+        .signature-box {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .signature-img {
+            width: 150px;
+            height: 60px;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .signature-line {
+            width: 200px;
+            height: 1px;
+            background-color: var(--border-color);
+            margin-bottom: 10px;
+        }
+
+        .signatory-name {
+            font-weight: 800;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .signatory-title {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .thanks-msg {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            border-top: 1px dashed var(--border-color);
+            padding-top: 30px;
+        }
+
+        .thanks-msg a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
         }
 
         @media print {
-            .no-print-btn {
-                display: none;
-            }
-
-            body {
-                padding: 0;
-            }
-
-            .invoice-box {
-                border: none;
-                box-shadow: none;
-            }
+            body { background-color: white; padding: 0; }
+            .receipt-actions { display: none; }
+            .receipt-container { box-shadow: none; padding: 0; }
         }
     </style>
 </head>
 
 <body>
 
-    <button onclick="downloadPDF()" class="no-print-btn">
-        <i class="fas fa-file-pdf"></i> Download Official Bill
-    </button>
+    <div class="receipt-actions">
+        <button onclick="window.print()" class="btn-action btn-print">
+            <i class="fas fa-print"></i> Print
+        </button>
+        <button onclick="downloadPDF()" class="btn-action btn-download">
+            <i class="fas fa-download"></i> Save as PDF
+        </button>
+    </div>
 
-    <div class="invoice-box" id="invoice">
-        <!-- Top Details -->
-        <div class="flex justify-between items-start mb-8">
-            <div class="w-1/2">
-                <p class="label-text">Order ID:</p>
-                <p class="value-text">
-                    <%= order.orderId %>
-                </p>
-
-                <p class="label-text">Order Date:</p>
-                <p class="value-text">
-                    <%= new Date(order.createdAt).toLocaleDateString('en-GB') %>
-                </p>
-
-                <p class="label-text">Invoice Date:</p>
-                <p class="value-text">
-                    <%= new Date().toLocaleDateString('en-GB') %>
-                </p>
-
-                <p class="label-text">PAN:</p>
-                <p class="value-text">AACCU3841N</p>
-
-                <p class="label-text">CIN:</p>
-                <p class="value-text">U74999UP2019PTC182407</p>
+    <div class="receipt-container" id="receipt">
+        <div class="receipt-header">
+            <div class="brand">
+                <div class="brand-logo">
+                    <i class="fas fa-bolt"></i> ZYROX
+                </div>
+                <div class="brand-tagline">Premium E-Commerce Experience</div>
             </div>
-            <div class="w-1/2">
-                <p class="label-text">Billing Address</p>
-                <p class="value-text" style="line-height: 1.5; font-weight: 500;">
-                    <%= order.shippingAddress.fullName %><br>
-                        <%= order.shippingAddress.houseName %>(H), <%= order.shippingAddress.locality %>,<br>
-                                <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%=
-                                            order.shippingAddress.pincode %><br>
-                                            Phone: <%= order.shippingAddress.phone %>
-                </p>
+            <div class="receipt-title-box">
+                <h1 class="receipt-title">Payment Receipt</h1>
+                <div class="order-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Receipt No:</span>
+                        <span class="meta-value">REC-<%= order.orderId.substring(order.orderId.length - 8).toUpperCase() %></span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Date:</span>
+                        <span class="meta-value"><%= new Date(order.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) %></span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Order ID:</span>
+                        <span class="meta-value">#<%= order.orderId %></span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Status:</span>
+                        <span class="meta-value">
+                            <span class="status-badge-paid">PAID</span>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Horizontal Line -->
-        <div class="header-line"></div>
+        <div class="receipt-info-grid">
+            <div class="info-column">
+                <h3 class="info-section-title">Customer Information</h3>
+                <div class="info-content">
+                    <p class="name"><%= order.shippingAddress.fullName %></p>
+                    <p><%= order.shippingAddress.houseName %>(H), <%= order.shippingAddress.locality %></p>
+                    <p><%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %></p>
+                    <p>Phone: <%= order.shippingAddress.phone %></p>
+                    <p>Email: <%= user.email %></p>
+                </div>
+            </div>
+            <div class="info-column">
+                <h3 class="info-section-title">Billing From</h3>
+                <div class="info-content">
+                    <p class="name">Zyrox E-Commerce Solutions</p>
+                    <p>123 Digital Plaza, Cyber City</p>
+                    <p>Bangalore, Karnataka - 560001</p>
+                    <p>Contact: +91 98765 43210</p>
+                    <p>Email: support@zyrox.com</p>
+                </div>
+            </div>
+        </div>
 
-        <!-- Items Table -->
-        <table class="inv-table">
+        <table class="items-table">
             <thead>
                 <tr>
-                    <th class="text-left" style="width: 45%;">Description</th>
-                    <th>Qty</th>
-                    <th class="text-right">Unit Price ₹</th>
-                    <th class="text-right">Taxable <br> value ₹</th>
-                    <th class="text-right">IGST (18%) ₹</th>
-                    <th class="text-right">Total ₹</th>
+                    <th style="width: 50%;">Item Description</th>
+                    <th class="text-center">Qty</th>
+                    <th class="text-right">Unit Price</th>
+                    <th class="text-right">Total</th>
                 </tr>
             </thead>
             <tbody>
-                <% order.items.forEach(item=> {
-                    const taxable = item.total / 1.18;
-                    const igst = item.total - taxable;
-                    %>
+                <% order.items.forEach((item, index) => { %>
                     <tr>
-                        <td class="text-left font-semibold">
-                            <%= item.name %>
-                                <p class="text-[10px] text-gray-500 font-normal">
-                                    [Variant: <%= item.RAM %>GB/<%= item.storage %>GB | Color: <%= item.color %>]
-                                </p>
-                                <p class="text-[10px] text-gray-400 font-normal">SAC: 851799</p>
+                        <td>
+                            <div class="item-desc">
+                                <span class="item-name"><%= index + 1 %>. <%= item.name %></span>
+                                <span class="item-meta">
+                                    <% if (item.RAM) { %>RAM: <%= item.RAM %>GB | <% } %>
+                                    <% if (item.storage) { %>Storage: <%= item.storage %>GB | <% } %>
+                                    <% if (item.color) { %>Color: <%= item.color %><% } %>
+                                </span>
+                            </div>
                         </td>
-                        <td class="text-center font-bold">
-                            <%= item.quantity %>
-                        </td>
-                        <td class="text-right">
-                            <%= item.price.toFixed(2) %>
-                        </td>
-                        <td class="text-right">
-                            <%= taxable.toFixed(2) %>
-                        </td>
-                        <td class="text-right">
-                            <%= igst.toFixed(2) %>
-                        </td>
-                        <td class="text-right font-bold">
-                            <%= item.total.toFixed(2) %>
-                        </td>
+                        <td class="text-center"><%= item.quantity %></td>
+                        <td class="text-right">&#8377;<%= item.price.toLocaleString('en-IN') %></td>
+                        <td class="text-right">&#8377;<%= (item.price * item.quantity).toLocaleString('en-IN') %></td>
                     </tr>
-                    <% }) %>
-
-                        <!-- Summary rows -->
-                        <tr class="summary-row">
-                            <td colspan="4" class="text-right border-t-2 border-black">Subtotal</td>
-                            <td colspan="2" class="text-right border-t-2 border-black">₹<%= order.subtotal.toFixed(2) %>
-                            </td>
-                        </tr>
-                        <% if (order.discount> 0) { %>
-                            <tr>
-                                <td colspan="4" class="text-right py-2">Coupon/Discount</td>
-                                <td colspan="2" class="text-right py-2 text-green-600">- ₹<%= order.discount.toFixed(2)
-                                        %>
-                                </td>
-                            </tr>
-                            <% } %>
-                                <tr>
-                                    <td colspan="4" class="text-right py-2">Shipping</td>
-                                    <td colspan="2" class="text-right py-2">
-                                        <%= order.shippingCharge===0 ? 'FREE' : '₹' + order.shippingCharge.toFixed(2) %>
-                                    </td>
-                                </tr>
+                <% }) %>
             </tbody>
         </table>
 
-        <!-- Grand Total Section -->
-        <div class="grand-total-box flex justify-end items-center gap-10 mt-6 border-t-2 border-black pt-4">
-            <span class="text-xl font-medium">Grand Total</span>
-            <span class="text-3xl font-black text-blue-900">₹<%= order.finalPrice.toLocaleString('en-IN') %>.00</span>
-        </div>
-
-        <div class="mt-4 text-[11px] text-gray-500">
-            <p><strong>Payment Method:</strong>
-                <%= order.paymentMethod %>
-            </p>
-            <p><strong>Payment Status:</strong>
-                <%= order.paymentStatus %>
-            </p>
-            <p><strong>Amount in Words:</strong> Indian Rupees Only</p>
-        </div>
-
-        <!-- Authorized Signatory Section -->
-        <div class="flex flex-col items-end mt-8">
-            <p class="text-sm font-bold text-gray-800 mb-2">Zyrox E-Commerce Solutions</p>
-            <div class="border border-gray-100 p-2 bg-gray-50">
-                <div style="width: 180px; height: 60px; position:relative; overflow:hidden;">
-                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" style="height: 100%; width: 100%;">
-                        <path d="M50,100 Q150,50 250,100 T450,100" fill="none" stroke="#2b448a" stroke-width="6" />
-                    </svg>
-                    <p style="position:absolute; bottom:0; right:0; font-size:8px; opacity:0.3;">DIGITALLY SIGNED</p>
+        <div class="summary-container">
+            <div class="summary-box">
+                <div class="summary-row">
+                    <span class="summary-label">Subtotal:</span>
+                    <span class="summary-value">&#8377;<%= order.subtotal.toLocaleString('en-IN') %></span>
+                </div>
+                <% if (order.discount > 0) { %>
+                    <div class="summary-row">
+                        <span class="summary-label">Coupon Discount:</span>
+                        <span class="summary-value" style="color: #059669;">- &#8377;<%= order.discount.toLocaleString('en-IN') %></span>
+                    </div>
+                <% } %>
+                <div class="summary-row">
+                    <span class="summary-label">Shipping Fee:</span>
+                    <span class="summary-value"><%= order.shippingCharge === 0 ? 'FREE' : '₹' + order.shippingCharge.toLocaleString('en-IN') %></span>
+                </div>
+                <div class="summary-row total">
+                    <span class="summary-label">Grand Total:</span>
+                    <span class="summary-value">&#8377;<%= order.finalPrice.toLocaleString('en-IN') %></span>
                 </div>
             </div>
-            <p class="text-sm font-bold text-black mt-2">Authorized Signatory</p>
+        </div>
+
+        <div class="payment-footer">
+            <div class="payment-details">
+                <div class="payment-method-box">
+                    <div class="payment-method-title">Payment Method</div>
+                    <div class="payment-method-value">
+                        <% if (order.paymentMethod === 'Online') { %>
+                            <i class="fas fa-credit-card"></i> Online Payment (Razorpay)
+                        <% } else if (order.paymentMethod === 'Wallet') { %>
+                            <i class="fas fa-wallet"></i> Zyrox Wallet
+                        <% } else { %>
+                            <i class="fas fa-money-bill-wave"></i> <%= order.paymentMethod %>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="transaction-note">
+                    <strong>Transaction Status:</strong> Payment Received. Your order is confirmed and awaiting shipment. 
+                    A tracking number will be provided once your items are dispatched.
+                </div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-img">
+                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" style="height: 100%; width: 100%;">
+                        <path d="M50,100 Q150,50 250,100 T450,100" fill="none" stroke="#2b448a" stroke-width="4" />
+                        <path d="M80,80 Q180,30 280,80 T480,80" fill="none" stroke="#2b448a" stroke-width="2" opacity="0.5" />
+                    </svg>
+                </div>
+                <div class="signature-line"></div>
+                <span class="signatory-name">Authorized Signatory</span>
+                <span class="signatory-title">Zyrox E-Commerce Solutions</span>
+            </div>
+        </div>
+
+        <div class="thanks-msg">
+            Thank you for shopping with Zyrox! For support, email: <a href="mailto:support@zyrox.com">support@zyrox.com</a><br>
+            Visit us at <a href="https://zyrox.com">www.zyrox.com</a>. All purchases subject to terms.
         </div>
     </div>
 
-    <!-- FontAwesome for the PDF icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
     <script>
         function downloadPDF() {
-            const element = document.getElementById('invoice');
+            const element = document.getElementById('receipt');
             const opt = {
-                margin: [0.5, 0.5],
-                filename: 'Zyrox_Tax_Invoice_<%= order.orderId %>.pdf',
+                margin: [0, 0],
+                filename: 'Zyrox_Receipt_<%= order.orderId %>.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
                     scale: 2, 
@@ -280,8 +555,16 @@
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
             
-            // Generate PDF
-            html2pdf().set(opt).from(element).save();
+            // Show loading state or disable button if needed
+            const btn = document.querySelector('.btn-download');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            btn.disabled = true;
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            });
         }
     </script>
 </body>

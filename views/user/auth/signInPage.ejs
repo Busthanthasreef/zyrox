@@ -129,17 +129,15 @@
                     // Toggle Password Visibility
                     if (togglePassword) {
                         togglePassword.addEventListener("click", function () {
-                            const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
-                            passwordInput.setAttribute("type", type);
+                            const type = passwordInput.type === "password" ? "text" : "password";
+                            passwordInput.type = type;
 
                             // Toggle icon
                             const icon = this.querySelector('i');
                             if (type === "text") {
-                                icon.classList.remove('bi-eye-slash');
-                                icon.classList.add('bi-eye');
+                                icon.classList.replace('bi-eye-slash', 'bi-eye');
                             } else {
-                                icon.classList.remove('bi-eye');
-                                icon.classList.add('bi-eye-slash');
+                                icon.classList.replace('bi-eye', 'bi-eye-slash');
                             }
                         });
                     }

@@ -2095,8 +2095,8 @@
                     const img = slot.querySelector('.preview-img');
                     img.src = URL.createObjectURL(blob);
                     slot.classList.add('has-image');
-                    slot.classList.remove('img-error'); // clear image error if user adds one
-                    // Also clear the section-level image error
+                    slot.classList.remove('img-error'); 
+                    
                     const prefix = currentCropSlotId.startsWith('add') ? 'add' : 'edit';
                     document.getElementById(`${prefix}ImgError`)?.classList.remove('visible');
                     [`${prefix}Slot0`, `${prefix}Slot1`, `${prefix}Slot2`, `${prefix}Slot3`, `${prefix}Slot4`].forEach(id => document.getElementById(id)?.classList.remove('img-error'));
@@ -2113,6 +2113,40 @@
                     currentCropInput = null;
                 }, 'image/jpeg', 0.92);
             }
+
+            // ══ FORM SUBMISSION INTERCEPT ══
+            document.getElementById('editVariantForm').addEventListener('submit', function(e) {
+                // The validateVariantForm is already called via onsubmit attribute.
+                // We add the slot data here.
+                const fd = new FormData(this);
+                
+                // We don't want the default behavior for 'images' field if we use slots
+                // But we'll keep it for now and add slot info
+                for (let i = 0; i < 5; i++) {
+                    const slotId = `editSlot${i}`;
+                    const slot = document.getElementById(slotId);
+                    const fieldName = `image_slot_${i}`;
+                    
+                    if (slot && slot.classList.contains('has-image')) {
+                        const fileInput = document.getElementById(`editFile${i}`);
+                        if (fileInput && fileInput.files[0]) {
+                            // New file is already in FormData because of 'images' name? 
+                            // No, each input has name="images". This is confusing for the server.
+                            // Let's use specific slot names.
+                        } else {
+                            const img = slot.querySelector('.preview-img');
+                            if (img && img.src && !img.src.startsWith('blob:') && !img.src.startsWith('data:')) {
+                                // Add existing image path
+                                const hidden = document.createElement('input');
+                                hidden.type = 'hidden';
+                                hidden.name = fieldName;
+                                hidden.value = img.src;
+                                this.appendChild(hidden);
+                            }
+                        }
+                    }
+                }
+            });
 
             // ══ SKU Generation ══
             const productName = '<%= product.productName %>';

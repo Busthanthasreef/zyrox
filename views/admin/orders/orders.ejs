@@ -26,11 +26,11 @@
             --surface2: #f0f0f0;
             --border: #e8eaf0;
             --accent: #4f6ef7;
-            --accent-soft: rgba(124, 110, 245, 0.12);
-            --accent-glow: rgba(124, 110, 245, 0.3);
-            --text-primary: #000000;
-            --text-secondary: #000000;
-            --text-muted: #000000;
+            --accent-soft: rgba(79, 110, 247, 0.12);
+            --accent-glow: rgba(79, 110, 247, 0.3);
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
             --white: #ffffff;
             --success: #22c55e;
             --danger: #ef4444;
@@ -39,6 +39,7 @@
             --orange: #f97316;
             --radius: 14px;
             --radius-sm: 8px;
+            --skeleton: #e2e8f0;
         }
 
         *,
@@ -118,15 +119,16 @@
             right: -4px;
             background: var(--danger);
             color: #fff;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 800;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid var(--bg);
+            border: 2px solid var(--surface);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
         }
 
         /* ── Requests Dropdown ── */
@@ -138,10 +140,17 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
             z-index: 1000;
             display: none;
             overflow: hidden;
+            backdrop-filter: blur(10px);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .requests-dropdown.show {
@@ -779,19 +788,358 @@
             color: var(--text-muted);
         }
 
-        /* ── Scrollbar ── */
-        ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
+        /* ── Breadcrumbs ── */
+        .breadcrumb-nav {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
         }
 
-        ::-webkit-scrollbar-track {
-            background: transparent;
+        .breadcrumb-nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 10px;
+        .breadcrumb-nav a:hover {
+            color: var(--accent);
+        }
+
+        .breadcrumb-nav .separator {
+            opacity: 0.5;
+        }
+
+        .breadcrumb-nav .current {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* ── Sticky Header ── */
+        .orders-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--surface2);
+            box-shadow: 0 1px 0 var(--border);
+        }
+
+        /* ── Column Sorting ── */
+        .sortable-th {
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s;
+        }
+
+        .sortable-th:hover {
+            color: var(--accent) !important;
+        }
+
+        .sort-indicator {
+            margin-left: 4px;
+            opacity: 0.3;
+            font-size: 10px;
+        }
+
+        .sortable-th.active-sort {
+            color: var(--accent) !important;
+        }
+
+        .sortable-th.active-sort .sort-indicator {
+            opacity: 1;
+        }
+
+        /* ── Filter Chips ── */
+        .filter-chips-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 20px 14px;
+            flex-wrap: wrap;
+            margin-top: -4px;
+        }
+
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid var(--accent-glow);
+        }
+
+        .filter-chip .remove-chip {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .filter-chip .remove-chip:hover {
+            opacity: 1;
+        }
+
+        .clear-all-filters {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin-left: 4px;
+            transition: color 0.2s;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .clear-all-filters:hover {
+            color: var(--danger);
+        }
+
+        /* ── Clickable Rows ── */
+        .orders-table tbody tr {
+            cursor: pointer;
+        }
+
+        .orders-table tbody tr:focus-within,
+        .orders-table tbody tr:hover {
+            background: var(--bg) !important;
+        }
+
+        /* ── Skeleton Loader ── */
+        .skeleton {
+            background-color: var(--skeleton);
+            background-image: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0),
+                rgba(255, 255, 255, 0.4),
+                rgba(255, 255, 255, 0)
+            );
+            background-size: 200px 100%;
+            background-repeat: no-repeat;
+            display: inline-block;
+            border-radius: 4px;
+            animation: skeleton-loading 1.5s infinite linear;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+
+        .skeleton-row td {
+            padding: 20px 16px;
+        }
+
+        .skeleton-text {
+            height: 12px;
+            width: 100%;
+        }
+
+        .skeleton-badge {
+            height: 20px;
+            width: 80px;
+            border-radius: 20px;
+        }
+
+        .skeleton-avatar {
+            height: 34px;
+            width: 34px;
+            border-radius: 50%;
+        }
+
+        /* ── Loading Overlay ── */
+        .table-loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(1px);
+        }
+
+        .table-loading-overlay.active {
+            display: flex;
+        }
+
+        /* ── Status Badge Interactivity ── */
+        .status-tag {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .status-tag:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* ── Tooltips ── */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-5px);
+            background: #334155;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            z-index: 1000;
+        }
+
+        [data-tooltip]:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ── Pagination Improvements ── */
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .per-page-select {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .go-to-page {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .go-to-page input {
+            width: 40px;
+            height: 28px;
+            text-align: center;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--surface2);
+            outline: none;
+        }
+
+        /* ── Responsive Card Layout ── */
+        @media (max-width: 768px) {
+            .orders-table thead {
+                display: none;
+            }
+
+            .orders-table tbody tr {
+                display: block;
+                padding: 16px;
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                margin-bottom: 16px;
+                background: var(--surface);
+                box-shadow: var(--shadow-sm);
+            }
+
+            .orders-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 0;
+                text-align: right;
+                border-bottom: 1px solid var(--bg);
+            }
+
+            .orders-table td:last-child {
+                border-bottom: none;
+                justify-content: center;
+                padding-top: 12px;
+            }
+
+            .orders-table td::before {
+                content: attr(data-label);
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                color: var(--text-muted);
+                text-align: left;
+            }
+
+            .orders-card {
+                background: transparent;
+                border: none;
+                overflow: visible;
+            }
+
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .main-content {
+                padding: 16px;
+                height: auto;
+                overflow: visible;
+            }
+            
+            .table-area {
+                overflow: visible;
+            }
+        }
+
+        /* ── Micro-animations ── */
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out backwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .searching-indicator {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .searching-indicator.active {
+            display: flex;
+        }
+
+        .spinner-sm {
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--accent-soft);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -801,6 +1149,13 @@
 
         <main class="admin-main">
             <div class="main-content">
+
+                <!-- Breadcrumbs -->
+                <nav class="breadcrumb-nav">
+                    <a href="/admin/dashboard">Dashboard</a>
+                    <span class="separator"><i class="bi bi-chevron-right"></i></span>
+                    <span class="current">Orders</span>
+                </nav>
 
                 <!-- Page Header -->
                 <div class="top-section">
@@ -877,29 +1232,37 @@
 
                 <!-- Stats Row -->
                 <div class="stat-grid">
-                    <div class="stat-card card-hover-effect animate-fade-in" style="animation-delay: 0.1s">
+                    <div class="stat-card animate-fade-in" style="animation-delay: 0.1s" onclick="applyQuickFilter('status', 'Delivered')" data-tooltip="Click to see delivered orders">
                         <span class="stat-card-title">Total Revenue</span>
                         <div class="stat-card-val">₹<%= stats.totalRevenue %></div>
+                        <span class="stat-card-growth pos"><i class="bi bi-arrow-up"></i> Collected</span>
+                        <i class="bi bi-currency-rupee stat-card-icon"></i>
                     </div>
-                    <div class="stat-card card-hover-effect animate-fade-in" style="animation-delay: 0.2s">
+                    <div class="stat-card animate-fade-in" style="animation-delay: 0.2s" onclick="applyQuickFilter('status', '')" data-tooltip="Click to see all orders">
                         <span class="stat-card-title">Total Orders</span>
-                        <div class="stat-card-val">+<%= stats.totalOrders %></div>
+                        <div class="stat-card-val"><%= stats.totalOrders %></div>
+                        <span class="stat-card-growth neu">Lifetime</span>
+                        <i class="bi bi-bag-check stat-card-icon"></i>
                     </div>
-                    <div class="stat-card card-hover-effect animate-fade-in" style="animation-delay: 0.3s">
+                    <div class="stat-card animate-fade-in" style="animation-delay: 0.3s" onclick="applyQuickFilter('status', 'Pending')" data-tooltip="Click to see pending orders">
                         <span class="stat-card-title">Pending Fulfillment</span>
                         <div class="stat-card-val"><%= stats.pendingOrders %></div>
+                        <span class="stat-card-growth neg">Requires Action</span>
+                        <i class="bi bi-clock-history stat-card-icon"></i>
                     </div>
-                    <div class="stat-card card-hover-effect animate-fade-in" style="animation-delay: 0.4s">
-                        <span class="stat-card-title">Return/Cancel Rate</span>
+                    <div class="stat-card animate-fade-in" style="animation-delay: 0.4s" onclick="applyQuickFilter('status', 'Return Requested')" data-tooltip="Click to see return requests">
+                        <span class="stat-card-title">Return/Cancel Requests</span>
                         <div class="stat-card-val"><%= stats.returns %></div>
+                        <span class="stat-card-growth warning">In Progress</span>
+                        <i class="bi bi-arrow-left-right stat-card-icon"></i>
                     </div>
                 </div>
 
                 <!-- Orders Table Card -->
-                <div class="orders-card card-hover-effect animate-fade-in" style="animation-delay: 0.5s">
+                <div class="orders-card animate-fade-in" style="animation-delay: 0.5s">
                     <div class="card-header">
-                        <form action="/admin/orders" method="GET" class="search-area-wrapper">
-                            <select name="status" class="status-filter-select" onchange="this.form.submit()">
+                        <div class="search-area-wrapper">
+                            <select id="statusFilter" class="status-filter-select">
                                 <option value="">All Status</option>
                                 <option value="Pending" <%= status === 'Pending' ? 'selected' : '' %>>Pending</option>
                                 <option value="Processing" <%= status === 'Processing' ? 'selected' : '' %>>Processing</option>
@@ -909,157 +1272,470 @@
                                 <option value="Returned" <%= status === 'Returned' ? 'selected' : '' %>>Returned</option>
                                 <option value="Return Requested" <%= status === 'Return Requested' ? 'selected' : '' %>>Return Requested</option>
                             </select>
+
                             <div class="search-pill">
                                 <i class="bi bi-search"></i>
-                                <input type="text" name="search" id="searchInput" class="search-pill-input"
-                                    placeholder="Search by ID or name..." value="<%= search %>" style="height:38px;">
+                                <input type="text" id="searchInput" class="search-pill-input"
+                                    placeholder="Search by ID, name, or email..." value="<%= search %>" style="height:38px;">
                                 <i class="bi bi-x search-clear-btn" id="clearBtn" title="Clear Search"></i>
                             </div>
-                            <button type="submit" class="search-btn">Search Orders</button>
-                        </form>
+
+                            <div class="searching-indicator" id="searchingIndicator">
+                                <div class="spinner-sm"></div>
+                                <span>Searching...</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="table-area">
-                        <table class="orders-table">
+                    <!-- Active Filter Chips -->
+                    <div class="filter-chips-wrapper" id="filterChips">
+                        <!-- Chips injected by JS -->
+                    </div>
+
+                    <div class="table-area" style="position: relative;">
+                        <div class="table-loading-overlay" id="tableLoadingOverlay">
+                            <div class="spinner-sm" style="width: 32px; height: 32px; border-width: 3px;"></div>
+                        </div>
+                        <table class="orders-table" id="ordersTable">
                             <thead>
                                 <tr>
-
-                                    <th width="8%">SI.NO</th>
-                                    <th width="16%">Order ID</th>
-                                    <th width="28%">Customer Info</th>
-                                    <th width="12%">Order Date</th>
+                                    <th width="5%">SI.NO</th>
+                                    <th width="15%" class="sortable-th" onclick="applySort('orderId')">
+                                        Order ID <i class="bi bi-arrow-down-up sort-indicator"></i>
+                                    </th>
+                                    <th width="25%">Customer Info</th>
+                                    <th width="15%" class="sortable-th" onclick="applySort('newest')">
+                                        Order Date <i class="bi bi-arrow-down-up sort-indicator"></i>
+                                    </th>
                                     <th width="10%">Method</th>
-                                    <th width="18%">Current Status</th>
-                                    <th width="12%">Final Price</th>
-                                    <th width="4%">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                                    <th width="15%" class="sortable-th" onclick="applySort('status')">
+                                        Current Status <i class="bi bi-arrow-down-up sort-indicator"></i>
+                                    </th>
+                               <tbody id="ordersTableBody">
                                 <% if (orders && orders.length> 0) { %>
                                     <% orders.forEach((order, ind)=> { %>
-
-                                        <tr>
-
-                                            <td>
+                                        <tr onclick="navigateToOrder('<%= order._id %>')">
+                                            <td data-label="SI.NO">
                                                 <%= (page - 1) * limit + (ind + 1) %>
                                             </td>
-                                            <td style="font-weight: 800; color:#111;">#<%= order.orderId %>
-                                            </td>
-                                            <td class="user-td">
+                                            <td data-label="Order ID" style="font-weight: 800; color:var(--accent);">#<%= order.orderId %></td>
+                                            <td data-label="Customer Info" class="user-td">
                                                 <div class="user-cell">
                                                     <% if (order.userId && order.userId.Profile_image) { %>
-                                                        <img src="<%= order.userId.Profile_image %>" class="user-avatar"
-                                                            alt="">
-                                                        <% } else { %>
-                                                            <div class="user-avatar-init">
-                                                                <%= order.userId ? order.userId.Name.charAt(0).toUpperCase() : 'U' %>
-                                                            </div>
-                                                            <% } %>
-                                                                <div class="user-meta">
-                                                                    <span class="name">
-                                                                        <%= order.userId ? order.userId.Name.split(' ')[0] : ' Guest' %>
-                                                                    </span>
-                                                                    <span class="email">
-                                                                        <%= order.userId ? order.userId.Email : '—' %>
-                                                                    </span>
-                                                                </div>
+                                                        <img src="<%= order.userId.Profile_image %>" class="user-avatar" alt="">
+                                                    <% } else { %>
+                                                        <div class="user-avatar-init">
+                                                            <%= order.userId ? order.userId.Name.charAt(0).toUpperCase() : 'U' %>
+                                                        </div>
+                                                    <% } %>
+                                                    <div class="user-meta">
+                                                        <span class="name"><%= order.userId ? order.userId.Name.split(' ')[0] : 'Guest' %></span>
+                                                        <span class="email"><%= order.userId ? order.userId.Email : '—' %></span>
+                                                    </div>
                                                 </div>
                                             </td>
-                                            <td style="font-weight: 800; color: #111;">
+                                            <td data-label="Order Date" style="font-weight: 600;">
                                                 <%= new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short' , day: 'numeric' , year: 'numeric' }) %>
                                             </td>
-                                            <td
-                                                style="color:var(--text-secondary); font-size:11px; font-weight:800; text-transform:uppercase;">
+                                            <td data-label="Method" style="font-size:11px; font-weight:800; text-transform:uppercase; color: var(--text-muted);">
                                                 <%= order.paymentMethod %>
                                             </td>
-                                            <td>
+                                            <td data-label="Current Status">
                                                 <% 
                                                 const sRaw = order.orderStatus.toLowerCase();
-                                                    let tCol = '#ffc107'; 
-                                                                                                
-                                                    if (sRaw.includes('pending')) { 
-                                                        tCol = '#f97316'; 
-                                                    } 
-                                                    else if (sRaw.includes('processing')) { 
-                                                        tCol = '#ffc107';
-                                                    } 
-                                                    else if (sRaw.includes('shipped')) { 
-                                                        tCol = '#0ea5e9'; 
-                                                    } 
-                                                    else if (sRaw.includes('delivered')) { 
-                                                        tCol = '#22c55e'; 
-                                                    }
-                                                    else if (sRaw.includes('cancelled')) { 
-                                                        tCol = '#ef4444'; 
-                                                    } 
-                                                    else if (sRaw.includes('returned')) { 
-                                                        tCol = '#f59e0b'; 
-                                                    } 
-                                                    %>
-                                                    <span class="status-tag"
-                                                        style="background-color: <%= tCol %>20; color: <%= tCol %>; border: 1px solid <%= tCol %>40;">
-                                                        <%= order.orderStatus %>
-                                                    </span>
+                                                let tCol = '#94a3b8'; 
+                                                if (sRaw.includes('pending')) tCol = '#f97316'; 
+                                                else if (sRaw.includes('processing')) tCol = '#eab308';
+                                                else if (sRaw.includes('shipped')) tCol = '#0ea5e9'; 
+                                                else if (sRaw.includes('delivered')) tCol = '#22c55e'; 
+                                                else if (sRaw.includes('cancelled')) tCol = '#ef4444'; 
+                                                else if (sRaw.includes('returned')) tCol = '#f59e0b'; 
+                                                %>
+                                                <span class="status-tag" style="background-color: <%= tCol %>15; color: <%= tCol %>; border: 1px solid <%= tCol %>30;"
+                                                      onclick="event.stopPropagation(); applyQuickFilter('status', '<%= order.orderStatus %>')"
+                                                      data-tooltip="Filter by <%= order.orderStatus %>">
+                                                    <%= order.orderStatus %>
+                                                </span>
                                             </td>
-                                            <td style="font-weight: 800; font-size: 14px; color:#111;">
+                                            <td data-label="Final Price" style="font-weight: 800; font-size: 14px;">
                                                 ₹<%= (order.finalPrice || 0).toLocaleString('en-IN') %>
                                             </td>
-                                            <td>
-                                                <a href="/admin/orders/details?id=<%= order._id %>" class="view-btn">
-                                                    <i class="bi bi-eye"></i> View
+                                            <td data-label="Action">
+                                                <a href="/admin/orders/details?id=<%= order._id %>" class="view-btn" onclick="event.stopPropagation()" data-tooltip="View Details">
+                                                    <i class="bi bi-eye"></i>
                                                 </a>
                                             </td>
                                         </tr>
-                                        <% }) %>
-                                            <% } else { %>
-                                                <tr class="table-empty-row">
-                                                    <td colspan="8">
-                                                        <div class="empty-state">
-                                                            <i class="bi bi-search empty-icon" style="opacity: 0.5;"></i>
-                                                            <div class="empty-title">No orders matching your criteria</div>
-                                                            <div class="empty-subtitle">We couldn't find any orders that match your current search or filters.</div>
-                                                            <% if (search || status) { %>
-                                                                <a href="/admin/orders" class="btn btn-sm btn-dark mt-3 px-4 py-2" style="border-radius: 8px; font-weight: 700; font-size: 13px;">
-                                                                    <i class="bi bi-x-circle me-1"></i> Clear All Filters
-                                                                </a>
-                                                            <% } %>
-                                                        </div>
-                                                    </td>
-                                                </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr class="table-empty-row">
+                                        <td colspan="8">
+                                            <div class="empty-state">
+                                                <i class="bi bi-search empty-icon" style="opacity: 0.5;"></i>
+                                                <div class="empty-title">No orders matching your criteria</div>
+                                                <div class="empty-subtitle">We couldn't find any orders that match your current search or filters.</div>
+                                                <% if (search || status) { %>
+                                                    <a href="javascript:void(0)" onclick="clearAllFilters()" class="btn btn-sm btn-dark mt-3 px-4 py-2" style="border-radius: 8px; font-weight: 700; font-size: 13px;">
+                                                        <i class="bi bi-x-circle me-1"></i> Clear All Filters
+                                                    </a>
                                                 <% } %>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% } %>
                             </tbody>
                         </table>
                     </div>
 
                     <div class="table-footer">
-                        <div class="showing-info">
-                            Showing <%= totalOrdersCount===0 ? 0 : ((page - 1) * limit) + 1 %>-<%= Math.min(page * limit, totalOrdersCount) %> of <%= totalOrdersCount %>
+                        <div class="pagination-controls">
+                            <div class="showing-info" id="showingInfo">
+                                Showing <%= totalOrdersCount===0 ? 0 : ((page - 1) * limit) + 1 %>-<%= Math.min(page * limit, totalOrdersCount) %> of <%= totalOrdersCount %>
+                            </div>
+                            <select id="limitSelect" class="per-page-select">
+                                <option value="3" <%= limit === 3 ? 'selected' : '' %>>3 / page</option>
+                                <option value="10" <%= limit === 10 ? 'selected' : '' %>>10 / page</option>
+                                <option value="25" <%= limit === 25 ? 'selected' : '' %>>25 / page</option>
+                                <option value="50" <%= limit === 50 ? 'selected' : '' %>>50 / page</option>
+                            </select>
                         </div>
 
-                        <% if (totalPages> 1) { %>
-                            <div class="pag-nav-group">
-                                <a href="/admin/orders?page=<%= page - 1 %>&search=<%= search %>&status=<%= status %>"
+                        <div class="pag-nav-group" id="paginationGroup">
+                            <% if (totalPages > 1) { %>
+                                <a href="javascript:void(0)" onclick="changePage(<%= page - 1 %>)"
                                     class="p-nav-link <%= page === 1 ? 'disabled' : '' %>">
-                                    <i class="bi bi-chevron-left"></i> Previous
+                                    <i class="bi bi-chevron-left"></i>
                                 </a>
                                 <% for(let i=Math.max(1, page-2); i <=Math.min(totalPages, page+2); i++) { %>
-                                    <a href="/admin/orders?page=<%= i %>&search=<%= search %>&status=<%= status %>"
+                                    <a href="javascript:void(0)" onclick="changePage(<%= i %>)"
                                         class="p-num <%= page === i ? 'active' : '' %>">
                                         <%= i %>
                                     </a>
-                                    <% } %>
-                                        <a href="/admin/orders?page=<%= page + 1 %>&search=<%= search %>&status=<%= status %>"
-                                            class="p-nav-link <%= page >= totalPages ? 'disabled' : '' %>">
-                                            Next <i class="bi bi-chevron-right"></i>
-                                        </a>
-                            </div>
+                                <% } %>
+                                <a href="javascript:void(0)" onclick="changePage(<%= page + 1 %>)"
+                                    class="p-nav-link <%= page >= totalPages ? 'disabled' : '' %>">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
                             <% } %>
+                            <div class="go-to-page">
+                                <span>Go to</span>
+                                <input type="number" id="goToPageInput" min="1" max="<%= totalPages %>" value="<%= page %>">
+                            </div>
+                        </div>
                     </div>
                 </div><!-- end main-content -->
         </main><!-- end admin-main -->
 
 
         <script>
+            // State Management
+            let currentState = {
+                page: <%= page %>,
+                search: '<%= search %>',
+                status: '<%= status %>',
+                sort: '<%= sort %>',
+                limit: <%= limit %>
+            };
+
+            // Elements
+            const tableBody = document.getElementById('ordersTableBody');
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const limitSelect = document.getElementById('limitSelect');
+            const clearBtn = document.getElementById('clearBtn');
+            const tableOverlay = document.getElementById('tableLoadingOverlay');
+            const searchingIndicator = document.getElementById('searchingIndicator');
+            const filterChips = document.getElementById('filterChips');
+            const showingInfo = document.getElementById('showingInfo');
+            const paginationGroup = document.getElementById('paginationGroup');
+            const goToPageInput = document.getElementById('goToPageInput');
+
+            // Debounce function
+            function debounce(func, timeout = 500) {
+                let timer;
+                return (...args) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+                };
+            }
+
+            // Fetch Data via AJAX
+            async function fetchData(updateHistory = true) {
+                tableOverlay.classList.add('active');
+                if (currentState.search) searchingIndicator.classList.add('active');
+
+                const params = new URLSearchParams(currentState);
+                const url = `/admin/orders?${params.toString()}`;
+
+                try {
+                    const response = await fetch(url, {
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        renderTable(data.orders);
+                        renderPagination(data);
+                        updateChips();
+                        if (updateHistory) {
+                            window.history.pushState(currentState, '', url);
+                        }
+                    } else {
+                        showError();
+                    }
+                } catch (err) {
+                    console.error('Fetch error:', err);
+                    showError();
+                } finally {
+                    tableOverlay.classList.remove('active');
+                    searchingIndicator.classList.remove('active');
+                }
+            }
+
+            // Render Table
+            function renderTable(orders) {
+                if (!orders || orders.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr class="table-empty-row">
+                            <td colspan="8">
+                                <div class="empty-state">
+                                    <i class="bi bi-search empty-icon" style="opacity: 0.5;"></i>
+                                    <div class="empty-title">No orders found</div>
+                                    <div class="empty-subtitle">Try adjusting your filters or search terms</div>
+                                    <a href="javascript:void(0)" onclick="clearAllFilters()" class="btn btn-sm btn-dark mt-3 px-4 py-2" style="border-radius: 8px; font-weight: 700; font-size: 13px;">
+                                        <i class="bi bi-x-circle me-1"></i> Clear All Filters
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                tableBody.innerHTML = orders.map((order, ind) => {
+                    const sRaw = order.orderStatus.toLowerCase();
+                    let tCol = '#94a3b8';
+                    if (sRaw.includes('pending')) tCol = '#f97316';
+                    else if (sRaw.includes('processing')) tCol = '#eab308';
+                    else if (sRaw.includes('shipped')) tCol = '#0ea5e9';
+                    else if (sRaw.includes('delivered')) tCol = '#22c55e';
+                    else if (sRaw.includes('cancelled')) tCol = '#ef4444';
+                    else if (sRaw.includes('returned')) tCol = '#f59e0b';
+
+                    return `
+                        <tr onclick="navigateToOrder('${order._id}')" class="animate-fade-in">
+                            <td data-label="SI.NO">${(currentState.page - 1) * currentState.limit + (ind + 1)}</td>
+                            <td data-label="Order ID" style="font-weight: 800; color:var(--accent);">#${order.orderId}</td>
+                            <td data-label="Customer Info" class="user-td">
+                                <div class="user-cell">
+                                    ${order.userId?.Profile_image 
+                                        ? `<img src="${order.userId.Profile_image}" class="user-avatar" alt="">`
+                                        : `<div class="user-avatar-init">${(order.userId?.Name || 'U').charAt(0).toUpperCase()}</div>`
+                                    }
+                                    <div class="user-meta">
+                                        <span class="name">${order.userId ? order.userId.Name.split(' ')[0] : 'Guest'}</span>
+                                        <span class="email">${order.userId?.Email || '—'}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td data-label="Order Date" style="font-weight: 600;">
+                                ${new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </td>
+                            <td data-label="Method" style="font-size:11px; font-weight:800; text-transform:uppercase; color: var(--text-muted);">
+                                ${order.paymentMethod}
+                            </td>
+                            <td data-label="Current Status">
+                                <span class="status-tag" style="background-color: ${tCol}15; color: ${tCol}; border: 1px solid ${tCol}30;"
+                                      onclick="event.stopPropagation(); applyQuickFilter('status', '${order.orderStatus}')"
+                                      data-tooltip="Filter by ${order.orderStatus}">
+                                    ${order.orderStatus}
+                                </span>
+                            </td>
+                            <td data-label="Final Price" style="font-weight: 800; font-size: 14px;">
+                                ₹${(order.finalPrice || 0).toLocaleString('en-IN')}
+                            </td>
+                            <td data-label="Action">
+                                <a href="/admin/orders/details?id=${order._id}" class="view-btn" onclick="event.stopPropagation()" data-tooltip="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>`;
+                }).join('');
+            }
+
+            // Render Pagination
+            function renderPagination(data) {
+                const { page, totalPages, totalOrdersCount, limit } = data;
+                showingInfo.innerHTML = `Showing ${totalOrdersCount === 0 ? 0 : ((page - 1) * limit) + 1}-${Math.min(page * limit, totalOrdersCount)} of ${totalOrdersCount}`;
+                
+                if (totalPages <= 1) {
+                    paginationGroup.style.display = 'none';
+                    return;
+                }
+                paginationGroup.style.display = 'flex';
+
+                let html = `
+                    <a href="javascript:void(0)" onclick="changePage(${page - 1})" class="p-nav-link ${page === 1 ? 'disabled' : ''}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>`;
+
+                for (let i = Math.max(1, page - 2); i <= Math.min(totalPages, page + 2); i++) {
+                    html += `<a href="javascript:void(0)" onclick="changePage(${i})" class="p-num ${page === i ? 'active' : ''}">${i}</a>`;
+                }
+
+                html += `
+                    <a href="javascript:void(0)" onclick="changePage(${page + 1})" class="p-nav-link ${page >= totalPages ? 'disabled' : ''}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                    <div class="go-to-page">
+                        <span>Go to</span>
+                        <input type="number" id="goToPageInput" min="1" max="${totalPages}" value="${page}" onchange="changePage(this.value)">
+                    </div>`;
+
+                paginationGroup.innerHTML = html;
+            }
+
+            // Update Chips
+            function updateChips() {
+                let chipsHtml = '';
+                if (currentState.status) {
+                    chipsHtml += `
+                        <div class="filter-chip">
+                            Status: ${currentState.status}
+                            <i class="bi bi-x remove-chip" onclick="applyQuickFilter('status', '')"></i>
+                        </div>`;
+                }
+                if (currentState.search) {
+                    chipsHtml += `
+                        <div class="filter-chip">
+                            Search: "${currentState.search}"
+                            <i class="bi bi-x remove-chip" onclick="applyQuickFilter('search', '')"></i>
+                        </div>`;
+                }
+                if (currentState.sort !== 'newest') {
+                    chipsHtml += `
+                        <div class="filter-chip">
+                            Sort: ${currentState.sort}
+                            <i class="bi bi-x remove-chip" onclick="applySort('newest')"></i>
+                        </div>`;
+                }
+
+                if (chipsHtml) {
+                    chipsHtml += `<span class="clear-all-filters" onclick="clearAllFilters()">Clear All</span>`;
+                }
+
+                filterChips.innerHTML = chipsHtml;
+            }
+
+            // Interaction Handlers
+            const debouncedSearch = debounce((val) => {
+                currentState.search = val;
+                currentState.page = 1;
+                fetchData();
+            });
+
+            searchInput.oninput = (e) => {
+                const val = e.target.value;
+                clearBtn.style.display = val.length > 0 ? 'block' : 'none';
+                debouncedSearch(val);
+            };
+
+            clearBtn.onclick = () => {
+                searchInput.value = '';
+                clearBtn.style.display = 'none';
+                currentState.search = '';
+                currentState.page = 1;
+                fetchData();
+            };
+
+            statusFilter.onchange = (e) => {
+                currentState.status = e.target.value;
+                currentState.page = 1;
+                fetchData();
+            };
+
+            limitSelect.onchange = (e) => {
+                currentState.limit = parseInt(e.target.value);
+                currentState.page = 1;
+                fetchData();
+            };
+
+            function applyQuickFilter(key, val) {
+                currentState[key] = val;
+                currentState.page = 1;
+                if (key === 'status') statusFilter.value = val;
+                if (key === 'search') {
+                    searchInput.value = val;
+                    clearBtn.style.display = 'none';
+                }
+                fetchData();
+            }
+
+            function applySort(sortType) {
+                currentState.sort = sortType;
+                currentState.page = 1;
+                
+                // Update header classes
+                document.querySelectorAll('.sortable-th').forEach(th => {
+                    th.classList.remove('active-sort');
+                    const icon = th.querySelector('.sort-indicator');
+                    if (icon) icon.className = 'bi bi-arrow-down-up sort-indicator';
+                });
+
+                const activeTh = Array.from(document.querySelectorAll('.sortable-th')).find(th => 
+                    th.getAttribute('onclick')?.includes(sortType)
+                );
+                if (activeTh) {
+                    activeTh.classList.add('active-sort');
+                    const icon = activeTh.querySelector('.sort-indicator');
+                    if (icon) {
+                        icon.className = sortType.includes('priceHigh') || sortType.includes('newest') 
+                            ? 'bi bi-arrow-down sort-indicator' 
+                            : 'bi bi-arrow-up sort-indicator';
+                    }
+                }
+
+                fetchData();
+            }
+
+            function changePage(p) {
+                if (!p || p < 1) return;
+                currentState.page = parseInt(p);
+                fetchData();
+            }
+
+            function clearAllFilters() {
+                currentState = { page: 1, search: '', status: '', sort: 'newest', limit: currentState.limit };
+                searchInput.value = '';
+                clearBtn.style.display = 'none';
+                statusFilter.value = '';
+                fetchData();
+            }
+
+            function navigateToOrder(id) {
+                window.location.href = `/admin/orders/details?id=${id}`;
+            }
+
+            function showError() {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Fetch Failed',
+                    text: 'Something went wrong while loading orders. Please try again.',
+                    confirmButtonText: 'Retry'
+                }).then(() => fetchData());
+            }
+
+            // Keyboard Shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '/' && document.activeElement !== searchInput) {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                if (e.key === 'Enter' && document.activeElement === goToPageInput) {
+                    changePage(goToPageInput.value);
+                }
+            });
+
+            // Bell Dropdown logic
             const bell = document.getElementById('bellToggle');
             const dropdown = document.getElementById('requestsDropdown');
             if (bell) {
@@ -1067,45 +1743,18 @@
             }
             window.onclick = () => dropdown.classList.remove('show');
 
-            // Search Input Functionality
-            const searchInput = document.getElementById('searchInput');
-            const clearBtn = document.getElementById('clearBtn');
-
-            if (clearBtn) {
-                clearBtn.onclick = () => {
-                    window.location.href = '/admin/orders';
-                };
-            }
-
-            if (searchInput) {
-                // Ensure clear button visibility on load if search exists
-                if (searchInput.value.length > 0) {
-                    clearBtn.style.display = 'block';
+            // Initial Setup
+            updateChips();
+            
+            // Handle browser back/forward
+            window.onpopstate = (event) => {
+                if (event.state) {
+                    currentState = event.state;
+                    searchInput.value = currentState.search;
+                    statusFilter.value = currentState.status;
+                    fetchData(false);
                 }
-                searchInput.oninput = () => {
-                    clearBtn.style.display = searchInput.value.length > 0 ? 'block' : 'none';
-                };
-            }
-
-            function handleRequest(orderId, action) {
-                const url = action === 'accept' ? '/admin/orders/accept-return' : '/admin/orders/decline-return';
-                Swal.fire({
-                    title: 'Confirm Operation',
-                    text: `${action.charAt(0).toUpperCase() + action.slice(1)} this request permanently?`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: action === 'accept' ? '#10b981' : '#ef4444',
-                    confirmButtonText: 'Yes, proceed'
-                }).then((res) => {
-                    if (res.isConfirmed) {
-                        fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId }) })
-                            .then(r => r.json()).then(d => {
-                                if (d.success) location.reload();
-                                else Swal.fire('Error', d.message, 'error');
-                            });
-                    }
-                });
-            }
+            };
         </script>
 </body>
 

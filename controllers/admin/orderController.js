@@ -6,11 +6,17 @@ import WalletTransactions from "../../models/walletTransactions.js";
 
 const getOrders = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
+        const page = parseInt(req.query.page) || 1;                                                                                                       
         const limit = 3;
         const skip = (page - 1) * limit;
         const search = req.query.search || "";
         const status = req.query.status || "";
+        const sort = req.query.sort || "newest";
+
+        let sortQuery = { createdAt: -1 };
+        if (sort === "oldest") sortQuery = { createdAt: 1 };
+        else if (sort === "priceHigh") sortQuery = { finalPrice: -1 };
+        else if (sort === "priceLow") sortQuery = { finalPrice: 1 };
 
         let query = {};
         
@@ -55,7 +61,7 @@ const getOrders = async (req, res) => {
 
         const orders = await Order.find(query)
             .populate("userId", "Name Email Profile_image")
-            .sort({ createdAt: -1 })
+            .sort(sortQuery)
             .skip(skip)
             .limit(limit);
 
@@ -100,6 +106,22 @@ const getOrders = async (req, res) => {
             .populate("userId", "Name Email Profile_image")
             .sort({ updatedAt: -1 });
 
+        if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+            return res.json({
+                success: true,
+                orders,
+                page,
+                totalPages,
+                totalOrdersCount,
+                limit,
+                search,
+                status,
+                sort,
+                stats,
+                returnRequests
+            });
+        }
+
         res.render("admin/orders/orders", {
             user: req.session.admin,
             orders,
@@ -110,6 +132,7 @@ const getOrders = async (req, res) => {
             limit,
             search,
             status,
+            sort,
             stats,
             returnRequests,
             successSwal: req.session.successSwal || null

@@ -1,5 +1,6 @@
 import categorySchema from "../../models/category.js";
 import productSchema from "../../models/product.js";
+import mongoose from "mongoose";
 
 /* ================= LOAD CATEGORIES ================= */
 
@@ -8,7 +9,13 @@ export const getCategoriesService = async (page, search, statusFilter, sortBy) =
   const query = { IsDeleted: false };
 
   if (search) {
-    query.categoryName = { $regex: search, $options: "i" }
+    const isObjectId = mongoose.Types.ObjectId.isValid(search);
+    query.$or = [
+      { categoryName: { $regex: search, $options: "i" } }
+    ];
+    if (isObjectId) {
+      query.$or.push({ _id: new mongoose.Types.ObjectId(search) });
+    }
   }
 
   if (statusFilter === "active") {

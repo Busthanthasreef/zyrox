@@ -3,7 +3,8 @@ const renderErrorPage = (req, res, statusCode = 404) => {
   const admin = req.session.admin || null;
   const isAdminPath = req.originalUrl.startsWith("/admin");
 
-  res.status(statusCode).render("error/404", { user, admin, isAdminPath });
+  const viewPath = statusCode === 404 ? "error/404" : "error/500";
+  res.status(statusCode).render(viewPath, { user, admin, isAdminPath });
 };
 
 const notFoundHandler = (req, res, next) => {

@@ -456,11 +456,19 @@
                             <span class="sidebar-title"><i class="fas fa-sliders-h"></i> Update Order Status</span>
                             <% if (canUpdate) { %>
                                 <div class="space-y-3">
+                                    <% 
+                                        const statusOrder = ['Pending', 'Processing', 'Shipped', 'Delivered'];
+                                        const currentStatus = order?.orderStatus || 'Pending';
+                                        const currentIdx = statusOrder.indexOf(currentStatus);
+                                    %>
                                     <select id="statusSelect" class="status-select">
-                                        <option value="Pending" <%=order?.orderStatus==='Pending' ? 'selected' : '' %>>Pending</option>
-                                        <option value="Processing" <%=order?.orderStatus==='Processing' ? 'selected' : '' %>> Processing</option>
-                                        <option value="Shipped" <%=order?.orderStatus==='Shipped' ? 'selected' : '' %> > Shipped</option>
-                                        <option value="Delivered" <%=order?.orderStatus==='Delivered' ? 'selected' : '' %>> Delivered</option>
+                                        <% statusOrder.forEach((status, index) => { %>
+                                            <option value="<%= status %>" 
+                                                <%= currentStatus === status ? 'selected' : '' %> 
+                                                <%= index < currentIdx ? 'disabled' : '' %>>
+                                                <%= status %>
+                                            </option>
+                                        <% }) %>
                                     </select>
                                     <button onclick="updateStatus('<%= order._id %>')"
                                         class="btn-giant btn-giant-primary mt-2">

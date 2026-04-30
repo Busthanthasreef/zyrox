@@ -57,6 +57,7 @@ const login = async (req, res) => {
 
     if (!user) {
       req.session.adminError = "Admin account not found";
+      req.session.adminFormData = { email: Email };
       return res.redirect("/admin");
     }
 

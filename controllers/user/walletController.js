@@ -129,8 +129,35 @@ const verifyWalletPayment = async (req, res) => {
     }
 }
 
+const getPaymentFailure = async (req, res) => {
+    try {
+        const { amount, reason } = req.query;
+        const userId = req.session.user._id;
+
+        const [categories, cartItemCount, wishlist] = await Promise.all([
+            categorySchema.find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } }).lean(),
+            Cart.findOne({ User_id: userId }).select("Items").lean().then(cart => cart?.Items?.length || 0),
+            Wishlist.findOne({ User_id: userId }).select("Products").lean().then(w => w?.Products?.length || 0)
+        ]);
+
+        res.render('user/wallet/walletFailure', {
+            user: req.session.user,
+            categories,
+            cartItemCount,
+            wishlistCount: wishlist,
+            amount,
+            reason: reason || "Payment failed or was cancelled",
+            currentPage: 'wallet'
+        });
+    } catch (error) {
+        console.error("Error loading wallet failure page:", error);
+        res.status(500).send("Internal Server Error");
+    }
+};
+
 export { 
     getWallet,
     createWalletOrder,
-    verifyWalletPayment 
+    verifyWalletPayment,
+    getPaymentFailure
 };

@@ -843,13 +843,7 @@
                                 throw new Error(verifyData.message);
                             }
                         } catch (err) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Verification Failed',
-                                text: err.message,
-                                background: '#111627',
-                                color: '#fff'
-                            });
+                            window.location.href = `/wallet/payment-failure?amount=${amount}&reason=${encodeURIComponent(err.message)}`;
                         }
                     },
                     prefill: {
@@ -870,15 +864,8 @@
                 
                 // Add failure handler
                 rzp.on('payment.failed', function (response) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Payment Failed',
-                        text: response.error.description || 'The transaction was unsuccessful.',
-                        background: '#111627',
-                        color: '#fff'
-                    });
-                    confirmBtn.disabled = false;
-                    confirmBtn.innerHTML = '<i class="bi bi-plus-circle-fill"></i> Add Money';
+                    const reason = response.error.description || 'The transaction was unsuccessful.';
+                    window.location.href = `/wallet/payment-failure?amount=${amount}&reason=${encodeURIComponent(reason)}`;
                 });
 
                 rzp.open();

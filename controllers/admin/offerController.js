@@ -28,7 +28,7 @@ const getOffers = async (req, res) => {
 };
 
 // Helper for validating offer data
-const validateOfferData = (data) => {
+const validateOfferData = (data, isEdit = false) => {
     const errors = {};
     const { offerName, discountType, discountValue, startDate, endDate, offerType, productId, categoryId } = data;
 
@@ -49,13 +49,21 @@ const validateOfferData = (data) => {
         errors.discountValue = "Percentage cannot exceed 100%.";
     }
 
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
     if (!startDate) {
         errors.startDate = "Start date is required.";
+    } else if (!isEdit && start < now) {
+        errors.startDate = "Start date cannot be in the past.";
     }
+
     if (!endDate) {
         errors.endDate = "End date is required.";
-    } else if (startDate && new Date(endDate) < new Date(startDate)) {
-        errors.endDate = "End date cannot be before start date.";
+    } else if (startDate && end <= start) {
+        errors.endDate = "End date must be after the start date.";
     }
 
     return Object.keys(errors).length > 0 ? errors : null;
@@ -133,7 +141,7 @@ const addCategoryOffer = async (req, res) => {
 const editOffer = async (req, res) => {
     try {
         const { id } = req.params;
-        const errors = validateOfferData(req.body);
+        const errors = validateOfferData(req.body, true);
         if (errors) return res.status(400).json({ success: false, errors });
 
         const { offerName, offerType, productId, categoryId, discountType, discountValue, minPurchaseAmount, maxDiscountAmount, startDate, endDate, isActive } = req.body;

@@ -33,7 +33,7 @@ const sendOtpEmail = async (email, OTP) => {
         ${OTP}
       </h1>
 
-      <p>This OTP is valid for <b>5 minutes</b>.</p>
+      <p>This OTP is valid for <b>3 minutes</b>.</p>
 
       <p style="color: red;"><b>Please do not share this code with anyone.</b></p>
 
@@ -42,7 +42,7 @@ const sendOtpEmail = async (email, OTP) => {
   `,
   });
 
-  console.log(`✅ OTP sent successfully to ${email}`);
+  console.log(`✅ OTP sent successfully to ${email}. OTP: ${OTP}`);
 };
 
 export { sendOtpEmail };

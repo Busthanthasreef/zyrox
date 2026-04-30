@@ -242,6 +242,11 @@
             background: #fee2e2;
             color: #991b1b;
         }
+        
+        .status-returned {
+            background: #fff7ed;
+            color: #c2410c;
+        }
 
         /* ── DATE PICKER ── */
         .date-picker-wrap {
@@ -456,6 +461,10 @@
                                     ? 'selected' : '' %>>Shipped</option>
                                 <option value="Delivered" <%=typeof status !=='undefined' && status==='Delivered'
                                     ? 'selected' : '' %>>Delivered</option>
+                                <option value="Cancelled" <%=typeof status !=='undefined' && status==='Cancelled'
+                                    ? 'selected' : '' %>>Cancelled</option>
+                                <option value="Returned" <%=typeof status !=='undefined' && status==='Returned'
+                                    ? 'selected' : '' %>>Returned</option>
                             </select>
                             <button type="submit" form="salesFilterForm" class="btn btn-sm shadow-sm"
                                 style="background:#fff; border:1px solid #e2e8f0; border-radius:8px;"><i
@@ -497,9 +506,10 @@
                                             <td>
                                                 <span
                                                     class="status-badge 
-                                                <%= order.orderStatus === 'Delivered' ? 'status-paid' : 
+                                                 <%= order.orderStatus === 'Delivered' ? 'status-paid' : 
                                                     order.orderStatus === 'Shipped' ? 'status-shipped' : 
-                                                    order.orderStatus === 'Cancelled' ? 'status-cancelled' : 'status-pending' %>">
+                                                    order.orderStatus === 'Cancelled' ? 'status-cancelled' : 
+                                                    order.orderStatus === 'Returned' ? 'status-returned' : 'status-pending' %>">
                                                     <%= order.orderStatus %>
                                                 </span>
                                             </td>

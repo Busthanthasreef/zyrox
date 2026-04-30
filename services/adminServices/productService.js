@@ -22,16 +22,39 @@ const getProducts = async ({ search, statusFilter, categoryFilter, sortBy, page,
     if (sortBy === "name_desc") sortObj = { productName: -1 };
     if (sortBy === "newest") sortObj = { createdAt: -1 };
     if (sortBy === "oldest") sortObj = { createdAt: 1 };
+    if (sortBy === "price_low") sortObj = { "defaultVariant.price": 1 };
+    if (sortBy === "price_high") sortObj = { "defaultVariant.price": -1 };
+    if (sortBy === "stock_low") sortObj = { "defaultVariant.stock": 1 };
+
+    const pipeline = [
+        { $match: filter },
+        {
+            $lookup: {
+                from: "variants",
+                let: { pid: "$_id" },
+                pipeline: [
+                    { $match: { $expr: { $and: [{ $eq: ["$productId", "$$pid"] }, { $ne: ["$IsDeleted", true] }] } } },
+                    { $sort: { IsDefault: -1, createdAt: 1 } },
+                    { $limit: 1 }
+                ],
+                as: "defaultVariant"
+            }
+        },
+        { $unwind: { path: "$defaultVariant", preserveNullAndEmptyArrays: true } },
+        { $sort: sortObj },
+        { $skip: skip },
+        { $limit: limit }
+    ];
+
+    const products = await Product.aggregate(pipeline);
+    
+    // Convert to lean-like object and populate category manually or keep as is
+    for (const p of products) {
+        p.categoryId = await Category.findById(p.categoryId).lean();
+    }
 
     const totalProducts = await Product.countDocuments(filter);
     const totalPages = Math.ceil(totalProducts / limit);
-
-    const products = await Product.find(filter)
-        .populate("categoryId")
-        .sort(sortObj)
-        .skip(skip)
-        .limit(limit)
-        .lean();
 
     const productIds = products.map(p => p._id);
 
@@ -213,23 +236,61 @@ const updateProduct = async (id, body, files) => {
         if (stock) updates.stock = Number(stock);
         if (sku) updates.SKU = sku.trim();
 
-        const newImages = (files || [])
-            .filter(f => 
-                f.fieldname === 'images' || 
-                f.fieldname === 'images[]' ||
-                f.fieldname.startsWith('newImages') || 
-                f.fieldname.startsWith('variantImages')
-            )
-            .map(f => f.path);
+        // Improved Image Handling (Merge existing and new)
+        const finalImages = [];
+        const currentImages = defaultVariant.images || [];
 
-        if (newImages.length > 0) {
-            if (newImages.length < 3) {
-                throw new Error("At least 3 product images are required when uploading images.");
+        // We check for image slots (0-4) sent from the frontend
+        // Each slot can contain either a new file or an existing image path
+        for (let i = 0; i < 5; i++) {
+            const fieldName = `image_slot_${i}`;
+            
+            // Check if a new file was uploaded for this slot
+            const file = (files || []).find(f => f.fieldname === fieldName || f.fieldname === `newImages[${i}]`);
+            
+            if (file) {
+                finalImages.push(file.path);
+            } else {
+                // Check if the frontend sent an existing image path to keep for this slot
+                const existingPath = body[fieldName];
+                if (existingPath && typeof existingPath === 'string' && existingPath.trim() !== '') {
+                    // Try to match with current images (exact match or suffix match to handle URL variations)
+                    const matched = currentImages.find(img => img === existingPath || (typeof img === 'string' && existingPath.endsWith(img)));
+                    
+                    if (matched) {
+                        finalImages.push(matched);
+                    } else if (existingPath.startsWith('http') || existingPath.startsWith('/uploads')) {
+                        // If it looks like a valid image URL/path, keep it
+                        finalImages.push(existingPath);
+                    }
+                }
             }
-            if (newImages.length > 5) {
-                throw new Error("A maximum of 5 images are allowed. Please ensure you upload between 3 and 5 images.");
+        }
+
+        // If no slot-specific data is found, fallback to the old newImages behavior 
+        // to maintain backward compatibility with any other parts of the system
+        if (finalImages.length === 0) {
+            const legacyNewImages = (files || [])
+                .filter(f => 
+                    f.fieldname === 'images' || 
+                    f.fieldname === 'images[]' ||
+                    f.fieldname.startsWith('newImages') || 
+                    f.fieldname.startsWith('variantImages')
+                )
+                .map(f => f.path);
+
+            if (legacyNewImages.length > 0) {
+                if (legacyNewImages.length < 3) {
+                    throw new Error("At least 3 product images are required when uploading images.");
+                }
+                updates.images = legacyNewImages;
             }
-            updates.images = newImages;
+        } else {
+            // Validate the merged result
+            if (finalImages.length < 3) {
+                throw new Error("At least 3 product images are required in total.");
+            }
+            updates.images = finalImages;
         }
 
         await Variant.findByIdAndUpdate(defaultVariant._id, updates);
