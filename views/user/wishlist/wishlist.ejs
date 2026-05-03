@@ -572,9 +572,13 @@
                             if (card) {
                                 card.style.opacity = '0';
                                 card.style.transform = 'scale(0.9) translateY(20px)';
-                                setTimeout(() => location.reload(), 900);
-                            } else {
-                                location.reload();
+                                card.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                                setTimeout(() => {
+                                    card.remove();
+                                    if (document.querySelectorAll('.wishlist-card').length === 0) {
+                                        location.reload();
+                                    }
+                                }, 500);
                             }
                             toast.fire({ icon: 'success', title: 'Removed from wishlist' });
                         }
@@ -593,7 +597,7 @@
                     const btn = event.currentTarget;
                     const originalContent = btn.innerHTML;
                     btn.disabled = true;
-                    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+                    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Adding...';
 
                     const response = await fetch('/cart/add', {
                         method: 'POST',
@@ -619,9 +623,28 @@
 
                     const data = await response.json();
                     if (data.success) {
-                        toast.fire({ icon: 'success', title: 'Added to cart!' }).then(() => {
-                            location.reload();
-                        });
+                        toast.fire({ icon: 'success', title: 'Added to cart!' });
+                        
+                        // Update cart count if the element exists
+                        const cartBadge = document.querySelector('.cart-badge');
+                        if (cartBadge) {
+                            const currentCount = parseInt(cartBadge.textContent) || 0;
+                            cartBadge.textContent = currentCount + 1;
+                        }
+
+                        // Remove from wishlist view
+                        const card = document.getElementById(`product-${productId}`);
+                        if (card) {
+                            card.style.opacity = '0';
+                            card.style.transform = 'scale(0.8)';
+                            card.style.transition = 'all 0.5s ease';
+                            setTimeout(() => {
+                                card.remove();
+                                if (document.querySelectorAll('.wishlist-card').length === 0) {
+                                    location.reload();
+                                }
+                            }, 500);
+                        }
                     } else if (data.limitReached) {
                         toast.fire({ icon: 'warning', title: 'Cart limit reached', text: data.message });
                         btn.disabled = false;
@@ -640,7 +663,8 @@
                         color: '#f0f2ff',
                         confirmButtonColor: '#00ff04'
                     });
-                    const btn = document.querySelector(`[onclick*="${variantId}"]`);
+                    // Fallback to find the button if event.currentTarget isn't available
+                    const btn = event?.currentTarget || document.querySelector(`[onclick*="${variantId}"]`);
                     if (btn) {
                         btn.disabled = false;
                         btn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';

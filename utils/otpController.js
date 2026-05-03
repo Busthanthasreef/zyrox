@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 const sendOtpEmail = async (email, OTP) => {
   // Gmail App Passwords are sometimes stored with spaces (e.g. "xxxx xxxx xxxx xxxx")
   // Strip all spaces before passing to nodemailer
-  const appPassword = (process.env.PASS || "").replace(/\s+/g, "");
+  const appPassword = process.env.PASS.replace(/\s+/g, "");
 
   // Use explicit SMTP settings instead of `service: 'gmail'`
   // (nodemailer v8 dropped many service shortcuts)
@@ -42,7 +42,13 @@ const sendOtpEmail = async (email, OTP) => {
   `,
   });
 
-  console.log(`✅ OTP sent successfully to ${email}. OTP: ${OTP}`);
+  // HIGH VISIBILITY LOG FOR DEVELOPERS
+  console.log("\n" + "╔════════════════════════════════════════╗");
+  console.log("║           OTP SENT TO EMAIL            ║");
+  console.log("╠════════════════════════════════════════╣");
+  console.log(`║   EMAIL: ${email.padEnd(29)} ║`.slice(0, 41) + "║");
+  console.log(`║   CODE:  ${OTP.padEnd(29)} ║`.slice(0, 41) + "║");
+  console.log("╚════════════════════════════════════════╝\n");
 };
 
 export { sendOtpEmail };

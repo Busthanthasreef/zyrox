@@ -1276,6 +1276,16 @@
                                         onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
                                         <i class="fas fa-eye"></i> View Details
                                       </button>
+                                      
+                                      <button id="cart-btn-<%= product.variantId %>" class="btn-cart" 
+                                        onclick="event.preventDefault(); event.stopPropagation(); addToCartListing(this, '<%= product.id %>', '<%= product.variantId %>')"
+                                        style="display:flex; align-items:center; justify-content:center; width:44px; height:100%; border:1px solid var(--accent); border-radius:var(--radius-sm); background:transparent; color:var(--accent); cursor:pointer; transition:all 0.2s;"
+                                        onmouseover="this.style.background='var(--accent-lt)'; this.style.color='#fff'; this.style.backgroundColor='var(--accent)'"
+                                        onmouseout="this.style.background='transparent'; this.style.color='var(--accent)'"
+                                        <%= product.stock <= 0 ? 'disabled' : '' %>>
+                                        <i class="fas fa-cart-plus"></i>
+                                      </button>
+
                                       <button class="btn-wish-list"
                                         onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistListing(this, '<%= product.id %>')"
                                         style="display:flex; align-items:center; justify-content:center; width:44px; height:100%; border:1px solid var(--border2); border-radius:var(--radius-sm); background:transparent; color:<%= isInWishlist ? '#e63946' : 'var(--text-dim)' %>; cursor:pointer; transition:all 0.2s;"
@@ -1284,13 +1294,22 @@
                                         <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"></i>
                                       </button>
                                     </div>
-
                                     <% } else { %>
                                       <div style="display:flex; gap:8px; width:100%; height:40px;">
                                         <button class="btn-view" style="flex:1;"
                                           onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
                                           <i class="fas fa-eye"></i> View Details
                                         </button>
+
+                                        <button class="btn-cart" 
+                                          onclick="event.preventDefault(); event.stopPropagation(); addToCartListing(this, '<%= product.id %>', '<%= product.variantId %>')"
+                                          style="display:flex; align-items:center; justify-content:center; width:44px; height:100%; border:1px solid var(--accent); border-radius:var(--radius-sm); background:transparent; color:var(--accent); cursor:pointer; transition:all 0.2s;"
+                                          onmouseover="this.style.background='var(--accent-lt)'; this.style.color='#fff'; this.style.backgroundColor='var(--accent)'"
+                                          onmouseout="this.style.background='transparent'; this.style.color='var(--accent)'"
+                                          <%= product.stock <= 0 ? 'disabled' : '' %>>
+                                          <i class="fas fa-cart-plus"></i>
+                                        </button>
+
                                         <button class="btn-wish-list"
                                           onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistListing(this, '<%= product.id %>')"
                                           style="display:flex; align-items:center; justify-content:center; width:44px; height:100%; border:1px solid var(--border2); border-radius:var(--radius-sm); background:transparent; color:var(--text-dim); cursor:pointer; transition:all 0.2s;"
@@ -1495,6 +1514,80 @@
             });
           }
 
+          async function addToCartListing(btn, productId, variantId) {
+            try {
+              if (btn.disabled) return;
+              
+              // Loading state
+              const originalContent = btn.innerHTML;
+              btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+              btn.disabled = true;
+
+              const response = await fetch('/cart/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId, variantId, quantity: 1 })
+              });
+
+              const result = await response.json();
+              
+              // Restore button
+              btn.innerHTML = originalContent;
+              btn.disabled = false;
+
+              if (result.requiresAuth || response.status === 401) {
+                return Swal.fire({
+                  ...swalBase,
+                  icon: 'info',
+                  title: 'Sign In Required',
+                  text: 'Please log in to add items to your cart.',
+                  confirmButtonText: 'Sign In',
+                  showCancelButton: true
+                }).then(r => { if (r.isConfirmed) window.location.href = '/signin'; });
+              }
+
+              if (result.success) {
+                // Update local tracking
+                const currentQty = (cartQuantities[variantId] || 0) + 1;
+                cartQuantities[variantId] = currentQty;
+                
+                showLimitSwal(MAX_QTY - currentQty, result.stockLimit);
+                
+                if (currentQty >= MAX_QTY || currentQty >= result.stockLimit) {
+                  markMaxed(btn);
+                }
+
+                // Update cart count
+                const cartBadge = document.querySelector('.cart-badge');
+                if (cartBadge) {
+                    const currentCount = parseInt(cartBadge.textContent) || 0;
+                    cartBadge.textContent = currentCount + 1;
+                }
+              } else {
+                if (result.limitReached) {
+                  markMaxed(btn);
+                  Swal.fire({
+                    ...swalBase,
+                    icon: 'warning',
+                    title: 'Limit Reached',
+                    text: result.message
+                  });
+                } else {
+                  Swal.fire({
+                    ...swalBase,
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: result.message || 'Failed to add to cart'
+                  });
+                }
+              }
+            } catch (error) {
+              console.error("Add to Cart Error:", error);
+              btn.disabled = false;
+              btn.innerHTML = '<i class="fas fa-cart-plus"></i>';
+            }
+          }
+
           async function toggleWishlistListing(btn, productId) {
             try {
               const response = await fetch('/wishlist/toggle', {
@@ -1533,8 +1626,6 @@
                   title: data.action === 'added' ? 'Added to wishlist!' : 'Removed from wishlist',
                   showConfirmButton: false, timer: 1500,
                   background: '#1a1d24', color: '#f0f0f2', iconColor: data.action === 'added' ? '#4ade80' : '#e63946'
-                }).then(() => {
-                  window.location.reload();
                 });
               }
             } catch (err) {

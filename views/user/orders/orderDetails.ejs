@@ -230,9 +230,14 @@
         <!-- Order Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div class="flex items-center gap-4">
-                <h1 class="text-3xl font-extrabold tracking-tight">Order ID: <span class="text-white">
-                        <%= order.orderId %>
-                    </span></h1>
+                <div class="flex flex-col">
+                    <h1 class="text-3xl font-extrabold tracking-tight">Order ID: <span class="text-white">
+                            <%= order.orderId %>
+                        </span></h1>
+                    <p class="text-sm text-gray-400 mt-1">Placed on: <span class="text-white font-medium">
+                            <%= new Date(order.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+                        </span></p>
+                </div>
                 <% let hC='#ffc107' ; const os=order.orderStatus.toLowerCase(); if(os.includes('pending')) hC='#fd7e14' ;
                     else if(os.includes('processing')) hC='#ffc107' ; else if(os.includes('shipped')) hC='#0ea5e9' ; else
                     if(os.includes('delivered')) hC='#22c55e' ; else if(os.includes('cancel')) hC='#ef4444' ; else
@@ -315,6 +320,24 @@
                                                             class="px-3 py-1 bg-orange-600/10 border border-orange-600/50 text-orange-500 rounded-lg text-[0.6rem] font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition duration-300">
                                                             Return Item
                                                         </button>
+                                                        <div class="text-[0.55rem] font-bold text-orange-400 mt-1 uppercase tracking-tight text-right">
+                                                            Ends in: <span id="itemCD-<%= item._id %>">...</span>
+                                                        </div>
+                                                        <script>
+                                                            (function() {
+                                                                const target = new Date(new Date('<%= itemDelivDate %>').getTime() + 7*24*60*60*1000);
+                                                                const el = document.getElementById('itemCD-<%= item._id %>');
+                                                                function up() {
+                                                                    const diff = target - new Date();
+                                                                    if(diff <= 0) { el.innerText = "EXPIRED"; return; }
+                                                                    const d = Math.floor(diff/86400000);
+                                                                    const h = Math.floor((diff%86400000)/3600000);
+                                                                    const m = Math.floor((diff%3600000)/60000);
+                                                                    el.innerText = `${d}d ${h}h ${m}m`;
+                                                                }
+                                                                setInterval(up, 60000); up();
+                                                            })();
+                                                        </script>
                                                         <% } else { %>
                                                             <div
                                                                 class="text-[0.6rem] font-black text-gray-500 uppercase tracking-widest text-right">
@@ -484,12 +507,47 @@
                                 const delivDate = order.deliveredAt || order.updatedAt;
                                 const daysSince = Math.floor((Date.now() - new Date(delivDate).getTime()) / (1000 * 60 * 60 * 24));
                             %>
-                            <% if (daysSince <= 7) { %>
+                            <% if (daysSince <= 7 && !order.orderStatus.includes('Return')) { %>
+                                <div class="mt-4 p-4 rounded-xl bg-orange-600/5 border border-orange-600/20 text-center mb-3">
+                                    <p class="text-[0.65rem] font-bold text-orange-400 uppercase tracking-widest mb-1">Return Window Closes In</p>
+                                    <div class="text-lg font-black text-white" id="returnCountdown">
+                                        <%= 7 - daysSince %> Days
+                                    </div>
+                                </div>
+                                <script>
+                                    (function() {
+                                        const delivDate = new Date('<%= delivDate %>');
+                                        const targetDate = new Date(delivDate.getTime() + (7 * 24 * 60 * 60 * 1000));
+                                        
+                                        function updateCountdown() {
+                                            const now = new Date();
+                                            const diff = targetDate - now;
+                                            const el = document.getElementById('returnCountdown');
+                                            if (!el) return;
+                                            
+                                            if (diff <= 0) {
+                                                el.innerHTML = "EXPIRED";
+                                                return;
+                                            }
+                                            
+                                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                                            
+                                            el.innerHTML = `${days}d ${hours}h ${mins}m ${secs}s`;
+                                        }
+                                        
+                                        setInterval(updateCountdown, 1000);
+                                        updateCountdown();
+                                    })();
+                                </script>
                                 <button onclick="handleReturnEntireOrder()" 
-                                    class="w-full bg-orange-600/10 border border-orange-600/50 text-orange-500 py-3 rounded-xl font-bold hover:bg-orange-600 hover:text-white transition uppercase tracking-wider text-xs">
+                                    class="w-full bg-orange-600/10 border border-orange-600/50 text-orange-500 py-3 rounded-xl font-bold hover:bg-orange-600 hover:text-white transition uppercase tracking-wider text-xs mb-3">
                                     Return Entire Order
                                 </button>
                             <% } %>
+
                             <button onclick="downloadInvoiceBill()"
                                 class="w-full border border-blue-600/50 text-blue-400 py-3 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition uppercase tracking-wider text-xs">
                                 <i class="fas fa-download mr-1"></i> Download Invoice

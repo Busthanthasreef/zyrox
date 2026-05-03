@@ -1830,8 +1830,6 @@
                 timer:            1500,
                 timerProgressBar: true,
                 iconColor:        '#00d4a0',
-            }).then(() => {
-                window.location.reload();
             });
 
         } catch (err) {
@@ -1931,8 +1929,6 @@
                     background:         '#1a1d24',
                     color:              '#f0f0f2',
                     iconColor:          isAdded ? '#4ade80' : '#e63946'
-                }).then(() => {
-                    window.location.reload();
                 });
             } else {
                 icon.className   = originalIconClass;

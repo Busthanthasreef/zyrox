@@ -148,9 +148,17 @@
                                                 </div>
                                                 <div class="product-price">₹<%= item.variant.price.toLocaleString('en-IN')
                                                         %>.00</div>
-                                                <button class="buy-now-btn"
-                                                    onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">Buy
-                                                    now</button>
+                                                <div style="display:flex; gap:8px; width:100%; margin-top:10px;">
+                                                    <button class="buy-now-btn" style="flex:1;"
+                                                        onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">Buy now</button>
+                                                    <button class="cart-icon-btn" 
+                                                        onclick="event.stopPropagation(); addToCartListing(this, '<%= item.product._id %>', '<%= item.variant._id %>')"
+                                                        style="width:42px; height:42px; border:1px solid #4ade80; border-radius:8px; background:transparent; color:#4ade80; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center;"
+                                                        onmouseover="this.style.background='#4ade80'; this.style.color='#0a0a0a'"
+                                                        onmouseout="this.style.background='transparent'; this.style.color='#4ade80'">
+                                                        <i class="fas fa-cart-plus"></i>
+                                                    </button>
+                                                </div>
                             </div>
                             <% }) %>
                                 <% } else { %>
@@ -192,9 +200,17 @@
                                                 </div>
                                                 <div class="product-price">₹<%= item.variant.price.toLocaleString('en-IN')
                                                         %>.00</div>
-                                                <button class="buy-now-btn"
-                                                    onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">Buy
-                                                    now</button>
+                                                <div style="display:flex; gap:8px; width:100%; margin-top:10px;">
+                                                    <button class="buy-now-btn" style="flex:1;"
+                                                        onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">Buy now</button>
+                                                    <button class="cart-icon-btn" 
+                                                        onclick="event.stopPropagation(); addToCartListing(this, '<%= item.product._id %>', '<%= item.variant._id %>')"
+                                                        style="width:42px; height:42px; border:1px solid #4ade80; border-radius:8px; background:transparent; color:#4ade80; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center;"
+                                                        onmouseover="this.style.background='#4ade80'; this.style.color='#0a0a0a'"
+                                                        onmouseout="this.style.background='transparent'; this.style.color='#4ade80'">
+                                                        <i class="fas fa-cart-plus"></i>
+                                                    </button>
+                                                </div>
                             </div>
                             <% }) %>
                                 <% } else { %>
@@ -296,6 +312,76 @@
                 }).catch(() => {
                     Swal.fire({ icon: 'info', title: code, text: 'Copy this coupon code!', timer: 2000, showConfirmButton: false });
                 });
+            }
+
+            const swalBase = {
+                background: '#0f172a',
+                color: '#fff',
+                confirmButtonColor: '#4ade80',
+                cancelButtonColor: '#334155',
+            };
+
+            async function addToCartListing(btn, productId, variantId) {
+                try {
+                    if (btn.disabled) return;
+                    
+                    const originalContent = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    btn.disabled = true;
+
+                    const response = await fetch('/cart/add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ productId, variantId, quantity: 1 })
+                    });
+
+                    const result = await response.json();
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+
+                    if (result.requiresAuth || response.status === 401) {
+                        return Swal.fire({
+                            ...swalBase,
+                            icon: 'info',
+                            title: 'Sign In Required',
+                            text: 'Please log in to add items to your cart.',
+                            confirmButtonText: 'Sign In',
+                            showCancelButton: true
+                        }).then(r => { if (r.isConfirmed) window.location.href = '/signin'; });
+                    }
+
+                    if (result.success) {
+                        Swal.fire({
+                            ...swalBase,
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Added to cart!',
+                            showConfirmButton: false,
+                            timer: 2500,
+                            timerProgressBar: true,
+                            iconColor: '#4ade80',
+                        });
+
+                        // Update cart count
+                        const cartBadge = document.querySelector('.cart-badge');
+                        if (cartBadge) {
+                            const currentCount = parseInt(cartBadge.textContent) || 0;
+                            cartBadge.textContent = currentCount + 1;
+                        }
+                    } else {
+                        Swal.fire({
+                            ...swalBase,
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: result.message || 'Failed to add to cart'
+                        });
+                    }
+                } catch (error) {
+                    console.error("Add to Cart Error:", error);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-cart-plus"></i>';
+                }
             }
 
             // Scroll Reveal Intersection Observer
