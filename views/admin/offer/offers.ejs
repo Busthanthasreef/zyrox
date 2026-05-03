@@ -20,20 +20,27 @@
     <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
     <style>
         :root {
-            --bg-light: #f8f9fadb;
-            --accent-orange: #c86b45;
-            --text-main: #333;
-            --card-radius: 20px;
-            --primary-black: #1a1a1a;
-            --border-color: #e5e7eb;
-            --input-focus: #1a1a1a;
+            --brand: #6366f1;
+            --brand-soft: rgba(99, 102, 241, 0.1);
+            --bg-glass: rgba(255, 255, 255, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.3);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --card-radius: 24px;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --surface: #ffffff;
+            --surface-alt: #f8fafc;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-light);
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            background-attachment: fixed;
             color: var(--text-main);
             overflow-x: hidden;
+            min-height: 100vh;
         }
 
         .main-wrapper {
@@ -44,73 +51,104 @@
         .main-content {
             flex: 1;
             padding: 2.5rem;
-            background: white;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             margin: 1.5rem;
             border-radius: var(--card-radius);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
             overflow: hidden;
             min-height: 0;
+            animation: slideUp 0.6s ease-out;
         }
 
-        .header-section h1 {
-            font-family: 'Inter', sans-serif;
-            font-weight: 800;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .header-section {
+            margin-bottom: 2.5rem;
             flex-shrink: 0;
         }
 
-        /* ── TABLE AESTHETICS ── */
+        .header-section h1 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 2.75rem;
+            letter-spacing: -1px;
+            background: linear-gradient(90deg, #1e293b, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-section p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ── FILTER BAR ── */
         .filter-bar {
-            background: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
             display: flex;
             align-items: center;
             gap: 1.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
             flex-shrink: 0;
+            transition: all 0.3s ease;
         }
 
+        .filter-bar:focus-within {
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.1);
+            background: white;
+        }
 
         .search-wrapper {
             flex: 1;
             display: flex;
             align-items: center;
             gap: 0.8rem;
+            position: relative;
+        }
+
+        .search-wrapper i {
+            color: var(--text-muted);
+            font-size: 1.1rem;
         }
 
         .search-wrapper input {
             border: none;
+            background: transparent;
             outline: none;
             width: 100%;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-main);
         }
 
+        .search-wrapper input::placeholder {
+            color: #cbd5e1;
+        }
+
+        /* ── TABLE STYLING ── */
         .table-responsive {
             flex: 1;
             overflow-y: auto;
             min-height: 0;
-        }
-
-        .table-responsive::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .table-responsive::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            border: 1px solid #f1f5f9;
         }
 
         .offer-table {
@@ -120,30 +158,35 @@
         }
 
         .offer-table th {
-            background: #fafbfd;
-            padding: 10px 16px;
-            font-weight: 600;
-            color: #9ca3af;
+            background: #f8fafc;
+            padding: 14px 20px;
+            font-weight: 700;
+            color: var(--text-muted);
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            border-bottom: 1px solid var(--border-color);
+            letter-spacing: 0.1em;
+            border-bottom: 1px solid #f1f5f9;
             position: sticky;
             top: 0;
-            z-index: 1;
-            white-space: nowrap;
+            z-index: 10;
         }
 
         .offer-table td {
-            padding: 10px 16px;
+            padding: 16px 20px;
             vertical-align: middle;
-            border-bottom: 1px solid #f3f4f6;
-            font-size: 13px;
-            color: #4b5563;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .offer-table tbody tr {
+            transition: all 0.3s;
         }
 
         .offer-table tbody tr:hover {
-            background: #fafbfd;
+            background: #f8fafc;
+            transform: scale(1.002);
         }
 
         .offer-table tbody tr:last-child td {
@@ -181,23 +224,28 @@
         }
 
         .btn-add-offer {
-            background: var(--primary-black);
+            background: var(--brand);
             color: #fff;
-            padding: 0.7rem 1.8rem;
-            border-radius: 12px;
-            font-weight: 600;
+            padding: 0.8rem 2rem;
+            border-radius: 16px;
+            font-weight: 700;
             border: none;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            transition: all 0.2s ease;
+            gap: 0.8rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
         .btn-add-offer:hover {
-            background: #000;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: #4f46e5;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
             color: #fff;
+        }
+
+        .btn-add-offer:active {
+            transform: translateY(0);
         }
 
         /* ── MODAL STYLING ── */
@@ -576,14 +624,13 @@
                         </div>
                     </div>
                     <div class="d-flex gap-3">
-                        <select id="typeFilter" class="form-select border-0 shadow-none border-bottom" style="width: 140px; cursor: pointer;">
+                        <select id="typeFilter" class="form-select" style="width: 150px; height: 42px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 0.9rem; font-weight: 600; color: var(--text-main); cursor: pointer; transition: all 0.3s;">
                             <option value="all" <%= typeFilter === 'all' ? 'selected' : '' %>>All Types</option>
                             <option value="product" <%= typeFilter === 'product' ? 'selected' : '' %>>Product</option>
                             <option value="category" <%= typeFilter === 'category' ? 'selected' : '' %>>Category</option>
-                            <option value="all" <%= typeFilter === 'all' ? 'selected' : '' %>>Global (All)</option>
                             <option value="referral" <%= typeFilter === 'referral' ? 'selected' : '' %>>Referral</option>
                         </select>
-                        <select id="statusFilter" class="form-select border-0 shadow-none border-bottom" style="width: 140px; cursor: pointer;">
+                        <select id="statusFilter" class="form-select" style="width: 140px; height: 42px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 0.9rem; font-weight: 600; color: var(--text-main); cursor: pointer; transition: all 0.3s;">
                             <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>All Status</option>
                             <option value="active" <%= statusFilter === 'active' ? 'selected' : '' %>>Active</option>
                             <option value="inactive" <%= statusFilter === 'inactive' ? 'selected' : '' %>>Inactive</option>

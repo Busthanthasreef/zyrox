@@ -786,7 +786,7 @@
         <div class="icon">
             <a href="/wishlist"><i class="far fa-heart"></i></a>
             <% if (typeof wishlistCount !=='undefined' && wishlistCount> 0) { %>
-                <span class="badge">
+                <span class="badge" id="wishBtn">
                     <%= wishlistCount %>
                 </span>
                 <% } %>
@@ -795,7 +795,7 @@
         <div class="icon">
             <a href="/cart"><i class="fas fa-shopping-cart"></i></a>
             <% if (typeof cartItemCount !=='undefined' && cartItemCount> 0) { %>
-                <span class="badge">
+                <span class="badge" id="cartBtnCount">
                     <%= cartItemCount %>
                 </span>
                 <% } %>

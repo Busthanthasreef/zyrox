@@ -83,7 +83,7 @@ async function calculateOrderSummary(userId, buyNowItem, appliedCouponCode = nul
     }
 
     const shippingCharge = subtotalAfterOffers > SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
-    const finalPrice = Math.max(0, subtotalAfterOffers - couponDiscount + shippingCharge);
+    const finalPrice = Math.round(Math.max(0, subtotalAfterOffers - couponDiscount + shippingCharge) * 100) / 100;
 
     return { subtotal, totalOfferDiscount, couponDiscount, couponCode, shippingCharge, finalPrice, orderItems };
 }
@@ -311,8 +311,17 @@ const createRazorpayOrder = async (req, res) => {
 
         const summary = await calculateOrderSummary(userId, req.session.buyNowItem, req.session.appliedCoupon?.code);
 
+        // Razorpay limit check (typically 5,00,000 INR)
+        const totalPaise = Math.round(Math.max(1, summary.finalPrice) * 100);
+        if (totalPaise > 50000000) { // 5,00,000 * 100
+            return res.status(400).json({ 
+                success: false, 
+                message: "Order amount exceeds Razorpay's maximum limit of ₹5,00,000. Please use a different payment method or contact support." 
+            });
+        }
+
         const razorpayOrder = await razorpayInstance.orders.create({
-            amount: Math.round(Math.max(1, summary.finalPrice) * 100),
+            amount: totalPaise,
             currency: "INR",
             receipt: "order_rcpt_" + Date.now().toString(),
         });
@@ -320,7 +329,8 @@ const createRazorpayOrder = async (req, res) => {
         res.json({ success: true, order: razorpayOrder, key_id: process.env.RAZORPAY_KEY_ID });
     } catch (error) {
         console.error("Razorpay Order Creation Error:", error);
-        res.status(500).json({ success: false, message: "Razorpay initialization failed: " + (error.message || "Unknown error") });
+        const errorMsg = error.error?.description || error.message || "Unknown error";
+        res.status(500).json({ success: false, message: "Razorpay initialization failed: " + errorMsg });
     }
 };
 
@@ -421,8 +431,16 @@ const retryPayment = async (req, res) => {
         const order = await Order.findOne({ _id: orderId, userId, paymentStatus: 'Failed' });
         if (!order) return res.status(404).json({ success: false, message: 'Order not found or already paid' });
 
+        const totalPaise = Math.round(Math.max(1, order.finalPrice) * 100);
+        if (totalPaise > 50000000) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Order amount exceeds Razorpay's maximum limit of ₹5,00,000." 
+            });
+        }
+
         const razorpayOrder = await razorpayInstance.orders.create({
-            amount: Math.round(Math.max(1, order.finalPrice) * 100),
+            amount: totalPaise,
             currency: 'INR',
             receipt: 'retry_' + order.orderId,
         });
@@ -430,7 +448,8 @@ const retryPayment = async (req, res) => {
         res.json({ success: true, order: razorpayOrder, key_id: process.env.RAZORPAY_KEY_ID, dbOrderId: order._id, amount: order.finalPrice });
     } catch (error) {
         console.error('retryPayment error:', error);
-        res.status(500).json({ success: false, message: 'Could not initiate retry payment' });
+        const errorMsg = error.error?.description || error.message || "Could not initiate retry payment";
+        res.status(500).json({ success: false, message: errorMsg });
     }
 };
 

@@ -757,16 +757,33 @@
                                     <td><span class="order-amount-text">&#8377;<%= (order.finalPrice || order.subtotal).toLocaleString('en-IN') %></span></td>
 
                                     <td>
-                                        <% if (order.orderStatus === 'Cancelled') { %>
-                                            <span class="status-badge badge-cancelled"><span class="dot"></span>Cancelled</span>
-                                        <% } else if (order.orderStatus === 'Returned') { %>
-                                            <span class="status-badge badge-returned"><span class="dot"></span>Returned</span>
-                                        <% } else if (order.orderStatus === 'Delivered') { %>
-                                            <span class="status-badge badge-delivered"><span class="dot"></span>Delivered</span>
-                                        <% } else if (order.orderStatus === 'Failed') { %>
+                                        <% if (order.orderStatus === 'Failed') { %>
                                             <span class="status-badge badge-failed"><span class="dot"></span>Payment Failed</span>
                                         <% } else { %>
-                                            <span class="status-badge badge-info"><span class="dot"></span><%= order.orderStatus %></span>
+                                            <% 
+                                                const statusCounts = {};
+                                                order.items.forEach(item => {
+                                                    statusCounts[item.status] = (statusCounts[item.status] || 0) + 1;
+                                                });
+                                                const sortedStatuses = Object.entries(statusCounts).sort();
+                                            %>
+                                            <div class="d-flex flex-column align-items-start gap-1">
+                                                <% sortedStatuses.forEach(([status, count]) => { %>
+                                                    <% if (status === 'Cancelled') { %>
+                                                        <span class="status-badge badge-cancelled"><span class="dot"></span><%= count %>x Cancelled</span>
+                                                    <% } else if (status === 'Returned') { %>
+                                                        <span class="status-badge badge-returned"><span class="dot"></span><%= count %>x Returned</span>
+                                                    <% } else if (status === 'Delivered') { %>
+                                                        <span class="status-badge badge-delivered"><span class="dot"></span><%= count %>x Delivered</span>
+                                                    <% } else if (status === 'Return Requested') { %>
+                                                        <span class="status-badge badge-returned"><span class="dot"></span><%= count %>x Return Requested</span>
+                                                    <% } else if (status === 'Cancellation Requested') { %>
+                                                        <span class="status-badge badge-cancelled"><span class="dot"></span><%= count %>x Cancel Req.</span>
+                                                    <% } else { %>
+                                                        <span class="status-badge badge-info"><span class="dot"></span><%= count %>x <%= status %></span>
+                                                    <% } %>
+                                                <% }) %>
+                                            </div>
                                         <% } %>
                                     </td>
 
@@ -822,16 +839,33 @@
                                         <%= new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) %>
                                     </div>
                                 </div>
-                                <% if (order.orderStatus === 'Delivered') { %>
-                                    <span class="status-badge badge-delivered"><span class="dot"></span><%= order.orderStatus %></span>
-                                <% } else if (order.orderStatus === 'Cancelled') { %>
-                                    <span class="status-badge badge-cancelled"><span class="dot"></span><%= order.orderStatus %></span>
-                                <% } else if (order.orderStatus === 'Returned') { %>
-                                    <span class="status-badge badge-returned"><span class="dot"></span><%= order.orderStatus %></span>
-                                <% } else if (order.orderStatus === 'Failed') { %>
+                                <% if (order.orderStatus === 'Failed') { %>
                                     <span class="status-badge badge-failed"><span class="dot"></span>Payment Failed</span>
                                 <% } else { %>
-                                    <span class="status-badge badge-info"><span class="dot"></span><%= order.orderStatus %></span>
+                                    <% 
+                                        const statusCounts = {};
+                                        order.items.forEach(item => {
+                                            statusCounts[item.status] = (statusCounts[item.status] || 0) + 1;
+                                        });
+                                        const sortedStatuses = Object.entries(statusCounts).sort();
+                                    %>
+                                    <div class="d-flex flex-column align-items-end gap-1">
+                                        <% sortedStatuses.forEach(([status, count]) => { %>
+                                            <% if (status === 'Cancelled') { %>
+                                                <span class="status-badge badge-cancelled"><span class="dot"></span><%= count %>x Cancelled</span>
+                                            <% } else if (status === 'Returned') { %>
+                                                <span class="status-badge badge-returned"><span class="dot"></span><%= count %>x Returned</span>
+                                            <% } else if (status === 'Delivered') { %>
+                                                <span class="status-badge badge-delivered"><span class="dot"></span><%= count %>x Delivered</span>
+                                            <% } else if (status === 'Return Requested') { %>
+                                                <span class="status-badge badge-returned"><span class="dot"></span><%= count %>x Return Req.</span>
+                                            <% } else if (status === 'Cancellation Requested') { %>
+                                                <span class="status-badge badge-cancelled"><span class="dot"></span><%= count %>x Cancel Req.</span>
+                                            <% } else { %>
+                                                <span class="status-badge badge-info"><span class="dot"></span><%= count %>x <%= status %></span>
+                                            <% } %>
+                                        <% }) %>
+                                    </div>
                                 <% } %>
                             </div>
 

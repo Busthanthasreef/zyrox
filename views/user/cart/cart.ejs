@@ -795,25 +795,6 @@
 
                     </div>
 
-                    <!-- Pagination -->
-                    <% if (totalPages> 1) { %>
-                        <div class="cart-pagination">
-                            <a href="?page=<%= currentPage - 1 %>"
-                                class="pg-btn <%= currentPage <= 1 ? 'disabled' : '' %>">
-                                <i class="fas fa-chevron-left" style="font-size:.6rem;"></i>
-                            </a>
-                            <% for (let p=1; p <=totalPages; p++) { %>
-                                <a href="?page=<%= p %>" class="pg-btn <%= p === currentPage ? 'active' : '' %>">
-                                    <%= p %>
-                                </a>
-                                <% } %>
-                                    <a href="?page=<%= currentPage + 1 %>"
-                                        class="pg-btn <%= currentPage >= totalPages ? 'disabled' : '' %>">
-                                        <i class="fas fa-chevron-right" style="font-size:.6rem;"></i>
-                                    </a>
-                        </div>
-                        <% } %>
-
                             <!-- Continue shopping -->
                             <a href="/products" class="btn-continue">
                                 <i class="fas fa-arrow-left" style="font-size:.72rem;"></i> Continue Shopping

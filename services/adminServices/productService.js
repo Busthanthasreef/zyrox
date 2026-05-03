@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Product from "../../models/product.js";
 import Category from "../../models/category.js";
 import Variant from "../../models/variant.js";
@@ -15,7 +16,13 @@ const getProducts = async ({ search, statusFilter, categoryFilter, sortBy, page,
 
     if (search) filter.productName = { $regex: search, $options: "i" };
     if (statusFilter) filter.status = statusFilter;
-    if (categoryFilter) filter.categoryId = categoryFilter;
+    if (categoryFilter) {
+        try {
+            filter.categoryId = new mongoose.Types.ObjectId(categoryFilter);
+        } catch (e) {
+            console.error("Invalid category ID:", categoryFilter);
+        }
+    }
 
     let sortObj = { createdAt: -1 };
     if (sortBy === "name_asc") sortObj = { productName: 1 };

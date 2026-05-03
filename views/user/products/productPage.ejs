@@ -798,6 +798,65 @@
 
     .stock-status-wrap {
       margin-top: 10px;
+    }
+
+    .btn-add-cart-quick {
+      background: var(--accent);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex: 1;
+      height: 40px;
+    }
+
+    .btn-add-cart-quick:hover:not(:disabled) {
+      background: #3d56c7;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(79, 110, 247, 0.3);
+    }
+
+    .btn-add-cart-quick:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-add-cart-quick:disabled {
+      background: var(--muted);
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .btn-view {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 40px;
+    }
+
+    .btn-view:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border-color: var(--sub);
+    }
       display: flex;
     }
 
@@ -1267,41 +1326,38 @@
                           <% if (isInactive) { %>
                             <span class="unavailable-label"><i class="fas fa-ban"></i> Unavailable</span>
                             <% } else { %>
-                              <div style="display:flex;flex-direction:column;gap:8px;width:100%;margin-top:12px;">
-                                <% const isInWishlist=(typeof wishlistIds !=='undefined' ) &&
-                                  wishlistIds.includes(product.id.toString()); %>
-                                  <% if (user) { %>
-                                    <div style="display:flex; gap:8px; width:100%; height:40px;">
+                               <% if (product.stock > 0) { %>
+                                  <div style="display:flex; flex-direction:column; gap:8px; width:100%; margin-top:12px;">
+                                    <div style="display:flex; gap:8px; width:100%;">
+                                      <button class="btn-add-cart-quick" 
+                                        onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(this, '<%= product.id %>', '<%= product.variantId %>', '<%= product.stock %>')"
+                                        id="cart-btn-<%= product.variantId %>">
+                                        <i class="fas fa-cart-plus" ></i> Add to Cart
+                                      </button>
+                                    </div>
+                                    <div style="display:flex; gap:8px; width:100%;">
                                       <button class="btn-view" style="flex:1;"
                                         onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
-                                        <i class="fas fa-eye"></i> View Details
+                                        <i class="fas fa-eye"></i> Details
                                       </button>
+                                      <% const isInWishlist = (typeof wishlistIds !== 'undefined') && wishlistIds.includes(product.id.toString()); %>
                                       <button class="btn-wish-list"
                                         onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistListing(this, '<%= product.id %>')"
-                                        style="display:flex; align-items:center; justify-content:center; width:44px; height:100%; border:1px solid var(--border2); border-radius:var(--radius-sm); background:transparent; color:<%= isInWishlist ? '#e63946' : 'var(--text-dim)' %>; cursor:pointer; transition:all 0.2s;"
+                                        style="display:flex; align-items:center; justify-content:center; width:44px; height:40px; border:1px solid var(--border2); border-radius:var(--radius-sm); background:transparent; color:<%= isInWishlist ? '#e63946' : 'var(--text-dim)' %>; cursor:pointer; transition:all 0.2s;"
                                         onmouseover="this.style.background='rgba(230,57,70,0.1)'; this.style.borderColor='rgba(230,57,70,0.5)'; this.style.color='#e63946'"
                                         onmouseout="if(this.querySelector('i').classList.contains('fas')){ this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='#e63946'; } else { this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='var(--text-dim)'; }">
                                         <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"></i>
                                       </button>
                                     </div>
-
-                                    <% } else { %>
-                                      <div style="display:flex; gap:8px; width:100%; height:40px;">
-                                        <button class="btn-view" style="flex:1;"
-                                          onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
-                                          <i class="fas fa-eye"></i> View Details
-                                        </button>
-                                        <button class="btn-wish-list"
-                                          onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistListing(this, '<%= product.id %>')"
-                                          style="display:flex; align-items:center; justify-content:center; width:44px; height:100%; border:1px solid var(--border2); border-radius:var(--radius-sm); background:transparent; color:var(--text-dim); cursor:pointer; transition:all 0.2s;"
-                                          onmouseover="this.style.background='rgba(230,57,70,0.1)'; this.style.borderColor='rgba(230,57,70,0.5)'; this.style.color='#e63946'"
-                                          onmouseout="this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='var(--text-dim)'">
-                                          <i class="far fa-heart"></i>
-                                        </button>
-                                      </div>
-
-                                      <% } %>
-                              </div>
+                                  </div>
+                                <% } else { %>
+                                  <div style="display:flex; gap:8px; width:100%; margin-top:12px;">
+                                    <button class="btn-view" style="flex:1;"
+                                      onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
+                                      <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                  </div>
+                                <% } %>
                               <% } %>
                         </div>
                       </div>
@@ -1520,11 +1576,14 @@
               if (data.success) {
                 const icon = btn.querySelector('i');
 
+                const badge = document.getElementById('wishBtn')
                 if (data.action === 'added') {
                   icon.className = 'fas fa-heart';
+                  badge.innerText= Number(badge.innerText ||0 )+1
                   btn.style.color = '#e63946';
                 } else {
                   icon.className = 'far fa-heart';
+                  badge.innerText= Number(badge.innerText || 0)-1
                   btn.style.color = 'var(--text-dim)';
                 }
 
@@ -1533,12 +1592,100 @@
                   title: data.action === 'added' ? 'Added to wishlist!' : 'Removed from wishlist',
                   showConfirmButton: false, timer: 1500,
                   background: '#1a1d24', color: '#f0f0f2', iconColor: data.action === 'added' ? '#4ade80' : '#e63946'
-                }).then(() => {
-                  window.location.reload();
-                });
+                })
               }
             } catch (err) {
               console.error("Wishlist Toggle Error:", err);
+            }
+          }
+
+          async function quickAddToCart(btn, pid, vid, stock) {
+            if (btn.disabled) return;
+
+            // Check login state
+            const isLoggedIn =' <%= typeof user !== "undefined" && !!user %>';
+            if (!isLoggedIn) {
+              const currentPath = window.location.pathname + window.location.search;
+              window.location.href = `/signin?returnTo=${encodeURIComponent(currentPath)}`;
+              return;
+            }
+
+            const currentInCart = cartQuantities[vid] || 0;
+            const maxAllowed = Math.min(MAX_QTY, stock);
+
+            if (currentInCart >= maxAllowed) {
+              if (currentInCart >= stock) {
+                Swal.fire({
+                  ...swalBase,
+                  icon: 'warning',
+                  title: 'Out of Stock',
+                  html: `You already have all <strong>${stock}</strong> available units in your cart.`,
+                  confirmButtonText: 'View Cart',
+                  showCancelButton: true,
+                  cancelButtonText: 'Continue Shopping'
+                }).then(r => { if (r.isConfirmed) window.location.href = '/cart'; });
+              } else {
+                Swal.fire({
+                  ...swalBase,
+                  icon: 'warning',
+                  title: 'Limit Reached',
+                  html: `You already have the maximum of <strong>${MAX_QTY}</strong> units in your cart.`,
+                  confirmButtonText: 'View Cart',
+                  showCancelButton: true,
+                  cancelButtonText: 'Continue Shopping'
+                }).then(r => { if (r.isConfirmed) window.location.href = '/cart'; });
+              }
+              return;
+            }
+
+            // Loading state
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+              const res = await fetch('/cart/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId: pid, variantId: vid, quantity: 1 })
+              });
+
+              const data = await res.json();
+              btn.disabled = false;
+              btn.innerHTML = originalContent;
+
+              if (data.requiresAuth || data.redirect) {
+                window.location.href = `/signin?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+                return;
+              }
+
+              if (!data.success) {
+                Swal.fire({
+                  ...swalBase,
+                  icon: 'error',
+                  title: 'Error',
+                  text: data.message || 'Could not add to cart.'
+                });
+                return;
+              }
+
+              // Update local state
+              cartQuantities[vid] = data.newQty;
+              if (data.newQty >= maxAllowed) markMaxed(btn);
+
+              // Update navbar
+              const badge = document.querySelector('.cart-badge');
+              if (badge && data.cartCount !== undefined) badge.textContent = data.cartCount;
+
+              // Success feedback
+              const remaining = maxAllowed - data.newQty;
+              showLimitSwal(remaining, stock);
+
+            } catch (err) {
+              btn.disabled = false;
+              btn.innerHTML = originalContent;
+              console.error('Quick Add Error:', err);
+              Swal.fire({ ...swalBase, icon: 'error', title: 'Error', text: 'Something went wrong.' });
             }
           }
 
@@ -1595,7 +1742,7 @@
                 card.style.opacity = '0';
                 card.style.transform = 'scale(0)';
             });
-
+            
             // Step 2: Staggered reveal
             setTimeout(() => {
                 cards.forEach((card, index) => {

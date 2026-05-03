@@ -52,6 +52,6 @@ app.use("/auth", authRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
-    
+
 const PORT = process.env.PORT || 2999;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

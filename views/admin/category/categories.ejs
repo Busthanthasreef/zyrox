@@ -142,7 +142,7 @@
                                             </td>
 
                                             <td>
-                                                <span class="cat-name">
+                                                <span class="cat-name" style="text-transform: capitalize;">
                                                     <i class="bi bi-tag"></i>
                                                     <%= cat.categoryName %>
                                                 </span>
@@ -433,7 +433,7 @@
                         <tr>
                             <td>${serialNum}</td>
                             <td><span class="cat-id" title="${cat._id}">${catShortId}...</span></td>
-                            <td><span class="cat-name"><i class="bi bi-tag"></i> ${cat.categoryName}</span></td>
+                            <td><span class="cat-name" style="text-transform: capitalize;"><i class="bi bi-tag"></i> ${cat.categoryName}</span></td>
                             <td>
                                 <span class="product-count ${cat.productCount > 0 ? 'has-products' : 'no-products'}">
                                     <i class="bi bi-box"></i> ${cat.productCount ?? 0}
@@ -637,10 +637,26 @@
             /* ── Add Category ── */
             document.getElementById('addCategory').addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const originalBtnHtml = btn.innerHTML;
                 const categoryName = document.getElementById('categoryName').value.trim();
                 const status = document.getElementById('addStatusToggle').checked;
 
+                // Validation
+                if (!categoryName) {
+                    return Swal.fire({ icon: 'warning', title: 'Required', text: 'Category name is required', toast: true, position: 'top' });
+                }
+                if (categoryName.length < 3) {
+                    return Swal.fire({ icon: 'warning', title: 'Too Short', text: 'Category name must be at least 3 characters', toast: true, position: 'top' });
+                }
+                if (!/^[a-zA-Z0-9\s]+$/.test(categoryName)) {
+                    return Swal.fire({ icon: 'warning', title: 'Invalid Characters', text: 'Only alphanumeric characters are allowed', toast: true, position: 'top' });
+                }
+
                 try {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+                    
                     const response = await axios.post('/admin/categories-add', { categoryName, status });
                     Swal.fire({
                         icon: 'success',
@@ -651,13 +667,15 @@
                     });
                     setTimeout(() => window.location.reload(), 1000);
                 } catch (error) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnHtml;
                     Swal.fire({
                         icon: 'error',
                         title: error.response?.data?.message || 'Something went wrong',
                         toast: true,
                         position: 'top',
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
                 }
             });
@@ -665,11 +683,27 @@
             /* ── Edit Category ── */
             document.getElementById('editCategoryForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const originalBtnHtml = btn.innerHTML;
                 const id = document.getElementById('editCategoryId').value;
                 const categoryName = document.getElementById('editCategoryName').value.trim();
                 const status = document.getElementById('editCategoryStatus').checked;
 
+                // Validation
+                if (!categoryName) {
+                    return Swal.fire({ icon: 'warning', title: 'Required', text: 'Category name is required', toast: true, position: 'top' });
+                }
+                if (categoryName.length < 3) {
+                    return Swal.fire({ icon: 'warning', title: 'Too Short', text: 'Category name must be at least 3 characters', toast: true, position: 'top' });
+                }
+                if (!/^[a-zA-Z0-9\s]+$/.test(categoryName)) {
+                    return Swal.fire({ icon: 'warning', title: 'Invalid Characters', text: 'Only alphanumeric characters are allowed', toast: true, position: 'top' });
+                }
+
                 try {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+
                     const response = await axios.put(`/admin/categories/${id}`, { categoryName, status });
                     Swal.fire({
                         icon: 'success',
@@ -680,13 +714,15 @@
                     });
                     setTimeout(() => window.location.reload(), 900);
                 } catch (error) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnHtml;
                     Swal.fire({
                         icon: 'error',
                         title: error.response?.data?.message || 'Update failed',
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
                 }
             });

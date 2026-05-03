@@ -1271,7 +1271,7 @@
                             </select>
 
                             <select id="statusFilter" class="status-filter-select">
-                                <option value="">All Status</option>
+                                <option value="">All Order Status</option>
                                 <option value="Pending" <%= status === 'Pending' ? 'selected' : '' %>>Pending</option>
                                 <option value="Processing" <%= status === 'Processing' ? 'selected' : '' %>>Processing</option>
                                 <option value="Shipped" <%= status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
@@ -1279,6 +1279,21 @@
                                 <option value="Cancelled" <%= status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
                                 <option value="Returned" <%= status === 'Returned' ? 'selected' : '' %>>Returned</option>
                                 <option value="Return Requested" <%= status === 'Return Requested' ? 'selected' : '' %>>Return Requested</option>
+                            </select>
+
+                            <select id="methodFilter" class="status-filter-select">
+                                <option value="">All Methods</option>
+                                <option value="COD" <%= paymentMethod === 'COD' ? 'selected' : '' %>>COD</option>
+                                <option value="Online" <%= paymentMethod === 'Online' ? 'selected' : '' %>>Online</option>
+                                <option value="Wallet" <%= paymentMethod === 'Wallet' ? 'selected' : '' %>>Wallet</option>
+                            </select>
+
+                            <select id="paymentStatusFilter" class="status-filter-select">
+                                <option value="">All Payment Status</option>
+                                <option value="Pending" <%= paymentStatus === 'Pending' ? 'selected' : '' %>>Pending</option>
+                                <option value="Paid" <%= paymentStatus === 'Paid' ? 'selected' : '' %>>Paid</option>
+                                <option value="Failed" <%= paymentStatus === 'Failed' ? 'selected' : '' %>>Failed</option>
+                                <option value="Refunded" <%= paymentStatus === 'Refunded' ? 'selected' : '' %>>Refunded</option>
                             </select>
 
                             <div class="search-pill">
@@ -1366,20 +1381,32 @@
                                             </td>
                                             <td data-label="Current Status">
                                                 <% 
-                                                const sRaw = order.orderStatus.toLowerCase();
-                                                let tCol = '#94a3b8'; 
-                                                if (sRaw.includes('pending')) tCol = '#f97316'; 
-                                                else if (sRaw.includes('processing')) tCol = '#eab308';
-                                                else if (sRaw.includes('shipped')) tCol = '#0ea5e9'; 
-                                                else if (sRaw.includes('delivered')) tCol = '#22c55e'; 
-                                                else if (sRaw.includes('cancelled')) tCol = '#ef4444'; 
-                                                else if (sRaw.includes('returned')) tCol = '#f59e0b'; 
+                                                const statusCounts = {};
+                                                order.items.forEach(item => {
+                                                    statusCounts[item.status] = (statusCounts[item.status] || 0) + 1;
+                                                });
+                                                const sortedEntries = Object.entries(statusCounts).sort();
                                                 %>
-                                                <span class="status-tag" style="background-color: <%= tCol %>15; color: <%= tCol %>; border: 1px solid <%= tCol %>30;"
-                                                      onclick="event.stopPropagation(); applyQuickFilter('status', '<%= order.orderStatus %>')"
-                                                      data-tooltip="Filter by <%= order.orderStatus %>">
-                                                    <%= order.orderStatus %>
-                                                </span>
+                                                <div class="d-flex flex-column gap-1">
+                                                <% sortedEntries.forEach(([status, count]) => {
+                                                    const sRaw = status.toLowerCase();
+                                                    let tCol = '#94a3b8'; 
+                                                    if (sRaw.includes('pending')) tCol = '#f97316'; 
+                                                    else if (sRaw.includes('processing')) tCol = '#eab308';
+                                                    else if (sRaw.includes('shipped')) tCol = '#0ea5e9'; 
+                                                    else if (sRaw.includes('delivered')) tCol = '#22c55e'; 
+                                                    else if (sRaw.includes('cancelled')) tCol = '#ef4444'; 
+                                                    else if (sRaw.includes('returned')) tCol = '#f59e0b'; 
+                                                    else if (sRaw.includes('failed')) tCol = '#ef4444';
+                                                    else if (sRaw.includes('request')) tCol = '#7c6ef5';
+                                                %>
+                                                    <span class="status-tag" style="background-color: <%= tCol %>15; color: <%= tCol %>; border: 1px solid <%= tCol %>30; font-size: 10px; padding: 2px 8px; justify-content: center;"
+                                                          onclick="event.stopPropagation(); applyQuickFilter('status', '<%= status %>')"
+                                                          data-tooltip="Filter by <%= status %>">
+                                                        <%= count %>x <%= status %>
+                                                    </span>
+                                                <% }) %>
+                                                </div>
                                             </td>
                                             <td data-label="Final Price" style="font-weight: 800; font-size: 14px;">
                                                 ₹<%= (order.finalPrice || 0).toLocaleString('en-IN') %>
@@ -1452,6 +1479,8 @@
                 page: <%= page %>,
                 search: '<%= search %>',
                 status: '<%= status %>',
+                paymentMethod: '<%= paymentMethod %>',
+                paymentStatus: '<%= paymentStatus %>',
                 sort: '<%= sort %>',
                 limit: <%= limit %>
             };
@@ -1460,6 +1489,8 @@
             const tableBody = document.getElementById('ordersTableBody');
             const searchInput = document.getElementById('searchInput');
             const statusFilter = document.getElementById('statusFilter');
+            const methodFilter = document.getElementById('methodFilter');
+            const paymentStatusFilter = document.getElementById('paymentStatusFilter');
             const sortFilter = document.getElementById('sortFilter');
             const limitSelect = document.getElementById('limitSelect');
             const clearBtn = document.getElementById('clearBtn');
@@ -1644,6 +1675,20 @@
                             <i class="bi bi-x remove-chip" onclick="applyQuickFilter('search', '')"></i>
                         </div>`;
                 }
+                if (currentState.paymentMethod) {
+                    chipsHtml += `
+                        <div class="filter-chip">
+                            Method: ${currentState.paymentMethod}
+                            <i class="bi bi-x remove-chip" onclick="applyQuickFilter('paymentMethod', '')"></i>
+                        </div>`;
+                }
+                if (currentState.paymentStatus) {
+                    chipsHtml += `
+                        <div class="filter-chip">
+                            Payment: ${currentState.paymentStatus}
+                            <i class="bi bi-x remove-chip" onclick="applyQuickFilter('paymentStatus', '')"></i>
+                        </div>`;
+                }
                 if (currentState.sort !== 'newest') {
                     chipsHtml += `
                         <div class="filter-chip">
@@ -1686,6 +1731,18 @@
                 fetchData();
             };
 
+            methodFilter.onchange = (e) => {
+                currentState.paymentMethod = e.target.value;
+                currentState.page = 1;
+                fetchData();
+            };
+
+            paymentStatusFilter.onchange = (e) => {
+                currentState.paymentStatus = e.target.value;
+                currentState.page = 1;
+                fetchData();
+            };
+
             limitSelect.onchange = (e) => {
                 currentState.limit = parseInt(e.target.value);
                 currentState.page = 1;
@@ -1696,9 +1753,11 @@
                 currentState[key] = val;
                 currentState.page = 1;
                 if (key === 'status') statusFilter.value = val;
+                if (key === 'paymentMethod') methodFilter.value = val;
+                if (key === 'paymentStatus') paymentStatusFilter.value = val;
                 if (key === 'search') {
                     searchInput.value = val;
-                    clearBtn.style.display = 'none';
+                    clearBtn.style.display = val ? 'block' : 'none';
                 }
                 fetchData();
             }
@@ -1737,10 +1796,20 @@
             }
 
             function clearAllFilters() {
-                currentState = { page: 1, search: '', status: '', sort: 'newest', limit: currentState.limit };
+                currentState = { 
+                    page: 1, 
+                    search: '', 
+                    status: '', 
+                    paymentMethod: '',
+                    paymentStatus: '',
+                    sort: 'newest', 
+                    limit: currentState.limit 
+                };
                 searchInput.value = '';
                 clearBtn.style.display = 'none';
                 statusFilter.value = '';
+                methodFilter.value = '';
+                paymentStatusFilter.value = '';
                 sortFilter.value = 'newest';
                 fetchData();
             }

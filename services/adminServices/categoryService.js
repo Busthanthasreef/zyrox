@@ -109,16 +109,19 @@ export const createCategoryService = async (categoryName, status) => {
     };
   }
 
-  const normalizedName = categoryName.trim().toLowerCase();
+  const trimmedName = categoryName.trim();
+  const normalizedSearch = trimmedName.toLowerCase();
 
+  // Check for deleted category with same name (case-insensitive)
   const deleted = await categorySchema.findOne({
-    categoryName: normalizedName,
+    categoryName: { $regex: `^${normalizedSearch}$`, $options: "i" },
     IsDeleted: true
   });
 
   if (deleted) {
     deleted.IsDeleted = false;
     deleted.IsActive = status;
+    deleted.categoryName = trimmedName; // Update to new casing if provided
     await deleted.save();
 
     return {
@@ -130,8 +133,9 @@ export const createCategoryService = async (categoryName, status) => {
     };
   }
 
+  // Check for existing active category (case-insensitive)
   const exists = await categorySchema.findOne({
-    categoryName: normalizedName,
+    categoryName: { $regex: `^${normalizedSearch}$`, $options: "i" },
     IsDeleted: false
   });
 
@@ -146,7 +150,7 @@ export const createCategoryService = async (categoryName, status) => {
   }
 
   await categorySchema.create({
-    categoryName: normalizedName,
+    categoryName: trimmedName,
     IsActive: status,
     IsDeleted: false
   });
@@ -176,11 +180,12 @@ export const updateCategoryService = async (id, categoryName, status) => {
     };
   }
 
-  const normalizedName = categoryName.trim().toLowerCase();
+  const trimmedName = categoryName.trim();
+  const normalizedSearch = trimmedName.toLowerCase();
 
   const duplicate = await categorySchema.findOne({
     _id: { $ne: id },
-    categoryName: normalizedName,
+    categoryName: { $regex: `^${normalizedSearch}$`, $options: "i" },
     IsDeleted: false
   });
 
@@ -197,7 +202,7 @@ export const updateCategoryService = async (id, categoryName, status) => {
   const isActive = status === true || status === "true";
 
   await categorySchema.findByIdAndUpdate(id, {
-    categoryName: normalizedName,
+    categoryName: trimmedName,
     IsActive: isActive
   });
 

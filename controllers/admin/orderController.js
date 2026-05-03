@@ -11,6 +11,8 @@ const getOrders = async (req, res) => {
         const skip = (page - 1) * limit;
         const search = req.query.search || "";
         const status = req.query.status || "";
+        const paymentMethod = req.query.paymentMethod || "";
+        const paymentStatus = req.query.paymentStatus || "";
         const sort = req.query.sort || "newest";
 
         let sortQuery = { createdAt: -1 };
@@ -20,10 +22,10 @@ const getOrders = async (req, res) => {
 
         let query = {};
         
-        // Build status filter
-        if (status) {
-            query.orderStatus = status;
-        }
+        // Build filters
+        if (status) query.orderStatus = status;
+        if (paymentMethod) query.paymentMethod = paymentMethod;
+        if (paymentStatus) query.paymentStatus = paymentStatus;
 
         // Build search filter
         if (search) {
@@ -116,6 +118,8 @@ const getOrders = async (req, res) => {
                 limit,
                 search,
                 status,
+                paymentMethod,
+                paymentStatus,
                 sort,
                 stats,
                 returnRequests
@@ -132,6 +136,8 @@ const getOrders = async (req, res) => {
             limit,
             search,
             status,
+            paymentMethod,
+            paymentStatus,
             sort,
             stats,
             returnRequests,
