@@ -114,6 +114,10 @@
             border: 1px solid #99f6e4;
         }
 
+        .status-badge-no-border {
+            border: none !important;
+        }
+
         /* Item Display */
         .product-pic {
             width: 110px;
@@ -327,7 +331,7 @@
                              else if(status==='shipped' ) tagClass='s-shipped' ; 
                              else if(status==='processing' ) tagClass='s-processing' ;
                              else if(status.includes('cancel')) tagClass='s-cancelled' ; %>
-                            <span class="status-badge <%= tagClass %>">
+                            <span class="status-badge <%= tagClass %> <%= (order?.orderStatus || '').toLowerCase() === 'cancelled' ? 'status-badge-no-border' : '' %>">
                                 <i class="fas fa-circle text-[6px]"></i>
                                 <%= order?.orderStatus || 'Pending' %>
                             </span>

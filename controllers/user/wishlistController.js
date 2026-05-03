@@ -3,6 +3,7 @@ import Category from "../../models/category.js";
 import Product from "../../models/product.js";
 import Variant from "../../models/variant.js";
 import Cart from "../../models/cart.js"
+import { calculateBestOffer, applyOffer } from "../../utils/offerHelper.js";
 
 
 
@@ -94,13 +95,18 @@ const loadWishlist = async (req, res) => {
             // Check if available: Product status must be 'active' AND Variant must be IsActive
             const isAvailable = p.status === 'active' && variant.IsActive === true;
 
+            // Calculate Offer
+            const bestOffer = await calculateBestOffer(p._id, p.categoryId?._id, variant.price);
+            const discountedPrice = applyOffer(variant.price, bestOffer);
+
             return {
                 id: p._id,
                 name: p.productName,
                 brand: p.categoryId ? p.categoryId.categoryName : "Zyrox Premium",
                 image: imagePath,
-                price: variant.price,
-                oldPrice: variant.oldPrice,
+                price: discountedPrice,
+                oldPrice: variant.price,
+                offerType: bestOffer ? bestOffer.discountType : null,
                 variantId: variant._id,
                 stock: variant.stock,
                 isAvailable: isAvailable

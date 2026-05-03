@@ -211,6 +211,16 @@
             white-space: nowrap;
         }
 
+        .status-badge-no-border {
+            border: none !important;
+        }
+
+        .status-badge-minimal {
+            background: transparent !important;
+            border: none !important;
+            padding: 2px 0 !important;
+        }
+
         .status-badge .dot {
             width: 5px;
             height: 5px;
@@ -737,13 +747,14 @@
                 <table class="orders-table">
                     <thead>
                         <tr>
-                            <th style="width:7%;">SI.No</th>
-                            <th style="width:16%;">Order ID</th>
-                            <th style="width:14%;">Amount</th>
-                            <th style="width:18%;">Status</th>
-                            <th style="width:13%;">Date</th>
-                            <th style="width:16%;">Payment</th>
-                            <th style="width:16%; text-align:right;">Actions</th>
+                            <th style="width:6%;">SI.No</th>
+                            <th style="width:15%;">Order ID</th>
+                            <th style="width:13%;">Amount</th>
+                            <th style="width:17%;">Status</th>
+                            <th style="width:12%;">Date</th>
+                            <th style="width:11%;">Method</th>
+                            <th style="width:13%;">Payment</th>
+                            <th style="width:13%; text-align:right;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -766,23 +777,28 @@
                                                     statusCounts[item.status] = (statusCounts[item.status] || 0) + 1;
                                                 });
                                                 const sortedStatuses = Object.entries(statusCounts).sort();
+                                                const isMultiple = sortedStatuses.length > 1;
+                                                const isAllCancelled = sortedStatuses.length === 1 && sortedStatuses[0][0] === 'Cancelled';
                                             %>
                                             <div class="d-flex flex-column align-items-start gap-1">
-                                                <% sortedStatuses.forEach(([status, count]) => { %>
-                                                    <% if (status === 'Cancelled') { %>
-                                                        <span class="status-badge badge-cancelled"><span class="dot"></span><%= count %>x Cancelled</span>
-                                                    <% } else if (status === 'Returned') { %>
-                                                        <span class="status-badge badge-returned"><span class="dot"></span><%= count %>x Returned</span>
-                                                    <% } else if (status === 'Delivered') { %>
-                                                        <span class="status-badge badge-delivered"><span class="dot"></span><%= count %>x Delivered</span>
-                                                    <% } else if (status === 'Return Requested') { %>
-                                                        <span class="status-badge badge-returned"><span class="dot"></span><%= count %>x Return Requested</span>
-                                                    <% } else if (status === 'Cancellation Requested') { %>
-                                                        <span class="status-badge badge-cancelled"><span class="dot"></span><%= count %>x Cancel Req.</span>
-                                                    <% } else { %>
-                                                        <span class="status-badge badge-info"><span class="dot"></span><%= count %>x <%= status %></span>
-                                                    <% } %>
-                                                <% }) %>
+                                                <% if (isAllCancelled) { %>
+                                                    <span class="status-badge badge-cancelled status-badge-no-border"><span class="dot"></span>Order Cancelled</span>
+                                                <% } else { %>
+                                                    <% sortedStatuses.forEach(([status, count]) => { %>
+                                                        <% 
+                                                            let badgeClass = 'badge-info';
+                                                            let statusText = `${count}x ${status}`;
+                                                            if (status === 'Cancelled') { badgeClass = 'badge-cancelled'; }
+                                                            else if (status === 'Returned') { badgeClass = 'badge-returned'; }
+                                                            else if (status === 'Delivered') { badgeClass = 'badge-delivered'; }
+                                                            else if (status === 'Return Requested') { badgeClass = 'badge-returned'; }
+                                                            else if (status === 'Cancellation Requested') { badgeClass = 'badge-cancelled'; statusText = `${count}x Cancel Req.`; }
+                                                        %>
+                                                        <span class="status-badge <%= badgeClass %> <%= isMultiple ? 'status-badge-minimal' : '' %>">
+                                                            <span class="dot"></span><%= statusText %>
+                                                        </span>
+                                                    <% }) %>
+                                                <% } %>
                                             </div>
                                         <% } %>
                                     </td>
@@ -791,19 +807,23 @@
                                         <%= new Date(order.createdAt).toLocaleDateString('en-GB') %>
                                     </td>
 
+                                    <td style="color:var(--text-dim); font-size:0.8rem; font-weight:700; text-transform:uppercase;">
+                                        <%= order.paymentMethod %>
+                                    </td>
+
                                     <td>
-                                        <% if (order.paymentStatus === 'Paid') { %>
-                                            <div class="d-flex flex-column align-items-start gap-1">
+                                        <div class="d-flex flex-column align-items-start gap-1">
+                                            <% if (order.paymentStatus === 'Paid') { %>
                                                 <span class="status-badge badge-paid"><span class="dot"></span>Paid</span>
-                                                <a href="/myOrders/invoice?id=<%= order._id %>" class="receipt-download-btn">
-                                                    <i class="fas fa-download"></i> Download
-                                                </a>
-                                            </div>
-                                        <% } else if (order.paymentStatus === 'Failed') { %>
-                                            <span class="status-badge badge-failed"><span class="dot"></span>Failed</span>
-                                        <% } else { %>
-                                            <span class="status-badge badge-unpaid"><span class="dot"></span><%= order.paymentStatus %></span>
-                                        <% } %>
+                                            <% } else if (order.paymentStatus === 'Failed') { %>
+                                                <span class="status-badge badge-failed"><span class="dot"></span>Failed</span>
+                                            <% } else { %>
+                                                <span class="status-badge badge-unpaid"><span class="dot"></span><%= order.paymentStatus %></span>
+                                            <% } %>
+                                            <button onclick="downloadInvoice('<%= order._id %>', this)" class="receipt-download-btn" style="border:none; background:none; padding:0; cursor:pointer;">
+                                                <i class="fas fa-download"></i> Download
+                                            </button>
+                                        </div>
                                     </td>
 
                                     <td style="text-align:right;">
@@ -813,7 +833,7 @@
                             <% }) %>
                         <% } else { %>
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">
                                             <svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8L6 7h12l-2-4z"/></svg>
@@ -848,23 +868,28 @@
                                             statusCounts[item.status] = (statusCounts[item.status] || 0) + 1;
                                         });
                                         const sortedStatuses = Object.entries(statusCounts).sort();
+                                        const isMultiple = sortedStatuses.length > 1;
+                                        const isAllCancelled = sortedStatuses.length === 1 && sortedStatuses[0][0] === 'Cancelled';
                                     %>
                                     <div class="d-flex flex-column align-items-end gap-1">
-                                        <% sortedStatuses.forEach(([status, count]) => { %>
-                                            <% if (status === 'Cancelled') { %>
-                                                <span class="status-badge badge-cancelled"><span class="dot"></span><%= count %>x Cancelled</span>
-                                            <% } else if (status === 'Returned') { %>
-                                                <span class="status-badge badge-returned"><span class="dot"></span><%= count %>x Returned</span>
-                                            <% } else if (status === 'Delivered') { %>
-                                                <span class="status-badge badge-delivered"><span class="dot"></span><%= count %>x Delivered</span>
-                                            <% } else if (status === 'Return Requested') { %>
-                                                <span class="status-badge badge-returned"><span class="dot"></span><%= count %>x Return Req.</span>
-                                            <% } else if (status === 'Cancellation Requested') { %>
-                                                <span class="status-badge badge-cancelled"><span class="dot"></span><%= count %>x Cancel Req.</span>
-                                            <% } else { %>
-                                                <span class="status-badge badge-info"><span class="dot"></span><%= count %>x <%= status %></span>
-                                            <% } %>
-                                        <% }) %>
+                                        <% if (isAllCancelled) { %>
+                                            <span class="status-badge badge-cancelled status-badge-no-border"><span class="dot"></span>Order Cancelled</span>
+                                        <% } else { %>
+                                            <% sortedStatuses.forEach(([status, count]) => { %>
+                                                <% 
+                                                    let badgeClass = 'badge-info';
+                                                    let statusText = `${count}x ${status}`;
+                                                    if (status === 'Cancelled') { badgeClass = 'badge-cancelled'; }
+                                                    else if (status === 'Returned') { badgeClass = 'badge-returned'; }
+                                                    else if (status === 'Delivered') { badgeClass = 'badge-delivered'; }
+                                                    else if (status === 'Return Requested') { badgeClass = 'badge-returned'; statusText = `${count}x Return Req.`; }
+                                                    else if (status === 'Cancellation Requested') { badgeClass = 'badge-cancelled'; statusText = `${count}x Cancel Req.`; }
+                                                %>
+                                                <span class="status-badge <%= badgeClass %> <%= isMultiple ? 'status-badge-minimal' : '' %>">
+                                                    <span class="dot"></span><%= statusText %>
+                                                </span>
+                                            <% }) %>
+                                        <% } %>
                                     </div>
                                 <% } %>
                             </div>
@@ -899,11 +924,9 @@
                                     <a href="/myOrders/details?id=<%= order._id %>" class="mobile-action-btn btn-mobile-view">Details</a>
                                 <% } else { %>
                                     <a href="/myOrders/details?id=<%= order._id %>" class="mobile-action-btn btn-mobile-view">View Details</a>
-                                    <% if (order.paymentStatus === 'Paid') { %>
-                                        <a href="/myOrders/invoice?id=<%= order._id %>" class="mobile-action-btn btn-mobile-receipt">
-                                            <i class="fas fa-file-invoice"></i> Receipt
-                                        </a>
-                                    <% } %>
+                                    <button onclick="downloadInvoice('<%= order._id %>', this)" class="mobile-action-btn btn-mobile-receipt" style="display:flex; align-items:center; justify-content:center; gap:6px;">
+                                        <i class="fas fa-file-invoice"></i> Receipt
+                                    </button>
                                     <% if (order.orderStatus === 'Pending' || order.orderStatus === 'Processing') { %>
                                         <button onclick="openCancelModal('<%= order._id %>')" class="mobile-action-btn btn-mobile-cancel">Cancel</button>
                                     <% } else if (order.orderStatus === 'Delivered') { %>
@@ -985,6 +1008,7 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
     let selectedOrder = null, actionType = '';
@@ -1089,6 +1113,38 @@
                 });
             });
     });
+
+    function downloadInvoice(orderId, btn) {
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        btn.style.pointerEvents = 'none';
+
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = `/myOrders/invoice?id=${orderId}&download=true`;
+        document.body.appendChild(iframe);
+
+        const handleMessage = (event) => {
+            if (event.data.type === 'invoice_downloaded') {
+                btn.innerHTML = originalHtml;
+                btn.style.pointerEvents = 'auto';
+                document.body.removeChild(iframe);
+                window.removeEventListener('message', handleMessage);
+            }
+        };
+
+        window.addEventListener('message', handleMessage);
+
+        // Fallback cleanup
+        setTimeout(() => {
+            if (document.body.contains(iframe)) {
+                btn.innerHTML = originalHtml;
+                btn.style.pointerEvents = 'auto';
+                document.body.removeChild(iframe);
+                window.removeEventListener('message', handleMessage);
+            }
+        }, 15000);
+    }
 </script>
 
 </body>

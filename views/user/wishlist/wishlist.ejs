@@ -449,7 +449,11 @@
 
                                 <% if (hasDiscount) { %>
                                     <div class="card-badge">
-                                        <%= discPercent %>% OFF
+                                        <% if (product.offerType === 'flat') { %>
+                                            ₹<%= (product.oldPrice - product.price).toLocaleString('en-IN') %> OFF
+                                        <% } else { %>
+                                            <%= discPercent %>% OFF
+                                        <% } %>
                                     </div>
                                     <% } %>
 
@@ -623,8 +627,9 @@
                         // Update cart count badge
                         const badge = document.querySelector('.cart-badge');
                         if (badge) {
-                            const currentCount = parseInt(badge.textContent) || 0;
-                            badge.textContent = currentCount + 1;
+                            const newCount = (parseInt(badge.textContent) || 0) + 1;
+                            badge.textContent = newCount;
+                            badge.style.display = newCount > 0 ? 'flex' : 'none';
                         }
                         
                         // Remove from wishlist visually

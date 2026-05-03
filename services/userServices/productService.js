@@ -20,6 +20,13 @@ export const validateVariantForCart = async (productId, variantId) => {
     if (!variant || !variant.productId) return { error: "Product not found." };
     if (variant.productId.IsDeleted) return { error: "Product no longer available." };
     if (variant.productId.status !== "active") return { error: "Product is currently unavailable." };
+    
+    // Check Category Status
+    const category = await categorySchema.findById(variant.productId.categoryId);
+    if (!category || category.IsDeleted || category.IsActive === false) {
+        return { error: "Category is currently unavailable." };
+    }
+
     if (variant.IsActive === false) return { error: "This variant is currently unavailable." };
     if (variant.stock <= 0) return { error: "This variant is out of stock." };
 
@@ -162,7 +169,8 @@ export const getFilteredProducts = async ({ categories, filters }) => {
                 price: discountedPrice, // Show the discounted price
                 originalPrice: displayVariant.price, // Keep original
                 hasOffer: !!bestOffer,
-                offerDiscount: bestOffer ? bestOffer.discountPercentage : 0,
+                offerDiscount: bestOffer ? bestOffer.discountValue : 0,
+                offerType: bestOffer ? bestOffer.discountType : null,
                 stock: displayVariant.stock,
                 rating: p.rating || 0,
                 badge: p.badge || null,

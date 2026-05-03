@@ -620,6 +620,16 @@
             white-space: nowrap;
         }
 
+        .status-tag-no-border {
+            border: none !important;
+        }
+
+        .status-tag-minimal {
+            background: transparent !important;
+            border: none !important;
+            padding: 2px 0 !important;
+        }
+
         /* Dynamic color injection via inline style from EJS is kept,
    but we override with sensible defaults per keyword */
         .status-tag[style*="#fd7e14"],
@@ -1386,26 +1396,34 @@
                                                     statusCounts[item.status] = (statusCounts[item.status] || 0) + 1;
                                                 });
                                                 const sortedEntries = Object.entries(statusCounts).sort();
+                                                const isMultiple = sortedEntries.length > 1;
+                                                const isAllCancelled = sortedEntries.length === 1 && sortedEntries[0][0] === 'Cancelled';
                                                 %>
                                                 <div class="d-flex flex-column gap-1">
-                                                <% sortedEntries.forEach(([status, count]) => {
-                                                    const sRaw = status.toLowerCase();
-                                                    let tCol = '#94a3b8'; 
-                                                    if (sRaw.includes('pending')) tCol = '#f97316'; 
-                                                    else if (sRaw.includes('processing')) tCol = '#eab308';
-                                                    else if (sRaw.includes('shipped')) tCol = '#0ea5e9'; 
-                                                    else if (sRaw.includes('delivered')) tCol = '#22c55e'; 
-                                                    else if (sRaw.includes('cancelled')) tCol = '#ef4444'; 
-                                                    else if (sRaw.includes('returned')) tCol = '#f59e0b'; 
-                                                    else if (sRaw.includes('failed')) tCol = '#ef4444';
-                                                    else if (sRaw.includes('request')) tCol = '#7c6ef5';
-                                                %>
-                                                    <span class="status-tag" style="background-color: <%= tCol %>15; color: <%= tCol %>; border: 1px solid <%= tCol %>30; font-size: 10px; padding: 2px 8px; justify-content: center;"
-                                                          onclick="event.stopPropagation(); applyQuickFilter('status', '<%= status %>')"
-                                                          data-tooltip="Filter by <%= status %>">
-                                                        <%= count %>x <%= status %>
+                                                <% if (isAllCancelled) { %>
+                                                    <span class="status-tag status-tag-no-border" style="color: #ef4444; background: rgba(239, 68, 68, 0.12); justify-content: center;">
+                                                        Order Cancelled
                                                     </span>
-                                                <% }) %>
+                                                <% } else { %>
+                                                    <% sortedEntries.forEach(([status, count]) => {
+                                                        const sRaw = status.toLowerCase();
+                                                        let tCol = '#94a3b8'; 
+                                                        if (sRaw.includes('pending')) tCol = '#f97316'; 
+                                                        else if (sRaw.includes('processing')) tCol = '#eab308';
+                                                        else if (sRaw.includes('shipped')) tCol = '#0ea5e9'; 
+                                                        else if (sRaw.includes('delivered')) tCol = '#22c55e'; 
+                                                        else if (sRaw.includes('cancelled')) tCol = '#ef4444'; 
+                                                        else if (sRaw.includes('returned')) tCol = '#f59e0b'; 
+                                                        else if (sRaw.includes('failed')) tCol = '#ef4444';
+                                                        else if (sRaw.includes('request')) tCol = '#7c6ef5';
+                                                    %>
+                                                        <span class="status-tag <%= isMultiple ? 'status-tag-minimal' : '' %>" style="background-color: <%= tCol %>15; color: <%= tCol %>; border: 1px solid <%= tCol %>30; font-size: 10px; padding: 2px 8px; justify-content: center;"
+                                                              onclick="event.stopPropagation(); applyQuickFilter('status', '<%= status %>')"
+                                                              data-tooltip="Filter by <%= status %>">
+                                                            <%= count %>x <%= status %>
+                                                        </span>
+                                                    <% }) %>
+                                                <% } %>
                                                 </div>
                                             </td>
                                             <td data-label="Final Price" style="font-weight: 800; font-size: 14px;">

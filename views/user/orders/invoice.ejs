@@ -191,14 +191,6 @@
             gap: 6px;
         }
 
-        .status-badge-paid::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background-color: var(--success-text);
-            border-radius: 50%;
-        }
-
         .items-table {
             width: 100%;
             border-collapse: collapse;
@@ -401,7 +393,7 @@
                 <div class="brand-tagline">Premium E-Commerce Experience</div>
             </div>
             <div class="receipt-title-box">
-                <h1 class="receipt-title">Payment Receipt</h1>
+                <h1 class="receipt-title">Order Invoice</h1>
                 <div class="order-meta">
                     <div class="meta-item">
                         <span class="meta-label">Receipt No:</span>
@@ -421,9 +413,11 @@
                             <% if (order.paymentStatus === 'Paid') { %>
                                 <span class="status-badge-paid">PAID</span>
                             <% } else if (order.paymentStatus === 'Refunded') { %>
-                                <span class="status-badge-paid" style="background:#eff6ff; color:#2563eb;">REFUNDED</span>
+                                <span class="status-badge-paid" style="background:#eff6ff; color:#2563eb;">● REFUNDED</span>
+                            <% } else if (order.paymentStatus === 'Failed') { %>
+                                <span class="status-badge-paid" style="background:#fef2f2; color:#dc2626;">● FAILED</span>
                             <% } else { %>
-                                <span class="status-badge-unpaid"><%= order.paymentStatus.toUpperCase() %></span>
+                                <span class="status-badge-paid" style="background:#fffbeb; color:#d97706;">● <%= order.paymentStatus.toUpperCase() %></span>
                             <% } %>
                         </span>
                     </div>
@@ -522,8 +516,20 @@
                     </div>
                 </div>
                 <div class="transaction-note">
-                    <strong>Transaction Status:</strong> Payment Received. Your order is confirmed and awaiting shipment. 
-                    A tracking number will be provided once your items are dispatched.
+                    <strong>Transaction Status:</strong> 
+                    <% if (order.paymentStatus === 'Paid') { %>
+                        Payment Received. Your order is confirmed and awaiting shipment. 
+                        A tracking number will be provided once your items are dispatched.
+                    <% } else if (order.paymentStatus === 'Failed') { %>
+                        Payment Failed. The transaction was not completed successfully. 
+                        Please retry payment or contact support if the amount was debited.
+                    <% } else if (order.paymentStatus === 'Refunded') { %>
+                        Payment Refunded. The transaction amount has been credited back to Wallet.
+                    <% } else if (order.orderStatus === 'Cancelled') { %>
+                        Order Cancelled. This order has been voided.
+                    <% } else { %>
+                        Payment Pending. Please complete the payment to process your order.
+                    <% } %>
                 </div>
             </div>
             <div class="signature-box">
@@ -541,7 +547,7 @@
 
         <div class="thanks-msg">
             Thank you for shopping with Zyrox! For support, email: <a href="mailto:support@zyrox.com">support@zyrox.com</a><br>
-            Visit us at <a href="https://zyrox.com">www.zyrox.com</a>. All purchases subject to terms.
+            Visit us at <a href="https://zyrox.busthan.online">www.zyrox.com</a>. All purchases subject to terms.
         </div>
     </div>
 
@@ -550,7 +556,7 @@
             const element = document.getElementById('receipt');
             const opt = {
                 margin: [0, 0],
-                filename: 'Zyrox_Receipt_<%= order.orderId %>.pdf',
+                filename: 'Zyrox_Invoice_<%= order.orderId %>.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
                     scale: 2, 
@@ -561,17 +567,28 @@
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
             
-            // Show loading state or disable button if needed
             const btn = document.querySelector('.btn-download');
             const originalContent = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
             btn.disabled = true;
 
-            html2pdf().set(opt).from(element).save().then(() => {
+            return html2pdf().set(opt).from(element).save().then(() => {
                 btn.innerHTML = originalContent;
                 btn.disabled = false;
+                return true;
             });
         }
+
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('download') === 'true') {
+                downloadPDF().then(() => {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({ type: 'invoice_downloaded' }, '*');
+                    }
+                });
+            }
+        };
     </script>
 </body>
 

@@ -1129,7 +1129,10 @@
             ═══════════════════════════════════════════ */
             function updateCartCountBadge(count) {
                 const badge = document.querySelector('.cart-badge');
-                if (badge) badge.textContent = count ?? '';
+                if (badge) {
+                    badge.textContent = count ?? '';
+                    badge.style.display = (count && count > 0) ? 'flex' : 'none';
+                }
             }
 
             function proceedCheckout() {

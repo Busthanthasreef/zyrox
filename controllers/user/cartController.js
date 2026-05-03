@@ -54,12 +54,13 @@ const loadCart = async (req, res) => {
       const prod = item.Product_id;
       const vari = item.Variant_id;
 
+      const isActiveCategory = categories.some(c => c._id.toString() === prod?.categoryId?.toString());
       const isActiveProduct = prod?.status === 'active' && prod?.IsDeleted !== true;
       const isActiveVariant = vari?.IsActive !== false && vari?.IsDeleted !== true;
       const isInStock       = (vari?.stock || 0) > 0;
 
-      const isAdminInactive = !isActiveProduct || !isActiveVariant;
-      const isAvailable     = isActiveProduct && isActiveVariant && isInStock;
+      const isAdminInactive = !isActiveCategory || !isActiveProduct || !isActiveVariant;
+      const isAvailable     = isActiveCategory && isActiveProduct && isActiveVariant && isInStock;
       
       const originalPrice = vari?.price || 0;
       let discountedPrice = originalPrice;
@@ -99,11 +100,12 @@ const loadCart = async (req, res) => {
       const prod = item.Product_id;
       const vari = item.Variant_id;
       
+      const isActiveCategory = categories.some(c => c._id.toString() === prod?.categoryId?.toString());
       const isActiveProduct = prod?.status === 'active' && prod?.IsDeleted !== true;
       const isActiveVariant = vari?.IsActive !== false && vari?.IsDeleted !== true;
       const isInStock       = (vari?.stock || 0) >= item.Quantity;
 
-      if (isActiveProduct && isActiveVariant && isInStock) {
+      if (isActiveCategory && isActiveProduct && isActiveVariant && isInStock) {
         const originalPrice = vari.price || 0;
         const bestOffer = await calculateBestOffer(prod._id, prod.categoryId, originalPrice);
         const discountedPrice = bestOffer ? applyOffer(originalPrice, bestOffer) : originalPrice;

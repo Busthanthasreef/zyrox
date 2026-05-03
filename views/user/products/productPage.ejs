@@ -1266,8 +1266,13 @@
                             <% } %>
 
                               <% if (!isInactive && product.originalPrice && product.price < product.originalPrice) { %>
-                                <span class="card-badge badge-sale">-<%= disc(product.price, product.originalPrice) %>%
-                                    OFF</span>
+                                <span class="card-badge badge-sale">
+                                  <% if (product.offerType === 'flat') { %>
+                                    ₹<%= (product.originalPrice - product.price).toLocaleString('en-IN') %> OFF
+                                  <% } else { %>
+                                    -<%= disc(product.price, product.originalPrice) %>% OFF
+                                  <% } %>
+                                </span>
                                 <% } else if (!isInactive && product.badge) { const bl=product.badge.toLowerCase(); let
                                   bc='badge-best' ; if (bl==='new' ) bc='badge-new' ; if (bl==='hot' ) bc='badge-hot' ;
                                   if (bl==='sale' ) bc='badge-sale' ; %>
@@ -1579,11 +1584,18 @@
                 const badge = document.getElementById('wishBtn')
                 if (data.action === 'added') {
                   icon.className = 'fas fa-heart';
-                  badge.innerText= Number(badge.innerText ||0 )+1
+                  if (badge) {
+                    badge.innerText = Number(badge.innerText || 0) + 1;
+                    badge.style.display = 'flex';
+                  }
                   btn.style.color = '#e63946';
                 } else {
                   icon.className = 'far fa-heart';
-                  badge.innerText= Number(badge.innerText || 0)-1
+                  if (badge) {
+                    const newCount = Math.max(0, Number(badge.innerText || 0) - 1);
+                    badge.innerText = newCount;
+                    if (newCount === 0) badge.style.display = 'none';
+                  }
                   btn.style.color = 'var(--text-dim)';
                 }
 
@@ -1675,7 +1687,10 @@
 
               // Update navbar
               const badge = document.querySelector('.cart-badge');
-              if (badge && data.cartCount !== undefined) badge.textContent = data.cartCount;
+              if (badge && data.cartCount !== undefined) {
+                badge.textContent = data.cartCount;
+                badge.style.display = data.cartCount > 0 ? 'flex' : 'none';
+              }
 
               // Success feedback
               const remaining = maxAllowed - data.newQty;
