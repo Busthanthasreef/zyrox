@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 
 /* ================= LOAD CATEGORIES ================= */
 
-export const getCategoriesService = async (page, search, statusFilter, sortBy) => {
+export const getCategoriesService = async (page, search, statusFilter, sortBy, countFilter) => {
 
   const query = { IsDeleted: false };
 
@@ -33,30 +33,17 @@ export const getCategoriesService = async (page, search, statusFilter, sortBy) =
   const limit = 4;
   const skip = (page - 1) * limit;
 
-  const filteredCount = await categorySchema.countDocuments(query);
-  const totalPages = Math.ceil(filteredCount / limit) || 1;
-
-  const totalCategories = await categorySchema.countDocuments({ IsDeleted: false });
-  const activeCategories = await categorySchema.countDocuments({ IsActive: true, IsDeleted: false });
-  const inActiveCategories = await categorySchema.countDocuments({ IsActive: false, IsDeleted: false });
-
-  // ✅ AGGREGATION WITH PRODUCT COUNT
-  const categories = await categorySchema.aggregate([
+  // ✅ AGGREGATION PIPELINE
+  const pipeline = [
     { $match: query },
-
-    { $sort: sortObj },
-    { $skip: skip },
-    { $limit: limit },
-
     {
       $lookup: {
-        from: "products", // standard Mongoose pluralization
+        from: "products", 
         localField: "_id",
         foreignField: "categoryId",
         as: "products"
       }
     },
-
     {
       $addFields: {
         productCount: {
@@ -64,23 +51,37 @@ export const getCategoriesService = async (page, search, statusFilter, sortBy) =
             $filter: {
               input: "$products",
               as: "prod",
-              cond: {
-                $and: [
-                  { $eq: ["$$prod.IsDeleted", false] }   // only count non-deleted products
-                ]
-              }
+              cond: { $eq: ["$$prod.IsDeleted", false] }
             }
           }
         }
       }
-    },
-
-    {
-      $project: {
-        products: 0 // remove product array (optimization)
-      }
     }
-  ]);
+  ];
+
+  // Apply count filter if provided
+  if (countFilter === "has_products") {
+    pipeline.push({ $match: { productCount: { $gt: 0 } } });
+  } else if (countFilter === "no_products") {
+    pipeline.push({ $match: { productCount: { $eq: 0 } } });
+  }
+
+  // Count total filtered for pagination
+  const filteredCategoriesResult = await categorySchema.aggregate([...pipeline, { $count: "total" }]);
+  const filteredCount = filteredCategoriesResult.length > 0 ? filteredCategoriesResult[0].total : 0;
+  const totalPages = Math.ceil(filteredCount / limit) || 1;
+
+  // Final pipeline for results
+  pipeline.push({ $sort: sortObj });
+  pipeline.push({ $skip: skip });
+  pipeline.push({ $limit: limit });
+  pipeline.push({ $project: { products: 0 } });
+
+  const categories = await categorySchema.aggregate(pipeline);
+
+  const totalCategories = await categorySchema.countDocuments({ IsDeleted: false });
+  const activeCategories = await categorySchema.countDocuments({ IsActive: true, IsDeleted: false });
+  const inActiveCategories = await categorySchema.countDocuments({ IsActive: false, IsDeleted: false });
 
   return {
     categories,
@@ -242,3 +243,31 @@ export const deleteCategoryService = async (id) => {
 
 
 
+export const toggleCategoryStatusService = async (id) => {
+  const category = await categorySchema.findById(id);
+  if (!category) {
+    return {
+      statusCode: 404,
+      response: { success: false, message: "Category not found" }
+    };
+  }
+
+  const newStatus = !category.IsActive;
+  category.IsActive = newStatus;
+  await category.save();
+
+  // Also update all products in this category
+  await productSchema.updateMany(
+    { categoryId: id },
+    { status: newStatus ? "active" : "inactive" }
+  );
+
+  return {
+    statusCode: 200,
+    response: {
+      success: true,
+      message: `Category ${newStatus ? 'activated' : 'deactivated'} successfully`,
+      isActive: newStatus
+    }
+  };
+};

@@ -207,6 +207,14 @@ body {
     color: #28a745;
 }
 
+.btn-action.toggle {
+    color: #ea580c;
+}
+
+.btn-action.toggle.active {
+    color: #059669;
+}
+
 .btn-action:hover {
     transform: scale(1.1);
 }

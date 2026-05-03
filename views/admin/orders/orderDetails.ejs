@@ -331,6 +331,17 @@
                                 <i class="fas fa-circle text-[6px]"></i>
                                 <%= order?.orderStatus || 'Pending' %>
                             </span>
+                            <% 
+                                const pStatus = (order?.paymentStatus || 'Pending').toLowerCase();
+                                let pTag = 's-pending';
+                                if(pStatus === 'paid') pTag = 's-delivered';
+                                else if(pStatus === 'failed') pTag = 's-cancelled';
+                                else if(pStatus === 'refunded') pTag = 's-processing';
+                            %>
+                            <span class="status-badge <%= pTag %>">
+                                <i class="fas fa-credit-card text-[6px]"></i>
+                                <%= order?.paymentStatus || 'Pending' %>
+                            </span>
                             <span class="text-slate-400 font-bold text-xs uppercase tracking-widest px-2">| Customer ID: #<%= order?.userId ? order.userId._id.toString().slice(-6) : 'GUEST' %></span>
                     </div>
                 </div>
@@ -461,7 +472,7 @@
                                         const currentStatus = order?.orderStatus || 'Pending';
                                         const currentIdx = statusOrder.indexOf(currentStatus);
                                     %>
-                                    <select id="statusSelect" class="status-select">
+                                    <select id="statusSelect" class="status-select" onchange="updateStatus('<%= order?._id %>')">
                                         <% statusOrder.forEach((status, index) => { %>
                                             <option value="<%= status %>" 
                                                 <%= currentStatus === status ? 'selected' : '' %> 
@@ -470,10 +481,6 @@
                                             </option>
                                         <% }) %>
                                     </select>
-                                    <button onclick="updateStatus('<%= order._id %>')"
-                                        class="btn-giant btn-giant-primary mt-2">
-                                        <i class="fas fa-save"></i> APPLY STATUS
-                                    </button>
                                 </div>
                                 <% } else { %>
                                     <div class="text-center py-4">
@@ -549,11 +556,21 @@
                         <span class="sidebar-title"><i class="fas fa-credit-card"></i> Billing Overview</span>
                         <div class="space-y-4 mt-4">
                             <div class="flex justify-between items-center text-sm">
-                                <span
-                                    class="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Gateway</span>
                                 <div
                                     class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg text-xs font-black border border-indigo-100">
                                     <%= order?.paymentMethod %>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Payment Status</span>
+                                <div class="font-black text-xs uppercase">
+                                    <% if(order?.paymentStatus === 'Paid') { %>
+                                        <span class="text-green-600">Paid</span>
+                                    <% } else if(order?.paymentStatus === 'Failed') { %>
+                                        <span class="text-red-600">Failed</span>
+                                    <% } else { %>
+                                        <span class="text-amber-600"><%= order?.paymentStatus || 'Pending' %></span>
+                                    <% } %>
                                 </div>
                             </div>
                             <div class="flex justify-between items-center pt-4 border-t">

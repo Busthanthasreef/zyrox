@@ -1136,7 +1136,7 @@
 
               <div class="sort-wrap">
                 <button class="sort-btn" type="button">
-                  <% const sortLabels=[ { val: '' , label: 'Default' }, { val: 'price_asc' , label: 'Price: Low \u2192 High'
+                  <% const sortLabels=[ { val: '' , label: 'Newest First' }, { val: 'price_asc' , label: 'Price: Low \u2192 High'
                     }, { val: 'price_desc' , label: 'Price: High \u2192 Low' }, { val: 'name_asc' , label: 'Name: A\u2013Z'
                     }, { val: 'name_desc' , label: 'Name: Z\u2013A' }, ]; %>
                     Sort: <%= (sortLabels.find(o=> o.val === curSort) || sortLabels[0]).label %>

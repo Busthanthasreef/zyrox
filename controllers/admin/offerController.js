@@ -5,18 +5,59 @@ import Categories from "../../models/category.js";
 // Load Offers List
 const getOffers = async (req, res) => {
     try {
-        const offers = await Offer.find({ isDeleted: false })
+        const page = parseInt(req.query.page) || 1;
+        const limit = 4;
+        const skip = (page - 1) * limit;
+        const search = req.query.search || "";
+        const type = req.query.type || "all";
+        const status = req.query.status || "all";
+
+        const query = { isDeleted: false };
+        if (search) {
+            query.offerName = { $regex: search, $options: "i" };
+        }
+        if (type !== "all") {
+            query.offerType = type;
+        }
+        if (status !== "all") {
+            query.isActive = status === "active";
+        }
+
+        const totalOffersCount = await Offer.countDocuments(query);
+        const totalPages = Math.ceil(totalOffersCount / limit) || 1;
+
+        const offers = await Offer.find(query)
             .populate('productId')
             .populate('categoryId')
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+            return res.json({
+                success: true,
+                offers,
+                totalOffers: totalOffersCount,
+                totalPages,
+                currentPage: page,
+                search,
+                typeFilter: type,
+                statusFilter: status
+            });
+        }
         
         const products = await Product.find({ IsDeleted: { $ne: true } });
         const categories = await Categories.find({ IsDeleted: { $ne: true } });
 
         res.render('admin/offer/offers', {
-            admin:req.session.admin,
+            admin: req.session.admin,
             offers,
-            totalOffers: offers.length,
+            totalOffers: totalOffersCount,
+            totalPages,
+            currentPage: page,
+            search,
+            typeFilter: type,
+            statusFilter: status,
             products,
             categories,
             activePage: 'offers'

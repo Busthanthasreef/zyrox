@@ -218,6 +218,53 @@
             flex-shrink: 0;
         }
 
+        .badge-failed {
+            background: rgba(220, 53, 69, 0.15);
+            color: #ff6b7a;
+            border: 1px solid rgba(220, 53, 69, 0.35);
+        }
+        .badge-failed .dot { background: #dc3545; }
+
+        .btn-retry {
+            background: rgba(255, 149, 0, 0.12);
+            color: #ff9500;
+            border: 1px solid rgba(255, 149, 0, 0.3);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-decoration: none;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-retry:hover {
+            background: #ff9500;
+            color: #fff;
+        }
+
+        .retry-timer-text {
+            font-size: 10px;
+            color: #ff9500;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .retry-timer {
+            font-family: 'Inter', monospace;
+            background: rgba(255, 149, 0, 0.1);
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
         .badge-cancelled {
             background: rgba(220, 53, 69, 0.1);
             color: #f17a83;
@@ -716,6 +763,8 @@
                                             <span class="status-badge badge-returned"><span class="dot"></span>Returned</span>
                                         <% } else if (order.orderStatus === 'Delivered') { %>
                                             <span class="status-badge badge-delivered"><span class="dot"></span>Delivered</span>
+                                        <% } else if (order.orderStatus === 'Failed') { %>
+                                            <span class="status-badge badge-failed"><span class="dot"></span>Payment Failed</span>
                                         <% } else { %>
                                             <span class="status-badge badge-info"><span class="dot"></span><%= order.orderStatus %></span>
                                         <% } %>
@@ -733,6 +782,8 @@
                                                     <i class="fas fa-download"></i> Download
                                                 </a>
                                             </div>
+                                        <% } else if (order.paymentStatus === 'Failed') { %>
+                                            <span class="status-badge badge-failed"><span class="dot"></span>Failed</span>
                                         <% } else { %>
                                             <span class="status-badge badge-unpaid"><span class="dot"></span><%= order.paymentStatus %></span>
                                         <% } %>
@@ -777,6 +828,8 @@
                                     <span class="status-badge badge-cancelled"><span class="dot"></span><%= order.orderStatus %></span>
                                 <% } else if (order.orderStatus === 'Returned') { %>
                                     <span class="status-badge badge-returned"><span class="dot"></span><%= order.orderStatus %></span>
+                                <% } else if (order.orderStatus === 'Failed') { %>
+                                    <span class="status-badge badge-failed"><span class="dot"></span>Payment Failed</span>
                                 <% } else { %>
                                     <span class="status-badge badge-info"><span class="dot"></span><%= order.orderStatus %></span>
                                 <% } %>
@@ -808,21 +861,23 @@
                             </div>
 
                             <div class="order-card-footer">
-                                <a href="/myOrders/details?id=<%= order._id %>" class="mobile-action-btn btn-mobile-view">View Details</a>
-
-                                <% if (order.paymentStatus === 'Paid') { %>
-                                    <a href="/myOrders/invoice?id=<%= order._id %>" class="mobile-action-btn btn-mobile-receipt">
-                                        <i class="fas fa-file-invoice"></i> Receipt
-                                    </a>
-                                <% } %>
-
-                                <% if (order.orderStatus === 'Pending' || order.orderStatus === 'Processing') { %>
-                                    <button onclick="openCancelModal('<%= order._id %>')" class="mobile-action-btn btn-mobile-cancel">Cancel</button>
-                                <% } else if (order.orderStatus === 'Delivered') { %>
-                                    <% const delivDate = order.deliveredAt || order.updatedAt;
-                                       const daysSince = Math.floor((Date.now() - new Date(delivDate).getTime()) / (1000 * 60 * 60 * 24));
-                                       if (daysSince <= 7) { %>
-                                        <button onclick="openReturnModal('<%= order._id %>')" class="mobile-action-btn btn-mobile-return">Return</button>
+                                <% if (order.orderStatus === 'Failed') { %>
+                                    <a href="/myOrders/details?id=<%= order._id %>" class="mobile-action-btn btn-mobile-view">Details</a>
+                                <% } else { %>
+                                    <a href="/myOrders/details?id=<%= order._id %>" class="mobile-action-btn btn-mobile-view">View Details</a>
+                                    <% if (order.paymentStatus === 'Paid') { %>
+                                        <a href="/myOrders/invoice?id=<%= order._id %>" class="mobile-action-btn btn-mobile-receipt">
+                                            <i class="fas fa-file-invoice"></i> Receipt
+                                        </a>
+                                    <% } %>
+                                    <% if (order.orderStatus === 'Pending' || order.orderStatus === 'Processing') { %>
+                                        <button onclick="openCancelModal('<%= order._id %>')" class="mobile-action-btn btn-mobile-cancel">Cancel</button>
+                                    <% } else if (order.orderStatus === 'Delivered') { %>
+                                        <% const delivDate = order.deliveredAt || order.updatedAt;
+                                           const daysSince = Math.floor((Date.now() - new Date(delivDate).getTime()) / (1000 * 60 * 60 * 24));
+                                           if (daysSince <= 7) { %>
+                                            <button onclick="openReturnModal('<%= order._id %>')" class="mobile-action-btn btn-mobile-return">Return</button>
+                                        <% } %>
                                     <% } %>
                                 <% } %>
                             </div>
@@ -895,6 +950,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
     let selectedOrder = null, actionType = '';

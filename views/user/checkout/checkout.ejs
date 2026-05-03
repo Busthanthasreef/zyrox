@@ -1901,15 +1901,34 @@
                         const rzp = new window.Razorpay(options);
 
                         rzp.on('payment.failed', function (resp) {
-                            setPlaceOrderLoading(false);
+                            setPlaceOrderLoading(true, 'Recording failed attempt...');
                             const reason = resp.error?.description || resp.error?.reason || 'Payment was declined';
                             const amount = (data.order.amount / 100);
-                            const params = new URLSearchParams({ 
-                                reason, 
-                                amount,
-                                isBuyNow: '<%= isBuyNow %>'
+
+                            fetch('/checkout/record-failed-order', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': PAGE_DATA.csrfToken },
+                                body: JSON.stringify({
+                                    addressId: selectedAddressId,
+                                    reason: reason,
+                                    amount: amount,
+                                    isBuyNow: '<%= isBuyNow %>' === 'true'
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(recordData => {
+                                const params = new URLSearchParams({ 
+                                    reason, 
+                                    amount,
+                                    orderId: recordData.displayOrderId,
+                                    dbOrderId: recordData.orderId,
+                                    isBuyNow: '<%= isBuyNow %>'
+                                });
+                                window.location.href = '/payment-failed?' + params.toString();
+                            })
+                            .catch(() => {
+                                window.location.href = `/payment-failed?reason=${encodeURIComponent(reason)}&amount=${amount}&isBuyNow=<%= isBuyNow %>`;
                             });
-                            window.location.href = '/payment-failed?' + params.toString();
                         });
 
                         rzp.open();

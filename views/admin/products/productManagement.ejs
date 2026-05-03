@@ -448,6 +448,12 @@
                                                         class="btn-action edit" title="Edit" data-bs-toggle="tooltip">
                                                         <i class="bi bi-pencil"></i>
                                                     </a>
+                                                    <button class="btn-action toggle <%= product.status === 'active' ? 'active' : '' %>" 
+                                                        title="<%= product.status === 'active' ? 'Deactivate' : 'Activate' %>" 
+                                                        data-bs-toggle="tooltip"
+                                                        onclick="toggleProductStatus('<%= product._id %>')">
+                                                        <i class="bi <%= product.status === 'active' ? 'bi-toggle-on' : 'bi-toggle-off' %>"></i>
+                                                    </button>
                                                     <button class="btn-action delete" title="Delete" data-bs-toggle="tooltip"
                                                         onclick="confirmDelete('<%= product._id %>')">
                                                         <i class="bi bi-trash"></i>
@@ -483,18 +489,12 @@
                                 <strong><%= totalProducts> 0 ? ((currentPage - 1) * limit + 1) + '–' + Math.min(currentPage * limit, totalProducts) : '0' %></strong>
                                 of <strong><%= totalProducts %></strong> products
                             </p>
-                            <select id="limitSelect" class="form-select form-select-sm" style="width: 100px; border-radius: 6px;">
-                                <option value="4" <%= limit === 4 ? 'selected' : '' %>>4 / page</option>
-                                <option value="10" <%= limit === 10 ? 'selected' : '' %>>10 / page</option>
-                                <option value="25" <%= limit === 25 ? 'selected' : '' %>>25 / page</option>
-                                <option value="50" <%= limit === 50 ? 'selected' : '' %>>50 / page</option>
-                            </select>
                         </div>
                         <nav>
                             <ul class="pagination-list" id="paginationList">
                                 <% for(let i=1; i <=totalPages; i++){ %>
                                     <li>
-                                        <a href="javascript:void(0)" onclick="changePage(<%= i %>)"
+                                        <a href="javascript:void(0)" onclick="changePage('<%= i %>')"
                                             class="page-btn <%= currentPage === i ? 'active' : '' %>">
                                             <%= i %>
                                         </a>
@@ -510,16 +510,17 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
         <script>
             // State Management
             let currentState = {
-                page: <%= currentPage %>,
+                page: '<%= currentPage %>',
                 search: '<%= search %>',
                 status: '<%= statusFilter %>',
                 category: '<%= categoryFilter %>',
                 sortBy: '<%= sortBy %>',
-                limit: <%= limit %>
+                limit: '<%= limit %>'
             };
 
             // Elements
@@ -672,6 +673,11 @@
                                 <div class="action-cell" onclick="event.stopPropagation()">
                                     <a href="/admin/products/${product._id}/variants" class="btn-action edit" title="Variants"><i class="bi bi-layers"></i></a>
                                     <a href="/admin/products-edit/${product._id}" class="btn-action edit" title="Edit"><i class="bi bi-pencil"></i></a>
+                                    <button class="btn-action toggle ${product.status === 'active' ? 'active' : ''}" 
+                                            title="${product.status === 'active' ? 'Deactivate' : 'Activate'}" 
+                                            onclick="toggleProductStatus('${product._id}')">
+                                        <i class="bi ${product.status === 'active' ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
+                                    </button>
                                     <button class="btn-action delete" title="Delete" onclick="confirmDelete('${product._id}')"><i class="bi bi-trash"></i></button>
                                 </div>
                             </td>
@@ -881,6 +887,31 @@
                         window.location.href = `/admin/products-delete/${id}`;
                     }
                 });
+            }
+
+            async function toggleProductStatus(id) {
+                try {
+                    const response = await fetch(`/admin/products/toggle/${id}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated',
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => fetchData());
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+                    }
+                } catch (error) {
+                    console.error('Toggle error:', error);
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong' });
+                }
             }
 
             // Keyboard Shortcuts

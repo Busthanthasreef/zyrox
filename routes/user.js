@@ -93,6 +93,10 @@ userRoutes.get("/payment-failed", isUserAuthenticated, isUserBlocked, checkoutCo
 /* COUPONS */
 userRoutes.post("/api/coupon/apply", isUserAuthenticated, isUserBlocked, checkoutController.applyCoupon);
 userRoutes.post("/api/coupon/remove", isUserAuthenticated, isUserBlocked, checkoutController.removeCoupon);
+/* FAILED ORDER & RETRY */
+userRoutes.post("/checkout/record-failed-order", isUserAuthenticated, isUserBlocked, checkoutController.recordFailedOrder);
+userRoutes.post("/checkout/retry-payment", isUserAuthenticated, isUserBlocked, checkoutController.retryPayment);
+userRoutes.post("/checkout/confirm-retry-payment", isUserAuthenticated, isUserBlocked, checkoutController.confirmRetryPayment);
 
 
 //ORDERS

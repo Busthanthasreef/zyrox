@@ -1261,7 +1261,15 @@
                 <!-- Orders Table Card -->
                 <div class="orders-card animate-fade-in" style="animation-delay: 0.5s">
                     <div class="card-header">
+                        <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0;">Recent Orders</h3>
                         <div class="search-area-wrapper">
+                            <select id="sortFilter" class="status-filter-select" onchange="applySort(this.value)">
+                                <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest First</option>
+                                <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>Oldest First</option>
+                                <option value="priceHigh" <%= sort === 'priceHigh' ? 'selected' : '' %>>Price: High to Low</option>
+                                <option value="priceLow" <%= sort === 'priceLow' ? 'selected' : '' %>>Price: Low to High</option>
+                            </select>
+
                             <select id="statusFilter" class="status-filter-select">
                                 <option value="">All Status</option>
                                 <option value="Pending" <%= status === 'Pending' ? 'selected' : '' %>>Pending</option>
@@ -1308,9 +1316,12 @@
                                         Order Date <i class="bi bi-arrow-down-up sort-indicator"></i>
                                     </th>
                                     <th width="10%">Method</th>
+                                    <th width="10%">Payment</th>
                                     <th width="15%" class="sortable-th" onclick="applySort('status')">
                                         Current Status <i class="bi bi-arrow-down-up sort-indicator"></i>
                                     </th>
+                                    <th>Total Amount </th>
+                                    <th>Action</th>
                                <tbody id="ordersTableBody">
                                 <% if (orders && orders.length> 0) { %>
                                     <% orders.forEach((order, ind)=> { %>
@@ -1339,6 +1350,19 @@
                                             </td>
                                             <td data-label="Method" style="font-size:11px; font-weight:800; text-transform:uppercase; color: var(--text-muted);">
                                                 <%= order.paymentMethod %>
+                                            </td>
+                                            <td data-label="Payment">
+                                                <% 
+                                                const pRaw = (order.paymentStatus || 'Pending').toLowerCase();
+                                                let pCol = '#94a3b8'; 
+                                                if (pRaw.includes('paid')) pCol = '#22c55e'; 
+                                                else if (pRaw.includes('pending')) pCol = '#f97316';
+                                                else if (pRaw.includes('failed')) pCol = '#ef4444'; 
+                                                else if (pRaw.includes('refunded')) pCol = '#0ea5e9'; 
+                                                %>
+                                                <span class="status-tag" style="background-color: <%= pCol %>15; color: <%= pCol %>; border: 1px solid <%= pCol %>30;">
+                                                    <%= order.paymentStatus %>
+                                                </span>
                                             </td>
                                             <td data-label="Current Status">
                                                 <% 
@@ -1392,12 +1416,7 @@
                             <div class="showing-info" id="showingInfo">
                                 Showing <%= totalOrdersCount===0 ? 0 : ((page - 1) * limit) + 1 %>-<%= Math.min(page * limit, totalOrdersCount) %> of <%= totalOrdersCount %>
                             </div>
-                            <select id="limitSelect" class="per-page-select">
-                                <option value="3" <%= limit === 3 ? 'selected' : '' %>>3 / page</option>
-                                <option value="10" <%= limit === 10 ? 'selected' : '' %>>10 / page</option>
-                                <option value="25" <%= limit === 25 ? 'selected' : '' %>>25 / page</option>
-                                <option value="50" <%= limit === 50 ? 'selected' : '' %>>50 / page</option>
-                            </select>
+                           
                         </div>
 
                         <div class="pag-nav-group" id="paginationGroup">
@@ -1441,6 +1460,7 @@
             const tableBody = document.getElementById('ordersTableBody');
             const searchInput = document.getElementById('searchInput');
             const statusFilter = document.getElementById('statusFilter');
+            const sortFilter = document.getElementById('sortFilter');
             const limitSelect = document.getElementById('limitSelect');
             const clearBtn = document.getElementById('clearBtn');
             const tableOverlay = document.getElementById('tableLoadingOverlay');
@@ -1542,6 +1562,19 @@
                             </td>
                             <td data-label="Method" style="font-size:11px; font-weight:800; text-transform:uppercase; color: var(--text-muted);">
                                 ${order.paymentMethod}
+                            </td>
+                            <td data-label="Payment">
+                                ${(() => {
+                                    const pRaw = (order.paymentStatus || 'Pending').toLowerCase();
+                                    let pCol = '#94a3b8'; 
+                                    if (pRaw.includes('paid')) pCol = '#22c55e'; 
+                                    else if (pRaw.includes('pending')) pCol = '#f97316';
+                                    else if (pRaw.includes('failed')) pCol = '#ef4444'; 
+                                    else if (pRaw.includes('refunded')) pCol = '#0ea5e9'; 
+                                    return `<span class="status-tag" style="background-color: ${pCol}15; color: ${pCol}; border: 1px solid ${pCol}30;">
+                                        ${order.paymentStatus}
+                                    </span>`;
+                                })()}
                             </td>
                             <td data-label="Current Status">
                                 <span class="status-tag" style="background-color: ${tCol}15; color: ${tCol}; border: 1px solid ${tCol}30;"
@@ -1708,6 +1741,7 @@
                 searchInput.value = '';
                 clearBtn.style.display = 'none';
                 statusFilter.value = '';
+                sortFilter.value = 'newest';
                 fetchData();
             }
 

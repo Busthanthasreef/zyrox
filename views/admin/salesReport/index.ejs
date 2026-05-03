@@ -451,7 +451,7 @@
                                 value="<%= typeof search !== 'undefined' ? search : '' %>">
                             <select name="status" form="salesFilterForm"
                                 class="form-select form-select-sm border-0 bg-light"
-                                style="width: 130px; border-radius: 8px;">
+                                style="width: 130px; border-radius: 8px;" onchange="this.form.submit()">
                                 <option value="">All Status</option>
                                 <option value="Pending" <%=typeof status !=='undefined' && status==='Pending'
                                     ? 'selected' : '' %>>Pending</option>
@@ -466,9 +466,6 @@
                                 <option value="Returned" <%=typeof status !=='undefined' && status==='Returned'
                                     ? 'selected' : '' %>>Returned</option>
                             </select>
-                            <button type="submit" form="salesFilterForm" class="btn btn-sm shadow-sm"
-                                style="background:#fff; border:1px solid #e2e8f0; border-radius:8px;"><i
-                                    class="bi bi-search"></i></button>
                         </div>
                     </div>
                     <div class="table-responsive">

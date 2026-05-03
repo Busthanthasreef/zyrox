@@ -619,9 +619,27 @@
 
                     const data = await response.json();
                     if (data.success) {
-                        toast.fire({ icon: 'success', title: 'Added to cart!' }).then(() => {
-                            location.reload();
-                        });
+                        toast.fire({ icon: 'success', title: 'Added to cart!' });
+                        // Update cart count badge
+                        const badge = document.querySelector('.cart-badge');
+                        if (badge) {
+                            const currentCount = parseInt(badge.textContent) || 0;
+                            badge.textContent = currentCount + 1;
+                        }
+                        
+                        // Remove from wishlist visually
+                        const card = btn.closest('.wishlist-card');
+                        if (card) {
+                            card.style.opacity = '0';
+                            card.style.transform = 'scale(0.9) translateY(20px)';
+                            card.style.transition = 'all 0.5s ease';
+                            setTimeout(() => {
+                                card.remove();
+                                if (document.querySelectorAll('.wishlist-card').length === 0) {
+                                    location.reload();
+                                }
+                            }, 500);
+                        }
                     } else if (data.limitReached) {
                         toast.fire({ icon: 'warning', title: 'Cart limit reached', text: data.message });
                         btn.disabled = false;

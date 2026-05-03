@@ -299,17 +299,21 @@ const updateProduct = async (id, body, files) => {
 };
 
 
-/* ================= TOGGLE STATUS ================= */
-
 const toggleStatus = async (id) => {
 
     const product = await Product.findById(id);
+    if (!product) throw new Error("Product not found");
 
-    product.status = product.status === "active"
-        ? "inactive"
-        : "active";
+    const newStatus = product.status === "active" ? "inactive" : "active";
+    product.status = newStatus;
 
     await product.save();
+
+    return {
+        success: true,
+        message: `Product ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`,
+        isActive: newStatus === 'active'
+    };
 };
 
 

@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -21,8 +22,9 @@
             background-color: #0d1117;
             color: #ffffff;
             font-family: 'Inter', sans-serif;
-            min-height: 100vh;
+            padding-top: 100px;
         }
+
 
         .glass-card {
             background: #161b22;
@@ -233,19 +235,35 @@
                 <h1 class="text-3xl font-extrabold tracking-tight">Order ID: <span class="text-white">
                         <%= order.orderId %>
                     </span></h1>
-                <% let hC='#ffc107' ; const os=order.orderStatus.toLowerCase(); if(os.includes('pending')) hC='#fd7e14' ;
-                    else if(os.includes('processing')) hC='#ffc107' ; else if(os.includes('shipped')) hC='#0ea5e9' ; else
-                    if(os.includes('delivered')) hC='#22c55e' ; else if(os.includes('cancel')) hC='#ef4444' ; else
-                    if(os.includes('return')) hC='#f59e0b' ; %>
-                    <span class="px-3 py-1 rounded-full text-[0.7rem] font-bold border"
-                        style="border-color: <%= hC %>; color: <%= hC %>; background: <%= hC %>1a">
-                        <i class="fas fa-circle text-[6px] mr-1 align-middle"></i>
-                        <%= order.orderStatus %>
-                    </span>
+                <% 
+                    let hC = '#ffc107'; 
+                    const os = order.orderStatus.toLowerCase(); 
+                    if (os.includes('pending')) hC = '#fd7e14';
+                    else if (os.includes('processing')) hC = '#ffc107'; 
+                    else if (os.includes('shipped')) hC = '#0ea5e9'; 
+                    else if (os.includes('delivered')) hC = '#22c55e'; 
+                    else if (os.includes('cancel')) hC = '#ef4444'; 
+                    else if (os.includes('return')) hC = '#f59e0b'; 
+                    else if (os.includes('failed')) hC = '#ef4444'; 
+                %>
+                    <div class="flex flex-col items-start gap-2">
+                        <span class="px-3 py-1 rounded-full text-[0.7rem] font-bold border"
+                            style="border-color: <%= hC %>; color: <%= hC %>; background: <%= hC %>1a">
+                            <i class="fas fa-circle text-[6px] mr-1 align-middle"></i>
+                            <%= order.orderStatus %>
+                        </span>
+
+                    </div>
             </div>
 
             <!-- Top Desktop Actions -->
             <div class="hidden lg:flex items-center gap-3">
+                <% if (order.paymentStatus === 'Paid') { %>
+                    <button onclick="downloadInvoiceBill(event)" 
+                        class="px-5 py-2.5 bg-blue-600/10 border border-blue-600/50 text-blue-400 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition uppercase tracking-wider text-[0.65rem] flex items-center gap-2">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                <% } %>
                 <% if (['Pending', 'Processing'].includes(order.orderStatus)) { %>
                     <button onclick="handleCancelEntireOrder()" 
                         class="px-5 py-2.5 bg-red-600/10 border border-red-600/50 text-red-500 rounded-xl font-bold hover:bg-red-600 hover:text-white transition uppercase tracking-wider text-[0.65rem]">
@@ -282,11 +300,17 @@
                                     <h2 class="text-base font-bold text-white uppercase tracking-tight">
                                         <%= item.name %>
                                     </h2>
-                                    <% const iS=(item.status || order.orderStatus).toLowerCase(); let iC='#ffc107' ;
-                                        if(iS.includes('pending')) iC='#fd7e14' ; else if(iS.includes('processing'))
-                                        iC='#ffc107' ; else if(iS.includes('shipped')) iC='#0ea5e9' ; else
-                                        if(iS.includes('delivered')) iC='#22c55e' ; else if(iS.includes('cancel'))
-                                        iC='#ef4444' ; else if(iS.includes('return')) iC='#f59e0b' ; %>
+                                    <% 
+                                        const iS = (item.status || order.orderStatus).toLowerCase(); 
+                                        let iC = '#ffc107';
+                                        if (iS.includes('pending')) iC = '#fd7e14'; 
+                                        else if (iS.includes('processing')) iC = '#ffc107'; 
+                                        else if (iS.includes('shipped')) iC = '#0ea5e9'; 
+                                        else if (iS.includes('delivered')) iC = '#22c55e'; 
+                                        else if (iS.includes('cancel')) iC = '#ef4444'; 
+                                        else if (iS.includes('return')) iC = '#f59e0b';
+                                        else if (iS.includes('failed')) iC = '#ef4444'; 
+                                    %>
                                         <div class="text-[0.6rem] font-black uppercase tracking-widest mt-1"
                                             style="color: <%= iC %>">
                                             <%= item.status || order.orderStatus %>
@@ -490,11 +514,14 @@
                                     Return Entire Order
                                 </button>
                             <% } %>
-                            <button onclick="downloadInvoiceBill()"
-                                class="w-full border border-blue-600/50 text-blue-400 py-3 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition uppercase tracking-wider text-xs">
-                                <i class="fas fa-download mr-1"></i> Download Invoice
-                            </button>
                             <% } %>
+                            <% if (order.paymentStatus === 'Paid') { %>
+                                <button onclick="downloadInvoiceBill(event)" 
+                                    class="w-full border border-blue-600/50 text-blue-400 py-3 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition uppercase tracking-wider text-xs flex items-center justify-center gap-2">
+                                    <i class="fas fa-download"></i> Download Invoice
+                                </button>
+                            <% } %>
+                </div>
                 </div>
             </div>
         </div>
@@ -546,104 +573,146 @@
         </div>
     </div>
 
-    <!-- HIDDEN INVOICE FOR DOWNLOADING -->
-    <div id="hidden-invoice-bill"
-        style="position: absolute; left: -9999px; top: 0; width: 800px; background: white; color: black; padding: 40px; font-family: 'Inter', sans-serif;">
-        <div
-            style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px;">
-            <div style="width: 50%;">
-                <h1 style="font-size: 24px; font-weight: 900; margin-bottom: 10px;">Zyrox mobile store pvt ltd</h1>
 
-
-                <p style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin: 5px 0;">Order ID: <span
-                        style="font-weight: 600;">
-                        <%= order.orderId %>
-                    </span></p>
-                <p style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin: 5px 0;">Order Date:
-                    <span style="font-weight: 600;">
-                        <%= new Date(order.createdAt).toLocaleDateString('en-GB') %>
-                    </span>
-                </p>
-                <p style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin: 5px 0;">PAN: <span
-                        style="font-weight: 600;">AACCU3841N</span></p>
-                <p style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin: 5px 0;">CIN: <span
-                        style="font-weight: 600;">U74999UP2019PTC182407</span></p>
+    <!-- ═══ HIDDEN INVOICE (matched with invoice.ejs) ═══ -->
+    <div id="zyrox-invoice-print" style="position: absolute; left: -9999px; top: 0; width: 850px; background: white; padding: 60px; color: #1f2937; font-family: 'Inter', sans-serif;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 50px;">
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                <div style="font-size: 2rem; font-weight: 900; color: #1a2a4d; letter-spacing: -1px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px;">
+                    <span style="color: #4f6ef7;">⚡</span> ZYROX
+                </div>
+                <div style="font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 2px;">Premium E-Commerce Experience</div>
             </div>
-            <div style="width: 50%; text-align: right;">
-                <p style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">Billing Address</p>
-                <p style="font-size: 12px; font-weight: 700; margin-bottom: 5px;">
-                    <%= order.shippingAddress.fullName %>
-                </p>
-                <p style="font-size: 11px; color: #444; margin: 2px 0;">
-                    <%= order.shippingAddress.houseName %>(h), <%= order.shippingAddress.locality %>
-                </p>
-                <p style="font-size: 11px; color: #444; margin: 2px 0;">
-                    <%= order.shippingAddress.city %>, <%= order.shippingAddress.state %>
-                </p>
-                <p style="font-size: 11px; color: #444; margin: 2px 0;">Phone: <%= order.shippingAddress.phone %>
-                </p>
+            <div style="text-align: right;">
+                <h1 style="font-size: 1.8rem; font-weight: 800; color: #1a2a4d; margin: 0 0 10px 0; text-transform: uppercase;">Payment Receipt</h1>
+                <div style="text-align: right;">
+                    <div style="display: flex; justify-content: flex-end; gap: 15px; margin-bottom: 8px; font-size: 0.95rem;">
+                        <span style="font-weight: 600; color: #6b7280;">Receipt No:</span>
+                        <span style="font-weight: 700; min-width: 140px;">REC-<%= order.orderId.substring(order.orderId.length - 8).toUpperCase() %></span>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 15px; margin-bottom: 8px; font-size: 0.95rem;">
+                        <span style="font-weight: 600; color: #6b7280;">Date:</span>
+                        <span style="font-weight: 700; min-width: 140px;"><%= new Date(order.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) %></span>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 15px; margin-bottom: 8px; font-size: 0.95rem;">
+                        <span style="font-weight: 600; color: #6b7280;">Order ID:</span>
+                        <span style="font-weight: 700; min-width: 140px;">#<%= order.orderId %></span>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 15px; margin-bottom: 8px; font-size: 0.95rem;">
+                        <span style="font-weight: 600; color: #6b7280;">Status:</span>
+                        <span style="font-weight: 700; min-width: 140px;">
+                            <% if (order.paymentStatus === 'Paid') { %>
+                                <span style="background-color: #ecfdf5; color: #059669; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 800;">PAID</span>
+                            <% } else if (order.paymentStatus === 'Refunded') { %>
+                                <span style="background-color: #eff6ff; color: #2563eb; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 800;">REFUNDED</span>
+                            <% } else { %>
+                                <span style="background-color: #fffbeb; color: #d97706; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 800;"><%= order.paymentStatus.toUpperCase() %></span>
+                            <% } %>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 50px;">
+            <div>
+                <h3 style="font-size: 0.75rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">Customer Information</h3>
+                <div style="font-size: 0.95rem; line-height: 1.5;">
+                    <p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;"><%= order.shippingAddress.fullName %></p>
+                    <p style="margin: 4px 0;"><%= order.shippingAddress.houseName %>(H), <%= order.shippingAddress.locality %></p>
+                    <p style="margin: 4px 0;"><%= order.shippingAddress.city %>, <%= order.shippingAddress.state %> - <%= order.shippingAddress.pincode %></p>
+                    <p style="margin: 4px 0;">Phone: <%= order.shippingAddress.phone %></p>
+                    <p style="margin: 4px 0;">Email: <%= user.email %></p>
+                </div>
+            </div>
+            <div>
+                <h3 style="font-size: 0.75rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;">Billing From</h3>
+                <div style="font-size: 0.95rem; line-height: 1.5;">
+                    <p style="font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;">Zyrox mobile store pvt ltd</p>
+                    <p style="margin: 4px 0;">PAN: AACCU3841N</p>
+                    <p style="margin: 4px 0;">CIN: U74999UP2019PTC182407</p>
+                    <p style="margin: 4px 0;">Contact: +91 9074105805</p>
+                    <p style="margin: 4px 0;">Email: zyroxmobilestore@gmail.com</p>
+                </div>
+            </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
             <thead>
-                <tr style="border-top: 2px solid #444; border-bottom: 2px solid #444;">
-                    <th style="padding: 12px 10px; font-size: 10px; text-align: left;">PRODUCTS</th>
-                    <th style="padding: 12px 10px; font-size: 10px; text-align: center;">QTY</th>
-                    <th style="padding: 12px 10px; font-size: 10px; text-align: center;">ORDER STATUS</th>
-                    <th style="padding: 12px 10px; font-size: 10px; text-align: right;">TAXABLE VALUE</th>
-                    <th style="padding: 12px 10px; font-size: 10px; text-align: right;">IGST (18%)</th>
-                    <th style="padding: 12px 10px; font-size: 10px; text-align: right;">TOTAL</th>
+                <tr>
+                    <th style="background-color: #f9fafb; padding: 15px; text-align: left; font-size: 0.75rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; width: 50%;">Item Description</th>
+                    <th style="background-color: #f9fafb; padding: 15px; text-align: center; font-size: 0.75rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">Qty</th>
+                    <th style="background-color: #f9fafb; padding: 15px; text-align: right; font-size: 0.75rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">Unit Price</th>
+                    <th style="background-color: #f9fafb; padding: 15px; text-align: right; font-size: 0.75rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">Total</th>
                 </tr>
             </thead>
             <tbody>
-                <% order.items.forEach(item=> {
-                    const taxable = item.total / 1.18;
-                    const igst = item.total - taxable;
-                    %>
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 15px 10px; font-size: 11px; vertical-align: top;">
-                            <div style="font-weight: 700; margin-bottom: 4px; color: #000;">
-                                <%= item.name %>
-                            </div>
-                            <div style="font-size: 9px; color: #666; line-height: 1.4;">
-                                <strong>SKU:</strong> <%= item.variant.toString().substring(0, 8).toUpperCase() %><br>
-                                <strong>Variant:</strong> <%= item.RAM %>GB/<%= item.storage %>GB | <strong>Color:</strong> <%= item.color %>
+                <% order.items.forEach((item, index) => { %>
+                    <tr>
+                        <td style="padding: 20px 15px; border-bottom: 1px solid #e5e7eb; vertical-align: top;">
+                            <div style="font-weight: 700; font-size: 1rem; color: #1a2a4d;"><%= index + 1 %>. <%= item.name %></div>
+                            <div style="font-size: 0.8rem; color: #6b7280;">
+                                <% if (item.RAM) { %>RAM: <%= item.RAM %>GB | <% } %>
+                                <% if (item.storage) { %>Storage: <%= item.storage %>GB | <% } %>
+                                <% if (item.color) { %>Color: <%= item.color %><% } %>
                             </div>
                         </td>
-                        <td style="padding: 15px 10px; font-size: 11px; text-align: center; vertical-align: top;">
-                            <%= item.quantity %>
-                        </td>
-                        <td style="padding: 15px 10px; font-size: 11px; text-align: center; vertical-align: top;">
-                            <%= item.status || order.orderStatus %>
-                        </td>
-                        <td style="padding: 15px 10px; font-size: 11px; text-align: right; vertical-align: top;">₹<%= taxable.toFixed(2) %>
-                        </td>
-                        <td style="padding: 15px 10px; font-size: 11px; text-align: right; vertical-align: top;">₹<%= igst.toFixed(2) %>
-                        </td>
-                        <td style="padding: 15px 10px; font-size: 11px; font-weight: 800; text-align: right; vertical-align: top;">₹<%=
-                                item.total.toFixed(2) %>
-                        </td>
+                        <td style="padding: 20px 15px; border-bottom: 1px solid #e5e7eb; vertical-align: top; text-align: center;"><%= item.quantity %></td>
+                        <td style="padding: 20px 15px; border-bottom: 1px solid #e5e7eb; vertical-align: top; text-align: right;">&#8377;<%= item.price.toLocaleString('en-IN') %></td>
+                        <td style="padding: 20px 15px; border-bottom: 1px solid #e5e7eb; vertical-align: top; text-align: right; font-weight: 700;">&#8377;<%= (item.price * item.quantity).toLocaleString('en-IN') %></td>
                     </tr>
-                    <% }) %>
-                        <tr style="border-top: 2px solid #444; border-bottom: 2px solid #444; font-weight: 800; font-size: 12px;">
-                            <td colspan="4" style="padding: 15px 10px; text-align: right; text-transform: uppercase;">
-                                Grand Total</td>
-                            <td colspan="2" style="padding: 15px 10px; text-align: right;">₹<%=
-                                    order.finalPrice.toLocaleString('en-IN') %>.00</td>
-                        </tr>
+                <% }) %>
             </tbody>
         </table>
 
-        <div style="display: flex; flex-direction: column; align-items: flex-end; margin-top: 40px;">
-            <p style="font-size: 10px; font-weight: 800; margin-bottom: 5px;">Zyrox mobile store Pvt Ltd</p>
-            <div style="width: 150px; height: 50px; border: 1px solid #eee; position: relative;">
-                <svg viewBox="0 0 500 150" preserveAspectRatio="none" style="height: 100%; width: 100%;">
-                    <path d="M50,100 Q150,50 250,100 T450,100" fill="none" stroke="#2b448a" stroke-width="6" />
-                </svg>
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 50px;">
+            <div style="width: 350px;">
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 1rem;">
+                    <span style="color: #6b7280;">Subtotal:</span>
+                    <span style="font-weight: 600;">&#8377;<%= order.subtotal.toLocaleString('en-IN') %></span>
+                </div>
+                <% if (order.discount > 0) { %>
+                    <div style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 1rem;">
+                        <span style="color: #6b7280;">Coupon Discount:</span>
+                        <span style="font-weight: 600; color: #059669;">- &#8377;<%= order.discount.toLocaleString('en-IN') %></span>
+                    </div>
+                <% } %>
+                <div style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 1rem;">
+                    <span style="color: #6b7280;">Shipping Fee:</span>
+                    <span style="font-weight: 600;"><%= order.shippingCharge === 0 ? 'FREE' : '₹' + order.shippingCharge.toLocaleString('en-IN') %></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 20px 0; font-size: 1.5rem; font-weight: 900; border-top: 2px solid #1a2a4d; margin-top: 15px; color: #1a2a4d;">
+                    <span>Grand Total:</span>
+                    <span>&#8377;<%= order.finalPrice.toLocaleString('en-IN') %></span>
+                </div>
             </div>
-            <p style="font-size: 10px; font-weight: 800; margin-top: 5px;">Authorized Signatory</p>
+        </div>
 
+        <div style="border-top: 1px solid #e5e7eb; padding-top: 30px; display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px;">
+            <div>
+                <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px;">
+                    <div style="font-size: 0.8rem; font-weight: 800; color: #6b7280; text-transform: uppercase; margin-bottom: 10px;">Payment Method</div>
+                    <div style="font-weight: 700; font-size: 1rem;">
+                        <% if (order.paymentMethod === 'Online') { %>Online Payment (Razorpay)
+                        <% } else if (order.paymentMethod === 'Wallet') { %>Zyrox Wallet
+                        <% } else { %><%= order.paymentMethod %><% } %>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; font-size: 0.85rem; line-height: 1.6; color: #6b7280;">
+                    Thank you for shopping with Zyrox! For support: zyroxmobilestore@gmail.com
+                </div>
+            </div>
+            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end;">
+                <div style="width: 150px; height: 60px; margin-bottom: 10px; opacity: 0.8;">
+                    <svg viewBox="0 0 500 150" preserveAspectRatio="none" style="height: 100%; width: 100%;">
+                        <path d="M50,100 Q150,50 250,100 T450,100" fill="none" stroke="#2b448a" stroke-width="4" />
+                        <path d="M80,80 Q180,30 280,80 T480,80" fill="none" stroke="#2b448a" stroke-width="2" opacity="0.5" />
+                    </svg>
+                </div>
+                <div style="width: 200px; height: 1px; background-color: #e5e7eb; margin-bottom: 10px;"></div>
+                <span style="font-weight: 800; font-size: 0.9rem; text-transform: uppercase;">Authorized Signatory</span>
+                <span style="font-size: 0.75rem; color: #6b7280;">Zyrox E-Commerce Solutions</span>
+            </div>
         </div>
     </div>
 
@@ -861,17 +930,32 @@
                 });
         }
 
-        function downloadInvoiceBill() {
-            const element = document.getElementById('hidden-invoice-bill');
+        function downloadInvoiceBill(e) {
+            const btn = e.currentTarget;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Generating...';
+            btn.disabled = true;
+
+            const element = document.getElementById('zyrox-invoice-print');
             const opt = {
-                margin: 0.2,
-                filename: 'Invoice_<%= order.orderId %>.pdf',
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+                margin: [0, 0],
+                filename: 'Zyrox_Invoice_<%= order.orderId %>.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true, logging: false },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
-            html2pdf().set(opt).from(element).save();
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }).catch((error) => {
+                console.error("Invoice generation error:", error);
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            });
         }
+
+
     </script>
 </body>
 

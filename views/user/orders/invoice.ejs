@@ -418,7 +418,13 @@
                     <div class="meta-item">
                         <span class="meta-label">Status:</span>
                         <span class="meta-value">
-                            <span class="status-badge-paid">PAID</span>
+                            <% if (order.paymentStatus === 'Paid') { %>
+                                <span class="status-badge-paid">PAID</span>
+                            <% } else if (order.paymentStatus === 'Refunded') { %>
+                                <span class="status-badge-paid" style="background:#eff6ff; color:#2563eb;">REFUNDED</span>
+                            <% } else { %>
+                                <span class="status-badge-unpaid"><%= order.paymentStatus.toUpperCase() %></span>
+                            <% } %>
                         </span>
                     </div>
                 </div>
@@ -439,11 +445,11 @@
             <div class="info-column">
                 <h3 class="info-section-title">Billing From</h3>
                 <div class="info-content">
-                    <p class="name">Zyrox E-Commerce Solutions</p>
-                    <p>123 Digital Plaza, Cyber City</p>
-                    <p>Bangalore, Karnataka - 560001</p>
-                    <p>Contact: +91 98765 43210</p>
-                    <p>Email: support@zyrox.com</p>
+                    <p class="name">Zyrox mobile store pvt ltd</p>
+                    <p>PAN: AACCU3841N</p>
+                    <p>CIN: U74999UP2019PTC182407</p>
+                    <p>Contact: +91 9074105805</p>
+                    <p>Email: zyroxmobilestore@gmail.com</p>
                 </div>
             </div>
         </div>

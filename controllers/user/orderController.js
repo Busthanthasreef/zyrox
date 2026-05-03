@@ -22,12 +22,14 @@ const getOrdersPage = async (req, res) => {
         const totalPages = Math.ceil(totalOrdersCount / limit);
 
         const totalItems = allOrders.reduce((acc, order) => {
+            if (order.orderStatus === 'Failed') return acc;
             const itemsCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
             return acc + itemsCount;
         }, 0);
 
         const totalSpent = allOrders.reduce((acc, order) => {
-            return acc + (order.totalPrice || 0);
+            if (order.orderStatus === 'Failed' || order.orderStatus === 'Cancelled') return acc;
+            return acc + (order.finalPrice || 0);
         }, 0);
 
         const [user, categories, cartItemCount, wishlist] = await Promise.all([

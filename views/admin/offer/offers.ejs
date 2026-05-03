@@ -418,6 +418,40 @@
             border-color: #dc2626;
         }
 
+        .offer-status-btn {
+            background: #fff7ed;
+            color: #ea580c;
+            border: 1px solid #ffedd5;
+            padding: 4px 10px;
+            border-radius: 7px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.18s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .offer-status-btn.active {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #d1fae5;
+        }
+
+        .offer-status-btn:hover {
+            background: #ea580c;
+            color: #fff;
+            border-color: #ea580c;
+        }
+
+        .offer-status-btn.active:hover {
+            background: #059669;
+            color: #fff;
+            border-color: #059669;
+        }
+
         .empty-state {
             padding: 5rem 2rem;
             text-align: center;
@@ -446,6 +480,75 @@
         .date-input-wrapper+.error-message {
             display: block;
         }
+
+        /* Pagination Styles */
+        .pagination-container {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .pagination {
+            gap: 0.5rem;
+        }
+
+        .page-link {
+            border-radius: 8px !important;
+            color: var(--primary-black);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .page-link:hover {
+            background: #f3f4f6;
+            color: #000;
+        }
+
+        .page-item.active .page-link {
+            background: var(--primary-black);
+            border-color: var(--primary-black);
+            color: #fff;
+        }
+
+        .page-item.disabled .page-link {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Loading Overlay */
+        .table-responsive {
+            position: relative;
+        }
+
+        .table-loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(1px);
+        }
+
+        .table-loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner-sm {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #f3f4f6;
+            border-top-color: var(--primary-black);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
@@ -467,104 +570,113 @@
                 <div class="filter-bar">
                     <div class="search-wrapper">
                         <i class="bi bi-search"></i>
-                        <input type="text" placeholder="Search offers by name..." id="offerSearch">
+                        <input type="text" id="offerSearchInput" placeholder="Search offers by name..." value="<%= search %>" autocomplete="off">
+                        <div id="searchingIndicator" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: none;">
+                            <div class="spinner-sm" style="width: 14px; height: 14px; border-width: 2px;"></div>
+                        </div>
                     </div>
                     <div class="d-flex gap-3">
-                        <select class="form-select border-0 shadow-none border-bottom" id="typeFilter"
-                            style="width: 140px; cursor: pointer;" onchange="applyFilters()">
-                            <option value="all">All Types</option>
-                            <option value="product">Product</option>
-                            <option value="category">Category</option>
-                            <option value="all">Global (All)</option>
-                            <option value="referral">Referral</option>
+                        <select id="typeFilter" class="form-select border-0 shadow-none border-bottom" style="width: 140px; cursor: pointer;">
+                            <option value="all" <%= typeFilter === 'all' ? 'selected' : '' %>>All Types</option>
+                            <option value="product" <%= typeFilter === 'product' ? 'selected' : '' %>>Product</option>
+                            <option value="category" <%= typeFilter === 'category' ? 'selected' : '' %>>Category</option>
+                            <option value="all" <%= typeFilter === 'all' ? 'selected' : '' %>>Global (All)</option>
+                            <option value="referral" <%= typeFilter === 'referral' ? 'selected' : '' %>>Referral</option>
                         </select>
-                        <select class="form-select border-0 shadow-none border-bottom" id="statusFilter"
-                            style="width: 140px; cursor: pointer;" onchange="applyFilters()">
-                            <option value="all">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                        <select id="statusFilter" class="form-select border-0 shadow-none border-bottom" style="width: 140px; cursor: pointer;">
+                            <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>All Status</option>
+                            <option value="active" <%= statusFilter === 'active' ? 'selected' : '' %>>Active</option>
+                            <option value="inactive" <%= statusFilter === 'inactive' ? 'selected' : '' %>>Inactive</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="table-responsive <%= totalOffers === 0 ? 'd-none' : '' %>" id="offersTableContainer">
-                    <table class="offer-table">
+                    <div class="table-loading-overlay" id="tableLoadingOverlay">
+                        <div class="spinner-sm"></div>
+                    </div>
+                    <table class="offer-table" id="offerTable">
                         <thead>
                             <tr>
-                                <th>Offer Details</th>
+                                <th>Offer Name</th>
                                 <th>Type</th>
+                                <th>Target</th>
                                 <th>Discount</th>
-                                <th>Conditions</th>
                                 <th>Validity</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="offerTableBody">
                             <% offers.forEach(offer=> { %>
-                                <tr data-type="<%= offer.offerType %>"
-                                    data-status="<%= offer.isActive ? 'active' : 'inactive' %>">
+                                <tr>
                                     <td>
-                                        <div style="font-weight:600; font-size:13px; color:#111827;">
+                                        <div class="offer-name">
                                             <%= offer.offerName %>
-                                        </div>
-                                        <div style="font-size:11.5px; color:#9ca3af; margin-top:2px;">
-                                            <i class="bi bi-tag-fill me-1"></i>
-                                            <%= offer.offerType==='product' ? offer.productId?.productName :
-                                                offer.offerType==='category' ? offer.categoryId?.categoryName :
-                                                offer.offerType==='all' ? 'All Products in Store' : 'Referral Reward' %>
                                         </div>
                                     </td>
                                     <td>
-                                        <span
-                                            class="badge-pill-custom <%= offer.offerType === 'category' ? 'badge-category' : (offer.offerType === 'product' ? 'badge-product' : 'bg-dark text-white') %>">
-                                            <%= offer.offerType === 'all' ? 'Global' : (offer.offerType.charAt(0).toUpperCase() + offer.offerType.slice(1)) %>
+                                        <span class="type-badge <%= offer.offerType %>">
+                                            <%= offer.offerType.charAt(0).toUpperCase() + offer.offerType.slice(1) %>
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="fw-bold text-dark">
-                                            <%= offer.discountType==='percentage' ? offer.discountValue + '%' : '₹' +
-                                                offer.discountValue %> Off
+                                        <div class="target-info">
+                                            <% if (offer.offerType==='product' ) { %>
+                                                <i class="bi bi-box-seam me-1"></i>
+                                                <%= offer.productId?.productName || 'Unknown Product' %>
+                                                    <% } else if (offer.offerType==='category' ) { %>
+                                                        <i class="bi bi-tag me-1"></i>
+                                                        <%= offer.categoryId?.categoryName || 'Unknown Category' %>
+                                                            <% } else if (offer.offerType==='referral' ) { %>
+                                                                <i class="bi bi-people me-1"></i> Referral System
+                                                                <% } else { %>
+                                                                    <i class="bi bi-globe me-1"></i> Store-wide
+                                                                    <% } %>
                                         </div>
-                                        <div class="text-muted small">
+                                    </td>
+                                    <td>
+                                        <div class="discount-val">
+                                            <%= offer.discountType==='percentage' ? offer.discountValue + '%' : '₹' +
+                                                offer.discountValue %>
+                                        </div>
+                                        <div class="small text-muted">
                                             <%= offer.discountType.charAt(0).toUpperCase() + offer.discountType.slice(1)
                                                 %>
                                         </div>
                                     </td>
                                     <td>
-                                        <% if(offer.discountType==='flat' ) { %>
-                                            <div class="text-muted small">Min Purchase: <strong>₹<%=
-                                                        offer.minPurchaseAmount %></strong></div>
-                                            <% } else { %>
-                                                <div class="text-muted small">Max Discount: <strong>₹<%=
-                                                            offer.maxDiscountAmount || 'No Limit' %></strong></div>
-                                                <% } %>
-                                    </td>
-                                    <td>
-                                        <div class="small fw-500">
+                                        <div class="date-range">
                                             <%= new Date(offer.startDate).toLocaleDateString('en-US', { month: 'short' ,
-                                                day: '2-digit' , year: 'numeric' }) %>
+                                                day: '2-digit' }) %> -
+                                                <%= new Date(offer.endDate).toLocaleDateString('en-US', { month: 'short'
+                                                    , day: '2-digit' }) %>
                                         </div>
-                                        <div class="text-muted small">to <%= new
-                                                Date(offer.endDate).toLocaleDateString('en-US', { month: 'short' ,
-                                                day: '2-digit' , year: 'numeric' }) %>
+                                        <div class="small <%= new Date(offer.endDate) < new Date() ? 'text-danger' : 'text-success' %>">
+                                            <%= new Date(offer.endDate) < new Date() ? 'Expired' : 'Active' %>
                                         </div>
                                     </td>
                                     <td>
-                                        <span
-                                            class="badge-pill-custom <%= offer.isActive ? 'badge-status-active' : 'badge-status-inactive' %>">
+                                        <span class="status-pill <%= offer.isActive ? 'active' : 'inactive' %>">
                                             <%= offer.isActive ? 'Active' : 'Inactive' %>
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <button class="offer-edit-btn" onclick="openEditModal('<%= offer._id %>')"
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <button class="btn-action edit" onclick="editOffer('<%= offer._id %>')"
                                                 title="Edit">
-                                                <i class="bi bi-pencil-fill"></i> Edit
+                                                <i class="bi bi-pencil-square"></i>
                                             </button>
-                                            <button class="offer-delete-btn" onclick="deleteOffer('<%= offer._id %>')"
+                                            <button
+                                                class="btn-action toggle <%= offer.isActive ? 'active' : 'inactive' %>"
+                                                onclick="toggleOfferStatus('<%= offer._id %>')"
+                                                title="<%= offer.isActive ? 'Deactivate' : 'Activate' %>">
+                                                <i
+                                                    class="bi <%= offer.isActive ? 'bi-toggle-on' : 'bi-toggle-off' %>"></i>
+                                            </button>
+                                            <button class="btn-action delete" onclick="deleteOffer('<%= offer._id %>')"
                                                 title="Delete">
-                                                <i class="bi bi-trash-fill"></i> Delete
+                                                <i class="bi bi-trash3"></i>
                                             </button>
                                         </div>
                                     </td>
@@ -572,6 +684,35 @@
                                 <% }) %>
                         </tbody>
                     </table>
+
+                    <!-- Pagination -->
+                    <div id="paginationContainer">
+                        <% if (totalPages > 1) { %>
+                            <div class="pagination-container">
+                                <nav aria-label="Offers Pagination">
+                                    <ul class="pagination justify-content-center mb-0">
+                                        <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                                            <a class="page-link" href="javascript:void(0)" onclick="changePage(<%= currentPage - 1 %>)" aria-label="Previous">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </a>
+                                        </li>
+                                        
+                                        <% for(let i = 1; i <= totalPages; i++) { %>
+                                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                                <a class="page-link" href="javascript:void(0)" onclick="changePage(<%= i %>)"><%= i %></a>
+                                            </li>
+                                        <% } %>
+
+                                        <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                            <a class="page-link" href="javascript:void(0)" onclick="changePage(<%= currentPage + 1 %>)" aria-label="Next">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        <% } %>
+                    </div>
                 </div>
 
                 <!-- Empty State -->
@@ -795,70 +936,190 @@
                 input.addEventListener('change', updateOptionCards);
             });
 
-            // Search and Filter Logic
-            function applyFilters() {
-                const query = document.getElementById('offerSearch').value.toLowerCase();
-                const typeValue = document.getElementById('typeFilter').value;
-                const statusValue = document.getElementById('statusFilter').value;
-                const rows = document.querySelectorAll('.offer-table tbody tr');
+            // AJAX and Live Search Logic
+            let currentState = {
+                page: <%= currentPage %>,
+                search: '<%= search %>',
+                type: '<%= typeFilter %>',
+                status: '<%= statusFilter %>'
+            };
 
-                rows.forEach(row => {
-                    const text = row.innerText.toLowerCase();
-                    const rowType = row.dataset.type;
-                    const rowStatus = row.dataset.status;
+            const offerTableBody = document.getElementById('offerTableBody');
+            const offerSearchInput = document.getElementById('offerSearchInput');
+            const typeFilterSelect = document.getElementById('typeFilter');
+            const statusFilterSelect = document.getElementById('statusFilter');
+            const tableLoadingOverlay = document.getElementById('tableLoadingOverlay');
+            const searchingIndicator = document.getElementById('searchingIndicator');
+            const paginationContainer = document.getElementById('paginationContainer');
+            const offersTableContainer = document.getElementById('offersTableContainer');
+            const noOffersState = document.getElementById('noOffersState');
 
-                    const matchesSearch = text.includes(query);
-                    const matchesType = typeValue === 'all' || rowType === typeValue;
-                    const matchesStatus = statusValue === 'all' || rowStatus === statusValue;
+            function debounce(func, timeout = 500) {
+                let timer;
+                return (...args) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+                };
+            }
 
-                    row.style.display = (matchesSearch && matchesType && matchesStatus) ? '' : 'none';
-                });
+            async function fetchData(updateHistory = true) {
+                tableLoadingOverlay.classList.add('active');
+                if (currentState.search) searchingIndicator.style.display = 'block';
 
-                const visibleRows = Array.from(rows).filter(r => r.style.display !== 'none');
-                const noOffersState = document.getElementById('noOffersState');
-                const tableContainer = document.getElementById('offersTableContainer');
-                const emptyAction = document.getElementById('emptyAction');
-                const emptyTitle = document.getElementById('emptyTitle');
-                const emptyText = document.getElementById('emptyText');
-                const emptyIcon = document.getElementById('emptyIcon');
+                const params = new URLSearchParams(currentState);
+                const url = `/admin/offers?${params.toString()}`;
 
-                if (visibleRows.length === 0) {
-                    noOffersState.style.display = 'block';
-                    noOffersState.classList.remove('d-none');
-                    tableContainer.style.display = 'none';
-                    tableContainer.classList.add('d-none');
-                    
-                    if (query || typeValue !== 'all' || statusValue !== 'all') {
-                        emptyIcon.className = 'bi bi-search';
-                        emptyTitle.textContent = 'No matching offers found';
-                        emptyText.textContent = 'We couldn\'t find any offers that match your current search or filters.';
-                        emptyAction.innerHTML = `
-                            <button onclick="clearOfferFilters()" class="btn btn-dark px-4 py-2" style="border-radius: 8px; font-weight: 600; font-size: 13px;">
-                                <i class="bi bi-arrow-counterclockwise me-1"></i> Clear All Filters
-                            </button>
-                        `;
-                    } else {
-                        emptyIcon.className = 'bi bi-ticket-perforated';
-                        emptyTitle.textContent = 'No Offers Yet';
-                        emptyText.textContent = 'It looks like you haven\'t created any offers. Start by adding a new one to drive more sales!';
-                        emptyAction.innerHTML = '';
+                try {
+                    const res = await fetch(url, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        renderTable(data.offers);
+                        renderPagination(data);
+                        if (updateHistory) window.history.pushState(currentState, '', url);
+
+                        if (data.offers.length === 0) {
+                            offersTableContainer.classList.add('d-none');
+                            noOffersState.classList.remove('d-none');
+                        } else {
+                            offersTableContainer.classList.remove('d-none');
+                            noOffersState.classList.add('d-none');
+                        }
                     }
-                } else {
-                    noOffersState.style.display = 'none';
-                    noOffersState.classList.add('d-none');
-                    tableContainer.style.display = 'block';
-                    tableContainer.classList.remove('d-none');
+                } catch (err) {
+                    console.error('Fetch error:', err);
+                } finally {
+                    tableLoadingOverlay.classList.remove('active');
+                    searchingIndicator.style.display = 'none';
                 }
             }
 
-            function clearOfferFilters() {
-                document.getElementById('offerSearch').value = '';
-                document.getElementById('typeFilter').value = 'all';
-                document.getElementById('statusFilter').value = 'all';
-                applyFilters();
+            function renderTable(offers) {
+                offerTableBody.innerHTML = offers.map(offer => {
+                    const typeLabel = offer.offerType.charAt(0).toUpperCase() + offer.offerType.slice(1);
+                    const startDate = new Date(offer.startDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+                    const endDate = new Date(offer.endDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+                    const isExpired = new Date(offer.endDate) < new Date();
+                    
+                    let targetHtml = '';
+                    if (offer.offerType === 'product') {
+                        targetHtml = `<i class="bi bi-box-seam me-1"></i> ${offer.productId?.productName || 'Unknown Product'}`;
+                    } else if (offer.offerType === 'category') {
+                        targetHtml = `<i class="bi bi-tag me-1"></i> ${offer.categoryId?.categoryName || 'Unknown Category'}`;
+                    } else if (offer.offerType === 'referral') {
+                        targetHtml = `<i class="bi bi-people me-1"></i> Referral System`;
+                    } else {
+                        targetHtml = `<i class="bi bi-globe me-1"></i> Store-wide`;
+                    }
+
+                    return `
+                        <tr>
+                            <td><div class="offer-name">${offer.offerName}</div></td>
+                            <td><span class="type-badge ${offer.offerType}">${typeLabel}</span></td>
+                            <td><div class="target-info">${targetHtml}</div></td>
+                            <td>
+                                <div class="discount-val">${offer.discountType === 'percentage' ? offer.discountValue + '%' : '₹' + offer.discountValue}</div>
+                                <div class="small text-muted">${offer.discountType.charAt(0).toUpperCase() + offer.discountType.slice(1)}</div>
+                            </td>
+                            <td>
+                                <div class="date-range">${startDate} - ${endDate}</div>
+                                <div class="small ${isExpired ? 'text-danger' : 'text-success'}">${isExpired ? 'Expired' : 'Active'}</div>
+                            </td>
+                            <td><span class="status-pill ${offer.isActive ? 'active' : 'inactive'}">${offer.isActive ? 'Active' : 'Inactive'}</span></td>
+                            <td>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn-action edit" onclick="editOffer('${offer._id}')" title="Edit"><i class="bi bi-pencil-square"></i></button>
+                                    <button class="btn-action toggle ${offer.isActive ? 'active' : 'inactive'}" onclick="toggleOfferStatus('${offer._id}')" title="${offer.isActive ? 'Deactivate' : 'Activate'}">
+                                        <i class="bi ${offer.isActive ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
+                                    </button>
+                                    <button class="btn-action delete" onclick="deleteOffer('${offer._id}')" title="Delete"><i class="bi bi-trash3"></i></button>
+                                </div>
+                            </td>
+                        </tr>`;
+                }).join('');
             }
 
-            document.getElementById('offerSearch').addEventListener('input', applyFilters);
+            function renderPagination(data) {
+                const { currentPage, totalPages } = data;
+                if (totalPages <= 1) {
+                    paginationContainer.innerHTML = '';
+                    return;
+                }
+
+                let html = `
+                    <div class="pagination-container">
+                        <nav aria-label="Offers Pagination">
+                            <ul class="pagination justify-content-center mb-0">
+                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})" aria-label="Previous">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>`;
+                
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                                <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
+                             </li>`;
+                }
+
+                html += `
+                                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})" aria-label="Next">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>`;
+                paginationContainer.innerHTML = html;
+            }
+
+            function changePage(p) {
+                currentState.page = p;
+                fetchData();
+            }
+
+            const debouncedSearch = debounce((val) => {
+                currentState.search = val;
+                currentState.page = 1;
+                fetchData();
+            });
+
+            offerSearchInput.oninput = (e) => {
+                debouncedSearch(e.target.value);
+            };
+
+            typeFilterSelect.onchange = (e) => {
+                currentState.type = e.target.value;
+                currentState.page = 1;
+                fetchData();
+            };
+
+            statusFilterSelect.onchange = (e) => {
+                currentState.status = e.target.value;
+                currentState.page = 1;
+                fetchData();
+            };
+
+            window.onpopstate = (e) => {
+                if (e.state) {
+                    currentState = e.state;
+                    offerSearchInput.value = currentState.search;
+                    typeFilterSelect.value = currentState.type;
+                    statusFilterSelect.value = currentState.status;
+                    fetchData(false);
+                }
+            };
+
+            // Removed client-side applyFilters as we now use server-side pagination/filtering
+            function clearOfferFilters() {
+                currentState = { page: 1, search: '', type: 'all', status: 'all' };
+                offerSearchInput.value = '';
+                typeFilterSelect.value = 'all';
+                statusFilterSelect.value = 'all';
+                fetchData();
+            }
 
             function toggleApplyFields() {
                 const type = document.querySelector('input[name="offerType"]:checked').value;

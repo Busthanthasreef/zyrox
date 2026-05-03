@@ -113,7 +113,7 @@ export const getFilteredProducts = async ({ categories, filters }) => {
         productQuery.categoryId = { $in: filteredCatIds };
     }
 
-    const rawProducts = await productSchema.find(productQuery).lean();
+    const rawProducts = await productSchema.find(productQuery).sort({ createdAt: -1 }).lean();
     const productIds = rawProducts.map((p) => p._id);
 
     // Variant query with price + attribute filters
