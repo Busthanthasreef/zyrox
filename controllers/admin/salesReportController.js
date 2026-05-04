@@ -38,8 +38,6 @@ const getFilterDates = (filterType, customStart, customEnd) => {
 
 const getSalesData = async (startDate, endDate, page = 1, limit = 10, search = '', status = '') => {
     const query = {
-        orderStatus: { $nin: ["Cancelled", "Returned", "Cancellation Requested", "Return Requested"] },
-        paymentStatus: { $ne: "Failed" },
         createdAt: {
             $gte: startDate,
             $lte: endDate
@@ -48,6 +46,12 @@ const getSalesData = async (startDate, endDate, page = 1, limit = 10, search = '
     
     if (status) {
         query.orderStatus = status;
+        if (!["Cancelled", "Returned", "Cancellation Requested", "Return Requested"].includes(status)) {
+            query.paymentStatus = { $ne: "Failed" };
+        }
+    } else {
+        query.orderStatus = { $nin: ["Cancelled", "Returned", "Cancellation Requested", "Return Requested"] };
+        query.paymentStatus = { $ne: "Failed" };
     }
 
     if (search) {
@@ -66,8 +70,14 @@ const getSalesData = async (startDate, endDate, page = 1, limit = 10, search = '
         }
     }
     
+    // Revenue query enforces that we only count successful orders
+    const revenueQuery = { ...query };
+    if (status && ["Cancelled", "Returned", "Cancellation Requested", "Return Requested"].includes(status)) {
+        revenueQuery._id = "impossible_for_revenue"; 
+    }
+
     const totalsData = await Order.aggregate([
-        { $match: query },
+        { $match: revenueQuery },
         { 
             $group: { 
                 _id: null, 
@@ -79,7 +89,7 @@ const getSalesData = async (startDate, endDate, page = 1, limit = 10, search = '
     ]);
 
     const productsSoldAggr = await Order.aggregate([
-        { $match: query },
+        { $match: revenueQuery },
         { $unwind: "$items" },
         { $group: { _id: null, total: { $sum: "$items.quantity" } } }
     ]);
@@ -89,13 +99,53 @@ const getSalesData = async (startDate, endDate, page = 1, limit = 10, search = '
 
     // 1. Chart Data for selected period (Daily/Monthly)
     const diffDays = moment(endDate).diff(moment(startDate), 'days');
-    const groupFormat = diffDays > 31 ? "%Y-%m" : "%Y-%m-%d";
-    
-    const chartAggr = await Order.aggregate([
-        { $match: query },
-        { $group: { _id: { $dateToString: { format: groupFormat, date: "$createdAt" } }, total: { $sum: "$finalPrice" } } },
-        { $sort: { _id: 1 } }
-    ]);
+    let chartLabels = [];
+    let chartValues = [];
+
+    if (diffDays === 0) {
+        const todaysOrders = await Order.find(revenueQuery).select('createdAt finalPrice');
+        
+        const buckets = [
+            { label: ['8 - 11', 'AM - AM'], start: 8, end: 11, total: 0 },
+            { label: ['11 - 2', 'AM - PM'], start: 11, end: 14, total: 0 },
+            { label: ['2 - 5', 'PM - PM'], start: 14, end: 17, total: 0 },
+            { label: ['5 - 8', 'PM - PM'], start: 17, end: 20, total: 0 },
+            { label: ['8 - 11', 'PM - PM'], start: 20, end: 23, total: 0 },
+            { label: ['11 - 2', 'PM - AM'], start: 23, end: 2, total: 0 },
+            { label: ['2 - 5', 'AM - AM'], start: 2, end: 5, total: 0 },
+            { label: ['5 - 8', 'AM - AM'], start: 5, end: 8, total: 0 }
+        ];
+
+        todaysOrders.forEach(order => {
+            const hour = moment(order.createdAt).utcOffset('+05:30').hour();
+            for (let b of buckets) {
+                if (b.start < b.end) {
+                    if (hour >= b.start && hour < b.end) {
+                        b.total += (order.finalPrice || 0);
+                        break;
+                    }
+                } else {
+                    if (hour >= b.start || hour < b.end) {
+                        b.total += (order.finalPrice || 0);
+                        break;
+                    }
+                }
+            }
+        });
+
+        chartLabels = buckets.map(b => b.label);
+        chartValues = buckets.map(b => b.total);
+    } else {
+        const groupFormat = diffDays > 31 ? "%Y-%m" : "%Y-%m-%d";
+        
+        const chartAggr = await Order.aggregate([
+            { $match: revenueQuery },
+            { $group: { _id: { $dateToString: { format: groupFormat, date: "$createdAt" } }, total: { $sum: "$finalPrice" } } },
+            { $sort: { _id: 1 } }
+        ]);
+        chartLabels = chartAggr.map(c => c._id);
+        chartValues = chartAggr.map(c => c.total);
+    }
 
     // 2. Yearly Chart Data (Monthly for current year)
     const startOfYear = moment().startOf('year').toDate();
@@ -131,8 +181,8 @@ const getSalesData = async (startDate, endDate, page = 1, limit = 10, search = '
         currentPage: page,
         totalPages: Math.ceil(totals.count / limit),
         chartData: {
-            labels: chartAggr.map(c => c._id),
-            values: chartAggr.map(c => c.total)
+            labels: chartLabels,
+            values: chartValues
         },
         yearlyChartData: yearlyData
     };

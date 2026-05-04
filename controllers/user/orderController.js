@@ -69,7 +69,7 @@ const cancelOrder = async (req, res) => {
             return res.json({ success: false, message: "Order not found" });
         }
 
-        if (['Delivered', 'Cancelled', 'Returned'].includes(order.orderStatus)) {
+        if (['Delivered', 'Cancelled', 'Returned', 'Failed'].includes(order.orderStatus) || order.paymentStatus === 'Failed') {
             return res.json({ success: false, message: `Cannot cancel an order that is ${order.orderStatus}` });
         }
 
@@ -137,8 +137,8 @@ const cancelItem = async (req, res) => {
             return res.json({ success: false, message: "Item not found" });
         }
 
-        if (['Delivered', 'Cancelled', 'Returned'].includes(item.status)) {
-            return res.json({ success: false, message: `Cannot cancel an item that is already ${item.status}` });
+        if (['Delivered', 'Cancelled', 'Returned'].includes(item.status) || order.orderStatus === 'Failed' || order.paymentStatus === 'Failed') {
+            return res.json({ success: false, message: `Cannot cancel an item that is already ${item.status} or if payment failed.` });
         }
 
         // Restore stock for this item

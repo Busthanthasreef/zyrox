@@ -846,6 +846,12 @@
       const paginationWrap = document.getElementById('paginationWrap');
       const couponTableContainer = document.getElementById('couponTableContainer');
       const noCouponsState = document.getElementById('noCouponsState');
+      
+      const modal = document.getElementById('couponModal');
+      const form = document.getElementById('couponForm');
+      const modalTitle = document.getElementById('modalTitle');
+      let isEditMode = false;
+      let unlimited = true;
 
       function debounce(func, timeout = 500) {
           let timer;
@@ -1113,6 +1119,11 @@
         const data = Object.fromEntries(formData.entries());
         data.isActive = document.getElementById('f_isActive').checked;
         if (unlimited) data.maxDiscount = null;
+
+        if (data.discountType === 'percentage' && parseFloat(data.discountValue) > 100) {
+          Swal.fire('Error', 'Percentage discount cannot exceed 100%', 'error');
+          return;
+        }
 
         const url = isEditMode ? '/admin/coupons/edit' : '/admin/coupons/add';
         const method = 'POST';

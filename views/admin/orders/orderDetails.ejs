@@ -344,7 +344,7 @@
                             %>
                             <span class="status-badge <%= pTag %>">
                                 <i class="fas fa-credit-card text-[6px]"></i>
-                                <%= order?.paymentStatus || 'Pending' %>
+                                <%= order?.paymentStatus === 'Refunded' ? 'FULLY REFUNDED' : (order?.paymentStatus || 'Pending') %>
                             </span>
                             <span class="text-slate-400 font-bold text-xs uppercase tracking-widest px-2">| Customer ID: #<%= order?.userId ? order.userId._id.toString().slice(-6) : 'GUEST' %></span>
                     </div>
@@ -573,7 +573,7 @@
                                     <% } else if(order?.paymentStatus === 'Failed') { %>
                                         <span class="text-red-600">Failed</span>
                                     <% } else { %>
-                                        <span class="text-amber-600"><%= order?.paymentStatus || 'Pending' %></span>
+                                        <span class="text-amber-600"><%= order?.paymentStatus === 'Refunded' ? 'FULLY REFUNDED' : (order?.paymentStatus || 'Pending') %></span>
                                     <% } %>
                                 </div>
                             </div>

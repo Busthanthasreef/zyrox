@@ -733,6 +733,10 @@
                                                                         <i class="fas fa-plus"></i>
                                                     </button>
                                                 </div>
+                                                
+                                                <!-- Inline error message container -->
+                                                <div id="qty-error-<%= item.variantId %>" class="qty-unavail-msg" style="display: none; margin-top: 4px; font-size: 0.6rem;"></div>
+
                                                 <% if (isAdminInactive) { %>
                                                     <div class="qty-unavail-msg">
                                                         <i class="fas fa-ban"></i>
@@ -892,6 +896,13 @@
                 const btnId = delta > 0 ? `plus-${variantId}` : `minus-${variantId}`;
                 const btn = document.getElementById(btnId);
                 const originalHtml = btn.innerHTML;
+                const errorDiv = document.getElementById(`qty-error-${variantId}`);
+
+                // Clear any previous error
+                if (errorDiv) {
+                    errorDiv.style.display = 'none';
+                    errorDiv.innerHTML = '';
+                }
 
                 const newQty = state.qty + delta;
 
@@ -900,33 +911,24 @@
 
                 // ── MAX QUANTITY LIMIT (3 per product) ──
                 if (newQty > MAX_QTY) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Quantity Limit Reached',
-                        html: `You can only add up to <strong>${MAX_QTY}</strong> units of the same product to your cart.`,
-                        confirmButtonText: 'Got it',
-                        confirmButtonColor: '#4f6ef7',
-                        background: '#12131a',
-                        color: '#e8e8f0',
-                        iconColor: '#4f6ef7',
-                        customClass: {
-                            popup: 'swal-zyrox'
-                        }
-                    });
+                    if (errorDiv) {
+                        errorDiv.style.display = 'inline-flex';
+                        errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Max limit of ${MAX_QTY} units`;
+                    }
                     return;
                 }
 
                 // ── Stock exceeded ──
                 const stockLimit = stock;
                 if (newQty > stockLimit) {
-                    Swal.fire({
-                        toast: true, position: 'top-end', icon: 'warning',
-                        title: stockLimit === 0
-                            ? 'Out of stock'
-                            : `Only ${stockLimit} unit${stockLimit > 1 ? 's' : ''} available`,
-                        showConfirmButton: false, timer: 2500,
-                        background: '#12131a', color: '#e8e8f0', iconColor: '#4f6ef7'
-                    });
+                    if (errorDiv) {
+                        errorDiv.style.display = 'inline-flex';
+                        errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${stockLimit === 0 ? 'Out of stock' : 'Only ' + stockLimit + ' units left'}`;
+                    }
+                    // Ensure minus button is enabled so they can decrease
+                    if (state.qty > 1) {
+                        document.getElementById('minus-' + variantId).disabled = false;
+                    }
                     return;
                 }
 
@@ -943,12 +945,14 @@
                     const data = await res.json();
 
                     if (!data.success) {
-                        Swal.fire({
-                            toast: true, position: 'top-end', icon: 'warning',
-                            title: data.message || 'Could not update quantity',
-                            showConfirmButton: false, timer: 2200,
-                            background: '#12131a', color: '#e8e8f0'
-                        });
+                        if (errorDiv) {
+                            errorDiv.style.display = 'inline-flex';
+                            errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${data.message || 'Error'}`;
+                        }
+                        // If it's a stock error, make sure minus is still enabled
+                        if (state.qty > 1) {
+                            document.getElementById('minus-' + variantId).disabled = false;
+                        }
                         return;
                     }
 
@@ -969,11 +973,10 @@
                     recalcSummary(data.subtotal, data.discount, data.total);
 
                 } catch (err) {
-                    Swal.fire({
-                        toast: true, position: 'top-end', icon: 'error',
-                        title: 'Network error', showConfirmButton: false, timer: 2000,
-                        background: '#12131a', color: '#e8e8f0'
-                    });
+                    if (errorDiv) {
+                        errorDiv.style.display = 'inline-flex';
+                        errorDiv.innerHTML = `<i class="fas fa-wifi"></i> Network error`;
+                    }
                 } finally {
                     btn.disabled = false;
                     btn.innerHTML = originalHtml;

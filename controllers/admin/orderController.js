@@ -6,7 +6,7 @@ import WalletTransactions from "../../models/walletTransactions.js";
 
 const getOrders = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;                                                                                                       
+        const page = parseInt(req.query.page) || 1;
         const limit = 3;
         const skip = (page - 1) * limit;
         const search = req.query.search || "";
@@ -21,45 +21,47 @@ const getOrders = async (req, res) => {
         else if (sort === "priceLow") sortQuery = { finalPrice: 1 };
 
         let query = {};
-        
-        // Build filters
-        if (status) query.orderStatus = status;
+
+        if (status) {
+            query.$or = [
+                { orderStatus: status },
+                { "items.status": status }
+            ];
+        }
         if (paymentMethod) query.paymentMethod = paymentMethod;
         if (paymentStatus) query.paymentStatus = paymentStatus;
 
-        // Build search filter
         if (search) {
             const searchConditions = [
                 { orderId: { $regex: search, $options: "i" } },
                 { paymentMethod: { $regex: search, $options: "i" } },
                 { orderStatus: { $regex: search, $options: "i" } }
             ];
-            
-            // Search by user name or email
+
             const users = await User.find({
                 $or: [
                     { Name: { $regex: search, $options: "i" } },
                     { Email: { $regex: search, $options: "i" } }
                 ]
             });
-            
+
             if (users.length > 0) {
                 const userIds = users.map(u => u._id);
                 searchConditions.push({ userId: { $in: userIds } });
             }
 
-            // Combine with status if exists
-            if (status) {
-                query = {
-                    $and: [
-                        { orderStatus: status },
-                        { $or: searchConditions }
-                    ]
-                };
-            } else {
-                query = { $or: searchConditions };
-            }
+            // Combine existing filters with search conditions using $and
+            const currentFilters = { ...query };
+            query = {
+                $and: [
+                    currentFilters,
+                    { $or: searchConditions }
+                ]
+            };
         }
+
+        if (sort === "orderId") sortQuery = { orderId: -1 };
+        else if (sort === "status") sortQuery = { orderStatus: 1 };
 
         const orders = await Order.find(query)
             .populate("userId", "Name Email Profile_image")
@@ -70,7 +72,6 @@ const getOrders = async (req, res) => {
         const totalOrdersCount = await Order.countDocuments(query);
         const totalPages = Math.ceil(totalOrdersCount / limit);
 
-        // Stats calculation
         const statsData = await Order.aggregate([
             {
                 $facet: {
@@ -84,7 +85,14 @@ const getOrders = async (req, res) => {
                         { $count: "count" }
                     ],
                     returns: [
-                        { $match: { orderStatus: { $in: ["Returned", "Return Requested"] } } },
+                        {
+                            $match: {
+                                $or: [
+                                    { orderStatus: { $in: ["Return Requested", "Cancellation Requested"] } },
+                                    { "items.status": { $in: ["Return Requested", "Cancellation Requested"] } }
+                                ]
+                            }
+                        },
                         { $count: "count" }
                     ]
                 }
@@ -98,7 +106,6 @@ const getOrders = async (req, res) => {
             returns: statsData[0].returns[0]?.count || 0
         };
 
-        // Return and Cancellation Requests for Notification Bell (Both order-level and item-level)
         const returnRequests = await Order.find({
             $or: [
                 { orderStatus: { $in: ["Return Requested", "Cancellation Requested"] } },
@@ -143,7 +150,7 @@ const getOrders = async (req, res) => {
             returnRequests,
             successSwal: req.session.successSwal || null
         });
-        
+
         delete req.session.successSwal;
 
     } catch (error) {
@@ -177,23 +184,21 @@ const getOrderDetails = async (req, res) => {
 const updateOrderStatus = async (req, res) => {
     try {
         const { orderId, status } = req.body;
-        
+
         const order = await Order.findById(orderId);
         if (!order) {
             return res.json({ success: false, message: "Order not found" });
         }
 
         order.orderStatus = status;
-        
+
         if (status === 'Delivered') {
             order.paymentStatus = 'Paid';
             order.deliveredAt = new Date();
         }
 
-        // Propagate status to items for terminal states
         if (['Cancelled', 'Returned'].includes(status)) {
             for (const item of order.items) {
-                // If the item wasn't already in a terminal state, restore stock
                 if (!['Cancelled', 'Returned'].includes(item.status)) {
                     if (item.variant) {
                         await Variant.findByIdAndUpdate(item.variant, { $inc: { stock: item.quantity } });
@@ -202,7 +207,6 @@ const updateOrderStatus = async (req, res) => {
                 item.status = status;
             }
         } else {
-            // For other statuses (Processing, Shipped, Delivered), only update items that don't have a granular status override
             order.items.forEach(item => {
                 if (!['Cancelled', 'Returned', 'Cancellation Requested', 'Return Requested'].includes(item.status)) {
                     item.status = status;
@@ -212,8 +216,8 @@ const updateOrderStatus = async (req, res) => {
                 }
             });
         }
-        
-        // ── WALLET REFUND LOGIC (Full Order Manual Update) ─────────────────
+
+        // Wallet refund for full order manual cancel/return
         if (['Cancelled', 'Returned'].includes(status) && order.paymentStatus === 'Paid' && (order.paymentMethod === 'Online' || order.paymentMethod === 'Wallet')) {
             const refundAmount = order.finalPrice;
             const userId = order.userId;
@@ -239,7 +243,7 @@ const updateOrderStatus = async (req, res) => {
             await newTransaction.save();
             order.paymentStatus = 'Refunded';
         }
-        
+
         await order.save();
         res.json({ success: true, message: "Order status updated and refund processed if applicable." });
     } catch (error) {
@@ -257,50 +261,43 @@ const acceptReturn = async (req, res) => {
             return res.json({ success: false, message: "Order not found" });
         }
 
-        // Mark order as Returned or Cancelled
         const oldStatus = order.orderStatus;
-        if (oldStatus === "Return Requested") {
-            order.orderStatus = "Returned";
-         } else {
-            return res.json({ success: false, message: "No pending request for this order" });
+        if (oldStatus !== "Return Requested") {
+            return res.json({ success: false, message: "No pending return request for this order" });
         }
 
-        // Sync individual item statuses to the final terminal state
-        order.items.forEach(item => {
+        order.orderStatus = "Returned";
+
+        // FIX #4: Restore stock BEFORE save, only for items that are transitioning NOW
+        // (items whose status matched oldStatus — not items already in a terminal state)
+        for (const item of order.items) {
             if (item.status === oldStatus || !item.status) {
-                item.status = order.orderStatus;
+                // Restore stock for this item before changing its status
+                if (item.variant) {
+                    await Variant.findByIdAndUpdate(
+                        item.variant,
+                        { $inc: { stock: item.quantity } }
+                    );
+                }
+                item.status = "Returned";
             }
-        });
+        }
 
         await order.save();
 
-        // Restore stock only for items that are transition to a terminal state right now
-        for (const item of order.items) {
-            if (item.status === order.orderStatus && item.variant) {
-                await Variant.findByIdAndUpdate(
-                    item.variant,
-                    { $inc: { stock: item.quantity } }
-                );
-            }
-        }
-
-        // ── WALLET REFUND LOGIC ──────────────────────────────────────────
-        // If payment was already made, refund the total amount to wallet
+        // Wallet refund
         if (order.paymentStatus === 'Paid' && (order.paymentMethod === 'Online' || order.paymentMethod === 'Wallet')) {
             const refundAmount = order.finalPrice;
             const userId = order.userId;
 
-            // Find or create wallet
             let wallet = await Wallet.findOne({ user_id: userId });
             if (!wallet) {
                 wallet = await Wallet.create({ user_id: userId, balance: 0 });
             }
 
-            // Update balance
             wallet.balance += refundAmount;
             await wallet.save();
 
-            // Create transaction record
             const newTransaction = new WalletTransactions({
                 user: userId,
                 Amount: refundAmount,
@@ -317,8 +314,7 @@ const acceptReturn = async (req, res) => {
             await order.save();
         }
 
-        const actionType = oldStatus === "Return Requested" ? "Return Request" : " ";
-        return res.json({ success: true, message: `${actionType} accepted. Stock restored and refund credited to wallet if applicable.` });
+        return res.json({ success: true, message: "Return Request accepted. Stock restored and refund credited to wallet if applicable." });
     } catch (error) {
         console.error("Error in acceptReturn:", error);
         return res.json({ success: false, message: "Internal Server Error" });
@@ -335,22 +331,41 @@ const declineReturn = async (req, res) => {
         }
 
         const oldStatus = order.orderStatus;
+
+        // FIX #5: Handle both order-level and item-level return requests
         if (oldStatus === "Return Requested") {
+            // Full order return decline — revert order and all matching item statuses
             order.orderStatus = "Delivered";
-        } else {
-            return res.json({ success: false, message: "No pending request for this order" });
+            order.items.forEach(item => {
+                if (item.status === "Return Requested") {
+                    item.status = "Delivered";
+                }
+            });
+            await order.save();
+            return res.json({ success: true, message: "Return request declined." });
         }
 
-        // Revert individual item statuses if they were following the order request
-        order.items.forEach(item => {
-            if (item.status === oldStatus) {
-                item.status = order.orderStatus;
-            }
-        });
+        // Check if there are item-level return requests even when order status is something else
+        const itemReturnRequests = order.items.filter(i => i.status === "Return Requested");
+        if (itemReturnRequests.length > 0) {
+            // Decline all item-level return requests on this order
+            order.items.forEach(item => {
+                if (item.status === "Return Requested") {
+                    item.status = "Delivered";
+                }
+            });
 
-        await order.save();
-        const actionType = oldStatus === "Return Requested" ? "Return" : " ";
-        return res.json({ success: true, message: `${actionType} request declined.` });
+            // Revert order status if it was stuck in a request state
+            if (["Return Requested", "Cancellation Requested"].includes(order.orderStatus)) {
+                const hasDelivered = order.items.some(i => i.status === 'Delivered');
+                order.orderStatus = hasDelivered ? 'Delivered' : 'Processing';
+            }
+
+            await order.save();
+            return res.json({ success: true, message: "Item return request(s) declined." });
+        }
+
+        return res.json({ success: false, message: "No pending return request for this order" });
     } catch (error) {
         console.error("Error in declineReturn:", error);
         return res.json({ success: false, message: "Internal Server Error" });
@@ -380,26 +395,21 @@ const acceptItemRequest = async (req, res) => {
             await Variant.findByIdAndUpdate(item.variant, { $inc: { stock: item.quantity } });
         }
 
-        // Recalculate parent order status if needed
+        // Recalculate parent order status
         const terminalStatuses = ['Cancelled', 'Returned'];
         const activeItems = order.items.filter(i => !terminalStatuses.includes(i.status));
-        
+
         if (activeItems.length === 0) {
-            // All items are terminal. The wrapper order should reflect the terminal status of the majority, or just "Returned" / "Cancelled"
-            // For simplicity, if everything is terminal, we can mark the order as either 'Cancelled' or 'Returned'.
             const hasReturned = order.items.some(i => i.status === 'Returned');
             order.orderStatus = hasReturned ? 'Returned' : 'Cancelled';
         }
 
         await order.save();
 
-        // ── WALLET REFUND LOGIC (ITEM LEVEL) ──────────────────────────────
-        // If payment was already made, refund the item's proportional amount
+        // Wallet refund (item-level)
         if (order.paymentStatus === 'Paid' && (order.paymentMethod === 'Online' || order.paymentMethod === 'Wallet')) {
             const userId = order.userId;
-            
-            // Calculate proportional refund
-            // item.total - proportional coupon discount
+
             let refundAmount = item.total;
             if (order.couponDiscount > 0 && order.subtotal > 0) {
                 const proportion = item.total / order.subtotal;
@@ -407,17 +417,14 @@ const acceptItemRequest = async (req, res) => {
                 refundAmount = item.total - itemCouponDiscount;
             }
 
-            // Find or create wallet
             let wallet = await Wallet.findOne({ user_id: userId });
             if (!wallet) {
                 wallet = await Wallet.create({ user_id: userId, balance: 0 });
             }
 
-            // Update balance
             wallet.balance += refundAmount;
             await wallet.save();
 
-            // Create transaction record
             const newTransaction = new WalletTransactions({
                 user: userId,
                 Amount: refundAmount,
@@ -430,10 +437,7 @@ const acceptItemRequest = async (req, res) => {
             });
             await newTransaction.save();
 
-            // If it was the last item and all items are terminal, we might want to mark the payment as Refunded
-            // but usually partial refund is still 'Paid' or 'Partially Refunded'. 
-            // For now, if all items are terminal, mark the order payment as Refunded.
-            const terminalStatuses = ['Cancelled', 'Returned'];
+            // If all items are now terminal, mark payment as Refunded
             const allItemsTerminal = order.items.every(i => terminalStatuses.includes(i.status));
             if (allItemsTerminal) {
                 order.paymentStatus = 'Refunded';
@@ -466,12 +470,13 @@ const declineItemRequest = async (req, res) => {
             return res.json({ success: false, message: "No pending request for this item" });
         }
 
-        // If the wrapper order is stuck in "Cancellation Requested" or "Return Requested", revert it
+        // Revert order status if stuck in a request state and no other items still pending
         const pendingRequestStatuses = ['Cancellation Requested', 'Return Requested'];
         if (pendingRequestStatuses.includes(order.orderStatus)) {
-            const hasOtherPending = order.items.some(i => pendingRequestStatuses.includes(i.status) && String(i._id) !== String(itemId));
+            const hasOtherPending = order.items.some(i =>
+                pendingRequestStatuses.includes(i.status) && String(i._id) !== String(itemId)
+            );
             if (!hasOtherPending) {
-                // Determine fallback status
                 const hasDelivered = order.items.some(i => i.status === 'Delivered');
                 order.orderStatus = hasDelivered ? 'Delivered' : 'Processing';
             }

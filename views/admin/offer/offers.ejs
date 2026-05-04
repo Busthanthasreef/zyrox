@@ -32,6 +32,7 @@
             --warning: #f59e0b;
             --surface: #ffffff;
             --surface-alt: #f8fafc;
+            --primary-black: #1a1a1a;
         }
 
         body {
@@ -500,6 +501,48 @@
             border-color: #059669;
         }
 
+        /* ── BADGES & PILLS ── */
+        .type-badge {
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .type-badge.product { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+        .type-badge.category { background: #eef2ff; color: #4f46e5; border: 1px solid #e0e7ff; }
+        .type-badge.referral { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
+        .type-badge.all { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+
+        .status-pill {
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .status-pill.active { background: #ecfdf5; color: #059669; }
+        .status-pill.inactive { background: #fef2f2; color: #dc2626; }
+
+        .btn-action {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-action:hover { transform: translateY(-2px); }
+        .btn-action.edit:hover { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+        .btn-action.toggle.active { background: #ecfdf5; color: #059669; border-color: #d1fae5; }
+        .btn-action.toggle.inactive { background: #fff7ed; color: #ea580c; border-color: #ffedd5; }
+        .btn-action.delete:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+
         .empty-state {
             padding: 5rem 2rem;
             text-align: center;
@@ -964,7 +1007,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-            const { products, categories, currentOffers } = JSON.parse(document.getElementById('offers-data').textContent);
+            let { products, categories, currentOffers } = JSON.parse(document.getElementById('offers-data').textContent);
             const offerModal = new bootstrap.Modal(document.getElementById('zyraxOfferModal'));
 
             // Handle Option Card Active States
@@ -1022,6 +1065,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
+                        currentOffers = data.offers;
                         renderTable(data.offers);
                         renderPagination(data);
                         if (updateHistory) window.history.pushState(currentState, '', url);
@@ -1252,7 +1296,7 @@
                 offerModal.show();
             }
 
-            function openEditModal(offerId) {
+            function editOffer(offerId) {
                 clearValidationErrors();
                 const data = currentOffers.find(o => o._id === offerId);
                 if (!data) return;
@@ -1416,16 +1460,23 @@
                 }
             };
 
-            async function toggleStatus(id) {
+            async function toggleOfferStatus(id) {
                 try {
                     const res = await fetch(`/admin/offers/toggle/${id}`, { method: 'PATCH' });
                     const data = await res.json();
-                    if (!data.success) {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => location.reload());
+                    } else {
                         Swal.fire({ icon: 'error', title: 'Error', text: data.message });
-                        location.reload();
                     }
                 } catch (err) {
-                    location.reload();
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong' });
                 }
             }
 
