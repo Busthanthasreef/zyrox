@@ -57,7 +57,7 @@
 
         .main-content {
             flex: 1;
-            padding: 28px 32px;
+            padding: 20px 28px;
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -68,7 +68,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             flex-shrink: 0;
         }
 
@@ -253,8 +253,8 @@
         .stat-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
+            gap: 12px;
+            margin-bottom: 16px;
             flex-shrink: 0;
         }
 
@@ -262,7 +262,7 @@
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 20px;
+            padding: 12px 16px;
             position: relative;
             overflow: hidden;
             transition: transform 0.2s, border-color 0.2s;
@@ -276,25 +276,25 @@
 
         .stat-card-title {
             display: block;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
         }
 
         .stat-card-val {
             font-family: 'Inter', sans-serif;
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 700;
             color: var(--text-primary);
             line-height: 1.1;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .stat-card-growth {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
         }
 
@@ -317,9 +317,9 @@
 
         .stat-card-icon {
             position: absolute;
-            right: 16px;
-            bottom: 14px;
-            font-size: 36px;
+            right: 12px;
+            bottom: 10px;
+            font-size: 28px;
             opacity: 0.06;
             color: var(--accent);
         }
@@ -338,13 +338,13 @@
 
         .card-header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
-            padding: 18px 20px;
+            padding: 14px 18px;
             border-bottom: 1px solid var(--border);
             background: transparent;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
             flex-shrink: 0;
         }
 
@@ -352,11 +352,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 20px;
+            padding: 12px 18px;
             border-top: 1px solid var(--border);
             background: transparent;
             flex-wrap: wrap;
-            gap: 14px;
+            gap: 12px;
             flex-shrink: 0;
         }
 
@@ -366,18 +366,22 @@
             gap: 10px;
             align-items: center;
             flex-wrap: wrap;
+            flex: 1;
+            justify-content: flex-end;
+            min-width: 0;
         }
 
         .search-pill {
             position: relative;
             display: flex;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .search-pill>.bi-search {
             position: absolute;
-            left: 11px;
-            font-size: 13px;
+            left: 10px;
+            font-size: 12px;
             color: var(--text-muted);
             pointer-events: none;
         }
@@ -387,10 +391,12 @@
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             color: var(--text-primary);
-            font-size: 13px;
+            font-size: 12px;
             font-family: 'Inter', sans-serif;
-            padding: 8px 32px 8px 32px;
-            width: 240px;
+            padding: 6px 28px 6px 28px;
+            width: 200px;
+            min-width: 180px;
+            height: 32px;
             outline: none;
             transition: border-color 0.2s;
         }
@@ -405,10 +411,10 @@
 
         .search-clear-btn {
             position: absolute;
-            right: 10px;
+            right: 8px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 16px;
+            font-size: 14px;
             color: var(--text-muted);
             cursor: pointer;
             display: none;
@@ -424,14 +430,16 @@
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             color: var(--text-primary);
-            font-size: 13px;
+            font-size: 12px;
             font-family: 'Inter', sans-serif;
-            padding: 8px 12px;
-            height: 38px;
+            padding: 6px 10px;
+            height: 32px;
             outline: none;
             cursor: pointer;
             transition: border-color 0.2s;
-            min-width: 140px;
+            min-width: 120px;
+            max-width: 160px;
+            flex-shrink: 0;
         }
 
         .status-filter-select:focus {
@@ -444,6 +452,7 @@
             overflow-x: auto;
             overflow-y: auto;
             min-height: 0;
+            position: relative;
         }
 
         .orders-table {
@@ -477,13 +486,13 @@
         }
 
         .orders-table tbody tr {
-            border-bottom: 1px solid var(--border);
+            border-bottom: 2px solid #000000;
             transition: background 0.15s;
             cursor: pointer;
         }
 
         .orders-table tbody tr:last-child {
-            border-bottom: none;
+            border-bottom: 2px solid #000000;
         }
 
         .orders-table tbody tr:hover {
@@ -703,7 +712,7 @@
 
         /* ── Breadcrumbs ── */
         .breadcrumb-nav {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -758,12 +767,18 @@
 
         /* ── Filter Chips ── */
         .filter-chips-wrapper {
-            display: flex;
+            display: none;
             align-items: center;
             gap: 8px;
-            padding: 0 20px 14px;
+            padding: 12px 20px;
             flex-wrap: wrap;
-            margin-top: -4px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg);
+            min-height: 0;
+        }
+
+        .filter-chips-wrapper:not(:empty) {
+            display: flex;
         }
 
         .filter-chip {
@@ -944,6 +959,23 @@
         }
 
         /* ── Responsive ── */
+        @media (max-width: 1400px) {
+            .search-area-wrapper {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .status-filter-select {
+                min-width: 120px;
+                max-width: 150px;
+            }
+            
+            .search-pill-input {
+                width: 200px;
+                min-width: 180px;
+            }
+        }
+
         @media (max-width: 768px) {
             .orders-table thead {
                 display: none;
@@ -1133,7 +1165,7 @@
                 <!-- Orders Table Card -->
                 <div class="orders-card animate-fade-in" style="animation-delay: 0.5s">
                     <div class="card-header">
-                        <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0;">Recent
+                        <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0; flex-shrink: 0; align-self: center;">Recent
                             Orders</h3>
                         <div class="search-area-wrapper">
                             <select id="sortFilter" class="status-filter-select" onchange="applySort(this.value)">
@@ -1282,7 +1314,7 @@
                                                     const isAllCancelled = sortedEntries.length === 1 &&
                                                     sortedEntries[0][0] === 'Cancelled';
                                                     %>
-                                                    <div class="">
+                                                    <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
                                                         <% if (isAllCancelled) { %>
                                                             <span class="status-tag status-tag-no-border"
                                                                 style="color: #ef4444; background: rgba(239, 68, 68, 0.12); justify-content: center;">
@@ -1303,7 +1335,7 @@
                                                                     else if (sRaw.includes('retry')) tCol = '#f97316';
                                                                     %>
                                                                     <span class="status-tag"
-                                                                        style="background-color: <%= tCol %>15; color: <%= tCol %>; border: 1px solid <%= tCol %>30; font-size: 10px; padding: 4px 8px; border-radius: 20px; flex: 0 0 auto;"
+                                                                        style="background-color: <%= tCol %>15; color: <%= tCol %>; border: 1px solid <%= tCol %>30; font-size: 10px; padding: 4px 8px; border-radius: 20px;"
                                                                         onclick="event.stopPropagation(); applyQuickFilter('status', '<%= status %>')"
                                                                         data-tooltip="Filter by <%= status %>">
                                                                         <%= count %>x <%= status %>
@@ -1419,7 +1451,7 @@
             }
 
             // ── Helpers ───────────────────────────────────────────────────────────
-            function debounce(func, timeout = 500) {
+            function debounce(func, timeout = 800) {
                 let timer;
                 return (...args) => {
                     clearTimeout(timer);
@@ -1512,7 +1544,7 @@
                             else if (sRaw.includes('request')) tCol = '#7c6ef5';
                             else if (sRaw.includes('retry')) tCol = '#f97316';
                             return `<span class="status-tag"
-                            style="background-color:${tCol}15; color:${tCol}; border:1px solid ${tCol}30; font-size:10px; padding:3px 8px; border-radius:20px; flex:0 0 auto;"
+                            style="background-color:${tCol}15; color:${tCol}; border:1px solid ${tCol}30; font-size:10px; padding:3px 8px; border-radius:20px;"
                             onclick="event.stopPropagation(); applyQuickFilter('status','${status}')"
                             data-tooltip="Filter by ${status}">
                             ${count}x ${status}
@@ -1548,7 +1580,7 @@
                             </span>
                         </td>
                         <td data-label="Current Status">
-                            <div class="d-flex flex-wrap gap-1 align-items-center justify-content-start">
+                            <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
                                 ${statusTagsHtml}
                             </div>
                         </td>
@@ -1620,7 +1652,8 @@
             const debouncedSearch = debounce((val) => {
                 currentState.search = val;
                 currentState.page = 1;
-                fetchData();
+                const params = new URLSearchParams(currentState);
+                window.location.href = `/admin/orders?${params.toString()}`;
             });
 
             searchInput.oninput = (e) => {
@@ -1634,25 +1667,28 @@
                 clearBtn.style.display = 'none';
                 currentState.search = '';
                 currentState.page = 1;
-                fetchData();
+                window.location.href = '/admin/orders';
             };
 
             statusFilter.onchange = (e) => {
                 currentState.status = e.target.value;
                 currentState.page = 1;
-                fetchData();
+                const params = new URLSearchParams(currentState);
+                window.location.href = `/admin/orders?${params.toString()}`;
             };
 
             methodFilter.onchange = (e) => {
                 currentState.paymentMethod = e.target.value;
                 currentState.page = 1;
-                fetchData();
+                const params = new URLSearchParams(currentState);
+                window.location.href = `/admin/orders?${params.toString()}`;
             };
 
             paymentStatusFilter.onchange = (e) => {
                 currentState.paymentStatus = e.target.value;
                 currentState.page = 1;
-                fetchData();
+                const params = new URLSearchParams(currentState);
+                window.location.href = `/admin/orders?${params.toString()}`;
             };
 
             // FIX #1: limitSelect.onchange removed — element doesn't exist in HTML
@@ -1667,23 +1703,23 @@
                     searchInput.value = val;
                     clearBtn.style.display = val ? 'block' : 'none';
                 }
-                fetchData();
+                const params = new URLSearchParams(currentState);
+                window.location.href = `/admin/orders?${params.toString()}`;
             }
 
             function applySort(sortType) {
                 currentState.sort = sortType;
                 currentState.page = 1;
                 sortFilter.value = sortType;
-                fetchData();
+                const params = new URLSearchParams(currentState);
+                window.location.href = `/admin/orders?${params.toString()}`;
             }
 
             function changePage(p) {
                 if (!p || p < 1) return;
                 currentState.page = parseInt(p);
-                fetchData();
-                setTimeout(()=>{
-                    window.location.reload();
-                },100)
+                const params = new URLSearchParams(currentState);
+                window.location.href = `/admin/orders?${params.toString()}`;
             }
 
             function clearAllFilters() {
@@ -1702,7 +1738,7 @@
                 methodFilter.value = '';
                 paymentStatusFilter.value = '';
                 sortFilter.value = 'newest';
-                fetchData();
+                window.location.href = '/admin/orders';
             }
 
             function navigateToOrder(id) {
@@ -1739,19 +1775,6 @@
 
             // Show clear button if search has value on load
             if (searchInput.value) clearBtn.style.display = 'block';
-
-            // Handle browser back/forward
-            window.onpopstate = (event) => {
-                if (event.state) {
-                    currentState = event.state;
-                    searchInput.value = currentState.search || '';
-                    statusFilter.value = currentState.status || '';
-                    methodFilter.value = currentState.paymentMethod || '';
-                    paymentStatusFilter.value = currentState.paymentStatus || '';
-                    sortFilter.value = currentState.sort || 'newest';
-                    fetchData(false);
-                }
-            };
         </script>
 </body>
 

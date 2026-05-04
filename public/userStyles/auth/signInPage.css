@@ -184,6 +184,10 @@ label {
     color: rgba(255, 255, 255, 0.2);
 }
 
+#password {
+    padding-right: 48px;
+}
+
 .password-group {
     display: flex;
     justify-content: space-between;

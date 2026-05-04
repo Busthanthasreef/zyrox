@@ -93,6 +93,17 @@ const addCoupon = async (req, res) => {
             return res.json({ success: false, message: "Flat discount must be less than Minimum Cart Value" });
         }
 
+        const fromDate = new Date(validFrom);
+        const tillDate = new Date(validTill);
+
+        if (isNaN(fromDate.getTime()) || isNaN(tillDate.getTime())) {
+            return res.json({ success: false, message: "Invalid date format provided" });
+        }
+
+        if (fromDate >= tillDate) {
+            return res.json({ success: false, message: "Valid From must be before Valid Till" });
+        }
+
         const newCoupon = new Coupon({
             code: code.trim().toUpperCase(),
             description,
@@ -101,8 +112,8 @@ const addCoupon = async (req, res) => {
             minCartValue: Number(minCartValue) || 0,
             maxDiscount: maxDiscount ? Number(maxDiscount) : null,
             usageLimit: usageLimit ? Number(usageLimit) : null,
-            validFrom: new Date(validFrom),
-            validTill: new Date(validTill),
+            validFrom: fromDate,
+            validTill: tillDate,
             isActive: true,
             isDeleted: false,
         });
@@ -164,6 +175,13 @@ const editCoupon = async (req, res) => {
             });
         }
 
+        const fromDate = new Date(validFrom);
+        const tillDate = new Date(validTill);
+
+        if (isNaN(fromDate.getTime()) || isNaN(tillDate.getTime())) {
+            return res.json({ success: false, message: "Invalid date format provided" });
+        }
+
         // 5. Prepare update data safely
         const updateData = {
             code: normalizedCode,
@@ -173,8 +191,8 @@ const editCoupon = async (req, res) => {
             minCartValue: Number(minCartValue) || 0,
             maxDiscount: maxDiscount ? Number(maxDiscount) : null,
             usageLimit: usageLimit ? Number(usageLimit) : null,
-            validFrom: new Date(validFrom),
-            validTill: new Date(validTill),
+            validFrom: fromDate,
+            validTill: tillDate,
             isActive: isActive === true || isActive === 'true'
         };
 

@@ -7,7 +7,7 @@ import WalletTransactions from "../../models/walletTransactions.js";
 const getOrders = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 3;
+        const limit = 5;
         const skip = (page - 1) * limit;
         const search = req.query.search || "";
         const status = req.query.status || "";
@@ -411,10 +411,10 @@ const acceptItemRequest = async (req, res) => {
             const userId = order.userId;
 
             let refundAmount = item.total;
-            if (order.couponDiscount > 0 && order.subtotal > 0) {
+            if (order.discount > 0 && order.subtotal > 0) {
                 const proportion = item.total / order.subtotal;
-                const itemCouponDiscount = order.couponDiscount * proportion;
-                refundAmount = item.total - itemCouponDiscount;
+                const itemTotalDiscount = order.discount * proportion;
+                refundAmount = item.total - itemTotalDiscount;
             }
 
             let wallet = await Wallet.findOne({ user_id: userId });

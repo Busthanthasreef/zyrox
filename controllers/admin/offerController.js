@@ -95,15 +95,19 @@ const validateOfferData = (data, isEdit = false) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
-    if (!startDate) {
+    if (startDate && isNaN(start.getTime())) {
+        errors.startDate = "Invalid start date format.";
+    } else if (!startDate) {
         errors.startDate = "Start date is required.";
     } else if (!isEdit && start < now) {
         errors.startDate = "Start date cannot be in the past.";
     }
 
-    if (!endDate) {
+    if (endDate && isNaN(end.getTime())) {
+        errors.endDate = "Invalid end date format.";
+    } else if (!endDate) {
         errors.endDate = "End date is required.";
-    } else if (startDate && end <= start) {
+    } else if (startDate && !isNaN(start.getTime()) && !isNaN(end.getTime()) && end <= start) {
         errors.endDate = "End date must be after the start date.";
     }
 

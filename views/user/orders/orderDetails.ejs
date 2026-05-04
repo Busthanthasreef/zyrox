@@ -373,7 +373,31 @@
                                 <div class="flex justify-between items-start mb-1">
                                     <div class="flex-grow"></div>
                                     <div class="text-right flex flex-col items-end gap-2">
-                                        <span class="text-lg font-black text-white">₹<%= item.total.toLocaleString('en-IN') %></span>
+                                        <% 
+                                            // Calculate original price before offer discount
+                                            const itemTotal = item.total || 0;
+                                            const itemPrice = item.price || 0;
+                                            const itemQty = item.quantity || 1;
+                                            const originalItemPrice = itemPrice * itemQty;
+                                            const hasItemDiscount = originalItemPrice > itemTotal;
+                                        %>
+                                        <div class="flex flex-col items-end gap-1">
+                                            <% if (hasItemDiscount) { %>
+                                                <span class="text-sm font-bold text-gray-500 line-through">
+                                                    ₹<%= originalItemPrice.toLocaleString('en-IN') %>
+                                                </span>
+                                            <% } %>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-lg font-black <%= hasItemDiscount ? 'text-green-400' : 'text-white' %>">
+                                                    ₹<%= itemTotal.toLocaleString('en-IN') %>
+                                                </span>
+                                                <% if (hasItemDiscount) { %>
+                                                    <span class="bg-green-400/10 text-green-400 px-2 py-0.5 rounded text-[0.55rem] font-black border border-green-400/30 uppercase tracking-wider">
+                                                        <i class="fas fa-tag text-[8px]"></i> OFFER
+                                                    </span>
+                                                <% } %>
+                                            </div>
+                                        </div>
                                         <% if (['Pending', 'Processing'].includes(item.status) &&
                                             !['Cancelled', 'Returned', 'Cancellation Requested', 'Return Requested'].includes(item.status) &&
                                             order.paymentStatus !== 'Failed' && order.orderStatus !== 'Failed') { %>

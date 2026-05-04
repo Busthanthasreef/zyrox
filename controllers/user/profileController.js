@@ -373,44 +373,48 @@ const updatePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    const isJsonRequest = req.headers.accept && req.headers.accept.includes('application/json');
 
     const user = await userSchema.findById(req.session.user._id);
     const hasPassword = !!user.Password;
 
     if (!hasPassword) {
+      if (isJsonRequest) return res.status(400).json({ success: false, message: "No password set. Please use add-password." });
       return res.redirect("/add-password");
     }
 
     const errors = {};
+    if (!currentPassword) errors.currentPassword = "Current password is required";
     if (!newPassword) errors.newPassword = "New password is required";
     else if (!passwordRegex.test(newPassword))
       errors.newPassword = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.";
     
-    if (!confirmPassword) errors.confirmPassword = "confirm password is required";
-    if (newPassword !== confirmPassword)
+    if (!confirmPassword) errors.confirmPassword = "Confirm password is required";
+    if (newPassword && confirmPassword && newPassword !== confirmPassword)
       errors.confirmPassword = "Passwords do not match";
 
     if (Object.keys(errors).length > 0) {
+      if (isJsonRequest) {
+        return res.status(400).json({ success: false, message: Object.values(errors)[0], errors });
+      }
       req.session.passwordErrors = errors;
-      return res.redirect("/profile");
+      return res.redirect("/change-password");
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.Password);
     if (!isMatch) {
-      if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      if (isJsonRequest) {
         return res.status(400).json({ success: false, message: "Incorrect current password" });
       }
-      req.session.passwordErrors = {
-        currentPassword: "Incorrect current password",
-      };
-      return res.redirect("/profile");
+      req.session.passwordErrors = { currentPassword: "Incorrect current password" };
+      return res.redirect("/change-password");
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.Password = hashedPassword;
     await user.save();
 
-    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    if (isJsonRequest) {
       return res.json({ success: true, message: "Password updated successfully!" });
     }
 
@@ -418,6 +422,9 @@ const updatePassword = async (req, res) => {
     res.redirect("/profile");
   } catch (error) {
     console.log("Update Password Error:", error);
+    if (req.headers.accept && (req.headers.accept.includes('application/json') || req.headers.accept.includes('*/*'))) {
+      return res.status(500).json({ success: false, message: "Server Error" });
+    }
     res.status(500).send("Server Error");
   }
 };
@@ -435,6 +442,11 @@ const addPassword = async (req, res) => {
       return res.redirect("/change-password");
     }
 
+    if (user.Password) {
+      if (isJsonRequest) return res.status(400).json({ success: false, message: "Password already set. Use update password instead." });
+      return res.redirect("/change-password");
+    }
+
     const errors = {};
     if (!newPassword) errors.newPassword = "Password is required";
     else if (!passwordRegex.test(newPassword))
@@ -445,11 +457,10 @@ const addPassword = async (req, res) => {
 
     if (Object.keys(errors).length > 0) {
       if (isJsonRequest) {
-        const firstError = Object.values(errors)[0];
-        return res.status(400).json({ success: false, message: firstError });
+        return res.status(400).json({ success: false, message: Object.values(errors)[0], errors });
       }
       req.session.passwordErrors = errors;
-      return res.redirect("/profile");
+      return res.redirect("/change-password");
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -464,7 +475,7 @@ const addPassword = async (req, res) => {
     res.redirect("/profile");
   } catch (error) {
     console.log("Add Password Error:", error);
-    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    if (isJsonRequest) {
       return res.status(500).json({ success: false, message: "Server error. Please try again." });
     }
     res.status(500).send("Server Error");
