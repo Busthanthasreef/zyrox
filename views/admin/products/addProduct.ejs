@@ -1575,8 +1575,32 @@
                 function onFileSelected(input, boxId, previewId, slotIdx) {
                     const file = input.files[0];
                     if (!file) return;
-                    if (!file.type.startsWith('image/')) { toast('warning', 'Please select a valid image file'); input.value = ''; return; }
-                    if (file.size > 5 * 1024 * 1024) { toast('warning', 'Image must be under 5 MB'); input.value = ''; return; }
+
+                    // Image type validation
+                    if (!file.type.startsWith('image/')) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Invalid File Type',
+                            text: 'Please select a valid image file (e.g., JPEG, PNG, WEBP).',
+                            background: '#fff',
+                            color: '#111827'
+                        });
+                        input.value = '';
+                        return;
+                    }
+
+                    // Image size validation (5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'File Too Large',
+                            text: 'Each image must be under 5MB.',
+                            background: '#fff',
+                            color: '#111827'
+                        });
+                        input.value = '';
+                        return;
+                    }
 
                     const reader = new FileReader();
                     reader.onload = e => {

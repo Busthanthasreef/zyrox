@@ -114,6 +114,10 @@
             border: 1px solid #99f6e4;
         }
 
+        .status-badge-no-border {
+            border: none !important;
+        }
+
         /* Item Display */
         .product-pic {
             width: 110px;
@@ -327,9 +331,20 @@
                              else if(status==='shipped' ) tagClass='s-shipped' ; 
                              else if(status==='processing' ) tagClass='s-processing' ;
                              else if(status.includes('cancel')) tagClass='s-cancelled' ; %>
-                            <span class="status-badge <%= tagClass %>">
+                            <span class="status-badge <%= tagClass %> <%= (order?.orderStatus || '').toLowerCase() === 'cancelled' ? 'status-badge-no-border' : '' %>">
                                 <i class="fas fa-circle text-[6px]"></i>
                                 <%= order?.orderStatus || 'Pending' %>
+                            </span>
+                            <% 
+                                const pStatus = (order?.paymentStatus || 'Pending').toLowerCase();
+                                let pTag = 's-pending';
+                                if(pStatus === 'paid') pTag = 's-delivered';
+                                else if(pStatus === 'failed') pTag = 's-cancelled';
+                                else if(pStatus === 'refunded') pTag = 's-processing';
+                            %>
+                            <span class="status-badge <%= pTag %>">
+                                <i class="fas fa-credit-card text-[6px]"></i>
+                                <%= order?.paymentStatus === 'Refunded' ? 'FULLY REFUNDED' : (order?.paymentStatus || 'Pending') %>
                             </span>
                             <span class="text-slate-400 font-bold text-xs uppercase tracking-widest px-2">| Customer ID: #<%= order?.userId ? order.userId._id.toString().slice(-6) : 'GUEST' %></span>
                     </div>
@@ -366,11 +381,28 @@
                                                 </div>
                                             </div>
                                             <div class="text-right">
-                                                <p class="text-2xl font-black">₹<%= (item.total ||
-                                                        0).toLocaleString('en-IN') %>
-                                                </p>
-                                                <p
-                                                    class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                                                <% 
+                                                    // Calculate original price before offer discount
+                                                    const itemTotal = item.total || 0;
+                                                    const itemPrice = item.price || 0;
+                                                    const itemQty = item.quantity || 1;
+                                                    const originalItemPrice = itemPrice * itemQty;
+                                                    const hasItemDiscount = originalItemPrice > itemTotal;
+                                                %>
+                                                <% if (hasItemDiscount) { %>
+                                                    <p class="text-sm font-bold text-slate-400 line-through mb-1">
+                                                        ₹<%= originalItemPrice.toLocaleString('en-IN') %>
+                                                    </p>
+                                                <% } %>
+                                                <div class="flex items-center gap-2 justify-end">
+                                                    <p class="text-2xl font-black text-green-600">₹<%= itemTotal.toLocaleString('en-IN') %></p>
+                                                    <% if (hasItemDiscount) { %>
+                                                        <span class="bg-green-50 text-green-700 px-2 py-1 rounded-lg text-[9px] font-black border border-green-200 uppercase">
+                                                            <i class="fas fa-tag text-[8px]"></i> OFFER
+                                                        </span>
+                                                    <% } %>
+                                                </div>
+                                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
                                                     QTY: <%= item.quantity %>
                                                 </p>
                                             </div>
@@ -450,7 +482,8 @@
                     <% const terminalOrderStatuses=['Cancelled','Returned','Delivered']; 
                          const isTerminal=terminalOrderStatuses.includes(order?.orderStatus);
                          const isRequestPending=['Cancellation Requested','Return Requested'].includes(order?.orderStatus);
-                        const canUpdate=!isTerminal && !isRequestPending; 
+                         const isPaymentFailed = order?.paymentStatus === 'Failed';
+                        const canUpdate=!isTerminal && !isRequestPending && !isPaymentFailed; 
                     %>
                         <div class="glass-card p-8">
                             <span class="sidebar-title"><i class="fas fa-sliders-h"></i> Update Order Status</span>
@@ -461,7 +494,7 @@
                                         const currentStatus = order?.orderStatus || 'Pending';
                                         const currentIdx = statusOrder.indexOf(currentStatus);
                                     %>
-                                    <select id="statusSelect" class="status-select">
+                                    <select id="statusSelect" class="status-select" onchange="updateStatus('<%= order?._id %>')">
                                         <% statusOrder.forEach((status, index) => { %>
                                             <option value="<%= status %>" 
                                                 <%= currentStatus === status ? 'selected' : '' %> 
@@ -470,14 +503,16 @@
                                             </option>
                                         <% }) %>
                                     </select>
-                                    <button onclick="updateStatus('<%= order._id %>')"
-                                        class="btn-giant btn-giant-primary mt-2">
-                                        <i class="fas fa-save"></i> APPLY STATUS
-                                    </button>
                                 </div>
                                 <% } else { %>
                                     <div class="text-center py-4">
-                                        <% if (isRequestPending) { %>
+                                        <% if (isPaymentFailed) { %>
+                                            <span
+                                                class="inline-block px-4 py-2 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs font-black uppercase tracking-wider">
+                                                <i class="fas fa-exclamation-triangle mr-1"></i> Payment Failed
+                                            </span>
+                                            <p class="text-[10px] text-slate-400 font-bold mt-2">Cannot update status when payment has failed.</p>
+                                        <% } else if (isRequestPending) { %>
                                             <span
                                                 class="inline-block px-4 py-2 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl text-xs font-black uppercase tracking-wider">
                                                 <i class="fas fa-hourglass-half mr-1"></i> Awaiting Request Action
@@ -549,11 +584,21 @@
                         <span class="sidebar-title"><i class="fas fa-credit-card"></i> Billing Overview</span>
                         <div class="space-y-4 mt-4">
                             <div class="flex justify-between items-center text-sm">
-                                <span
-                                    class="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Gateway</span>
                                 <div
                                     class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-lg text-xs font-black border border-indigo-100">
                                     <%= order?.paymentMethod %>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Payment Status</span>
+                                <div class="font-black text-xs uppercase">
+                                    <% if(order?.paymentStatus === 'Paid') { %>
+                                        <span class="text-green-600">Paid</span>
+                                    <% } else if(order?.paymentStatus === 'Failed') { %>
+                                        <span class="text-red-600">Failed</span>
+                                    <% } else { %>
+                                        <span class="text-amber-600"><%= order?.paymentStatus === 'Refunded' ? 'FULLY REFUNDED' : (order?.paymentStatus || 'Pending') %></span>
+                                    <% } %>
                                 </div>
                             </div>
                             <div class="flex justify-between items-center pt-4 border-t">
@@ -561,13 +606,30 @@
                                     class="text-xs font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
                                 <span class="text-base font-extrabold">₹<%= (order?.subtotal || 0).toLocaleString('en-IN') %></span>
                             </div>
-                            <% if (order?.discount> 0) { %>
-                                <div class="flex justify-between items-center text-sm text-green-600">
-                                    <span class="text-xs font-black uppercase tracking-widest">Offers</span>
-                                    <span class="font-extrabold">-₹<%= (order.discount || 0).toLocaleString('en-IN') %>
-                                    </span>
+                            <% if (order?.discount > 0) { %>
+                                <div class="flex justify-between items-center text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-black text-green-600 uppercase tracking-widest">Offer Discount</span>
+                                        <span class="bg-green-50 text-green-700 px-2 py-0.5 rounded text-[9px] font-black border border-green-200">APPLIED</span>
+                                    </div>
+                                    <span class="font-extrabold text-green-600">-₹<%= (order.discount || 0).toLocaleString('en-IN') %></span>
                                 </div>
-                                <% } %>
+                            <% } %>
+                            <% if (order?.couponDiscount > 0) { %>
+                                <div class="flex justify-between items-center text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-black text-blue-600 uppercase tracking-widest">Coupon</span>
+                                        <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[9px] font-black border border-blue-200"><%= order.couponCode || 'APPLIED' %></span>
+                                    </div>
+                                    <span class="font-extrabold text-blue-600">-₹<%= (order.couponDiscount || 0).toLocaleString('en-IN') %></span>
+                                </div>
+                            <% } %>
+                            <% if (order?.shippingCharge > 0) { %>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Shipping</span>
+                                    <span class="font-extrabold text-slate-600">+₹<%= (order.shippingCharge || 0).toLocaleString('en-IN') %></span>
+                                </div>
+                            <% } %>
                                     <div class="flex justify-between items-center pt-6 mt-4 border-t-2 border-dashed">
                                         <span class="text-sm font-black uppercase tracking-tighter">Settlement</span>
                                         <span class="text-3xl font-black tracking-tighter text-indigo-600">₹<%=

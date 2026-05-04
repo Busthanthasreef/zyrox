@@ -147,6 +147,7 @@
                     const name = nameField.value.trim();
                     const phone = phoneField.value.trim();
                     const email = emailField ? emailField.value.trim() : "";
+                    const imageField = form.querySelector('[name="profileImage"]');
 
                     let isValid = true;
                     const errors = {};
@@ -168,6 +169,41 @@
                         if (!emailRegex.test(email)) {
                             isValid = false;
                             errors.Email = "Please enter a valid email address";
+                        }
+                    }
+
+                    if (imageField && imageField.files.length > 0) {
+                        const file = imageField.files[0];
+                        if (!file.type.startsWith('image/')) {
+                            isValid = false;
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Invalid File Type',
+                                    text: 'Only image files (JPEG, PNG, WEBP) are allowed for profile picture.',
+                                    background: '#111422',
+                                    color: '#f0f2ff',
+                                    confirmButtonColor: '#4f6ef7'
+                                });
+                            } else {
+                                alert('Only image files are allowed for profile picture.');
+                            }
+                            imageField.value = ''; // clear invalid file
+                        } else if (file.size > 5 * 1024 * 1024) {
+                            isValid = false;
+                            if (typeof Swal !== 'undefined') {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'File Too Large',
+                                    text: 'Profile image must be under 5MB.',
+                                    background: '#111422',
+                                    color: '#f0f2ff',
+                                    confirmButtonColor: '#4f6ef7'
+                                });
+                            } else {
+                                alert('Profile image must be under 5MB.');
+                            }
+                            imageField.value = ''; // clear invalid file
                         }
                     }
 

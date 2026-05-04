@@ -14,10 +14,6 @@ const loadCart = async (req, res) => {
 
     const userId = req.session.user._id;
 
-    const page  = parseInt(req.query.page) || 1;
-    const limit = 4;
-    const skip  = (page - 1) * limit;
-
     const categories = await categorySchema.find({
       IsActive: true,
       IsDeleted: false
@@ -38,8 +34,7 @@ const loadCart = async (req, res) => {
         discount: 0,
         shipping: 0,
         total: 0,
-        currentPage: 1,
-        totalPages: 1,
+        total: 0,
         cartItemCount: 0,
         hasUnavailableItems: false,
         user: req.session.user
@@ -54,20 +49,18 @@ const loadCart = async (req, res) => {
 
     const totalItems = cart.Items.length;
 
-    /* ================= PAGINATION ================= */
-    const paginatedItems = cart.Items.slice(skip, skip + limit);
-
     /* ================= MAP CART ITEMS ================= */
-    const cartItems = await Promise.all(paginatedItems.map(async (item) => {
+    const cartItems = await Promise.all(cart.Items.map(async (item) => {
       const prod = item.Product_id;
       const vari = item.Variant_id;
 
+      const isActiveCategory = categories.some(c => c._id.toString() === prod?.categoryId?.toString());
       const isActiveProduct = prod?.status === 'active' && prod?.IsDeleted !== true;
       const isActiveVariant = vari?.IsActive !== false && vari?.IsDeleted !== true;
       const isInStock       = (vari?.stock || 0) > 0;
 
-      const isAdminInactive = !isActiveProduct || !isActiveVariant;
-      const isAvailable     = isActiveProduct && isActiveVariant && isInStock;
+      const isAdminInactive = !isActiveCategory || !isActiveProduct || !isActiveVariant;
+      const isAvailable     = isActiveCategory && isActiveProduct && isActiveVariant && isInStock;
       
       const originalPrice = vari?.price || 0;
       let discountedPrice = originalPrice;
@@ -107,11 +100,12 @@ const loadCart = async (req, res) => {
       const prod = item.Product_id;
       const vari = item.Variant_id;
       
+      const isActiveCategory = categories.some(c => c._id.toString() === prod?.categoryId?.toString());
       const isActiveProduct = prod?.status === 'active' && prod?.IsDeleted !== true;
       const isActiveVariant = vari?.IsActive !== false && vari?.IsDeleted !== true;
       const isInStock       = (vari?.stock || 0) >= item.Quantity;
 
-      if (isActiveProduct && isActiveVariant && isInStock) {
+      if (isActiveCategory && isActiveProduct && isActiveVariant && isInStock) {
         const originalPrice = vari.price || 0;
         const bestOffer = await calculateBestOffer(prod._id, prod.categoryId, originalPrice);
         const discountedPrice = bestOffer ? applyOffer(originalPrice, bestOffer) : originalPrice;
@@ -126,7 +120,6 @@ const loadCart = async (req, res) => {
     const discount   = totalOfferDiscount;
     const shipping   = 0;
     const total      = subtotal - discount + shipping;
-    const totalPages = Math.ceil(totalItems / limit);
 
     /* ================= RENDER ================= */
     res.render("user/cart/cart", {
@@ -136,8 +129,6 @@ const loadCart = async (req, res) => {
       discount,
       shipping,
       total,
-      currentPage:   page,
-      totalPages,
       cartItemCount: totalItems,
       hasUnavailableItems,
       user:          req.session.user
@@ -190,6 +181,16 @@ const addToCart = async (req, res) => {
     const existingIndex = cart.Items.findIndex(
       (item) => item.Variant_id.toString() === variantId.toString()
     );
+
+    // LIMIT: Max 5 individual products in cart
+    if (existingIndex === -1 && cart.Items.length >= 5) {
+      return res.json({
+        success:      false,
+        limitReached: true,
+        message:      "Your cart already contains the maximum of 5 unique products."
+      });
+    }
+
     const existingQty = existingIndex >= 0 ? cart.Items[existingIndex].Quantity : 0;
 
     // Hard cap: already at or over MAX_CART_QTY

@@ -20,20 +20,28 @@
     <link rel="stylesheet" href="/adminStyles/partials/sidebar.css">
     <style>
         :root {
-            --bg-light: #f8f9fadb;
-            --accent-orange: #c86b45;
-            --text-main: #333;
-            --card-radius: 20px;
+            --brand: #6366f1;
+            --brand-soft: rgba(99, 102, 241, 0.1);
+            --bg-glass: rgba(255, 255, 255, 0.7);
+            --border-glass: rgba(255, 255, 255, 0.3);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --card-radius: 24px;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --surface: #ffffff;
+            --surface-alt: #f8fafc;
             --primary-black: #1a1a1a;
-            --border-color: #e5e7eb;
-            --input-focus: #1a1a1a;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-light);
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            background-attachment: fixed;
             color: var(--text-main);
             overflow-x: hidden;
+            min-height: 100vh;
         }
 
         .main-wrapper {
@@ -44,73 +52,104 @@
         .main-content {
             flex: 1;
             padding: 2.5rem;
-            background: white;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             margin: 1.5rem;
             border-radius: var(--card-radius);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
             overflow: hidden;
             min-height: 0;
+            animation: slideUp 0.6s ease-out;
         }
 
-        .header-section h1 {
-            font-family: 'Inter', sans-serif;
-            font-weight: 800;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .header-section {
+            margin-bottom: 2.5rem;
             flex-shrink: 0;
         }
 
-        /* ── TABLE AESTHETICS ── */
+        .header-section h1 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 2.75rem;
+            letter-spacing: -1px;
+            background: linear-gradient(90deg, #1e293b, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-section p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* ── FILTER BAR ── */
         .filter-bar {
-            background: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
             display: flex;
             align-items: center;
             gap: 1.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
             flex-shrink: 0;
+            transition: all 0.3s ease;
         }
 
+        .filter-bar:focus-within {
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.1);
+            background: white;
+        }
 
         .search-wrapper {
             flex: 1;
             display: flex;
             align-items: center;
             gap: 0.8rem;
+            position: relative;
+        }
+
+        .search-wrapper i {
+            color: var(--text-muted);
+            font-size: 1.1rem;
         }
 
         .search-wrapper input {
             border: none;
+            background: transparent;
             outline: none;
             width: 100%;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-main);
         }
 
+        .search-wrapper input::placeholder {
+            color: #cbd5e1;
+        }
+
+        /* ── TABLE STYLING ── */
         .table-responsive {
             flex: 1;
             overflow-y: auto;
             min-height: 0;
-        }
-
-        .table-responsive::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        .table-responsive::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            border: 1px solid #f1f5f9;
         }
 
         .offer-table {
@@ -120,30 +159,35 @@
         }
 
         .offer-table th {
-            background: #fafbfd;
-            padding: 10px 16px;
-            font-weight: 600;
-            color: #9ca3af;
+            background: #f8fafc;
+            padding: 14px 20px;
+            font-weight: 700;
+            color: var(--text-muted);
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            border-bottom: 1px solid var(--border-color);
+            letter-spacing: 0.1em;
+            border-bottom: 1px solid #f1f5f9;
             position: sticky;
             top: 0;
-            z-index: 1;
-            white-space: nowrap;
+            z-index: 10;
         }
 
         .offer-table td {
-            padding: 10px 16px;
+            padding: 16px 20px;
             vertical-align: middle;
-            border-bottom: 1px solid #f3f4f6;
-            font-size: 13px;
-            color: #4b5563;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .offer-table tbody tr {
+            transition: all 0.3s;
         }
 
         .offer-table tbody tr:hover {
-            background: #fafbfd;
+            background: #f8fafc;
+            transform: scale(1.002);
         }
 
         .offer-table tbody tr:last-child td {
@@ -181,23 +225,28 @@
         }
 
         .btn-add-offer {
-            background: var(--primary-black);
+            background: var(--brand);
             color: #fff;
-            padding: 0.7rem 1.8rem;
-            border-radius: 12px;
-            font-weight: 600;
+            padding: 0.8rem 2rem;
+            border-radius: 16px;
+            font-weight: 700;
             border: none;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            transition: all 0.2s ease;
+            gap: 0.8rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
         .btn-add-offer:hover {
-            background: #000;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: #4f46e5;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
             color: #fff;
+        }
+
+        .btn-add-offer:active {
+            transform: translateY(0);
         }
 
         /* ── MODAL STYLING ── */
@@ -418,6 +467,82 @@
             border-color: #dc2626;
         }
 
+        .offer-status-btn {
+            background: #fff7ed;
+            color: #ea580c;
+            border: 1px solid #ffedd5;
+            padding: 4px 10px;
+            border-radius: 7px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.18s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .offer-status-btn.active {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #d1fae5;
+        }
+
+        .offer-status-btn:hover {
+            background: #ea580c;
+            color: #fff;
+            border-color: #ea580c;
+        }
+
+        .offer-status-btn.active:hover {
+            background: #059669;
+            color: #fff;
+            border-color: #059669;
+        }
+
+        /* ── BADGES & PILLS ── */
+        .type-badge {
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .type-badge.product { background: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+        .type-badge.category { background: #eef2ff; color: #4f46e5; border: 1px solid #e0e7ff; }
+        .type-badge.referral { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
+        .type-badge.all { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+
+        .status-pill {
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .status-pill.active { background: #ecfdf5; color: #059669; }
+        .status-pill.inactive { background: #fef2f2; color: #dc2626; }
+
+        .btn-action {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-action:hover { transform: translateY(-2px); }
+        .btn-action.edit:hover { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+        .btn-action.toggle.active { background: #ecfdf5; color: #059669; border-color: #d1fae5; }
+        .btn-action.toggle.inactive { background: #fff7ed; color: #ea580c; border-color: #ffedd5; }
+        .btn-action.delete:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+
         .empty-state {
             padding: 5rem 2rem;
             text-align: center;
@@ -446,6 +571,75 @@
         .date-input-wrapper+.error-message {
             display: block;
         }
+
+        /* Pagination Styles */
+        .pagination-container {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .pagination {
+            gap: 0.5rem;
+        }
+
+        .page-link {
+            border-radius: 8px !important;
+            color: var(--primary-black);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .page-link:hover {
+            background: #f3f4f6;
+            color: #000;
+        }
+
+        .page-item.active .page-link {
+            background: var(--primary-black);
+            border-color: var(--primary-black);
+            color: #fff;
+        }
+
+        .page-item.disabled .page-link {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Loading Overlay */
+        .table-responsive {
+            position: relative;
+        }
+
+        .table-loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(1px);
+        }
+
+        .table-loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner-sm {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #f3f4f6;
+            border-top-color: var(--primary-black);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
@@ -467,104 +661,112 @@
                 <div class="filter-bar">
                     <div class="search-wrapper">
                         <i class="bi bi-search"></i>
-                        <input type="text" placeholder="Search offers by name..." id="offerSearch">
+                        <input type="text" id="offerSearchInput" placeholder="Search offers by name..." value="<%= search %>" autocomplete="off">
+                        <div id="searchingIndicator" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: none;">
+                            <div class="spinner-sm" style="width: 14px; height: 14px; border-width: 2px;"></div>
+                        </div>
                     </div>
                     <div class="d-flex gap-3">
-                        <select class="form-select border-0 shadow-none border-bottom" id="typeFilter"
-                            style="width: 140px; cursor: pointer;" onchange="applyFilters()">
-                            <option value="all">All Types</option>
-                            <option value="product">Product</option>
-                            <option value="category">Category</option>
-                            <option value="all">Global (All)</option>
-                            <option value="referral">Referral</option>
+                        <select id="typeFilter" class="form-select" style="width: 150px; height: 42px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 0.9rem; font-weight: 600; color: var(--text-main); cursor: pointer; transition: all 0.3s;">
+                            <option value="all" <%= typeFilter === 'all' ? 'selected' : '' %>>All Types</option>
+                            <option value="product" <%= typeFilter === 'product' ? 'selected' : '' %>>Product</option>
+                            <option value="category" <%= typeFilter === 'category' ? 'selected' : '' %>>Category</option>
+                            <option value="referral" <%= typeFilter === 'referral' ? 'selected' : '' %>>Referral</option>
                         </select>
-                        <select class="form-select border-0 shadow-none border-bottom" id="statusFilter"
-                            style="width: 140px; cursor: pointer;" onchange="applyFilters()">
-                            <option value="all">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
+                        <select id="statusFilter" class="form-select" style="width: 140px; height: 42px; border-radius: 12px; border: 1px solid #e2e8f0; font-size: 0.9rem; font-weight: 600; color: var(--text-main); cursor: pointer; transition: all 0.3s;">
+                            <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>All Status</option>
+                            <option value="active" <%= statusFilter === 'active' ? 'selected' : '' %>>Active</option>
+                            <option value="inactive" <%= statusFilter === 'inactive' ? 'selected' : '' %>>Inactive</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="table-responsive <%= totalOffers === 0 ? 'd-none' : '' %>" id="offersTableContainer">
-                    <table class="offer-table">
+                    <div class="table-loading-overlay" id="tableLoadingOverlay">
+                        <div class="spinner-sm"></div>
+                    </div>
+                    <table class="offer-table" id="offerTable">
                         <thead>
                             <tr>
-                                <th>Offer Details</th>
+                                <th>Offer Name</th>
                                 <th>Type</th>
+                                <th>Target</th>
                                 <th>Discount</th>
-                                <th>Conditions</th>
                                 <th>Validity</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                <th class="text-end">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="offerTableBody">
                             <% offers.forEach(offer=> { %>
-                                <tr data-type="<%= offer.offerType %>"
-                                    data-status="<%= offer.isActive ? 'active' : 'inactive' %>">
+                                <tr>
                                     <td>
-                                        <div style="font-weight:600; font-size:13px; color:#111827;">
+                                        <div class="offer-name">
                                             <%= offer.offerName %>
-                                        </div>
-                                        <div style="font-size:11.5px; color:#9ca3af; margin-top:2px;">
-                                            <i class="bi bi-tag-fill me-1"></i>
-                                            <%= offer.offerType==='product' ? offer.productId?.productName :
-                                                offer.offerType==='category' ? offer.categoryId?.categoryName :
-                                                offer.offerType==='all' ? 'All Products in Store' : 'Referral Reward' %>
                                         </div>
                                     </td>
                                     <td>
-                                        <span
-                                            class="badge-pill-custom <%= offer.offerType === 'category' ? 'badge-category' : (offer.offerType === 'product' ? 'badge-product' : 'bg-dark text-white') %>">
-                                            <%= offer.offerType === 'all' ? 'Global' : (offer.offerType.charAt(0).toUpperCase() + offer.offerType.slice(1)) %>
+                                        <span class="type-badge <%= offer.offerType %>">
+                                            <%= offer.offerType.charAt(0).toUpperCase() + offer.offerType.slice(1) %>
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="fw-bold text-dark">
-                                            <%= offer.discountType==='percentage' ? offer.discountValue + '%' : '₹' +
-                                                offer.discountValue %> Off
+                                        <div class="target-info">
+                                            <% if (offer.offerType==='product' ) { %>
+                                                <i class="bi bi-box-seam me-1"></i>
+                                                <%= offer.productId?.productName || 'Unknown Product' %>
+                                                    <% } else if (offer.offerType==='category' ) { %>
+                                                        <i class="bi bi-tag me-1"></i>
+                                                        <%= offer.categoryId?.categoryName || 'Unknown Category' %>
+                                                            <% } else if (offer.offerType==='referral' ) { %>
+                                                                <i class="bi bi-people me-1"></i> Referral System
+                                                                <% } else { %>
+                                                                    <i class="bi bi-globe me-1"></i> Store-wide
+                                                                    <% } %>
                                         </div>
-                                        <div class="text-muted small">
+                                    </td>
+                                    <td>
+                                        <div class="discount-val">
+                                            <%= offer.discountType==='percentage' ? offer.discountValue + '%' : '₹' +
+                                                offer.discountValue %>
+                                        </div>
+                                        <div class="small text-muted">
                                             <%= offer.discountType.charAt(0).toUpperCase() + offer.discountType.slice(1)
                                                 %>
                                         </div>
                                     </td>
                                     <td>
-                                        <% if(offer.discountType==='flat' ) { %>
-                                            <div class="text-muted small">Min Purchase: <strong>₹<%=
-                                                        offer.minPurchaseAmount %></strong></div>
-                                            <% } else { %>
-                                                <div class="text-muted small">Max Discount: <strong>₹<%=
-                                                            offer.maxDiscountAmount || 'No Limit' %></strong></div>
-                                                <% } %>
-                                    </td>
-                                    <td>
-                                        <div class="small fw-500">
+                                        <div class="date-range">
                                             <%= new Date(offer.startDate).toLocaleDateString('en-US', { month: 'short' ,
-                                                day: '2-digit' , year: 'numeric' }) %>
+                                                day: '2-digit' }) %> -
+                                                <%= new Date(offer.endDate).toLocaleDateString('en-US', { month: 'short'
+                                                    , day: '2-digit' }) %>
                                         </div>
-                                        <div class="text-muted small">to <%= new
-                                                Date(offer.endDate).toLocaleDateString('en-US', { month: 'short' ,
-                                                day: '2-digit' , year: 'numeric' }) %>
+                                        <div class="small <%= new Date(offer.endDate) < new Date() ? 'text-danger' : 'text-success' %>">
+                                            <%= new Date(offer.endDate) < new Date() ? 'Expired' : 'Active' %>
                                         </div>
                                     </td>
                                     <td>
-                                        <span
-                                            class="badge-pill-custom <%= offer.isActive ? 'badge-status-active' : 'badge-status-inactive' %>">
+                                        <span class="status-pill <%= offer.isActive ? 'active' : 'inactive' %>">
                                             <%= offer.isActive ? 'Active' : 'Inactive' %>
                                         </span>
                                     </td>
                                     <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <button class="offer-edit-btn" onclick="openEditModal('<%= offer._id %>')"
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <button class="btn-action edit" onclick="editOffer('<%= offer._id %>')"
                                                 title="Edit">
-                                                <i class="bi bi-pencil-fill"></i> Edit
+                                                <i class="bi bi-pencil-square"></i>
                                             </button>
-                                            <button class="offer-delete-btn" onclick="deleteOffer('<%= offer._id %>')"
+                                            <button
+                                                class="btn-action toggle <%= offer.isActive ? 'active' : 'inactive' %>"
+                                                onclick="toggleOfferStatus('<%= offer._id %>')"
+                                                title="<%= offer.isActive ? 'Deactivate' : 'Activate' %>">
+                                                <i
+                                                    class="bi <%= offer.isActive ? 'bi-toggle-on' : 'bi-toggle-off' %>"></i>
+                                            </button>
+                                            <button class="btn-action delete" onclick="deleteOffer('<%= offer._id %>')"
                                                 title="Delete">
-                                                <i class="bi bi-trash-fill"></i> Delete
+                                                <i class="bi bi-trash3"></i>
                                             </button>
                                         </div>
                                     </td>
@@ -572,6 +774,35 @@
                                 <% }) %>
                         </tbody>
                     </table>
+
+                    <!-- Pagination -->
+                    <div id="paginationContainer">
+                        <% if (totalPages > 1) { %>
+                            <div class="pagination-container">
+                                <nav aria-label="Offers Pagination">
+                                    <ul class="pagination justify-content-center mb-0">
+                                        <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                                            <a class="page-link" href="javascript:void(0)" onclick="changePage(<%= currentPage - 1 %>)" aria-label="Previous">
+                                                <i class="bi bi-chevron-left"></i>
+                                            </a>
+                                        </li>
+                                        
+                                        <% for(let i = 1; i <= totalPages; i++) { %>
+                                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                                <a class="page-link" href="javascript:void(0)" onclick="changePage(<%= i %>)"><%= i %></a>
+                                            </li>
+                                        <% } %>
+
+                                        <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                            <a class="page-link" href="javascript:void(0)" onclick="changePage(<%= currentPage + 1 %>)" aria-label="Next">
+                                                <i class="bi bi-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        <% } %>
+                    </div>
                 </div>
 
                 <!-- Empty State -->
@@ -776,7 +1007,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
-            const { products, categories, currentOffers } = JSON.parse(document.getElementById('offers-data').textContent);
+            let { products, categories, currentOffers } = JSON.parse(document.getElementById('offers-data').textContent);
             const offerModal = new bootstrap.Modal(document.getElementById('zyraxOfferModal'));
 
             // Handle Option Card Active States
@@ -795,70 +1026,191 @@
                 input.addEventListener('change', updateOptionCards);
             });
 
-            // Search and Filter Logic
-            function applyFilters() {
-                const query = document.getElementById('offerSearch').value.toLowerCase();
-                const typeValue = document.getElementById('typeFilter').value;
-                const statusValue = document.getElementById('statusFilter').value;
-                const rows = document.querySelectorAll('.offer-table tbody tr');
+            // AJAX and Live Search Logic
+            let currentState = {
+                page: <%= currentPage %>,
+                search: '<%= search %>',
+                type: '<%= typeFilter %>',
+                status: '<%= statusFilter %>'
+            };
 
-                rows.forEach(row => {
-                    const text = row.innerText.toLowerCase();
-                    const rowType = row.dataset.type;
-                    const rowStatus = row.dataset.status;
+            const offerTableBody = document.getElementById('offerTableBody');
+            const offerSearchInput = document.getElementById('offerSearchInput');
+            const typeFilterSelect = document.getElementById('typeFilter');
+            const statusFilterSelect = document.getElementById('statusFilter');
+            const tableLoadingOverlay = document.getElementById('tableLoadingOverlay');
+            const searchingIndicator = document.getElementById('searchingIndicator');
+            const paginationContainer = document.getElementById('paginationContainer');
+            const offersTableContainer = document.getElementById('offersTableContainer');
+            const noOffersState = document.getElementById('noOffersState');
 
-                    const matchesSearch = text.includes(query);
-                    const matchesType = typeValue === 'all' || rowType === typeValue;
-                    const matchesStatus = statusValue === 'all' || rowStatus === statusValue;
+            function debounce(func, timeout = 500) {
+                let timer;
+                return (...args) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+                };
+            }
 
-                    row.style.display = (matchesSearch && matchesType && matchesStatus) ? '' : 'none';
-                });
+            async function fetchData(updateHistory = true) {
+                tableLoadingOverlay.classList.add('active');
+                if (currentState.search) searchingIndicator.style.display = 'block';
 
-                const visibleRows = Array.from(rows).filter(r => r.style.display !== 'none');
-                const noOffersState = document.getElementById('noOffersState');
-                const tableContainer = document.getElementById('offersTableContainer');
-                const emptyAction = document.getElementById('emptyAction');
-                const emptyTitle = document.getElementById('emptyTitle');
-                const emptyText = document.getElementById('emptyText');
-                const emptyIcon = document.getElementById('emptyIcon');
+                const params = new URLSearchParams(currentState);
+                const url = `/admin/offers?${params.toString()}`;
 
-                if (visibleRows.length === 0) {
-                    noOffersState.style.display = 'block';
-                    noOffersState.classList.remove('d-none');
-                    tableContainer.style.display = 'none';
-                    tableContainer.classList.add('d-none');
-                    
-                    if (query || typeValue !== 'all' || statusValue !== 'all') {
-                        emptyIcon.className = 'bi bi-search';
-                        emptyTitle.textContent = 'No matching offers found';
-                        emptyText.textContent = 'We couldn\'t find any offers that match your current search or filters.';
-                        emptyAction.innerHTML = `
-                            <button onclick="clearOfferFilters()" class="btn btn-dark px-4 py-2" style="border-radius: 8px; font-weight: 600; font-size: 13px;">
-                                <i class="bi bi-arrow-counterclockwise me-1"></i> Clear All Filters
-                            </button>
-                        `;
-                    } else {
-                        emptyIcon.className = 'bi bi-ticket-perforated';
-                        emptyTitle.textContent = 'No Offers Yet';
-                        emptyText.textContent = 'It looks like you haven\'t created any offers. Start by adding a new one to drive more sales!';
-                        emptyAction.innerHTML = '';
+                try {
+                    const res = await fetch(url, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        currentOffers = data.offers;
+                        renderTable(data.offers);
+                        renderPagination(data);
+                        if (updateHistory) window.history.pushState(currentState, '', url);
+
+                        if (data.offers.length === 0) {
+                            offersTableContainer.classList.add('d-none');
+                            noOffersState.classList.remove('d-none');
+                        } else {
+                            offersTableContainer.classList.remove('d-none');
+                            noOffersState.classList.add('d-none');
+                        }
                     }
-                } else {
-                    noOffersState.style.display = 'none';
-                    noOffersState.classList.add('d-none');
-                    tableContainer.style.display = 'block';
-                    tableContainer.classList.remove('d-none');
+                } catch (err) {
+                    console.error('Fetch error:', err);
+                } finally {
+                    tableLoadingOverlay.classList.remove('active');
+                    searchingIndicator.style.display = 'none';
                 }
             }
 
-            function clearOfferFilters() {
-                document.getElementById('offerSearch').value = '';
-                document.getElementById('typeFilter').value = 'all';
-                document.getElementById('statusFilter').value = 'all';
-                applyFilters();
+            function renderTable(offers) {
+                offerTableBody.innerHTML = offers.map(offer => {
+                    const typeLabel = offer.offerType.charAt(0).toUpperCase() + offer.offerType.slice(1);
+                    const startDate = new Date(offer.startDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+                    const endDate = new Date(offer.endDate).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+                    const isExpired = new Date(offer.endDate) < new Date();
+                    
+                    let targetHtml = '';
+                    if (offer.offerType === 'product') {
+                        targetHtml = `<i class="bi bi-box-seam me-1"></i> ${offer.productId?.productName || 'Unknown Product'}`;
+                    } else if (offer.offerType === 'category') {
+                        targetHtml = `<i class="bi bi-tag me-1"></i> ${offer.categoryId?.categoryName || 'Unknown Category'}`;
+                    } else if (offer.offerType === 'referral') {
+                        targetHtml = `<i class="bi bi-people me-1"></i> Referral System`;
+                    } else {
+                        targetHtml = `<i class="bi bi-globe me-1"></i> Store-wide`;
+                    }
+
+                    return `
+                        <tr>
+                            <td><div class="offer-name">${offer.offerName}</div></td>
+                            <td><span class="type-badge ${offer.offerType}">${typeLabel}</span></td>
+                            <td><div class="target-info">${targetHtml}</div></td>
+                            <td>
+                                <div class="discount-val">${offer.discountType === 'percentage' ? offer.discountValue + '%' : '₹' + offer.discountValue}</div>
+                                <div class="small text-muted">${offer.discountType.charAt(0).toUpperCase() + offer.discountType.slice(1)}</div>
+                            </td>
+                            <td>
+                                <div class="date-range">${startDate} - ${endDate}</div>
+                                <div class="small ${isExpired ? 'text-danger' : 'text-success'}">${isExpired ? 'Expired' : 'Active'}</div>
+                            </td>
+                            <td><span class="status-pill ${offer.isActive ? 'active' : 'inactive'}">${offer.isActive ? 'Active' : 'Inactive'}</span></td>
+                            <td>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn-action edit" onclick="editOffer('${offer._id}')" title="Edit"><i class="bi bi-pencil-square"></i></button>
+                                    <button class="btn-action toggle ${offer.isActive ? 'active' : 'inactive'}" onclick="toggleOfferStatus('${offer._id}')" title="${offer.isActive ? 'Deactivate' : 'Activate'}">
+                                        <i class="bi ${offer.isActive ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
+                                    </button>
+                                    <button class="btn-action delete" onclick="deleteOffer('${offer._id}')" title="Delete"><i class="bi bi-trash3"></i></button>
+                                </div>
+                            </td>
+                        </tr>`;
+                }).join('');
             }
 
-            document.getElementById('offerSearch').addEventListener('input', applyFilters);
+            function renderPagination(data) {
+                const { currentPage, totalPages } = data;
+                if (totalPages <= 1) {
+                    paginationContainer.innerHTML = '';
+                    return;
+                }
+
+                let html = `
+                    <div class="pagination-container">
+                        <nav aria-label="Offers Pagination">
+                            <ul class="pagination justify-content-center mb-0">
+                                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage - 1})" aria-label="Previous">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>`;
+                
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+                                <a class="page-link" href="javascript:void(0)" onclick="changePage(${i})">${i}</a>
+                             </li>`;
+                }
+
+                html += `
+                                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                                    <a class="page-link" href="javascript:void(0)" onclick="changePage(${currentPage + 1})" aria-label="Next">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>`;
+                paginationContainer.innerHTML = html;
+            }
+
+            function changePage(p) {
+                currentState.page = p;
+                fetchData();
+            }
+
+            const debouncedSearch = debounce((val) => {
+                currentState.search = val;
+                currentState.page = 1;
+                fetchData();
+            });
+
+            offerSearchInput.oninput = (e) => {
+                debouncedSearch(e.target.value);
+            };
+
+            typeFilterSelect.onchange = (e) => {
+                currentState.type = e.target.value;
+                currentState.page = 1;
+                fetchData();
+            };
+
+            statusFilterSelect.onchange = (e) => {
+                currentState.status = e.target.value;
+                currentState.page = 1;
+                fetchData();
+            };
+
+            window.onpopstate = (e) => {
+                if (e.state) {
+                    currentState = e.state;
+                    offerSearchInput.value = currentState.search;
+                    typeFilterSelect.value = currentState.type;
+                    statusFilterSelect.value = currentState.status;
+                    fetchData(false);
+                }
+            };
+
+            // Removed client-side applyFilters as we now use server-side pagination/filtering
+            function clearOfferFilters() {
+                currentState = { page: 1, search: '', type: 'all', status: 'all' };
+                offerSearchInput.value = '';
+                typeFilterSelect.value = 'all';
+                statusFilterSelect.value = 'all';
+                fetchData();
+            }
 
             function toggleApplyFields() {
                 const type = document.querySelector('input[name="offerType"]:checked').value;
@@ -944,7 +1296,7 @@
                 offerModal.show();
             }
 
-            function openEditModal(offerId) {
+            function editOffer(offerId) {
                 clearValidationErrors();
                 const data = currentOffers.find(o => o._id === offerId);
                 if (!data) return;
@@ -1108,16 +1460,23 @@
                 }
             };
 
-            async function toggleStatus(id) {
+            async function toggleOfferStatus(id) {
                 try {
                     const res = await fetch(`/admin/offers/toggle/${id}`, { method: 'PATCH' });
                     const data = await res.json();
-                    if (!data.success) {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => location.reload());
+                    } else {
                         Swal.fire({ icon: 'error', title: 'Error', text: data.message });
-                        location.reload();
                     }
                 } catch (err) {
-                    location.reload();
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong' });
                 }
             }
 

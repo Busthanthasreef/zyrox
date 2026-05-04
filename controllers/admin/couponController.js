@@ -6,11 +6,18 @@ const getCoupons = async (req, res) => {
         const limit = 4;
         const skip = (page - 1) * limit;
         const search = req.query.search || "";
+        const statusFilter = req.query.status || "all";
 
         const query = {
             isDeleted: false,
             code: { $regex: search, $options: "i" }
         };
+
+        if (statusFilter === "active") {
+            query.isActive = true;
+        } else if (statusFilter === "inactive") {
+            query.isActive = false;
+        }
 
         const totalCoupons = await Coupon.countDocuments(query);
 
@@ -20,12 +27,26 @@ const getCoupons = async (req, res) => {
             .limit(limit)
             .lean();
 
-        const totalPages = Math.ceil(totalCoupons / limit);
+        const totalPages = Math.ceil(totalCoupons / limit) || 1;
+
+        if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+            return res.json({
+                success: true,
+                coupons,
+                totalCoupons,
+                totalPages,
+                currentPage: page,
+                search,
+                statusFilter
+            });
+        }
 
         res.render('admin/coupon/couponManagement', {
             user: req.session.admin,
             coupons,
+            totalCoupons,
             search,
+            statusFilter,
             currentPage: page,
             totalPages
         });
@@ -72,6 +93,17 @@ const addCoupon = async (req, res) => {
             return res.json({ success: false, message: "Flat discount must be less than Minimum Cart Value" });
         }
 
+        const fromDate = new Date(validFrom);
+        const tillDate = new Date(validTill);
+
+        if (isNaN(fromDate.getTime()) || isNaN(tillDate.getTime())) {
+            return res.json({ success: false, message: "Invalid date format provided" });
+        }
+
+        if (fromDate >= tillDate) {
+            return res.json({ success: false, message: "Valid From must be before Valid Till" });
+        }
+
         const newCoupon = new Coupon({
             code: code.trim().toUpperCase(),
             description,
@@ -80,8 +112,8 @@ const addCoupon = async (req, res) => {
             minCartValue: Number(minCartValue) || 0,
             maxDiscount: maxDiscount ? Number(maxDiscount) : null,
             usageLimit: usageLimit ? Number(usageLimit) : null,
-            validFrom: new Date(validFrom),
-            validTill: new Date(validTill),
+            validFrom: fromDate,
+            validTill: tillDate,
             isActive: true,
             isDeleted: false,
         });
@@ -143,6 +175,13 @@ const editCoupon = async (req, res) => {
             });
         }
 
+        const fromDate = new Date(validFrom);
+        const tillDate = new Date(validTill);
+
+        if (isNaN(fromDate.getTime()) || isNaN(tillDate.getTime())) {
+            return res.json({ success: false, message: "Invalid date format provided" });
+        }
+
         // 5. Prepare update data safely
         const updateData = {
             code: normalizedCode,
@@ -152,8 +191,8 @@ const editCoupon = async (req, res) => {
             minCartValue: Number(minCartValue) || 0,
             maxDiscount: maxDiscount ? Number(maxDiscount) : null,
             usageLimit: usageLimit ? Number(usageLimit) : null,
-            validFrom: new Date(validFrom),
-            validTill: new Date(validTill),
+            validFrom: fromDate,
+            validTill: tillDate,
             isActive: isActive === true || isActive === 'true'
         };
 
@@ -236,6 +275,26 @@ const editCoupon = async (req, res) => {
     }
 };
 
+const toggleCouponStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const coupon = await Coupon.findById(id);
+        if (!coupon) return res.status(404).json({ success: false, message: "Coupon not found" });
+
+        coupon.isActive = !coupon.isActive;
+        await coupon.save();
+
+        res.json({
+            success: true,
+            message: `Coupon ${coupon.isActive ? 'activated' : 'deactivated'} successfully`,
+            isActive: coupon.isActive
+        });
+    } catch (error) {
+        console.error("Error toggling coupon status:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+}
+
 const deleteCoupon = async (req, res) => {
     try {
         const { id } = req.params;
@@ -247,4 +306,4 @@ const deleteCoupon = async (req, res) => {
     }
 }
 
-export { getCoupons, addCoupon, editCoupon, deleteCoupon };
+export { getCoupons, addCoupon, editCoupon, deleteCoupon, toggleCouponStatus };

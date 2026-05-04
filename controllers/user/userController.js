@@ -355,14 +355,17 @@ const loadSignIn = (req, res) => {
   const returnTo = req.session.returnTo || null;
   const loginErrors = req.session.loginErrors || {};
   const Email = req.session.loginEmail || "";
+  const Password = req.session.loginPassword || "";
 
   delete req.session.loginErrors;
   delete req.session.loginEmail;
+  delete req.session.loginPassword;
 
   res.render("user/auth/signInPage", {
     emailError: loginErrors.email || null,
     passError: loginErrors.password || null,
     Email,
+    Password,
     error: error || null,
     returnTo,
   });
@@ -378,11 +381,13 @@ const userSignIn = async (req, res, next) => {
     const isAjax = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json')) || req.is('json');
 
     const handleError = (target, message, blocked = false) => {
+      req.session.loginErrors = { [target]: message };
+      req.session.loginEmail = trimmedEmail;
+      req.session.loginPassword = Password;
+      
       if (isAjax) {
         return res.json({ success: false, target, message, blocked });
       } else {
-        req.session.loginErrors = { [target]: message };
-        req.session.loginEmail = trimmedEmail;
         return res.redirect("/signin");
       }
     };

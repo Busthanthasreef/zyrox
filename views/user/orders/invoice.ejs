@@ -191,14 +191,6 @@
             gap: 6px;
         }
 
-        .status-badge-paid::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background-color: var(--success-text);
-            border-radius: 50%;
-        }
-
         .items-table {
             width: 100%;
             border-collapse: collapse;
@@ -373,9 +365,35 @@
             font-weight: 600;
         }
 
+        /* Loading overlay shown while PDF is generating */
+        #pdf-loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(243, 244, 246, 0.92);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+        #pdf-loading-overlay.active {
+            display: flex;
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e5e7eb;
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         @media print {
             body { background-color: white; padding: 0; }
             .receipt-actions { display: none; }
+            #pdf-loading-overlay { display: none !important; }
             .receipt-container { box-shadow: none; padding: 0; }
         }
     </style>
@@ -383,11 +401,17 @@
 
 <body>
 
+    <!-- Loading overlay for auto-download -->
+    <div id="pdf-loading-overlay">
+        <div class="spinner"></div>
+        <p style="font-family: Inter, sans-serif; font-weight: 700; color: #1a2a4d; font-size: 1rem;">Generating your invoice…</p>
+    </div>
+
     <div class="receipt-actions">
         <button onclick="window.print()" class="btn-action btn-print">
             <i class="fas fa-print"></i> Print
         </button>
-        <button onclick="downloadPDF()" class="btn-action btn-download">
+        <button id="save-pdf-btn" onclick="downloadPDF()" class="btn-action btn-download">
             <i class="fas fa-download"></i> Save as PDF
         </button>
     </div>
@@ -401,7 +425,7 @@
                 <div class="brand-tagline">Premium E-Commerce Experience</div>
             </div>
             <div class="receipt-title-box">
-                <h1 class="receipt-title">Payment Receipt</h1>
+                <h1 class="receipt-title">Order Invoice</h1>
                 <div class="order-meta">
                     <div class="meta-item">
                         <span class="meta-label">Receipt No:</span>
@@ -416,9 +440,17 @@
                         <span class="meta-value">#<%= order.orderId %></span>
                     </div>
                     <div class="meta-item">
-                        <span class="meta-label">Status:</span>
+                        <span class="meta-label">Payment Status:</span>
                         <span class="meta-value">
-                            <span class="status-badge-paid">PAID</span>
+                            <% if (order.paymentStatus === 'Paid') { %>
+                                <span class="status-badge-paid">● PAID</span>
+                            <% } else if (order.paymentStatus === 'Refunded') { %>
+                                <span class="status-badge-paid" style="background:#eff6ff; color:#2563eb;">● REFUNDED</span>
+                            <% } else if (order.paymentStatus === 'Failed') { %>
+                                <span class="status-badge-paid" style="background:#fef2f2; color:#dc2626;">● FAILED</span>
+                            <% } else { %>
+                                <span class="status-badge-paid" style="background:#fffbeb; color:#d97706;">● <%= order.paymentStatus.toUpperCase() %></span>
+                            <% } %>
                         </span>
                     </div>
                 </div>
@@ -439,11 +471,11 @@
             <div class="info-column">
                 <h3 class="info-section-title">Billing From</h3>
                 <div class="info-content">
-                    <p class="name">Zyrox E-Commerce Solutions</p>
-                    <p>123 Digital Plaza, Cyber City</p>
-                    <p>Bangalore, Karnataka - 560001</p>
-                    <p>Contact: +91 98765 43210</p>
-                    <p>Email: support@zyrox.com</p>
+                    <p class="name">Zyrox mobile store pvt ltd</p>
+                    <p>PAN: AACCU3841N</p>
+                    <p>CIN: U74999UP2019PTC182407</p>
+                    <p>Contact: +91 9074105805</p>
+                    <p>Email: zyroxmobilestore@gmail.com</p>
                 </div>
             </div>
         </div>
@@ -451,9 +483,10 @@
         <table class="items-table">
             <thead>
                 <tr>
-                    <th style="width: 50%;">Item Description</th>
+                    <th style="width: 45%;">Item Description</th>
                     <th class="text-center">Qty</th>
                     <th class="text-right">Unit Price</th>
+                    <th class="text-center" style="font-size: 0.65rem;">Status</th>
                     <th class="text-right">Total</th>
                 </tr>
             </thead>
@@ -472,6 +505,17 @@
                         </td>
                         <td class="text-center"><%= item.quantity %></td>
                         <td class="text-right">&#8377;<%= item.price.toLocaleString('en-IN') %></td>
+                        <td class="text-center" style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">
+                            <% if (['Cancelled', 'Cancellation Requested'].includes(item.status)) { %>
+                                <span style="color: #ef4444;"><%= item.status === 'Cancelled' ? 'Cancelled' : 'Cancel Req' %></span>
+                            <% } else if (['Returned', 'Return Requested'].includes(item.status)) { %>
+                                <span style="color: #f59e0b;"><%= item.status === 'Returned' ? 'Returned' : 'Return Req' %></span>
+                            <% } else if (item.status === 'Delivered') { %>
+                                <span style="color: #10b981;">Delivered</span>
+                            <% } else { %>
+                                <span style="color: #6b7280;"><%= item.status %></span>
+                            <% } %>
+                        </td>
                         <td class="text-right">&#8377;<%= (item.price * item.quantity).toLocaleString('en-IN') %></td>
                     </tr>
                 <% }) %>
@@ -480,6 +524,27 @@
 
         <div class="summary-container">
             <div class="summary-box">
+                <% 
+                    let deductionAmount = 0;
+                    if (order.orderStatus === 'Cancelled' || order.orderStatus === 'Returned') {
+                        deductionAmount = order.finalPrice;
+                    } else {
+                        order.items.forEach(item => {
+                            if (['Cancelled', 'Returned'].includes(item.status)) {
+                                let rAmount = item.total;
+                                if (order.couponDiscount > 0 && order.subtotal > 0) {
+                                    const proportion = item.total / order.subtotal;
+                                    const itemCouponDiscount = order.couponDiscount * proportion;
+                                    rAmount = item.total - itemCouponDiscount;
+                                }
+                                deductionAmount += rAmount;
+                            }
+                        });
+                    }
+                    deductionAmount = Math.round(deductionAmount);
+                    const isRefund = ['Paid', 'Refunded'].includes(order.paymentStatus) && ['Online', 'Wallet'].includes(order.paymentMethod);
+                    const deductionLabel = isRefund ? 'Refunded Amount' : 'Cancelled Amount';
+                %>
                 <div class="summary-row">
                     <span class="summary-label">Subtotal:</span>
                     <span class="summary-value">&#8377;<%= order.subtotal.toLocaleString('en-IN') %></span>
@@ -494,9 +559,20 @@
                     <span class="summary-label">Shipping Fee:</span>
                     <span class="summary-value"><%= order.shippingCharge === 0 ? 'FREE' : '₹' + order.shippingCharge.toLocaleString('en-IN') %></span>
                 </div>
+                <% if (deductionAmount > 0) { %>
+                    <div class="summary-row">
+                        <span class="summary-label"><%= deductionLabel %>:</span>
+                        <span class="summary-value" style="color: #3b82f6;">- &#8377;<%= deductionAmount.toLocaleString('en-IN') %></span>
+                    </div>
+                <% } %>
                 <div class="summary-row total">
                     <span class="summary-label">Grand Total:</span>
-                    <span class="summary-value">&#8377;<%= order.finalPrice.toLocaleString('en-IN') %></span>
+                    <% const finalNet = Math.max(0, order.finalPrice - deductionAmount); %>
+                    <% if (finalNet === 0 && deductionAmount > 0) { %>
+                        <span class="summary-value" style="font-size: 1.1rem; color: #3b82f6; text-transform: uppercase;"><%= isRefund ? 'FULLY REFUNDED' : 'FULLY CANCELLED' %></span>
+                    <% } else { %>
+                        <span class="summary-value">&#8377;<%= finalNet.toLocaleString('en-IN') %></span>
+                    <% } %>
                 </div>
             </div>
         </div>
@@ -516,8 +592,20 @@
                     </div>
                 </div>
                 <div class="transaction-note">
-                    <strong>Transaction Status:</strong> Payment Received. Your order is confirmed and awaiting shipment. 
-                    A tracking number will be provided once your items are dispatched.
+                    <strong>Transaction Status:</strong> 
+                    <% if (order.paymentStatus === 'Paid') { %>
+                        Payment Received. Your order is confirmed and awaiting shipment. 
+                        A tracking number will be provided once your items are dispatched.
+                    <% } else if (order.paymentStatus === 'Failed') { %>
+                        Payment Failed. The transaction was not completed successfully. 
+                        Please retry payment or contact support if the amount was debited.
+                    <% } else if (order.paymentStatus === 'Refunded') { %>
+                        Payment Refunded. The transaction amount has been credited back to Wallet.
+                    <% } else if (order.orderStatus === 'Cancelled') { %>
+                        Order Cancelled. This order has been voided.
+                    <% } else { %>
+                        Payment Pending. Please complete the payment to process your order.
+                    <% } %>
                 </div>
             </div>
             <div class="signature-box">
@@ -535,37 +623,56 @@
 
         <div class="thanks-msg">
             Thank you for shopping with Zyrox! For support, email: <a href="mailto:support@zyrox.com">support@zyrox.com</a><br>
-            Visit us at <a href="https://zyrox.com">www.zyrox.com</a>. All purchases subject to terms.
+            Visit us at <a href="https://zyrox.busthan.online">www.zyrox.com</a>. All purchases subject to terms.
         </div>
     </div>
 
     <script>
-        function downloadPDF() {
+        function downloadPDF(autoClose) {
+            const overlay = document.getElementById('pdf-loading-overlay');
+            const btn = document.getElementById('save-pdf-btn');
+
+            overlay.classList.add('active');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+                btn.disabled = true;
+            }
+
             const element = document.getElementById('receipt');
             const opt = {
                 margin: [0, 0],
-                filename: 'Zyrox_Receipt_<%= order.orderId %>.pdf',
+                filename: 'Zyrox_Invoice_<%= order.orderId %>.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
-                    scale: 2, 
-                    useCORS: true, 
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
                     letterRendering: true,
                     logging: false
                 },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
-            
-            // Show loading state or disable button if needed
-            const btn = document.querySelector('.btn-download');
-            const originalContent = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-            btn.disabled = true;
 
             html2pdf().set(opt).from(element).save().then(() => {
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
+                overlay.classList.remove('active');
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-download"></i> Save as PDF';
+                    btn.disabled = false;
+                }
+                // If opened as a download tab, close it after PDF is saved
+                if (autoClose) {
+                    setTimeout(() => window.close(),0);
+                }
             });
         }
+
+        // Auto-trigger download if opened with ?download=true
+        window.addEventListener('load', function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('download') === 'true') {
+                // Small delay to ensure fonts/styles are fully loaded
+                setTimeout(() => downloadPDF(true), 100);
+            }
+        });
     </script>
 </body>
 

@@ -68,10 +68,39 @@ document.addEventListener('DOMContentLoaded', function () {
         if (changeBtn && imageUpload) {
             changeBtn.addEventListener('click', () => imageUpload.click());
             imageUpload.addEventListener('change', function () {
-                if (this.files[0]) {
+                const file = this.files[0];
+                if (file) {
+                    // Image type validation
+                    if (!file.type.startsWith('image/')) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Invalid File Type',
+                            text: 'Please select a valid image file (e.g., JPEG, PNG, WEBP).',
+                            background: '#111422',
+                            color: '#f0f2ff',
+                            confirmButtonColor: '#4f6ef7'
+                        });
+                        this.value = '';
+                        return;
+                    }
+
+                    // Image size validation (5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'File Too Large',
+                            text: 'Profile image must be under 5MB.',
+                            background: '#111422',
+                            color: '#f0f2ff',
+                            confirmButtonColor: '#4f6ef7'
+                        });
+                        this.value = '';
+                        return;
+                    }
+
                     const reader = new FileReader();
                     reader.onload = e => { if (preview) preview.src = e.target.result; };
-                    reader.readAsDataURL(this.files[0]);
+                    reader.readAsDataURL(file);
                 }
                 const removeInput = document.getElementById('removeImageInput');
                 if (removeInput) removeInput.value = 'false';

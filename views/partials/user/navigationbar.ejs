@@ -785,20 +785,16 @@
     <div class="nav-icons">
         <div class="icon">
             <a href="/wishlist"><i class="far fa-heart"></i></a>
-            <% if (typeof wishlistCount !=='undefined' && wishlistCount> 0) { %>
-                <span class="badge">
-                    <%= wishlistCount %>
-                </span>
-                <% } %>
+            <span class="badge wishlist-badge" id="wishBtn" style="<%= (typeof wishlistCount === 'undefined' || wishlistCount <= 0) ? 'display: none;' : '' %>">
+                <%= (typeof wishlistCount !== 'undefined') ? wishlistCount : 0 %>
+            </span>
         </div>
 
         <div class="icon">
             <a href="/cart"><i class="fas fa-shopping-cart"></i></a>
-            <% if (typeof cartItemCount !=='undefined' && cartItemCount> 0) { %>
-                <span class="badge">
-                    <%= cartItemCount %>
-                </span>
-                <% } %>
+            <span class="badge cart-badge" id="cartBtnCount" style="<%= (typeof cartItemCount === 'undefined' || cartItemCount <= 0) ? 'display: none;' : '' %>">
+                <%= (typeof cartItemCount !== 'undefined') ? cartItemCount : 0 %>
+            </span>
         </div>
 
         <!-- Profile Button -->

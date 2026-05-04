@@ -161,14 +161,13 @@ const editProduct = async (req, res) => {
 };
 
 
-/* ================= TOGGLE STATUS ================= */
-
 const toggleProductStatus = async (req, res) => {
-
-    await productService.toggleStatus(req.params.id);
-
-    res.redirect("/admin/products");
-
+    try {
+        const result = await productService.toggleStatus(req.params.id);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 };
 
 

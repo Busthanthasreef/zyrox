@@ -449,7 +449,11 @@
 
                                 <% if (hasDiscount) { %>
                                     <div class="card-badge">
-                                        <%= discPercent %>% OFF
+                                        <% if (product.offerType === 'flat') { %>
+                                            ₹<%= (product.oldPrice - product.price).toLocaleString('en-IN') %> OFF
+                                        <% } else { %>
+                                            <%= discPercent %>% OFF
+                                        <% } %>
                                     </div>
                                     <% } %>
 
@@ -624,19 +628,21 @@
                     const data = await response.json();
                     if (data.success) {
                         toast.fire({ icon: 'success', title: 'Added to cart!' });
-                        
-                        // Update cart count if the element exists
-                        const cartBadge = document.querySelector('.cart-badge');
-                        if (cartBadge) {
-                            const currentCount = parseInt(cartBadge.textContent) || 0;
-                            cartBadge.textContent = currentCount + 1;
-                        }
 
-                        // Remove from wishlist view
-                        const card = document.getElementById(`product-${productId}`);
+                        // Update cart count badge
+                        const badge = document.querySelector('.cart-badge');
+                        if (badge) {
+                            const newCount = (parseInt(badge.textContent) || 0) + 1;
+                            badge.textContent = newCount;
+                            badge.style.display = newCount > 0 ? 'flex' : 'none';
+                        }
+                        
+                        // Remove from wishlist visually
+                        const card = btn.closest('.wishlist-card');
                         if (card) {
                             card.style.opacity = '0';
-                            card.style.transform = 'scale(0.8)';
+                            card.style.transform = 'scale(0.9) translateY(20px)';
+
                             card.style.transition = 'all 0.5s ease';
                             setTimeout(() => {
                                 card.remove();

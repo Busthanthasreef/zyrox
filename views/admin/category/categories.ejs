@@ -54,16 +54,21 @@
                     </div>
                     <div class="stat-card">
                         <h4>Inactive</h4>
-                        <h2>
+                        <h2 id="inActiveCategoriesCount">
                             <%= inActiveCategories %>
                         </h2>
                         <i class="bi bi-x-circle stat-icon"></i>
                     </div>
                 </div>
 
+                <div id="searchingIndicator" style="display: none; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; font-weight: 600; color: var(--accent);">
+                    <div class="spinner-sm" style="width: 14px; height: 14px; border: 2px solid #e2e8f0; border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                    <span>Searching categories...</span>
+                </div>
+
                 <!-- ── Table Container ── -->
 
-                <div class="table-container">
+                <div class="table-container ">
 
                     <!-- Toolbar -->
                     <div class="table-toolbar">
@@ -72,42 +77,43 @@
                             All Categories
                         </h3>
 
-                        <form method="GET" action="/admin/categories" class="filter-form">
+                        <div class="filter-form">
                             <div class="search-wrap" style="position: relative;">
                                 <i class="bi bi-search search-icon"></i>
-                                <input type="text" name="search" id="categorySearchInput"
+                                <input type="search" id="categorySearchInput"
                                     placeholder="Search by Name or ID…" value="<%= search || '' %>" autocomplete="off"
-                                    style="padding-right: 30px;"
-                                    oninput="document.getElementById('categoryClearBtn').style.display = this.value.length > 0 ? 'block' : 'none'">
+                                    style="padding-right: 30px;">
                                 <i class="bi bi-x" id="categoryClearBtn" title="Clear Search"
-                                    style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #999; cursor: pointer; display: <%= search ? 'block' : 'none' %>;"
-                                    onclick="document.getElementById('categorySearchInput').value=''; this.style.display='none'; this.closest('form').submit();"></i>
+                                    style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 20px; color: #999; cursor: pointer; display: <%= search ? 'block' : 'none' %>;"></i>
                             </div>
 
-                            <select name="status" class="filter-select" onchange="this.form.submit()">
-                                <option value="" <%=(!statusFilter || statusFilter==='' ) ? 'selected' : '' %>>All
-                                    Status</option>
+                            <select id="statusFilter" class="filter-select">
+                                <option value="" <%=(!statusFilter || statusFilter==='' ) ? 'selected' : '' %>>All Status</option>
                                 <option value="active" <%=statusFilter==='active' ? 'selected' : '' %>>Active</option>
-                                <option value="blocked" <%=statusFilter==='blocked' ? 'selected' : '' %>>Blocked
-                                </option>
+                                <option value="blocked" <%=statusFilter==='blocked' ? 'selected' : '' %>>Blocked</option>
                             </select>
 
-                            <select name="sortBy" class="filter-select" onchange="this.form.submit()">
+                            <select id="countFilter" class="filter-select">
+                                <option value="" <%=(!countFilter || countFilter==='' ) ? 'selected' : '' %>>All Products</option>
+                                <option value="has_products" <%=countFilter==='has_products' ? 'selected' : '' %>>With Products</option>
+                                <option value="no_products" <%=countFilter==='no_products' ? 'selected' : '' %>>No Products</option>
+                            </select>
+
+                            <select id="sortBy" class="filter-select">
                                 <option value="newest" <%= sortBy === 'newest' ? 'selected' : '' %>>Newest First</option>
                                 <option value="oldest" <%= sortBy === 'oldest' ? 'selected' : '' %>>Oldest First</option>
                                 <option value="name_asc" <%= sortBy === 'name_asc' ? 'selected' : '' %>>Name: A-Z</option>
                                 <option value="name_desc" <%= sortBy === 'name_desc' ? 'selected' : '' %>>Name: Z-A</option>
                             </select>
-
-                            <button type="submit" class="search-submit-btn">
-                                <i class="bi bi-funnel"></i> Apply
-                            </button>
-                        </form>
+                        </div>
                     </div>
 
                     <!-- Table -->
-                    <div class="table-scroll">
-                        <table class="category-table">
+                    <div class="table-scroll" style="position: relative;">
+                        <div id="tableLoadingOverlay" style="position: absolute; inset: 0; background: rgba(255,255,255,0.4); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(1px);">
+                            <div class="spinner-sm" style="width: 32px; height: 32px; border: 3px solid #e2e8f0; border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                        </div>
+                        <table class="category-table" id="categoryTable">
                             <thead>
                                 <tr>
                                     <th>SI.No</th>
@@ -136,7 +142,7 @@
                                             </td>
 
                                             <td>
-                                                <span class="cat-name">
+                                                <span class="cat-name" style="text-transform: capitalize;">
                                                     <i class="bi bi-tag"></i>
                                                     <%= cat.categoryName %>
                                                 </span>
@@ -163,6 +169,12 @@
                                                     <button class="edit-btn"
                                                         onclick="openEditModal('<%= cat._id %>', '<%= cat.categoryName %>', '<%= cat.IsActive %>')">
                                                         <i class="bi bi-pencil-fill"></i>
+                                                    </button>
+
+                                                    <button class="status-btn <%= cat.IsActive ? 'active' : '' %>"
+                                                        onclick="toggleStatus('<%= cat._id %>')" 
+                                                        title="<%= cat.IsActive ? 'Deactivate' : 'Activate' %>">
+                                                        <i class="bi <%= cat.IsActive ? 'bi-toggle-on' : 'bi-toggle-off' %>"></i>
                                                     </button>
 
                                                     <button class="delete-btn"
@@ -195,60 +207,42 @@
                     </div>
 
                     <!-- Pagination -->
-                    <% if (totalPages> 1) { %>
-
-                        <% const tp=totalPages; const cp=currentPage; const src=search || '' ; const stf=statusFilter
-                            || '' ; let startPage=Math.max(1, cp - 1); let endPage=Math.min(tp, startPage + 2); if
-                            (endPage - startPage < 2) startPage=Math.max(1, endPage - 2); %>
-
+                    <div id="paginationContainer">
+                        <% if (totalPages> 1) { %>
                             <div class="pagination-footer">
-
-                                <p class="showing-text">
+                                <p class="showing-text" id="showingText">
                                     Showing
-                                    <strong>
-                                        <%= totalCategories> 0
-                                            ? ((cp - 1) * limit + 1) + '–' + Math.min(cp * limit, totalCategories)
-                                            : 0 %>
-                                    </strong>
-                                    of <strong>
-                                        <%= totalCategories %>
-                                    </strong> Categories
+                                    <strong><%= totalCategories> 0 ? ((currentPage - 1) * limit + 1) + '–' + Math.min(currentPage * limit, totalCategories) : 0 %></strong>
+                                    of <strong><%= totalCategories %></strong> Categories
                                 </p>
 
                                 <nav>
-                                    <ul class="pagination-list">
-
-                                        <!-- Previous -->
+                                    <ul class="pagination-list" id="paginationList">
                                         <li>
-                                            <a href="?page=<%= Math.max(1, cp - 1) %>&search=<%= src %>&status=<%= stf %>&sortBy=<%= sortBy || '' %>"
-                                                class="page-btn <%= cp <= 1 ? 'disabled' : '' %>">
+                                            <a href="javascript:void(0)" onclick="changePage(<%= Math.max(1, currentPage - 1) %>)"
+                                                class="page-btn <%= currentPage <= 1 ? 'disabled' : '' %>">
                                                 <i class="bi bi-chevron-left"></i> Previous
                                             </a>
                                         </li>
-
-                                        <!-- Page Numbers -->
-                                        <% for (let p=startPage; p <=endPage; p++) { %>
+                                        <% for (let p=1; p <=totalPages; p++) { %>
                                             <li>
-                                                <a href="?page=<%= p %>&search=<%= src %>&status=<%= stf %>&sortBy=<%= sortBy || '' %>"
-                                                    class="page-btn <%= cp === p ? 'active' : '' %>">
+                                                <a href="javascript:void(0)" onclick="changePage(<%= p %>)"
+                                                    class="page-btn <%= currentPage === p ? 'active' : '' %>">
                                                     <%= p %>
                                                 </a>
                                             </li>
-                                            <% } %>
-
-                                                <!-- Next -->
-                                                <li>
-                                                    <a href="?page=<%= cp + 1 %>&search=<%= src %>&status=<%= stf %>&sortBy=<%= sortBy || '' %>"
-                                                        class="page-btn <%= cp >= tp ? 'disabled' : '' %>">
-                                                        Next <i class="bi bi-chevron-right"></i>
-                                                    </a>
-                                                </li>
-
+                                        <% } %>
+                                        <li>
+                                            <a href="javascript:void(0)" onclick="changePage(<%= currentPage + 1 %>)"
+                                                class="page-btn <%= currentPage >= totalPages ? 'disabled' : '' %>">
+                                                Next <i class="bi bi-chevron-right"></i>
+                                            </a>
+                                        </li>
                                     </ul>
                                 </nav>
                             </div>
-
-                            <% } %>
+                        <% } %>
+                    </div>
 
                 </div>
 
@@ -359,9 +353,252 @@
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
         <script>
+            // State Management
+            let currentState = {
+                page: <%= currentPage %>,
+                search: '<%= search || "" %>',
+                status: '<%= statusFilter || "" %>',
+                countFilter: '<%= countFilter || "" %>',
+                sortBy: '<%= sortBy || "newest" %>'
+            };
 
-            /* ── Delete ── */
-            async function deleteConfirmation(id) {
+            const categoryTableBody = document.querySelector('#categoryTable tbody');
+            const categorySearchInput = document.getElementById('categorySearchInput');
+            const statusFilterSelect = document.getElementById('statusFilter');
+            const countFilterSelect = document.getElementById('countFilter');
+            const sortBySelect = document.getElementById('sortBy');
+            const tableLoadingOverlay = document.getElementById('tableLoadingOverlay');
+            const searchingIndicator = document.getElementById('searchingIndicator');
+            const categoryClearBtn = document.getElementById('categoryClearBtn');
+            const showingText = document.getElementById('showingText');
+            const paginationList = document.getElementById('paginationList');
+            const totalCategoriesCount = document.querySelector('.stats-container .stat-card:nth-child(1) h2');
+            const activeCategoriesCount = document.querySelector('.stats-container .stat-card:nth-child(2) h2');
+            const inActiveCategoriesCount = document.getElementById('inActiveCategoriesCount');
+
+            function debounce(func, timeout = 500) {
+                let timer;
+                return (...args) => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+                };
+            }
+
+            async function fetchData(updateHistory = true) {
+                tableLoadingOverlay.style.display = 'flex';
+                if (currentState.search) searchingIndicator.style.display = 'flex';
+
+                const params = new URLSearchParams(currentState);
+                const url = `/admin/categories?${params.toString()}`;
+
+                try {
+                    const res = await fetch(url, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        renderTable(data.categories, data.currentPage, data.limit);
+                        renderPagination(data);
+                        updateStats(data);
+                        if (updateHistory) window.history.pushState(currentState, '', url);
+                    }
+                } catch (err) {
+                    console.error('Fetch error:', err);
+                } finally {
+                    tableLoadingOverlay.style.display = 'none';
+                    searchingIndicator.style.display = 'none';
+                }
+            }
+
+            function renderTable(categories, cp, limit) {
+                if (!categories || categories.length === 0) {
+                    categoryTableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align:center; padding:80px 20px;">
+                                <div class="empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                    <i class="bi bi-search" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;"></i>
+                                    <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 8px;">No Categories Found</h4>
+                                    <p style="color: #64748b; font-size: 14px; max-width: 350px; margin: 0 auto;">We couldn't find any categories matching your criteria.</p>
+                                    <button onclick="clearAllFilters()" class="btn btn-dark px-4 py-2 mt-3" style="border-radius: 8px; font-weight: 600; font-size: 13px;">Clear Filters</button>
+                                </div>
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                categoryTableBody.innerHTML = categories.map((cat, ind) => {
+                    const serialNum = ((cp - 1) * limit) + ind + 1;
+                    const catShortId = cat._id.toString().substring(0, 8).toUpperCase();
+                    return `
+                        <tr>
+                            <td>${serialNum}</td>
+                            <td><span class="cat-id" title="${cat._id}">${catShortId}...</span></td>
+                            <td><span class="cat-name" style="text-transform: capitalize;"><i class="bi bi-tag"></i> ${cat.categoryName}</span></td>
+                            <td>
+                                <span class="product-count ${cat.productCount > 0 ? 'has-products' : 'no-products'}">
+                                    <i class="bi bi-box"></i> ${cat.productCount ?? 0}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge ${cat.IsActive ? 'active' : 'inactive'}">
+                                    <i class="bi bi-${cat.IsActive ? 'check-circle-fill' : 'x-circle-fill'}"></i>
+                                    ${cat.IsActive ? 'Active' : 'Inactive'}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="action-cell">
+                                    <button class="edit-btn" onclick="openEditModal('${cat._id}', '${cat.categoryName}', ${cat.IsActive})">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
+                                    <button class="status-btn ${cat.IsActive ? 'active' : ''}" onclick="toggleStatus('${cat._id}')" title="${cat.IsActive ? 'Deactivate' : 'Activate'}">
+                                        <i class="bi ${cat.IsActive ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
+                                    </button>
+                                    <button class="delete-btn" onclick="deleteConfirmation('${cat._id}')">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>`;
+                }).join('');
+            }
+
+            function renderPagination(data) {
+                const { currentPage, totalPages, totalCategories, limit } = data;
+                const paginationContainer = document.getElementById('paginationContainer');
+                
+                if (totalPages <= 1) {
+                    paginationContainer.innerHTML = '';
+                    return;
+                }
+
+                let html = `
+                    <div class="pagination-footer">
+                        <p class="showing-text">
+                            Showing <strong>${totalCategories > 0 ? ((currentPage - 1) * limit + 1) + '–' + Math.min(currentPage * limit, totalCategories) : 0}</strong> of <strong>${totalCategories}</strong> Categories
+                        </p>
+                        <nav>
+                            <ul class="pagination-list">
+                                <li>
+                                    <a href="javascript:void(0)" onclick="changePage(${Math.max(1, currentPage - 1)})" class="page-btn ${currentPage <= 1 ? 'disabled' : ''}">
+                                        <i class="bi bi-chevron-left"></i> Previous
+                                    </a>
+                                </li>`;
+                
+                for (let p = 1; p <= totalPages; p++) {
+                    html += `
+                                <li>
+                                    <a href="javascript:void(0)" onclick="changePage(${p})" class="page-btn ${currentPage === p ? 'active' : ''}">${p}</a>
+                                </li>`;
+                }
+
+                html += `
+                                <li>
+                                    <a href="javascript:void(0)" onclick="changePage(${currentPage + 1})" class="page-btn ${currentPage >= totalPages ? 'disabled' : ''}">
+                                        Next <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>`;
+                paginationContainer.innerHTML = html;
+            }
+
+            function updateStats(data) {
+                if (totalCategoriesCount) totalCategoriesCount.innerText = data.totalCategories;
+                if (activeCategoriesCount) activeCategoriesCount.innerText = data.activeCategories;
+                if (inActiveCategoriesCount) inActiveCategoriesCount.innerText = data.inActiveCategories;
+            }
+
+            function changePage(p) {
+                if (p < 1) return;
+                currentState.page = p;
+                fetchData();
+            }
+
+            const debouncedSearch = debounce((val) => {
+                currentState.search = val;
+                currentState.page = 1;
+                fetchData();
+            });
+
+            categorySearchInput.oninput = (e) => {
+                const val = e.target.value;
+                categoryClearBtn.style.display = val.length > 0 ? 'block' : 'none';
+                debouncedSearch(val);
+            };
+
+            categoryClearBtn.onclick = () => {
+                categorySearchInput.value = '';
+                categoryClearBtn.style.display = 'none';
+                currentState.search = '';
+                currentState.page = 1;
+                fetchData();
+            };
+
+            statusFilterSelect.onchange = (e) => {
+                currentState.status = e.target.value;
+                currentState.page = 1;
+                fetchData();
+            };
+
+            countFilterSelect.onchange = (e) => {
+                currentState.countFilter = e.target.value;
+                currentState.page = 1;
+                fetchData();
+            };
+
+            sortBySelect.onchange = (e) => {
+                currentState.sortBy = e.target.value;
+                currentState.page = 1;
+                fetchData();
+            };
+
+            function clearAllFilters() {
+                currentState = { page: 1, search: '', status: '', countFilter: '', sortBy: 'newest' };
+                categorySearchInput.value = '';
+                categoryClearBtn.style.display = 'none';
+                statusFilterSelect.value = '';
+                countFilterSelect.value = '';
+                sortBySelect.value = 'newest';
+                fetchData();
+            }
+
+            window.onpopstate = (e) => {
+                if (e.state) {
+                    currentState = e.state;
+                    categorySearchInput.value = currentState.search;
+                    statusFilterSelect.value = currentState.status;
+                    countFilterSelect.value = currentState.countFilter;
+                    sortBySelect.value = currentState.sortBy;
+                    fetchData(false);
+                }
+            };
+
+            /* ── Status Toggle ── */
+            async function toggleStatus(id) {
+                console.log('Toggling status for:', id);
+                try {
+                    const res = await axios.patch(`/admin/categories/toggle/${id}`);
+                    if (res.data.success) {
+                        Swal.fire({
+                            title: 'Updated!',
+                            text: res.data.message,
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            background: '#fff',
+                            color: '#111827'
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire({ title: 'Error', text: res.data.message, icon: 'error' });
+                    }
+                } catch (error) {
+                    console.error('Toggle error:', error);
+                    Swal.fire({ title: 'Error', text: 'Something went wrong', icon: 'error' });
+                }
+            }
+
+    async function deleteConfirmation(id) {
                 const result = await Swal.fire({
                     title: 'Are you sure?',
                     text: 'This category will be deleted.',
@@ -400,10 +637,26 @@
             /* ── Add Category ── */
             document.getElementById('addCategory').addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const originalBtnHtml = btn.innerHTML;
                 const categoryName = document.getElementById('categoryName').value.trim();
                 const status = document.getElementById('addStatusToggle').checked;
 
+                // Validation
+                if (!categoryName) {
+                    return Swal.fire({ icon: 'warning', title: 'Required', text: 'Category name is required', toast: true, position: 'top' });
+                }
+                if (categoryName.length < 3) {
+                    return Swal.fire({ icon: 'warning', title: 'Too Short', text: 'Category name must be at least 3 characters', toast: true, position: 'top' });
+                }
+                if (!/^[a-zA-Z0-9\s]+$/.test(categoryName)) {
+                    return Swal.fire({ icon: 'warning', title: 'Invalid Characters', text: 'Only alphanumeric characters are allowed', toast: true, position: 'top' });
+                }
+
                 try {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+                    
                     const response = await axios.post('/admin/categories-add', { categoryName, status });
                     Swal.fire({
                         icon: 'success',
@@ -414,13 +667,15 @@
                     });
                     setTimeout(() => window.location.reload(), 1000);
                 } catch (error) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnHtml;
                     Swal.fire({
                         icon: 'error',
                         title: error.response?.data?.message || 'Something went wrong',
                         toast: true,
                         position: 'top',
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
                 }
             });
@@ -428,11 +683,27 @@
             /* ── Edit Category ── */
             document.getElementById('editCategoryForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const btn = e.target.querySelector('button[type="submit"]');
+                const originalBtnHtml = btn.innerHTML;
                 const id = document.getElementById('editCategoryId').value;
                 const categoryName = document.getElementById('editCategoryName').value.trim();
                 const status = document.getElementById('editCategoryStatus').checked;
 
+                // Validation
+                if (!categoryName) {
+                    return Swal.fire({ icon: 'warning', title: 'Required', text: 'Category name is required', toast: true, position: 'top' });
+                }
+                if (categoryName.length < 3) {
+                    return Swal.fire({ icon: 'warning', title: 'Too Short', text: 'Category name must be at least 3 characters', toast: true, position: 'top' });
+                }
+                if (!/^[a-zA-Z0-9\s]+$/.test(categoryName)) {
+                    return Swal.fire({ icon: 'warning', title: 'Invalid Characters', text: 'Only alphanumeric characters are allowed', toast: true, position: 'top' });
+                }
+
                 try {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+
                     const response = await axios.put(`/admin/categories/${id}`, { categoryName, status });
                     Swal.fire({
                         icon: 'success',
@@ -443,13 +714,15 @@
                     });
                     setTimeout(() => window.location.reload(), 900);
                 } catch (error) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalBtnHtml;
                     Swal.fire({
                         icon: 'error',
                         title: error.response?.data?.message || 'Update failed',
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
-                        timer: 1500
+                        timer: 2000
                     });
                 }
             });

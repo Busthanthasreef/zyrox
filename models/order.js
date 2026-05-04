@@ -94,7 +94,12 @@ const orderSchema = new mongoose.Schema(
         "Returned",
         "Return Requested",
         "Cancellation Requested",
+        "Failed",
       ],
+    },
+    paymentFailureReason: {
+      type: String,
+      default: null,
     },
     subtotal: Number,
     discount: {

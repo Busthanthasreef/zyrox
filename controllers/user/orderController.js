@@ -22,12 +22,14 @@ const getOrdersPage = async (req, res) => {
         const totalPages = Math.ceil(totalOrdersCount / limit);
 
         const totalItems = allOrders.reduce((acc, order) => {
+            if (order.orderStatus === 'Failed') return acc;
             const itemsCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
             return acc + itemsCount;
         }, 0);
 
         const totalSpent = allOrders.reduce((acc, order) => {
-            return acc + (order.totalPrice || 0);
+            if (order.orderStatus === 'Failed' || order.orderStatus === 'Cancelled') return acc;
+            return acc + (order.finalPrice || 0);
         }, 0);
 
         const [user, categories, cartItemCount, wishlist] = await Promise.all([
@@ -67,7 +69,7 @@ const cancelOrder = async (req, res) => {
             return res.json({ success: false, message: "Order not found" });
         }
 
-        if (['Delivered', 'Cancelled', 'Returned'].includes(order.orderStatus)) {
+        if (['Delivered', 'Cancelled', 'Returned', 'Failed'].includes(order.orderStatus) || order.paymentStatus === 'Failed') {
             return res.json({ success: false, message: `Cannot cancel an order that is ${order.orderStatus}` });
         }
 
@@ -135,8 +137,8 @@ const cancelItem = async (req, res) => {
             return res.json({ success: false, message: "Item not found" });
         }
 
-        if (['Delivered', 'Cancelled', 'Returned'].includes(item.status)) {
-            return res.json({ success: false, message: `Cannot cancel an item that is already ${item.status}` });
+        if (['Delivered', 'Cancelled', 'Returned'].includes(item.status) || order.orderStatus === 'Failed' || order.paymentStatus === 'Failed') {
+            return res.json({ success: false, message: `Cannot cancel an item that is already ${item.status} or if payment failed.` });
         }
 
         // Restore stock for this item
@@ -161,10 +163,10 @@ const cancelItem = async (req, res) => {
             
             // Calculate proportional refund
             let refundAmount = item.total;
-            if (order.couponDiscount > 0 && order.subtotal > 0) {
+            if (order.discount > 0 && order.subtotal > 0) {
                 const proportion = item.total / order.subtotal;
-                const itemCouponDiscount = order.couponDiscount * proportion;
-                refundAmount = item.total - itemCouponDiscount;
+                const itemTotalDiscount = order.discount * proportion;
+                refundAmount = item.total - itemTotalDiscount;
             }
 
             let wallet = await Wallet.findOne({ user_id: userId });

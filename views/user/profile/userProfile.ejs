@@ -477,6 +477,18 @@
             });
         <% } %>
 
+        <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+            Swal.fire({
+                icon: 'success',
+                title: 'Password Updated!',
+                text: '<%= successMessage %>',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#4f6ef7',
+                background: '#141824',
+                color: '#e8eaf6'
+            });
+        <% } %>
+
         // ── Password Modal Logic ──
         function modalToggleVis(id, btn) {
             const el = document.getElementById(id);
@@ -522,7 +534,7 @@
                 try {
                     verifyBtn.disabled = true;
                     verifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Verifying...';
-                    const res = await fetch('/verify-current-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword }) });
+                    const res = await fetch('/verify-current-password', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ currentPassword }) });
                     const data = await res.json();
                     if (data.success) {
                         document.getElementById('currentPasswordSection').style.display = 'none';
@@ -567,7 +579,7 @@
 
                     const res = await fetch(_modalForm.action, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                         body: JSON.stringify(payload)
                     });
                     const result = await res.json();

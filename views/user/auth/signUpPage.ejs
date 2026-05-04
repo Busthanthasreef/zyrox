@@ -158,15 +158,18 @@
             const password = document.getElementById("Password");
 
             if (togglePassword) {
-                togglePassword.addEventListener("click", function () {
-                    const type = password.type === "password" ? "text" : "password";
-                    password.type = type;
-
-                    const icon = this.querySelector('i');
-                    if (type === 'text') {
-                        icon.classList.replace('bi-eye-slash', 'bi-eye');
-                    } else {
-                        icon.classList.replace('bi-eye', 'bi-eye-slash');
+                togglePassword.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const input = document.getElementById("Password");
+                    if (input) {
+                        const isPassword = input.type === "password";
+                        input.type = isPassword ? "text" : "password";
+                        const icon = this.querySelector('i');
+                        if (icon) {
+                            icon.classList.toggle('bi-eye');
+                            icon.classList.toggle('bi-eye-slash');
+                        }
                     }
                 });
             }
@@ -178,15 +181,18 @@
             const phoneInput = document.getElementById("Phone");
 
             if (toggleConfirmPassword) {
-                toggleConfirmPassword.addEventListener("click", function () {
-                    const type = confirmPassword.type === "password" ? "text" : "password";
-                    confirmPassword.type = type;
-
-                    const icon = this.querySelector('i');
-                    if (type === 'text') {
-                        icon.classList.replace('bi-eye-slash', 'bi-eye');
-                    } else {
-                        icon.classList.replace('bi-eye', 'bi-eye-slash');
+                toggleConfirmPassword.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const input = document.getElementById("confirmPassword");
+                    if (input) {
+                        const isPassword = input.type === "password";
+                        input.type = isPassword ? "text" : "password";
+                        const icon = this.querySelector('i');
+                        if (icon) {
+                            icon.classList.toggle('bi-eye');
+                            icon.classList.toggle('bi-eye-slash');
+                        }
                     }
                 });
             }

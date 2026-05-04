@@ -24,9 +24,11 @@ adminRoutes.get("/users/details", isAdminAuthenticated, costomerController.userD
 adminRoutes.get("/categories", isAdminAuthenticated, categoryController.loadCategories);
 adminRoutes.post("/categories-add", isAdminAuthenticated, categoryController.addCategory);
 adminRoutes.put("/categories/:id", isAdminAuthenticated, categoryController.editCategory);
+adminRoutes.patch("/categories/toggle/:id", isAdminAuthenticated, categoryController.toggleCategoryStatus);
 adminRoutes.patch("/categories/delete/:id", isAdminAuthenticated, categoryController.deleteCategory);
 
 adminRoutes.get("/products", isAdminAuthenticated, productController.loadProducts);
+adminRoutes.patch("/products/toggle/:id", isAdminAuthenticated, productController.toggleProductStatus);
 adminRoutes.get("/products-add", isAdminAuthenticated, productController.loadAddProduct);
 adminRoutes.get("/products-edit/:id", isAdminAuthenticated, productController.loadEditProduct);
 
@@ -51,6 +53,7 @@ adminRoutes.post('/orders/decline-item-request', isAdminAuthenticated, orderCont
 adminRoutes.get('/coupons', isAdminAuthenticated, couponController.getCoupons);
 adminRoutes.post('/coupons/add', isAdminAuthenticated, couponController.addCoupon);
 adminRoutes.post('/coupons/edit', isAdminAuthenticated, couponController.editCoupon);
+adminRoutes.patch('/coupons/toggle/:id', isAdminAuthenticated, couponController.toggleCouponStatus);
 adminRoutes.delete('/coupons/delete/:id', isAdminAuthenticated, couponController.deleteCoupon);
 
 // Offer Routes

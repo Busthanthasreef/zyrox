@@ -249,6 +249,30 @@
       background: #FEF2F2;
     }
 
+    .action-btn.toggle-btn {
+        background: #fff7ed;
+        color: #ea580c;
+        border-color: #ffedd5;
+    }
+
+    .action-btn.toggle-btn.active {
+        background: #ecfdf5;
+        color: #059669;
+        border-color: #d1fae5;
+    }
+
+    .action-btn.toggle-btn:hover {
+        background: #ea580c;
+        color: #fff;
+        border-color: #ea580c;
+    }
+
+    .action-btn.toggle-btn.active:hover {
+        background: #059669;
+        color: #fff;
+        border-color: #059669;
+    }
+
     .table-footer {
       display: flex;
       align-items: center;
@@ -491,6 +515,39 @@
       border-color: #DC2626 !important;
       box-shadow: 0 0 0 3px rgba(220, 38, 38, .12) !important;
     }
+
+    /* Loading Overlay */
+    .table-responsive {
+      position: relative;
+    }
+
+    .table-loading-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(1px);
+    }
+
+    .table-loading-overlay.active {
+      display: flex;
+    }
+
+    .spinner-sm {
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--brand-light);
+      border-top-color: var(--brand);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 
@@ -511,14 +568,28 @@
 
         <div class="card-main">
           <div class="search-wrap">
-            <form action="/admin/coupons" method="GET" class="w-100 d-flex justify-content-center">
-              <input type="text" name="search" class="search-input" placeholder="Search coupons by code..."
-                value="<%= search %>" />
-            </form>
+            <div class="w-100 d-flex gap-3 align-items-center justify-content-center">
+              <div style="position: relative; flex: 1; max-width: 400px;">
+                <input type="text" id="couponSearchInput" class="search-input" placeholder="Search coupons by code..."
+                  value="<%= search %>" style="max-width: 100%;" />
+                <div id="searchingIndicator" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: none;">
+                  <div class="spinner-sm" style="width: 14px; height: 14px; border-width: 2px;"></div>
+                </div>
+              </div>
+              <select id="statusFilter" class="form-select border shadow-none" 
+                  style="width: 160px; font-size: .83rem; border-radius: 8px; height: 38px; cursor: pointer;">
+                <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>All Status</option>
+                <option value="active" <%= statusFilter === 'active' ? 'selected' : '' %>>Active</option>
+                <option value="inactive" <%= statusFilter === 'inactive' ? 'selected' : '' %>>Inactive</option>
+              </select>
+            </div>
           </div>
 
-          <div style="flex: 1; overflow-y: auto; overflow-x: auto; min-height: 0;">
-            <table class="coupon-table">
+          <div class="table-responsive <%= totalCoupons === 0 ? 'd-none' : '' %>" id="couponTableContainer" style="flex: 1; overflow-y: auto; overflow-x: auto; min-height: 0;">
+            <div class="table-loading-overlay" id="tableLoadingOverlay">
+              <div class="spinner-sm"></div>
+            </div>
+            <table class="coupon-table" id="couponTable">
               <thead>
                 <tr>
                   <th>Code</th>
@@ -539,9 +610,10 @@
                       JSON.stringify(coupon).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
                       %>
                       <tr>
-                        <td><span class="code-active">
-                            <%= coupon.code %>
-                          </span></td>
+                        <td>
+                          <div class="code-active"><%= coupon.code %></div>
+                          <div class="small text-muted mt-1" style="font-size: 0.75rem;"><%= coupon.description %></div>
+                        </td>
                         <td>
                           <div class="discount-name">
                             <%= coupon.discountType==='percentage' ? coupon.discountValue + '%' : '₹' +
@@ -589,6 +661,11 @@
                               onclick="editCoupon(this)">
                               <i class="bi bi-pencil"></i>
                             </button>
+                            <button class="action-btn toggle-btn <%= coupon.isActive ? 'active' : '' %>"
+                                title="<%= coupon.isActive ? 'Deactivate' : 'Activate' %>"
+                                onclick="toggleCouponStatus('<%= coupon._id %>')">
+                                <i class="bi <%= coupon.isActive ? 'bi-toggle-on' : 'bi-toggle-off' %>"></i>
+                            </button>
                             <button class="action-btn delete-btn" title="Delete"
                               onclick="deleteCoupon('<%= coupon._id %>')">
                               <i class="bi bi-trash"></i>
@@ -597,42 +674,37 @@
                         </td>
                       </tr>
                       <% }) %>
-                        <% } else { %>
-                          <tr>
-                            <td colspan="7" style="text-align: center; padding: 60px 20px;">
-                                <div class="empty-state" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                    <i class="bi bi-ticket-perforated" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;"></i>
-                                    <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 8px;">No Coupons Found</h4>
-                                    <p style="color: #64748b; font-size: 14px; max-width: 300px; margin: 0 auto;">We couldn't find any coupons matching your search criteria.</p>
-                                    <% if (search) { %>
-                                        <a href="/admin/coupons" class="btn btn-dark px-4 py-2 mt-3" style="border-radius: 8px; font-weight: 600; font-size: 13px;">
-                                            <i class="bi bi-arrow-counterclockwise me-1"></i> Clear Filter
-                                        </a>
-                                    <% } %>
-                                </div>
-                            </td>
-                          </tr>
-                        <% } %>
+                <% } %>
               </tbody>
             </table>
           </div>
 
+          <!-- Empty State -->
+          <div id="noCouponsState" class="<%= totalCoupons === 0 ? '' : 'd-none' %>" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px;">
+              <i class="bi bi-ticket-perforated" style="font-size: 48px; color: #cbd5e1; margin-bottom: 16px;"></i>
+              <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 8px;">No Coupons Found</h4>
+              <p style="color: #64748b; font-size: 14px; max-width: 300px; text-align: center;">We couldn't find any coupons matching your search criteria.</p>
+              <button onclick="window.location.reload()" class="btn btn-dark px-4 py-2 mt-3" style="border-radius: 8px; font-weight: 600; font-size: 13px;">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Filters
+              </button>
+          </div>
+
           <div class="table-footer">
-            <span class="showing-text small text-muted">Showing <%= coupons.length %> coupons</span>
-            <div class="pagination-wrap d-flex gap-1">
+            <span class="showing-text small text-muted" id="showingText">Showing <%= coupons.length %> coupons</span>
+            <div class="pagination-wrap d-flex gap-1" id="paginationWrap">
               <% if (currentPage> 1) { %>
-                <a href="/admin/coupons?page=<%= currentPage - 1 %>&search=<%= search %>" class="page-btn">
+                <a href="javascript:void(0)" onclick="changePage(<%= currentPage - 1 %>)" class="page-btn">
                   <i class="bi bi-chevron-left"></i>
                 </a>
                 <% } %>
                   <% for (let i=1; i <=totalPages; i++) { %>
-                    <a href="/admin/coupons?page=<%= i %>&search=<%= search %>"
+                    <a href="javascript:void(0)" onclick="changePage(<%= i %>)"
                       class="page-btn <%= i === currentPage ? 'active' : '' %>">
                       <%= i %>
                     </a>
                     <% } %>
                       <% if (currentPage < totalPages) { %>
-                        <a href="/admin/coupons?page=<%= currentPage + 1 %>&search=<%= search %>" class="page-btn">
+                        <a href="javascript:void(0)" onclick="changePage(<%= currentPage + 1 %>)" class="page-btn">
                           <i class="bi bi-chevron-right"></i>
                         </a>
                         <% } %>
@@ -758,12 +830,175 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-      const CODE_REGEX = /^[A-Z0-9_-]{3,20}$/;
+      // State Management
+      let currentState = {
+          page: <%= currentPage %>,
+          search: '<%= search %>',
+          status: '<%= statusFilter %>'
+      };
+
+      const couponTableBody = document.querySelector('#couponTable tbody');
+      const couponSearchInput = document.getElementById('couponSearchInput');
+      const statusFilterSelect = document.getElementById('statusFilter');
+      const tableLoadingOverlay = document.getElementById('tableLoadingOverlay');
+      const searchingIndicator = document.getElementById('searchingIndicator');
+      const showingText = document.getElementById('showingText');
+      const paginationWrap = document.getElementById('paginationWrap');
+      const couponTableContainer = document.getElementById('couponTableContainer');
+      const noCouponsState = document.getElementById('noCouponsState');
+      
       const modal = document.getElementById('couponModal');
       const form = document.getElementById('couponForm');
       const modalTitle = document.getElementById('modalTitle');
-      let unlimited = true;
       let isEditMode = false;
+      let unlimited = true;
+
+      function debounce(func, timeout = 500) {
+          let timer;
+          return (...args) => {
+              clearTimeout(timer);
+              timer = setTimeout(() => { func.apply(this, args); }, timeout);
+          };
+      }
+
+      async function fetchData(updateHistory = true) {
+          tableLoadingOverlay.classList.add('active');
+          if (currentState.search) searchingIndicator.style.display = 'block';
+
+          const params = new URLSearchParams(currentState);
+          const url = `/admin/coupons?${params.toString()}`;
+
+          try {
+              const res = await fetch(url, {
+                  headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+              });
+              const data = await res.json();
+              if (data.success) {
+                  renderTable(data.coupons);
+                  renderPagination(data);
+                  if (updateHistory) window.history.pushState(currentState, '', url);
+                  
+                  if (data.coupons.length === 0) {
+                      couponTableContainer.classList.add('d-none');
+                      noCouponsState.classList.remove('d-none');
+                  } else {
+                      couponTableContainer.classList.remove('d-none');
+                      noCouponsState.classList.add('d-none');
+                  }
+              }
+          } catch (err) {
+              console.error('Fetch error:', err);
+          } finally {
+              tableLoadingOverlay.classList.remove('active');
+              searchingIndicator.style.display = 'none';
+          }
+      }
+
+      function renderTable(coupons) {
+          couponTableBody.innerHTML = coupons.map(coupon => {
+              const usagePercent = coupon.usageLimit ? (coupon.usedCount / coupon.usageLimit) * 100 : 0;
+              const barColor = usagePercent > 80 ? 'low' : '';
+              const validTill = new Date(coupon.validTill).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+              const couponJson = JSON.stringify(coupon).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+              
+              let statusHtml = '';
+              if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
+                  statusHtml = `<span class="badge-status" style="background-color: rgba(255,0,0,0.15); color: #c32222">Limit Exceeded</span>`;
+              } else {
+                  statusHtml = `<span class="badge-status ${coupon.isActive ? 'badge-active' : ''}" 
+                                      style="background-color: ${coupon.isActive ? '' : 'rgba(255,0,0,0.15)'}; color: ${coupon.isActive ? '' : '#c32222'}">
+                                      ${coupon.isActive ? 'Active' : 'Inactive'}</span>`;
+              }
+
+              return `
+                  <tr>
+                      <td>
+                          <div class="code-active">${coupon.code}</div>
+                          <div class="small text-muted mt-1" style="font-size: 0.75rem;">${coupon.description || ''}</div>
+                      </td>
+                      <td>
+                          <div class="discount-name">${coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue} OFF</div>
+                          <div class="discount-type">${coupon.discountType.charAt(0).toUpperCase() + coupon.discountType.slice(1)}</div>
+                      </td>
+                      <td>
+                          <span class="small text-muted">Min: ₹${coupon.minCartValue}</span><br>
+                          <span class="small text-muted">Max: ${coupon.maxDiscount ? '₹' + coupon.maxDiscount : 'Unlimited'}</span>
+                      </td>
+                      <td>
+                          <div class="progress-wrap">
+                              <div class="progress-bar-bg">
+                                  <div class="progress-fill ${barColor}" style="width: ${coupon.usageLimit ? usagePercent : 0}%"></div>
+                              </div>
+                              <span class="usage-text">${coupon.usedCount}/${coupon.usageLimit || '∞'}</span>
+                          </div>
+                      </td>
+                      <td>${validTill}</td>
+                      <td>${statusHtml}</td>
+                      <td>
+                          <div class="action-btns">
+                              <button class="action-btn" title="Edit" data-coupon='${couponJson}' onclick="editCoupon(this)">
+                                  <i class="bi bi-pencil"></i>
+                              </button>
+                              <button class="action-btn toggle-btn ${coupon.isActive ? 'active' : ''}"
+                                  title="${coupon.isActive ? 'Deactivate' : 'Activate'}"
+                                  onclick="toggleCouponStatus('${coupon._id}')">
+                                  <i class="bi ${coupon.isActive ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
+                              </button>
+                              <button class="action-btn delete-btn" title="Delete" onclick="deleteCoupon('${coupon._id}')">
+                                  <i class="bi bi-trash"></i>
+                              </button>
+                          </div>
+                      </td>
+                  </tr>`;
+          }).join('');
+      }
+
+      function renderPagination(data) {
+          const { currentPage, totalPages, totalCoupons } = data;
+          showingText.innerText = `Showing ${data.coupons.length} coupons`;
+          
+          let html = '';
+          if (currentPage > 1) {
+              html += `<a href="javascript:void(0)" onclick="changePage(${currentPage - 1})" class="page-btn"><i class="bi bi-chevron-left"></i></a>`;
+          }
+          for (let i = 1; i <= totalPages; i++) {
+              html += `<a href="javascript:void(0)" onclick="changePage(${i})" class="page-btn ${i === currentPage ? 'active' : ''}">${i}</a>`;
+          }
+          if (currentPage < totalPages) {
+              html += `<a href="javascript:void(0)" onclick="changePage(${currentPage + 1})" class="page-btn"><i class="bi bi-chevron-right"></i></a>`;
+          }
+          paginationWrap.innerHTML = html;
+      }
+
+      function changePage(p) {
+          currentState.page = p;
+          fetchData();
+      }
+
+      const debouncedSearch = debounce((val) => {
+          currentState.search = val;
+          currentState.page = 1;
+          fetchData();
+      });
+
+      couponSearchInput.oninput = (e) => {
+          debouncedSearch(e.target.value);
+      };
+
+      statusFilterSelect.onchange = (e) => {
+          currentState.status = e.target.value;
+          currentState.page = 1;
+          fetchData();
+      };
+
+      window.onpopstate = (e) => {
+          if (e.state) {
+              currentState = e.state;
+              couponSearchInput.value = currentState.search;
+              statusFilterSelect.value = currentState.status;
+              fetchData(false);
+          }
+      };
 
       function todayMidnight() {
         const d = new Date();
@@ -793,6 +1028,26 @@
         if (el) el.classList.remove('field-invalid');
         const old = form.querySelector(`.field-error[data-for="${fieldName}"]`);
         if (old) old.remove();
+      }
+
+      async function toggleCouponStatus(id) {
+          try {
+              const res = await fetch(`/admin/coupons/toggle/${id}`, { method: 'PATCH' });
+              const data = await res.json();
+              if (data.success) {
+                  Swal.fire({
+                      icon: 'success',
+                      title: 'Updated',
+                      text: data.message,
+                      timer: 1500,
+                      showConfirmButton: false
+                  }).then(() => location.reload());
+              } else {
+                  Swal.fire({ icon: 'error', title: 'Error', text: data.message });
+              }
+          } catch (err) {
+              Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong' });
+          }
       }
 
       function toggleUnlimited(forceSet = null) {
@@ -864,6 +1119,11 @@
         const data = Object.fromEntries(formData.entries());
         data.isActive = document.getElementById('f_isActive').checked;
         if (unlimited) data.maxDiscount = null;
+
+        if (data.discountType === 'percentage' && parseFloat(data.discountValue) > 100) {
+          Swal.fire('Error', 'Percentage discount cannot exceed 100%', 'error');
+          return;
+        }
 
         const url = isEditMode ? '/admin/coupons/edit' : '/admin/coupons/add';
         const method = 'POST';

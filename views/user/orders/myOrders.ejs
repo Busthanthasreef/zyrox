@@ -211,11 +211,68 @@
             white-space: nowrap;
         }
 
+        .status-badge-no-border {
+            border: none !important;
+        }
+
+        .status-badge-minimal {
+            background: transparent !important;
+            border: none !important;
+            padding: 2px 0 !important;
+        }
+
         .status-badge .dot {
             width: 5px;
             height: 5px;
             border-radius: 50%;
             flex-shrink: 0;
+        }
+
+        .badge-failed {
+            background: rgba(220, 53, 69, 0.15);
+            color: #ff6b7a;
+            border: 1px solid rgba(220, 53, 69, 0.35);
+        }
+        .badge-failed .dot { background: #dc3545; }
+
+        .btn-retry {
+            background: rgba(255, 149, 0, 0.12);
+            color: #ff9500;
+            border: 1px solid rgba(255, 149, 0, 0.3);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-decoration: none;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-retry:hover {
+            background: #ff9500;
+            color: #fff;
+        }
+
+        .retry-timer-text {
+            font-size: 10px;
+            color: #ff9500;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .retry-timer {
+            font-family: 'Inter', monospace;
+            background: rgba(255, 149, 0, 0.1);
+            padding: 1px 5px;
+            border-radius: 4px;
         }
 
         .badge-cancelled {
@@ -690,13 +747,14 @@
                 <table class="orders-table">
                     <thead>
                         <tr>
-                            <th style="width:7%;">SI.No</th>
-                            <th style="width:16%;">Order ID</th>
-                            <th style="width:14%;">Amount</th>
-                            <th style="width:18%;">Status</th>
-                            <th style="width:13%;">Date</th>
-                            <th style="width:16%;">Payment</th>
-                            <th style="width:16%; text-align:right;">Actions</th>
+                            <th style="width:6%;">SI.No</th>
+                            <th style="width:15%;">Order ID</th>
+                            <th style="width:13%;">Amount</th>
+                            <th style="width:17%;">Status</th>
+                            <th style="width:12%;">Date</th>
+                            <th style="width:11%;">Method</th>
+                            <th style="width:13%;">Payment</th>
+                            <th style="width:13%; text-align:right;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -710,14 +768,42 @@
                                     <td><span class="order-amount-text">&#8377;<%= (order.finalPrice || order.subtotal).toLocaleString('en-IN') %></span></td>
 
                                     <td>
-                                        <% if (order.orderStatus === 'Cancelled') { %>
-                                            <span class="status-badge badge-cancelled"><span class="dot"></span>Cancelled</span>
-                                        <% } else if (order.orderStatus === 'Returned') { %>
-                                            <span class="status-badge badge-returned"><span class="dot"></span>Returned</span>
-                                        <% } else if (order.orderStatus === 'Delivered') { %>
-                                            <span class="status-badge badge-delivered"><span class="dot"></span>Delivered</span>
+                                        <% if (order.orderStatus === 'Failed') { %>
+                                            <div class="d-flex flex-column align-items-start">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="status-badge badge-failed"><span class="dot"></span>Payment Failed</span>
+                                                   
+                                            </div>
                                         <% } else { %>
-                                            <span class="status-badge badge-info"><span class="dot"></span><%= order.orderStatus %></span>
+                                            <% 
+                                                const statusCounts = {};
+                                                order.items.forEach(item => {
+                                                    statusCounts[item.status] = (statusCounts[item.status] || 0) + 1;
+                                                });
+                                                const sortedStatuses = Object.entries(statusCounts).sort();
+                                                const isMultiple = sortedStatuses.length > 1;
+                                                const isAllCancelled = sortedStatuses.length === 1 && sortedStatuses[0][0] === 'Cancelled';
+                                            %>
+                                            <div class="d-flex flex-column align-items-start gap-1">
+                                                <% if (isAllCancelled) { %>
+                                                    <span class="status-badge badge-cancelled status-badge-no-border"><span class="dot"></span>Order Cancelled</span>
+                                                <% } else { %>
+                                                    <% sortedStatuses.forEach(([status, count]) => { %>
+                                                        <% 
+                                                            let badgeClass = 'badge-info';
+                                                            let statusText = `${count}x ${status}`;
+                                                            if (status === 'Cancelled') { badgeClass = 'badge-cancelled'; }
+                                                            else if (status === 'Returned') { badgeClass = 'badge-returned'; }
+                                                            else if (status === 'Delivered') { badgeClass = 'badge-delivered'; }
+                                                            else if (status === 'Return Requested') { badgeClass = 'badge-returned'; }
+                                                            else if (status === 'Cancellation Requested') { badgeClass = 'badge-cancelled'; statusText = `${count}x Cancel Req.`; }
+                                                        %>
+                                                        <span class="status-badge <%= badgeClass %> <%= isMultiple ? 'status-badge-minimal' : '' %>">
+                                                            <span class="dot"></span><%= statusText %>
+                                                        </span>
+                                                    <% }) %>
+                                                <% } %>
+                                            </div>
                                         <% } %>
                                     </td>
 
@@ -725,17 +811,39 @@
                                         <%= new Date(order.createdAt).toLocaleDateString('en-GB') %>
                                     </td>
 
+                                    <td style="color:var(--text-dim); font-size:0.8rem; font-weight:700; text-transform:uppercase;">
+                                        <%= order.paymentMethod %>
+                                    </td>
+
                                     <td>
-                                        <% if (order.paymentStatus === 'Paid') { %>
-                                            <div class="d-flex flex-column align-items-start gap-1">
+                                        <div class="d-flex flex-column align-items-start gap-1">
+                                            <% if (order.paymentStatus === 'Paid') { %>
                                                 <span class="status-badge badge-paid"><span class="dot"></span>Paid</span>
-                                                <a href="/myOrders/invoice?id=<%= order._id %>" class="receipt-download-btn">
-                                                    <i class="fas fa-download"></i> Download
-                                                </a>
-                                            </div>
-                                        <% } else { %>
-                                            <span class="status-badge badge-unpaid"><span class="dot"></span><%= order.paymentStatus %></span>
-                                        <% } %>
+                                            <% } else if (order.paymentStatus === 'Failed') { %>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="status-badge badge-failed"><span class="dot"></span>Failed</span>
+                                                    <%
+                                                        const failedTime = order.createdAt;
+                                                        const expiryTime = new Date(new Date(failedTime).getTime() + 20 * 60 * 1000);
+                                                        const now = new Date();
+                                                        const diffMs = expiryTime - now;
+                                                    %>
+                                                    <% if (diffMs > 0) { %>
+                                                        <button onclick="handleRetryPayment('<%= order._id %>')" 
+                                                            class="btn-retry retry-btn">
+                                                            <i class="fas fa-redo-alt" style="font-size: 10px;"></i> Retry
+                                                        </button>
+                                                    <% } %>
+                                                </div>
+                                                <% if (diffMs > 0) { %>
+                                                    <div class="retry-timer-text mt-1" data-expiry="<%= expiryTime.toISOString() %>">
+                                                        <i class="far fa-clock"></i> <span class="retry-timer"></span>
+                                                    </div>
+                                                <% } %>
+                                            <% } else { %>
+                                                <span class="status-badge badge-unpaid"><span class="dot"></span><%= order.paymentStatus %></span>
+                                            <% } %>
+                                        </div>
                                     </td>
 
                                     <td style="text-align:right;">
@@ -745,7 +853,7 @@
                             <% }) %>
                         <% } else { %>
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="empty-state">
                                         <div class="empty-state-icon">
                                             <svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8L6 7h12l-2-4z"/></svg>
@@ -771,14 +879,59 @@
                                         <%= new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) %>
                                     </div>
                                 </div>
-                                <% if (order.orderStatus === 'Delivered') { %>
-                                    <span class="status-badge badge-delivered"><span class="dot"></span><%= order.orderStatus %></span>
-                                <% } else if (order.orderStatus === 'Cancelled') { %>
-                                    <span class="status-badge badge-cancelled"><span class="dot"></span><%= order.orderStatus %></span>
-                                <% } else if (order.orderStatus === 'Returned') { %>
-                                    <span class="status-badge badge-returned"><span class="dot"></span><%= order.orderStatus %></span>
+                                <% if (order.orderStatus === 'Failed') { %>
+                                    <div class="d-flex flex-column align-items-end">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="status-badge badge-failed"><span class="dot"></span>Payment Failed</span>
+                                            <%
+                                                const failedTime = order.createdAt;
+                                                const expiryTime = new Date(new Date(failedTime).getTime() + 20 * 60 * 1000);
+                                                const now = new Date();
+                                                const diffMs = expiryTime - now;
+                                            %>
+                                            <% if (diffMs > 0) { %>
+                                                <button onclick="handleRetryPayment('<%= order._id %>')" 
+                                                    class="btn-retry retry-btn" style="padding: 3px 8px; font-size: 0.65rem;">
+                                                    Retry
+                                                </button>
+                                            <% } %>
+                                        </div>
+                                        <% if (diffMs > 0) { %>
+                                            <div class="retry-timer-text" data-expiry="<%= expiryTime.toISOString() %>" style="font-size: 9px; margin-top: 2px;">
+                                                <i class="far fa-clock"></i> <span class="retry-timer"></span>
+                                            </div>
+                                        <% } %>
+                                    </div>
                                 <% } else { %>
-                                    <span class="status-badge badge-info"><span class="dot"></span><%= order.orderStatus %></span>
+                                    <% 
+                                        const statusCounts = {};
+                                        order.items.forEach(item => {
+                                            statusCounts[item.status] = (statusCounts[item.status] || 0) + 1;
+                                        });
+                                        const sortedStatuses = Object.entries(statusCounts).sort();
+                                        const isMultiple = sortedStatuses.length > 1;
+                                        const isAllCancelled = sortedStatuses.length === 1 && sortedStatuses[0][0] === 'Cancelled';
+                                    %>
+                                    <div class="d-flex flex-column align-items-end gap-1">
+                                        <% if (isAllCancelled) { %>
+                                            <span class="status-badge badge-cancelled status-badge-no-border"><span class="dot"></span>Order Cancelled</span>
+                                        <% } else { %>
+                                            <% sortedStatuses.forEach(([status, count]) => { %>
+                                                <% 
+                                                    let badgeClass = 'badge-info';
+                                                    let statusText = `${count}x ${status}`;
+                                                    if (status === 'Cancelled') { badgeClass = 'badge-cancelled'; }
+                                                    else if (status === 'Returned') { badgeClass = 'badge-returned'; }
+                                                    else if (status === 'Delivered') { badgeClass = 'badge-delivered'; }
+                                                    else if (status === 'Return Requested') { badgeClass = 'badge-returned'; statusText = `${count}x Return Req.`; }
+                                                    else if (status === 'Cancellation Requested') { badgeClass = 'badge-cancelled'; statusText = `${count}x Cancel Req.`; }
+                                                %>
+                                                <span class="status-badge <%= badgeClass %> <%= isMultiple ? 'status-badge-minimal' : '' %>">
+                                                    <span class="dot"></span><%= statusText %>
+                                                </span>
+                                            <% }) %>
+                                        <% } %>
+                                    </div>
                                 <% } %>
                             </div>
 
@@ -808,21 +961,39 @@
                             </div>
 
                             <div class="order-card-footer">
-                                <a href="/myOrders/details?id=<%= order._id %>" class="mobile-action-btn btn-mobile-view">View Details</a>
-
-                                <% if (order.paymentStatus === 'Paid') { %>
-                                    <a href="/myOrders/invoice?id=<%= order._id %>" class="mobile-action-btn btn-mobile-receipt">
-                                        <i class="fas fa-file-invoice"></i> Receipt
-                                    </a>
-                                <% } %>
-
-                                <% if (order.orderStatus === 'Pending' || order.orderStatus === 'Processing') { %>
-                                    <button onclick="openCancelModal('<%= order._id %>')" class="mobile-action-btn btn-mobile-cancel">Cancel</button>
-                                <% } else if (order.orderStatus === 'Delivered') { %>
-                                    <% const delivDate = order.deliveredAt || order.updatedAt;
-                                       const daysSince = Math.floor((Date.now() - new Date(delivDate).getTime()) / (1000 * 60 * 60 * 24));
-                                       if (daysSince <= 7) { %>
-                                        <button onclick="openReturnModal('<%= order._id %>')" class="mobile-action-btn btn-mobile-return">Return</button>
+                                <% if (order.paymentStatus === 'Failed' || order.orderStatus === 'Failed') { %>
+                                    <%
+                                        const failedTime = order.createdAt;
+                                        const expiryTime = new Date(new Date(failedTime).getTime() + 20 * 60 * 1000);
+                                        const now = new Date();
+                                        const diffMs = expiryTime - now;
+                                    %>
+                                    <div class="d-flex w-100 justify-content-between align-items-center gap-2">
+                                        <a href="/myOrders/details?id=<%= order._id %>" class="mobile-action-btn btn-mobile-view <%= diffMs > 0 ? 'w-50' : 'w-100' %>">Details</a>
+                                        <% if (diffMs > 0) { %>
+                                            <div class="d-flex flex-column w-50">
+                                                <button onclick="handleRetryPayment('<%= order._id %>')" class="mobile-action-btn retry-btn w-100 m-0" style="background: rgba(255, 77, 109, 0.1); color: #ff4d6d; border: 1px solid #ff4d6d; font-weight: 700;">Retry</button>
+                                                <div class="retry-timer-text text-danger text-center mt-1" style="font-size: 0.65rem; font-weight: 700;" data-expiry="<%= expiryTime.toISOString() %>">
+                                                    <i class="far fa-clock"></i> <span class="retry-timer"></span>
+                                                </div>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                <% } else { %>
+                                    <a href="/myOrders/details?id=<%= order._id %>" class="mobile-action-btn btn-mobile-view">View Details</a>
+                            
+                                    <% if ((order.orderStatus === 'Pending' || order.orderStatus === 'Processing') && order.paymentStatus !== 'Failed' && order.orderStatus !== 'Failed') { %>
+                                        <button onclick="openCancelModal('<%= order._id %>')" class="mobile-action-btn btn-mobile-cancel">Cancel</button>
+                                    <% } else if (order.orderStatus === 'Delivered') { %>
+                                        <% const delivDate = order.deliveredAt || order.updatedAt;
+                                           const daysSince = Math.floor((Date.now() - new Date(delivDate).getTime()) / (1000 * 60 * 60 * 24));
+                                           const daysLeft = 7 - daysSince;
+                                           if (daysLeft >= 0) { %>
+                                            <div class="d-flex flex-column align-items-end w-100 mt-2">
+                                                <button onclick="openReturnModal('<%= order._id %>')" class="mobile-action-btn btn-mobile-return w-100">Return</button>
+                                                <span style="font-size: 0.65rem; color: #8b949e; font-weight: 600; margin-top: 4px;">Return window closes in <%= daysLeft %> day<%= daysLeft === 1 ? '' : 's' %></span>
+                                            </div>
+                                        <% } %>
                                     <% } %>
                                 <% } %>
                             </div>
@@ -895,6 +1066,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
     let selectedOrder = null, actionType = '';
@@ -999,6 +1172,172 @@
                 });
             });
     });
+
+    // Retry Payment Logic
+    function handleRetryPayment(orderId) {
+        Swal.fire({
+            title: 'Complete Payment',
+            text: "Would you like to re-initiate the payment for this order?",
+            icon: 'info',
+            showCancelButton: true,
+            background: '#141824',
+            color: '#e8eaf2',
+            confirmButtonColor: '#4f6ef7',
+            cancelButtonColor: '#30364d',
+            confirmButtonText: 'Yes, Pay Now',
+            cancelButtonText: 'Not Now',
+            borderRadius: '16px'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Connecting...',
+                    text: 'Preparing secure payment gateway.',
+                    background: '#141824',
+                    color: '#e8eaf2',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
+                    borderRadius: '16px'
+                });
+
+                axios.post('/checkout/retry-payment', { orderId })
+                    .then(res => {
+                        if (!res.data.success) throw new Error(res.data.message);
+                        
+                        const options = {
+                            key: res.data.key_id,
+                            amount: res.data.order.amount,
+                            currency: res.data.order.currency,
+                            name: 'Zyrox Mobile Store',
+                            description: 'Payment Retry',
+                            order_id: res.data.order.id,
+                            handler: function (response) {
+                                Swal.fire({ 
+                                    title: 'Verifying...', 
+                                    text: 'Please do not refresh the page.', 
+                                    background: '#141824', 
+                                    color: '#e8eaf2', 
+                                    allowOutsideClick: false, 
+                                    didOpen: () => Swal.showLoading(),
+                                    borderRadius: '16px'
+                                });
+                                
+                                axios.post('/checkout/confirm-retry-payment', {
+                                    dbOrderId: res.data.dbOrderId,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature
+                                }).then(confirmRes => {
+                                    if (confirmRes.data.success) {
+                                        Swal.fire({ 
+                                            icon: 'success', 
+                                            title: 'Payment Success!', 
+                                            text: 'Your order has been confirmed.', 
+                                            background: '#141824', 
+                                            color: '#e8eaf2', 
+                                            confirmButtonColor: '#00d4aa',
+                                            borderRadius: '16px'
+                                        }).then(() => window.location.href = `/order-success/${confirmRes.data.orderId}`);
+                                    } else {
+                                        Swal.fire({ 
+                                            icon: 'error', 
+                                            title: 'Verification Failed', 
+                                            text: confirmRes.data.message, 
+                                            background: '#141824', 
+                                            color: '#e8eaf2', 
+                                            confirmButtonColor: '#ff4d6d',
+                                            borderRadius: '16px'
+                                        });
+                                    }
+                                }).catch(() => {
+                                    Swal.fire({ 
+                                        icon: 'error', 
+                                        title: 'Error', 
+                                        text: 'Something went wrong during verification.', 
+                                        background: '#141824', 
+                                        color: '#e8eaf2', 
+                                        confirmButtonColor: '#ff4d6d',
+                                        borderRadius: '16px'
+                                    });
+                                });
+                            },
+                            modal: {
+                                ondismiss: function () {
+                                    Swal.fire({ 
+                                        icon: 'warning', 
+                                        title: 'Payment Cancelled', 
+                                        text: 'The payment window was closed.', 
+                                        background: '#141824', 
+                                        color: '#e8eaf2', 
+                                        confirmButtonColor: '#4f6ef7',
+                                        borderRadius: '16px'
+                                    });
+                                }
+                            },
+                            theme: { color: '#4f6ef7' }
+                        };
+                        const rzp = new window.Razorpay(options);
+                        
+                        rzp.on('payment.failed', function (resp) {
+                            Swal.fire({ 
+                                icon: 'error', 
+                                title: 'Payment Failed', 
+                                text: resp.error.description || 'Transaction was declined.', 
+                                background: '#141824', 
+                                color: '#e8eaf2', 
+                                confirmButtonColor: '#ff4d6d',
+                                borderRadius: '16px'
+                            });
+                        });
+
+                        rzp.open();
+                        Swal.close();
+                    })
+                    .catch(err => {
+                        const msg = err.response?.data?.message || err.message || 'Failed to initiate retry.';
+                        Swal.fire({ 
+                            icon: 'error', 
+                            title: 'Retry Failed', 
+                            text: msg, 
+                            background: '#141824', 
+                            color: '#e8eaf2', 
+                            confirmButtonColor: '#ff4d6d',
+                            borderRadius: '16px'
+                        });
+                    });
+            }
+        });
+    }
+
+    // Countdown Timer Logic
+    function updateTimers() {
+        document.querySelectorAll('.retry-timer-text').forEach(el => {
+            const expiry = new Date(el.dataset.expiry).getTime();
+            const now = new Date().getTime();
+            const diff = expiry - now;
+            const timerSpan = el.querySelector('.retry-timer');
+
+            if (diff <= 0) {
+                el.innerHTML = '<i class="fas fa-exclamation-circle"></i> Retry Expired';
+                // Find and remove the retry button in the same container
+                const container = el.closest('td') || el.closest('.order-card-mobile') || el.closest('.order-card-header');
+                if (container) {
+                    const btn = container.querySelector('.retry-btn');
+                    if (btn) btn.remove();
+                }
+            } else {
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((diff % (1000 * 60)) / 1000);
+                if (timerSpan) {
+                    timerSpan.innerHTML = `Retries end in ${m}m ${s}s`;
+                }
+            }
+        });
+    }
+    
+    if (document.querySelectorAll('.retry-timer').length > 0) {
+        updateTimers();
+        setInterval(updateTimers, 1000);
+    }
 </script>
 
 </body>

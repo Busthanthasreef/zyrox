@@ -1,4 +1,4 @@
-import {getCategoriesService,createCategoryService,updateCategoryService,deleteCategoryService} from "../../services/adminServices/categoryService.js";
+import {getCategoriesService,createCategoryService,updateCategoryService,deleteCategoryService, toggleCategoryStatusService} from "../../services/adminServices/categoryService.js";
 
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -10,17 +10,30 @@ const loadCategories = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const search = req.query.search || "";
     const statusFilter = req.query.status || "";
+    const countFilter = req.query.countFilter || "";
     const sortBy = req.query.sortBy || "newest";
 
     const safeSearch = escapeRegex(search);
 
-    const data = await getCategoriesService(page, safeSearch, statusFilter, sortBy);
+    const data = await getCategoriesService(page, safeSearch, statusFilter, sortBy, countFilter);
+
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+      return res.json({
+        success: true,
+        ...data,
+        search,
+        statusFilter,
+        countFilter,
+        sortBy
+      });
+    }
 
     res.render("admin/category/Categories", {
       admin: req.session.admin,
       ...data,
       search,
       statusFilter,
+      countFilter,
       sortBy
     });
 
@@ -96,9 +109,23 @@ const deleteCategory = async (req, res) => {
 };
 
 
+/* ================= TOGGLE CATEGORY STATUS ================= */
+const toggleCategoryStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await toggleCategoryStatusService(id);
+    return res.status(result.statusCode).json(result.response);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Toggle failed" });
+  }
+};
+
+
 export {
   loadCategories,
   addCategory,
   editCategory,
-  deleteCategory
+  deleteCategory,
+  toggleCategoryStatus
 };

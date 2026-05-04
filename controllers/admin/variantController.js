@@ -1,350 +1,159 @@
-import VariantSchema from '../../models/variant.js';
-import ProductSchema from '../../models/product.js';
-import categorySchema from '../../models/category.js';
-import cloudinary from '../../config/cloudinary.js';
+import {
+    getVariantListingData,
+    createVariant,
+    updateVariant,
+    toggleVariantActive,
+    setVariantAsDefault,
+    softDeleteVariant,
+} from "../../services/adminServices/variantService.js";
 
-/* =====================================
-   LOAD VARIANT LISTING
-===================================== */
+// ─────────────────────────────────────────────
+//  SESSION FLASH HELPERS
+// ─────────────────────────────────────────────
+
+const flashSuccess = (req, msg) => { req.session.successMsg = msg; };
+const flashError   = (req, msg) => { req.session.errorMsg   = msg; };
+
+/** Pops a session flash message (reads then deletes). */
+const popFlash = (req, key) => {
+    const msg = req.session[key];
+    delete req.session[key];
+    return msg;
+};
+
+/** Redirect helper to keep handlers tidy. */
+const toVariants = (res, productId) =>
+    res.redirect(`/admin/products/${productId}/variants`);
+
+// ─────────────────────────────────────────────
+//  GET  /admin/products/:id/variants
+// ─────────────────────────────────────────────
+
 const loadVariantListing = async (req, res) => {
     try {
-        const { id } = req.params;
-        const page = parseInt(req.query.page) || 1;
-        const limit = 5;
-        const skip = (page - 1) * limit;
-
-        const product = await ProductSchema.findById(id).populate('categoryId').lean();
-        if (!product) return res.status(404).send("Product not found");
-
-        const totalVariants = await VariantSchema.countDocuments({ productId: id, IsDeleted: false });
-        const activeVariants = await VariantSchema.countDocuments({ productId: id, IsActive: true, IsDeleted: false });
-        const inactiveVariants = await VariantSchema.countDocuments({ productId: id, IsActive: false, IsDeleted: false });
-        const totalPages = Math.ceil(totalVariants / limit);
-
-        const variants = await VariantSchema.find({ productId: id, IsDeleted: false })
-            .sort({ IsDefault: -1, createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .lean();
-
-        const defaultVariant = await VariantSchema.findOne({ productId: id, IsDefault: true, IsDeleted: false }).lean();
-
-        const categories = await categorySchema.find().lean();
-
-        res.render("admin/products/variantListing", {
-            product,
-            variants,
-            defaultVariant,
-            categories,
-            totalVariants,
-            activeVariants,
-            inactiveVariants,
-            totalPages,
-            currentPage: page,
-            startItem: skip + 1,
-            endItem: Math.min(skip + limit, totalVariants),
-            user: req.session.user,
-            successMsg: (() => {
-                const m = req.session.successMsg;
-                delete req.session.successMsg;
-                return m;
-            })(),
-            errorMsg: (() => {
-                const m = req.session.errorMsg;
-                delete req.session.errorMsg;
-                return m;
-            })()
-        });
-    } catch (err) {
-        console.error("loadVariantListing error:", err);
-        res.status(500).send("Server Error");
-    }
-};
-
-/* =====================================
-   ADD VARIANT
-===================================== */
-const addVariant = async (req, res) => {
-    try {
         const { id: productId } = req.params;
-        let { color, storage, RAM, stock, price, SKU, isActive, isDefault } = req.body;
+        const page = parseInt(req.query.page, 10) || 1;
 
-        const product = await ProductSchema.findById(productId);
-        if (!product) return res.status(404).send("Product not found");
+        const data = await getVariantListingData(productId, page);
 
-        // 🔧 Normalize values
-        const parseNum = (val) => val ? Number(String(val).replace(/[^\d]/g, "")) : undefined;
+        if (!data) return res.status(404).send("Product not found");
 
-        color = (color || "").trim().toLowerCase();
-        storage = parseNum(storage);
-        RAM = parseNum(RAM);
-
-        // 🔴 CHECK DUPLICATE VARIANT
-        const existingVariant = await VariantSchema.findOne({
-            productId,
-            color: color.toLowerCase(),
-            RAM,
-            storage,
-            IsDeleted: false
+        return res.render("admin/products/variantListing", {
+            ...data,
+            user:       req.session.user,
+            successMsg: popFlash(req, "successMsg"),
+            errorMsg:   popFlash(req, "errorMsg"),
         });
-
-        if (existingVariant) {
-            req.session.errorMsg = `A variant with this configuration (Color: ${color.charAt(0).toUpperCase() + color.slice(1)}, RAM: ${RAM}GB, Storage: ${storage}GB) already exists.`;
-            return res.redirect(`/admin/products/${productId}/variants`);
-        }
-
-        // 🔴 SKU CHECK
-        if (SKU) {
-            const existingSKU = await VariantSchema.findOne({ SKU });
-            if (existingSKU) {
-                req.session.errorMsg = "SKU already exists";
-                return res.redirect(`/admin/products/${productId}/variants`);
-            }
-        }
-
-        // 📸 Images
-        const imageUrls = (req.files || []).map(f => f.path);
-
-        if (imageUrls.length < 3) {
-            req.session.errorMsg = "At least 3 images are required for a variant";
-            return res.redirect(`/admin/products/${productId}/variants`);
-        }
-
-        if (imageUrls.length > 5) {
-            req.session.errorMsg = "A maximum of 5 images are allowed per variant";
-            return res.redirect(`/admin/products/${productId}/variants`);
-        }
-
-        // ⭐ Handle Default Variant
-        if (isDefault === "on" || isDefault === true) {
-            await VariantSchema.updateMany({ productId }, { IsDefault: false });
-        }
-
-        const existingCount = await VariantSchema.countDocuments({ productId, IsDeleted: false });
-        const shouldBeDefault = (isDefault === "on") || existingCount === 0;
-
-        // ✅ CREATE VARIANT
-        const newVariant = new VariantSchema({
-            productId,
-            categoryId: product.categoryId,
-            color,
-            colorCode: req.body.colorCode || "#000000",
-            storage,
-            RAM,
-            stock: stock ? Number(stock) : 0,
-            price: price ? Number(price) : 0,
-            SKU: SKU || "",
-            IsActive: isActive === "on" || isActive === true,
-            IsDefault: shouldBeDefault,
-            images: imageUrls
-        });
-
-        await newVariant.save();
-
-        req.session.successMsg = "Variant added successfully";
-        res.redirect(`/admin/products/${productId}/variants`);
-
     } catch (err) {
-        console.error("addVariant error:", err);
-        req.session.errorMsg = "Failed to add variant";
-        res.redirect(`/admin/products/${productId}/variants`);
+        console.error("[Variant] loadVariantListing error:", err);
+        return res.status(500).send("Server Error");
     }
 };
-/* =====================================
-   EDIT VARIANT
-===================================== */
+
+// ─────────────────────────────────────────────
+//  POST  /admin/products/:id/variants
+// ─────────────────────────────────────────────
+
+const addVariant = async (req, res) => {
+    const { id: productId } = req.params;
+
+    try {
+        const imageUrls = (req.files || []).map((f) => f.path);
+        const result    = await createVariant(productId, req.body, imageUrls);
+
+        if (result.error) {
+            flashError(req, result.error);
+        } else {
+            flashSuccess(req, "Variant added successfully");
+        }
+    } catch (err) {
+        console.error("[Variant] addVariant error:", err);
+        flashError(req, "Failed to add variant");
+    }
+
+    return toVariants(res, productId);
+};
+
+// ─────────────────────────────────────────────
+//  PUT  /admin/products/:id/variants/:variantId
+// ─────────────────────────────────────────────
+
 const editVariant = async (req, res) => {
     const { id: productId, variantId } = req.params;
+
     try {
-        let { color, storage, RAM, stock, price, SKU, isActive, isDefault } = req.body;
+        const newImageUrls = (req.files || []).map((f) => f.path);
+        const result       = await updateVariant(productId, variantId, req.body, newImageUrls);
 
-        const product = await ProductSchema.findById(productId);
-        if (!product) return res.status(404).send("Product not found");
-
-        const variant = await VariantSchema.findById(variantId);
-        if (!variant) return res.status(404).send("Variant not found");
-
-        // Normalize values
-        const parseNum = (val) => (val !== undefined && val !== "") ? Number(String(val).replace(/[^\d]/g, "")) : undefined;
-
-        color = (color || variant.color).trim();
-        storage = parseNum(storage) || variant.storage;
-        RAM = parseNum(RAM) || variant.RAM;
-
-        // CHECK DUPLICATE (exclude current variant)
-        const duplicate = await VariantSchema.findOne({
-            productId,
-            _id: { $ne: variantId },
-            color: color.toLowerCase(),
-            RAM,
-            storage,
-            IsDeleted: false
-        });
-
-        if (duplicate) {
-            req.session.errorMsg = `Another variant with this configuration (Color: ${color.charAt(0).toUpperCase() + color.slice(1)}, RAM: ${RAM}GB, Storage: ${storage}GB) already exists.`;
-            return res.redirect(`/admin/products/${productId}/variants`);
-        }
-
-        // SKU CHECK (exclude current variant)
-        if (SKU) {
-            const existingSKU = await VariantSchema.findOne({
-                SKU,
-                _id: { $ne: variantId }
-            });
-
-            if (existingSKU) {
-                req.session.errorMsg = "SKU already exists";
-                return res.redirect(`/admin/products/${productId}/variants`);
-            }
-        }
-
-        // Handle Images
-        let imageUrls = variant.images || [];
-
-        if (req.files && req.files.length > 0) {
-            if (req.files.length < 3) {
-                req.session.errorMsg = "At least 3 images are required when updating images.";
-                return res.redirect(`/admin/products/${productId}/variants`);
-            }
-            if (req.files.length > 5) {
-                req.session.errorMsg = "A maximum of 5 images are allowed when updating images.";
-                return res.redirect(`/admin/products/${productId}/variants`);
-            }
-            imageUrls = req.files.map(f => f.path);
-        }
-
-        // Handle Default Variant
-        if (isDefault === "on" || isDefault === true) {
-            await VariantSchema.updateMany(
-                { productId, _id: { $ne: variantId } },
-                { IsDefault: false }
-            );
-            variant.IsDefault = true;
+        if (result.error) {
+            flashError(req, result.error);
         } else {
-            const otherDefault = await VariantSchema.findOne({ 
-                productId, 
-                _id: { $ne: variantId }, 
-                IsDefault: true, 
-                IsDeleted: false 
-            });
-            if (!otherDefault) {
-                variant.IsDefault = true;
-            } else {
-                variant.IsDefault = false;
-            }
+            flashSuccess(req, "Variant updated successfully");
         }
-
-        // UPDATE FIELDS
-        variant.productId = productId;
-        variant.categoryId = product.categoryId;
-        variant.color = color.toLowerCase();
-        variant.colorCode = req.body.colorCode || variant.colorCode || "#000000";
-        variant.storage = storage;
-        variant.RAM = RAM;
-        variant.stock = stock !== undefined ? Number(stock) : variant.stock;
-        variant.price = price !== undefined ? Number(price) : variant.price;
-        variant.SKU = SKU || variant.SKU;
-        variant.IsActive = isActive === "on" || isActive === true;
-        variant.images = imageUrls;
-
-        await variant.save();
-
-        req.session.successMsg = "Variant updated successfully";
-        res.redirect(`/admin/products/${productId}/variants`);
-
     } catch (err) {
-        console.error("editVariant error:", err);
-        req.session.errorMsg = "Failed to update variant";
-        res.redirect(`/admin/products/${productId}/variants`);
+        console.error("[Variant] editVariant error:", err);
+        flashError(req, "Failed to update variant");
     }
+
+    return toVariants(res, productId);
 };
 
-/* =====================================
-   TOGGLE VARIANT ACTIVE STATUS
-===================================== */
+// ─────────────────────────────────────────────
+//  PATCH  /admin/variants/:variantId/toggle
+// ─────────────────────────────────────────────
+
 const toggleVariant = async (req, res) => {
     try {
-        const { variantId } = req.params;
-        const { isActive } = req.body;
-        await VariantSchema.findByIdAndUpdate(variantId, {
-            IsActive: isActive === true || isActive === "true"
-        });
-        res.json({ success: true });
+        const { variantId }   = req.params;
+        const { isActive }    = req.body;
+        const success         = await toggleVariantActive(variantId, isActive);
+        return res.json({ success });
     } catch (err) {
-        console.error("toggleVariant error:", err);
-        res.json({ success: false });
+        console.error("[Variant] toggleVariant error:", err);
+        return res.json({ success: false });
     }
 };
 
-/* =====================================
-   SET DEFAULT VARIANT
-===================================== */
+// ─────────────────────────────────────────────
+//  PATCH  /admin/variants/:variantId/default
+// ─────────────────────────────────────────────
+
 const setDefaultVariant = async (req, res) => {
     try {
         const { variantId } = req.params;
-        const variant = await VariantSchema.findById(variantId);
-        if (!variant) return res.json({ success: false, message: "Variant not found" });
+        const result        = await setVariantAsDefault(variantId);
 
-        await VariantSchema.updateMany(
-            { productId: variant.productId },
-            { IsDefault: false }
-        );
-        variant.IsDefault = true;
-        await variant.save();
-        res.json({ success: true });
+        if (result.error) {
+            return res.json({ success: false, message: result.error });
+        }
+        return res.json({ success: true });
     } catch (err) {
-        console.error("setDefaultVariant error:", err);
-        res.json({ success: false });
+        console.error("[Variant] setDefaultVariant error:", err);
+        return res.json({ success: false });
     }
 };
 
-/* =====================================
-   SOFT DELETE VARIANT
-===================================== */
+// ─────────────────────────────────────────────
+//  DELETE  /admin/products/:id/variants/:variantId
+// ─────────────────────────────────────────────
+
 const deleteVariant = async (req, res) => {
+    const { id: productId, variantId } = req.params;
+
     try {
-        const { id, variantId } = req.params;
-        const variant = await VariantSchema.findById(variantId);
+        const result = await softDeleteVariant(productId, variantId);
 
-        if (!variant) {
-            req.session.errorMsg = "Variant not found";
-            return res.redirect(`/admin/products/${id}/variants`);
+        if (result.error) {
+            flashError(req, result.error);
+        } else {
+            flashSuccess(req, "Variant deleted successfully");
         }
-
-        // If deleting the default variant
-        if (variant.IsDefault) {
-            // Find another variant to make it default
-            const nextAvailable = await VariantSchema.findOne({
-                productId: id,
-                IsDeleted: false,
-                _id: { $ne: variantId }
-            });
-
-            if (!nextAvailable) {
-                req.session.errorMsg = "Can't delete the default variant as it's the only one left.";
-                return res.redirect(`/admin/products/${id}/variants`);
-            }
-
-            // Assign new default
-            await VariantSchema.findByIdAndUpdate(nextAvailable._id, { IsDefault: true });
-        }
-
-        // Soft delete the current variant
-        await VariantSchema.findByIdAndUpdate(variantId, {
-            IsDeleted: true,
-            IsDefault: false,
-            IsActive: false,
-            SKU: `${variant.SKU}-DEL-${Date.now()}`
-        });
-
-        req.session.successMsg = "Variant deleted successfully";
-        res.redirect(`/admin/products/${id}/variants`);
     } catch (err) {
-        console.error("deleteVariant error:", err);
-        req.session.errorMsg = "Failed to delete variant";
-        res.redirect(`/admin/products/${req.params.id}/variants`);
+        console.error("[Variant] deleteVariant error:", err);
+        flashError(req, "Failed to delete variant");
     }
+
+    return toVariants(res, productId);
 };
 
 export {
@@ -353,5 +162,5 @@ export {
     editVariant,
     toggleVariant,
     setDefaultVariant,
-    deleteVariant
+    deleteVariant,
 };
