@@ -227,14 +227,25 @@ export const getProductDetails = async (productId, variantIdReq) => {
     const category = variant.productId.categoryId;
     if (category && (!category.IsActive || category.IsDeleted)) return null;
 
-    const allVariants = await variantSchema
+    const allVariantsRaw = await variantSchema
         .find({ productId: safeProductId, IsDeleted: { $ne: true } })
         .lean();
 
-    // Calculate Offer for the main variant
-    const bestOffer = await calculateBestOffer(variant.productId._id, variant.productId.categoryId._id, variant.price);
-    variant.discountedPrice = applyOffer(variant.price, bestOffer);
-    variant.bestOffer = bestOffer;
+    const allVariants = await Promise.all(
+        allVariantsRaw.map(async (v) => {
+            const vOffer = await calculateBestOffer(variant.productId._id, variant.productId.categoryId._id, v.price);
+            return {
+                ...v,
+                discountedPrice: applyOffer(v.price, vOffer),
+                bestOffer: vOffer
+            };
+        })
+    );
+
+    // Ensure the main variant also has its offer data (it's already in allVariants, but we need it for the 'variant' object too)
+    const mainVariantWithOffer = allVariants.find(v => v._id.toString() === variant._id.toString()) || variant;
+    variant.discountedPrice = mainVariantWithOffer.discountedPrice;
+    variant.bestOffer = mainVariantWithOffer.bestOffer;
 
     const relatedProductsRaw = await productSchema
         .find({

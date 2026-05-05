@@ -368,7 +368,7 @@
                                         else if (iS.includes('return')) iC = '#f59e0b';
                                         else if (iS.includes('failed')) iC = '#ef4444';
                                     %>
-                                    <div class="text-[0.6rem] font-black uppercase tracking-widest mt-1" style="color: <%= iC %>">
+                                    <div class="text-[0.6rem] font-black uppercase tracking-widest mt-1" style="color: '<%= iC %>'">
                                         <%= item.status || order.orderStatus %>
                                     </div>
                                 </div>
@@ -566,35 +566,7 @@
                     </div>
                 </div>
 
-                <!-- <div class="space-y-3">
-                    <% if (['Pending', 'Processing'].includes(order.orderStatus)) { %>
-                        <button onclick="handleCancelEntireOrder()"
-                            class="w-full bg-red-600/10 border border-red-600/50 text-red-500 py-3 rounded-xl font-bold hover:bg-red-600 hover:text-white transition uppercase tracking-wider text-xs">
-                            Cancel Entire Order
-                        </button>
-                    <% } %>
-                    <% if (order.orderStatus === 'Delivered') { %>
-                        <%
-                            const delivDate = order.deliveredAt || order.updatedAt;
-                            const daysSince = Math.floor((Date.now() - new Date(delivDate).getTime()) / (1000 * 60 * 60 * 24));
-                            const daysLeft = 7 - daysSince;
-                        %>
-                        <% if (daysLeft >= 0) { %>
-                            <div>
-                                <button onclick="handleReturnEntireOrder()"
-                                    class="w-full bg-orange-600/10 border border-orange-600/50 text-orange-500 py-3 rounded-xl font-bold hover:bg-orange-600 hover:text-white transition uppercase tracking-wider text-xs mb-1">
-                                    Return Entire Order
-                                </button>
-                                <div class="text-center text-[0.6rem] text-gray-400 font-bold tracking-widest uppercase">
-                                    Ends in <%= daysLeft %> day<%= daysLeft === 1 ? '' : 's' %>
-                                </div>
-                            </div>
-                        <% } %>
-                    <% } %>
-                    <button onclick="downloadInvoice('<%= order._id %>', this)"
-                        class="w-full border border-blue-600/50 text-blue-400 py-3 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition uppercase tracking-wider text-xs flex items-center justify-center gap-2">
-                        <i class="fas fa-download"></i> Download Invoice
-                    </button> -->
+               
 
                 </div>
             </div>

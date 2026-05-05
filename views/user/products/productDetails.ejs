@@ -142,6 +142,7 @@
             transition: transform 0.3s ease;
             transform-origin: 50% 50%;
             display: block;
+            border-radius: 16px;
         }
 
         .zoom-hint {
@@ -163,19 +164,34 @@
             backdrop-filter: blur(6px);
         }
 
+        .stock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: .55rem;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: .3px;
+        }
+
         .badge-in-stock {
             background-color: #50ff4d4d;
             color: #09ff1a;
+            border: 1px solid rgba(9, 255, 26, 0.2);
         }
 
         .badge-out-stock {
             background-color: #ff494978;
             color: red;
+            border: 1px solid rgba(255, 73, 73, 0.3);
         }
 
         .badge-low-stock {
             background-color: rgba(255, 166, 0, 0.386);
             color: orange;
+            border: 1px solid rgba(255, 166, 0, 0.4);
         }
 
         .gallery-main:hover .zoom-hint {
@@ -198,7 +214,7 @@
             flex-shrink: 0;
             width: 72px;
             height: 72px;
-            border-radius: var(--radius-sm);
+            border-radius: 12px;
             border: 2px solid transparent;
             background: var(--bg-card);
             overflow: hidden;
@@ -211,7 +227,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            border-radius: 6px;
+            border-radius: 10px;
             transition: background .2s;
         }
 
@@ -224,6 +240,7 @@
             padding: 7px;
             pointer-events: none;
             transition: transform .25s;
+            border-radius: 8px;
         }
 
         .thumb:hover img { transform: scale(1.06); }
@@ -942,9 +959,9 @@
 
                         <div class="price-row-current">
                             <span class="price-main" id="priceMain">
-                                ₹npnp<%= variant.discountedPrice
+                                ₹<%= variant.discountedPrice
                                     ? Number(variant.discountedPrice).toLocaleString('en-IN')
-                                    : '—' %>
+                                    : Number(variant.price).toLocaleString('en-IN') %>
                             </span>
                             <% if (variant.bestOffer && variant.price > variant.discountedPrice) { %>
                                 <% if (variant.bestOffer.discountType === 'flat') { %>
@@ -1126,11 +1143,11 @@
                                 <div class="related-name"><%= product.productName %></div>
                                 <div style="display:flex;align-items:baseline;gap:4px;">
                                     <span class="related-price">
-                                        ₹<%= Number(product.displayVariant.price).toLocaleString('en-IN') %>
+                                        ₹<%= Number(product.displayVariant.discountedPrice || product.displayVariant.price).toLocaleString('en-IN') %>
                                     </span>
-                                    <% if (product.displayVariant.oldPrice) { %>
+                                    <% if (product.displayVariant.bestOffer && product.displayVariant.price > product.displayVariant.discountedPrice) { %>
                                         <span class="related-old">
-                                            ₹<%= Number(product.displayVariant.oldPrice).toLocaleString('en-IN') %>
+                                            ₹<%= Number(product.displayVariant.price).toLocaleString('en-IN') %>
                                         </span>
                                     <% } %>
                                 </div>
@@ -1167,8 +1184,8 @@
             RAM:       v.RAM     != null ? Number(v.RAM)     : null,
             storage:   v.storage != null ? Number(v.storage) : null,
             color:     v.color   || null,
-            price:     Number(v.price)   || 0,
-            oldPrice:  v.oldPrice ? Number(v.oldPrice) : null,
+            price:     v.discountedPrice ? Number(v.discountedPrice) : Number(v.price) || 0,
+            oldPrice:  (v.bestOffer && v.price > v.discountedPrice) ? Number(v.price) : null,
             stock:     Number(v.stock)   || 0,
             images:    Array.isArray(v.images) ? v.images : [],
             IsActive:  v.IsActive !== false

@@ -16,19 +16,30 @@
 
     <!-- BRANDS (CATEGORIES) -->
     <div class="sidebar-section">
-        <div class="sidebar-section-title">Brands</div>
+        <div class="sidebar-section-title" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <span style="flex-shrink: 0;">Brands</span>
+            <div style="flex: 1; height: 1px; background: linear-gradient(to right, rgba(212, 175, 55, 0.3), transparent);"></div>
+            <% if (safeBrands.length > 5) { %>
+                <button type="button" class="toggle-more-btn" onclick="toggleMoreItems('brands<%= fSuffix %>', this)" style="background: none; border: none; color: var(--accent); font-size: 0.7rem; font-weight: 700; cursor: pointer; padding: 2px 6px; display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                    <span class="toggle-text">More</span>
+                    <i class="fas fa-chevron-down toggle-icon" style="font-size: 0.6rem; transition: transform 0.3s;"></i>
+                </button>
+            <% } %>
+        </div>
         <% if (safeBrands.length > 0) { %>
-            <% safeBrands.forEach(brand => { %>
-                <div class="cb-row">
-                    <label>
-                        <input type="checkbox" name="brand" value="<%= brand.name %>"
-                            <%= curBrands.includes(brand.name) ? 'checked' : '' %>
-                            <% if (!fMobile) { %>onchange="handlePriceSubmit('<%= fSuffix %>')"<% } %>>
-                        <span><%= brand.name %></span>
-                    </label>
-                    <span class="cb-count"><%= brand.count %></span>
-                </div>
-            <% }) %>
+            <div id="brands<%= fSuffix %>">
+                <% safeBrands.forEach((brand, index) => { %>
+                    <div class="cb-row <%= index >= 5 ? 'hidden-item' : '' %>" style="<%= index >= 5 ? 'display: none;' : '' %>">
+                        <label>
+                            <input type="checkbox" name="brand" value="<%= brand.name %>"
+                                <%= curBrands.includes(brand.name) ? 'checked' : '' %>
+                                <% if (!fMobile) { %>onchange="handlePriceSubmit('<%= fSuffix %>')"<% } %>>
+                            <span><%= brand.name %></span>
+                        </label>
+                        <span class="cb-count"><%= brand.count %></span>
+                    </div>
+                <% }) %>
+            </div>
         <% } else { %>
             <span class="no-data">No categories available</span>
         <% } %>
@@ -70,18 +81,29 @@
 
     <!-- COLOR -->
     <div class="sidebar-section">
-        <div class="sidebar-section-title">Color</div>
+        <div class="sidebar-section-title" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+            <span style="flex-shrink: 0;">Color</span>
+            <div style="flex: 1; height: 1px; background: linear-gradient(to right, rgba(212, 175, 55, 0.3), transparent);"></div>
+            <% if (safeColors.length > 5) { %>
+                <button type="button" class="toggle-more-btn" onclick="toggleMoreItems('colors<%= fSuffix %>', this)" style="background: none; border: none; color: var(--accent); font-size: 0.7rem; font-weight: 700; cursor: pointer; padding: 2px 6px; display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
+                    <span class="toggle-text">More</span>
+                    <i class="fas fa-chevron-down toggle-icon" style="font-size: 0.6rem; transition: transform 0.3s;"></i>
+                </button>
+            <% } %>
+        </div>
         <% if (safeColors.length > 0) { %>
-            <% safeColors.forEach(color => { %>
-                <div class="cb-row">
-                    <label>
-                        <input type="checkbox" name="color" value="<%= color %>"
-                            <%= curColors.includes(color) ? 'checked' : '' %>
-                            <% if (!fMobile) { %>onchange="handlePriceSubmit('<%= fSuffix %>')"<% } %>>
-                        <span><%= color %></span>
-                    </label>
-                </div>
-            <% }) %>
+            <div id="colors<%= fSuffix %>">
+                <% safeColors.forEach((color, index) => { %>
+                    <div class="cb-row <%= index >= 5 ? 'hidden-item' : '' %>" style="<%= index >= 5 ? 'display: none;' : '' %>">
+                        <label>
+                            <input type="checkbox" name="color" value="<%= color %>"
+                                <%= curColors.includes(color) ? 'checked' : '' %>
+                                <% if (!fMobile) { %>onchange="handlePriceSubmit('<%= fSuffix %>')"<% } %>>
+                            <span><%= color %></span>
+                        </label>
+                    </div>
+                <% }) %>
+            </div>
         <% } else { %>
             <span class="no-data">No colors</span>
         <% } %>

@@ -276,19 +276,20 @@
                                 text: 'Something went wrong. Please try again.'
                             });
                         });
-                });
+                    });
 
 
-                // Parallax Effect
-                document.addEventListener('mousemove', (e) => {
-                    const planets = document.querySelectorAll('.planet');
-                    const x = (window.innerWidth - e.pageX * 2) / 100;
-                    const y = (window.innerHeight - e.pageY * 2) / 100;
+                    // Parallax Effect
+                    document.addEventListener('mousemove', (e) => {
+                        const planets = document.querySelectorAll('.planet');
+                        const x = (window.innerWidth - e.pageX * 2) / 100;
+                        const y = (window.innerHeight - e.pageY * 2) / 100;
 
-                    planets.forEach(planet => {
-                        const speed = planet.classList.contains('earth') ? 2 :
-                            planet.classList.contains('mars') ? 4 : 1;
-                        planet.style.transform = `translateX(${x * speed}px) translateY(${y * speed}px)`;
+                        planets.forEach(planet => {
+                            const speed = planet.classList.contains('earth') ? 2 :
+                                planet.classList.contains('mars') ? 4 : 1;
+                            planet.style.transform = `translateX(${x * speed}px) translateY(${y * speed}px)`;
+                        });
                     });
                 });
             </script>

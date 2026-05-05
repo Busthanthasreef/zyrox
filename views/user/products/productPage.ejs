@@ -17,7 +17,7 @@
     :root {
       --bg: #0d0f14;
       --bg-card: #16181e;
-      --bg-card-h: #1c1f26;
+      --bg-card-h: #040113;
       --accent: #4f6ef7;
       --accent-rgb: 200, 136, 58;
       --accent-lt: rgba(200, 136, 58, .12);
@@ -120,11 +120,30 @@
       gap: 8px;
     }
 
-    .sidebar-section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(to right, rgba(212, 175, 55, 0.3), transparent);
+    /* Toggle More Button */
+    .toggle-more-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 2px 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s;
+      border-radius: 4px;
+    }
+
+    .toggle-more-btn:hover {
+      background: rgba(var(--accent-rgb), 0.1);
+      transform: scale(1.05);
+    }
+
+    .toggle-more-btn .toggle-icon {
+      font-size: 0.6rem;
+      transition: transform 0.3s ease;
     }
 
     /* Checkbox rows */
@@ -310,7 +329,7 @@
       pointer-events: none;
     }
 
-    #productContainer.is-loading > *:not(.loading-overlay) {
+    #productContainer.is-loading>*:not(.loading-overlay) {
       filter: blur(8px) grayscale(0.2);
       opacity: 0.4;
       transition: filter 0.4s ease, opacity 0.4s ease;
@@ -329,7 +348,7 @@
       padding: 40px 60px;
       border-radius: 30px;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 
+      box-shadow:
         0 30px 70px rgba(0, 0, 0, 0.6),
         0 0 40px rgba(79, 110, 247, 0.15),
         inset 0 0 20px rgba(255, 255, 255, 0.05);
@@ -346,8 +365,15 @@
     }
 
     @keyframes pzxLoadingPopIn {
-      from { opacity: 0; transform: translate(-50%, -40%) scale(0.9); }
-      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      from {
+        opacity: 0;
+        transform: translate(-50%, -40%) scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
     }
 
     .loading-overlay i {
@@ -358,8 +384,17 @@
     }
 
     @keyframes pzxSpinnerPulse {
-      0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
-      50% { transform: scale(1.1) rotate(180deg); opacity: 0.8; }
+
+      0%,
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.1) rotate(180deg);
+        opacity: 0.8;
+      }
     }
 
     .loading-overlay span {
@@ -375,7 +410,9 @@
     }
 
     @keyframes pzxTextShimmer {
-      to { background-position: 200% center; }
+      to {
+        background-position: 200% center;
+      }
     }
 
 
@@ -574,10 +611,23 @@
     }
 
     @keyframes productIdleSwing {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      25% { transform: translateY(-2px) rotate(0.8deg); }
-      50% { transform: translateY(0) rotate(0deg); }
-      75% { transform: translateY(-2px) rotate(-0.8deg); }
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      25% {
+        transform: translateY(-2px) rotate(0.8deg);
+      }
+
+      50% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      75% {
+        transform: translateY(-2px) rotate(-0.8deg);
+      }
     }
 
     .product-card:hover {
@@ -589,10 +639,23 @@
     }
 
     @keyframes productHoverSwing {
-      0%, 100% { transform: translateY(-10px) scale(1.03) rotate(0deg); }
-      25% { transform: translateY(-10px) scale(1.03) rotate(1.5deg); }
-      50% { transform: translateY(-10px) scale(1.03) rotate(0deg); }
-      75% { transform: translateY(-10px) scale(1.03) rotate(-1.5deg); }
+
+      0%,
+      100% {
+        transform: translateY(-10px) scale(1.03) rotate(0deg);
+      }
+
+      25% {
+        transform: translateY(-10px) scale(1.03) rotate(1.5deg);
+      }
+
+      50% {
+        transform: translateY(-10px) scale(1.03) rotate(0deg);
+      }
+
+      75% {
+        transform: translateY(-10px) scale(1.03) rotate(-1.5deg);
+      }
     }
 
     .product-card.is-inactive {
@@ -609,23 +672,23 @@
       position: relative;
       width: 100%;
       height: 180px;
-      background: transparent;
+      /* background: #3d0000; */
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 12px;
+      border-radius: 40px;
     }
+
+    .productImage {}
 
     .card-img-wrap img {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-    }
+      border-radius: 30px;
 
-    .product-card:hover .card-img-wrap img {
-      transform: scale(1.08);
     }
 
     .product-card.is-inactive:hover .card-img-wrap img {
@@ -829,84 +892,73 @@
       transform: translateY(0);
     }
 
-    .btn-add-cart-quick:disabled {
+    .btn-add-cart-quick:disabled,
+    .btn-add-cart-quick.is-out-of-stock {
       background: var(--muted);
       cursor: not-allowed;
       opacity: 0.6;
+      filter: grayscale(1);
     }
 
-    .btn-view {
-      background: transparent;
-      color: var(--text-dim);
-      border: 1px solid var(--border2);
-      border-radius: var(--radius-sm);
-      padding: 8px 12px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      height: 40px;
-    }
-
-    .btn-view:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text);
-      border-color: var(--sub);
-    }
-      display: flex;
+    .btn-add-cart-quick.is-out-of-stock:hover {
+      transform: none;
+      box-shadow: none;
     }
 
     .stock-badge {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      font-size: .62rem;
+      gap: 4px;
+      font-size: .58rem;
       font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
+      padding: 3px 10px;
+      border-radius: 50px;
       text-transform: uppercase;
-      letter-spacing: .2px;
+      letter-spacing: .4px;
+      border: 1px solid transparent;
     }
 
     .badge-in-stock {
       background: var(--green-lt);
       color: var(--green);
-      border: 1px solid rgba(0, 212, 160, .15);
+      border-color: rgba(0, 212, 160, .15);
     }
 
     .badge-low-stock {
       background: var(--accent-lt);
       color: orangered;
-      border: 1px solid rgba(200, 136, 58, .2);
+      border-color: rgba(200, 136, 58, .2);
     }
 
     .badge-out-stock {
       background: var(--red-lt);
       color: var(--red);
-      border: 1px solid rgba(230, 57, 70, .15);
+      border-color: rgba(230, 57, 70, .15);
     }
 
     .btn-view {
       padding: 8px 12px;
       border-radius: 8px;
-      background: linear-gradient(135deg, #0ce0a1);
+      background: linear-gradient(135deg, #0ce0a1, #00d4a0);
       border: none;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       cursor: pointer;
-      color: #000;
+      color: #000000;
       font-weight: 700;
       font-size: .75rem;
       width: 100%;
       font-family: 'Inter', sans-serif;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(var(--accent-rgb), 0.2);
+      box-shadow: 0 4px 15px rgba(0, 212, 160, 0.2);
+    }
+
+    .btn-view:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 20px rgba(0, 212, 160, 0.4);
+      filter: brightness(1.1);
     }
 
     .btn-cart:hover:not(:disabled) {
@@ -921,14 +973,16 @@
       filter: grayscale(1);
     }
 
-    .btn-cart.maxed {
-      background: var(--muted);
-      cursor: not-allowed;
+    .btn-add-cart-quick.maxed {
+      background: var(--muted) !important;
+      cursor: not-allowed !important;
       opacity: .6;
+      transform: none !important;
+      box-shadow: none !important;
     }
 
-    .btn-cart.maxed:hover {
-      transform: none;
+    .btn-add-cart-quick.maxed:hover {
+      transform: none !important;
     }
 
 
@@ -999,6 +1053,24 @@
 
     /* RESPONSIVE */
 
+    @media (max-width: 2200px) {
+      .product-grid {
+        grid-template-columns: repeat(8, 2fr);
+      }
+    }
+
+    @media (max-width: 1800px) {
+      .product-grid {
+        grid-template-columns: repeat(6, 2fr);
+      }
+    }
+
+    @media (max-width: 1500px) {
+      .product-grid {
+        grid-template-columns: repeat(4, 2fr);
+      }
+    }
+
     @media (max-width: 1200px) {
       .product-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -1036,7 +1108,8 @@
 
       .search-wrap {
         order: 2;
-        width: 100%; /* Default to full width on very small, then side by side */
+        width: 100%;
+        /* Default to full width on very small, then side by side */
         max-width: 100% !important;
       }
 
@@ -1065,6 +1138,7 @@
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 10px;
       }
+
       .card-img-wrap {
         height: 160px !important;
       }
@@ -1195,9 +1269,9 @@
 
               <div class="sort-wrap">
                 <button class="sort-btn" type="button">
-                  <% const sortLabels=[ { val: '' , label: 'Newest First' }, { val: 'price_asc' , label: 'Price: Low \u2192 High'
-                    }, { val: 'price_desc' , label: 'Price: High \u2192 Low' }, { val: 'name_asc' , label: 'Name: A\u2013Z'
-                    }, { val: 'name_desc' , label: 'Name: Z\u2013A' }, ]; %>
+                  <% const sortLabels=[ { val: '' , label: 'Newest First' }, { val: 'price_asc' ,
+                    label: 'Price: Low \u2192 High' }, { val: 'price_desc' , label: 'Price: High \u2192 Low' }, {
+                    val: 'name_asc' , label: 'Name: A\u2013Z' }, { val: 'name_desc' , label: 'Name: Z\u2013A' }, ]; %>
                     Sort: <%= (sortLabels.find(o=> o.val === curSort) || sortLabels[0]).label %>
                       <i class="fas fa-chevron-down"></i>
                 </button>
@@ -1254,8 +1328,7 @@
                       <div class="card-img-wrap"
                         onclick="event.preventDefault(); event.stopPropagation();  window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
                         <% if (product.image && product.image !=='/images/placeholder.png' ) { %>
-                          <img src="<%= product.image %>" alt="<%= product.name %>" loading="lazy"
-                            onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                          <img src="<%= product.image %>" alt="<%= product.name %>" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                           <div class="img-placeholder" style="display:none;position:absolute;inset:0;">
 
                           </div>
@@ -1267,11 +1340,11 @@
 
                               <% if (!isInactive && product.originalPrice && product.price < product.originalPrice) { %>
                                 <span class="card-badge badge-sale">
-                                  <% if (product.offerType === 'flat') { %>
+                                  <% if (product.offerType==='flat' ) { %>
                                     ₹<%= (product.originalPrice - product.price).toLocaleString('en-IN') %> OFF
-                                  <% } else { %>
-                                    -<%= disc(product.price, product.originalPrice) %>% OFF
-                                  <% } %>
+                                      <% } else { %>
+                                        -<%= disc(product.price, product.originalPrice) %>% OFF
+                                          <% } %>
                                 </span>
                                 <% } else if (!isInactive && product.badge) { const bl=product.badge.toLowerCase(); let
                                   bc='badge-best' ; if (bl==='new' ) bc='badge-new' ; if (bl==='hot' ) bc='badge-hot' ;
@@ -1331,42 +1404,34 @@
                           <% if (isInactive) { %>
                             <span class="unavailable-label"><i class="fas fa-ban"></i> Unavailable</span>
                             <% } else { %>
-                               <% if (product.stock > 0) { %>
-                                  <div style="display:flex; flex-direction:column; gap:8px; width:100%; margin-top:12px;">
-                                    <div style="display:flex; gap:8px; width:100%;">
-                                      <button class="btn-add-cart-quick" 
-                                        onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(this, '<%= product.id %>', '<%= product.variantId %>', '<%= product.stock %>')"
-                                        id="cart-btn-<%= product.variantId %>">
-                                        <i class="fas fa-cart-plus" ></i> Add to Cart
-                                      </button>
-                                    </div>
-                                    <div style="display:flex; gap:8px; width:100%;">
-                                      <button class="btn-view" style="flex:1;"
-                                        onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
-                                        <i class="fas fa-eye"></i> Details
-                                      </button>
+                              <div style="display:flex; flex-direction:column; gap:8px; width:100%; margin-top:12px;">
+                                <div style="display:flex; gap:8px; width:100%;">
+                                  <button class="btn-add-cart-quick <%= product.stock <= 0 ? 'is-out-of-stock' : '' %>"
+                                    onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(this, '<%= product.id %>', '<%= product.variantId %>', '<%= product.stock %>')"
+                                    id="cart-btn-<%= product.variantId %>">
+                                    <i class="fas fa-cart-plus"></i> Add to Cart
+                                  </button>
+                                </div>
+                                <div style="display:flex; gap:8px; width:100%;">
+                                  <button class="btn-view" style="flex:1;"
+                                    onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
+                                    <i class="fas fa-eye"></i> Details
+                                  </button>
 
-                                      <% const isInWishlist = (typeof wishlistIds !== 'undefined') && wishlistIds.includes(product.id.toString()); %>
-                                      <button class="btn-wish-list"
-                                        onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistListing(this, '<%= product.id %>')"
-                                        style="display:flex; align-items:center; justify-content:center; width:44px; height:40px; border:1px solid var(--border2); border-radius:var(--radius-sm); background:transparent; color:<%= isInWishlist ? '#e63946' : 'var(--text-dim)' %>; cursor:pointer; transition:all 0.2s;"
-                                        onmouseover="this.style.background='rgba(230,57,70,0.1)'; this.style.borderColor='rgba(230,57,70,0.5)'; this.style.color='#e63946'"
-                                        onmouseout="if(this.querySelector('i').classList.contains('fas')){ this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='#e63946'; } else { this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='var(--text-dim)'; }">
-                                        <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"></i>
-                                      </button>
-                                    </div>
-
-                                  </div>
-                                <% } else { %>
-                                  <div style="display:flex; gap:8px; width:100%; margin-top:12px;">
-                                    <button class="btn-view" style="flex:1;"
-                                      onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
-                                      <i class="fas fa-eye"></i> View Details
+                                  <% const isInWishlist=(typeof wishlistIds !=='undefined' ) &&
+                                    wishlistIds.includes(product.id.toString()); %>
+                                    <button class="btn-wish-list"
+                                      onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistListing(this, '<%= product.id %>')"
+                                      style="display:flex; align-items:center; justify-content:center; width:44px; height:40px; border:1px solid var(--border2); border-radius:var(--radius-sm); background:transparent; color:<%= isInWishlist ? '#e63946' : 'var(--text-dim)' %>; cursor:pointer; transition:all 0.2s;"
+                                      onmouseover="this.style.background='rgba(230,57,70,0.1)'; this.style.borderColor='rgba(230,57,70,0.5)'; this.style.color='#e63946'"
+                                      onmouseout="if(this.querySelector('i').classList.contains('fas')){ this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='#e63946'; } else { this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='var(--text-dim)'; }">
+                                      <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"></i>
                                     </button>
-                                  </div>
-                                <% } %>
+                                </div>
 
+                              </div>
                               <% } %>
+
                         </div>
                       </div>
 
@@ -1469,6 +1534,30 @@
             if (container) container.classList.add('is-loading');
           }
 
+          // ── Toggle More/Less Items (Brands & Colors) ────────────────────────
+          function toggleMoreItems(containerId, button) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const hiddenItems = container.querySelectorAll('.hidden-item');
+            const toggleText = button.querySelector('.toggle-text');
+            const toggleIcon = button.querySelector('.toggle-icon');
+
+            const isExpanded = hiddenItems[0]?.style.display !== 'none';
+
+            hiddenItems.forEach(item => {
+              item.style.display = isExpanded ? 'none' : 'flex';
+            });
+
+            if (toggleText) {
+              toggleText.textContent = isExpanded ? 'More' : 'Less';
+            }
+
+            if (toggleIcon) {
+              toggleIcon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
+            }
+          }
+
           // ── Search box wiring ────────────────────────────────────────────────
           (function () {
             const searchInput = document.getElementById('productSearchInput');
@@ -1479,7 +1568,7 @@
             let _timer;
             searchInput.addEventListener('input', function () {
               const val = this.value.trim();
-              
+
               // Show/hide clear button
               if (clearBtn) {
                 clearBtn.style.display = val.length > 0 ? 'block' : 'none';
@@ -1497,14 +1586,14 @@
             });
 
             if (submitBtn) {
-              submitBtn.addEventListener('click', function() {
+              submitBtn.addEventListener('click', function () {
                 clearTimeout(_timer);
                 applySearch(searchInput.value.trim());
               });
             }
 
             if (clearBtn) {
-              clearBtn.addEventListener('click', function() {
+              clearBtn.addEventListener('click', function () {
                 searchInput.value = '';
                 this.style.display = 'none';
                 clearTimeout(_timer);
@@ -1562,7 +1651,7 @@
           async function addToCartListing(btn, productId, variantId) {
             try {
               if (btn.disabled) return;
-              
+
               // Loading state
               const originalContent = btn.innerHTML;
               btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -1575,7 +1664,7 @@
               });
 
               const result = await response.json();
-              
+
               // Restore button
               btn.innerHTML = originalContent;
               btn.disabled = false;
@@ -1595,9 +1684,9 @@
                 // Update local tracking
                 const currentQty = (cartQuantities[variantId] || 0) + 1;
                 cartQuantities[variantId] = currentQty;
-                
+
                 showLimitSwal(MAX_QTY - currentQty, result.stockLimit);
-                
+
                 if (currentQty >= MAX_QTY || currentQty >= result.stockLimit) {
                   markMaxed(btn);
                 }
@@ -1605,8 +1694,8 @@
                 // Update cart count
                 const cartBadge = document.querySelector('.cart-badge');
                 if (cartBadge) {
-                    const currentCount = parseInt(cartBadge.textContent) || 0;
-                    cartBadge.textContent = currentCount + 1;
+                  const currentCount = parseInt(cartBadge.textContent) || 0;
+                  cartBadge.textContent = currentCount + 1;
                 }
               } else {
                 if (result.limitReached) {
@@ -1690,10 +1779,24 @@
           }
 
           async function quickAddToCart(btn, pid, vid, stock) {
+            if (Number(stock) <= 0) {
+              Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'info',
+                title: "out of stock items can't add to cart",
+                showConfirmButton: false,
+                timer: 3000,
+                background: '#1a1d24',
+                color: '#f0f0f2',
+                iconColor: '#ff9800'
+              });
+              return;
+            }
             if (btn.disabled) return;
 
             // Check login state
-            const isLoggedIn =' <%= typeof user !== "undefined" && !!user %>';
+            const isLoggedIn = ' <%= typeof user !== "undefined" && !!user %>';
             if (!isLoggedIn) {
               const currentPath = window.location.pathname + window.location.search;
               window.location.href = `/signin?returnTo=${encodeURIComponent(currentPath)}`;
@@ -1790,124 +1893,124 @@
              12-fragment grid explosion, soft scatter, smooth reassembly.
         ═══════════════════════════════════════════════════════════════ -->
         <script>
-        (function () {
+          (function () {
             'use strict';
 
             /* ── Config ── */
-            const COLS         = 4;    // fragment columns
-            const ROWS         = 3;    // fragment rows  → 12 pieces total
-            const SCATTER_PX   = 42;   // max scatter distance in px
-            const EXPLODE_MS   = 180;  // delay before explosion starts (card visible first)
-            const REASSEM_MS   = 2200; // delay before reassembly starts
-            const REMOVE_MS    = 2900; // delay before overlay removed
+            const COLS = 4;    // fragment columns
+            const ROWS = 3;    // fragment rows  → 12 pieces total
+            const SCATTER_PX = 42;   // max scatter distance in px
+            const EXPLODE_MS = 180;  // delay before explosion starts (card visible first)
+            const REASSEM_MS = 2200; // delay before reassembly starts
+            const REMOVE_MS = 2900; // delay before overlay removed
             const STAGGER_CARD = 90;   // ms between each card's animation
-            const isMobile     = window.innerWidth <= 768;
-            const prefersRed   = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const isMobile = window.innerWidth <= 768;
+            const prefersRed = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
             /* ── Scatter vectors: 12 pieces get pseudo-random directions ── */
             const SCATTER_DIRS = [
-                [-1.2, -1.4], [ 0,   -1.6], [ 0.8, -1.4], [ 1.4, -1.2],
-                [-1.6, -0.2], [ 0.3, -0.5], [-0.3,  0.4], [ 1.6,  0.3],
-                [-1.3,  1.2], [-0.2,  1.5], [ 0.9,  1.3], [ 1.3,  1.1]
+              [-1.2, -1.4], [0, -1.6], [0.8, -1.4], [1.4, -1.2],
+              [-1.6, -0.2], [0.3, -0.5], [-0.3, 0.4], [1.6, 0.3],
+              [-1.3, 1.2], [-0.2, 1.5], [0.9, 1.3], [1.3, 1.1]
             ];
 
-    /* =================================================================
-       ZYROX — Product Listing Page: Modern Animation Engine
-       Flow: Staggered Zoom-In → Subtle Swing → Interactive Hover
-       ================================================================= */
-    /* =================================================================
-       ZYROX — Product Listing Page: Modern Animation Engine
-       Flow: Staggered Zoom-In → Subtle Swing → Interactive Hover
-       ================================================================= */
-    (function() {
-        const CONFIG = {
-            INITIAL_DELAY: 100,   // Reduced delay for faster visibility
-            STAGGER_DELAY: 70,    // Faster stagger
-            OBSERVER_THRESH: 0.01,
-        };
+            /* =================================================================
+               ZYROX — Product Listing Page: Modern Animation Engine
+               Flow: Staggered Zoom-In → Subtle Swing → Interactive Hover
+               ================================================================= */
+            /* =================================================================
+               ZYROX — Product Listing Page: Modern Animation Engine
+               Flow: Staggered Zoom-In → Subtle Swing → Interactive Hover
+               ================================================================= */
+            (function () {
+              const CONFIG = {
+                INITIAL_DELAY: 100,   // Reduced delay for faster visibility
+                STAGGER_DELAY: 70,    // Faster stagger
+                OBSERVER_THRESH: 0.01,
+              };
 
-        function startAnimations(cards) {
-            if (!cards || !cards.length) return;
-            
-            // Step 1: Force hide them just before starting the stagger
-            // This prevents the "blank screen" if JS fails earlier
-            cards.forEach(card => {
-                card.style.opacity = '0';
-                card.style.transform = 'scale(0)';
-            });
-            
-            // Step 2: Staggered reveal
-            setTimeout(() => {
-                cards.forEach((card, index) => {
+              function startAnimations(cards) {
+                if (!cards || !cards.length) return;
+
+                // Step 1: Force hide them just before starting the stagger
+                // This prevents the "blank screen" if JS fails earlier
+                cards.forEach(card => {
+                  card.style.opacity = '0';
+                  card.style.transform = 'scale(0)';
+                });
+
+                // Step 2: Staggered reveal
+                setTimeout(() => {
+                  cards.forEach((card, index) => {
                     setTimeout(() => {
-                        card.classList.add('animate-in');
-                        card.style.opacity = ''; // Let CSS take over
-                        card.style.transform = '';
+                      card.classList.add('animate-in');
+                      card.style.opacity = ''; // Let CSS take over
+                      card.style.transform = '';
                     }, index * CONFIG.STAGGER_DELAY);
-                });
-            }, CONFIG.INITIAL_DELAY);
-        }
+                  });
+                }, CONFIG.INITIAL_DELAY);
+              }
 
-        function initProductPageAnimations() {
-            const scope = document.querySelector('.product-page-animation');
-            if (!scope) return;
+              function initProductPageAnimations() {
+                const scope = document.querySelector('.product-page-animation');
+                if (!scope) return;
 
-            const cards = scope.querySelectorAll('.product-card');
-            if (!cards.length) return;
+                const cards = scope.querySelectorAll('.product-card');
+                if (!cards.length) return;
 
-            // Mark as found but don't hide yet
-            let hasStarted = false;
+                // Mark as found but don't hide yet
+                let hasStarted = false;
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
+                const observer = new IntersectionObserver((entries) => {
+                  entries.forEach(entry => {
                     if (entry.isIntersecting && !hasStarted) {
-                        hasStarted = true;
-                        observer.disconnect();
-                        startAnimations(cards);
+                      hasStarted = true;
+                      observer.disconnect();
+                      startAnimations(cards);
                     }
+                  });
+                }, {
+                  threshold: CONFIG.OBSERVER_THRESH,
+                  rootMargin: '150px'
                 });
-            }, {
-                threshold: CONFIG.OBSERVER_THRESH,
-                rootMargin: '150px'
-            });
 
-            observer.observe(scope);
+                observer.observe(scope);
 
-            // Safety Fallback: Ensure visibility after 1s
-            setTimeout(() => {
-                if (!hasStarted) {
+                // Safety Fallback: Ensure visibility after 1s
+                setTimeout(() => {
+                  if (!hasStarted) {
                     hasStarted = true;
                     observer.disconnect();
                     startAnimations(cards);
-                }
-            }, 1000);
+                  }
+                }, 1000);
 
-            // Cursor-based tilt
-            if (window.innerWidth > 1024) {
-                cards.forEach(card => {
+                // Cursor-based tilt
+                if (window.innerWidth > 1024) {
+                  cards.forEach(card => {
                     card.addEventListener('mousemove', (e) => {
-                        if (!card.classList.contains('animate-in')) return;
-                        const rect = card.getBoundingClientRect();
-                        const x = e.clientX - rect.left;
-                        const y = e.clientY - rect.top;
-                        const xPercent = (x / rect.width - 0.5) * 8;
-                        const yPercent = (y / rect.height - 0.5) * -8;
-                        card.style.transform = `translateY(-8px) scale(1.04) rotateY(${xPercent}deg) rotateX(${yPercent}deg)`;
+                      if (!card.classList.contains('animate-in')) return;
+                      const rect = card.getBoundingClientRect();
+                      const x = e.clientX - rect.left;
+                      const y = e.clientY - rect.top;
+                      const xPercent = (x / rect.width - 0.5) * 8;
+                      const yPercent = (y / rect.height - 0.5) * -8;
+                      card.style.transform = `translateY(-8px) scale(1.04) rotateY(${xPercent}deg) rotateX(${yPercent}deg)`;
                     });
                     card.addEventListener('mouseleave', () => {
-                        card.style.transform = ''; 
+                      card.style.transform = '';
                     });
-                });
-            }
-        }
+                  });
+                }
+              }
 
-        // Run immediately or on DOMContentLoaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            initProductPageAnimations();
-        } else {
-            document.addEventListener('DOMContentLoaded', initProductPageAnimations);
-        }
-    })();
+              // Run immediately or on DOMContentLoaded
+              if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                initProductPageAnimations();
+              } else {
+                document.addEventListener('DOMContentLoaded', initProductPageAnimations);
+              }
+            })();
         </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
