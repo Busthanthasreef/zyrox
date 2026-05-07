@@ -23,10 +23,10 @@ const popFlash = (req, key) => {
 
 /** Redirect helper to keep handlers tidy. */
 const toVariants = (res, productId) =>
-    res.redirect(`/admin/products/${productId}/variants`);
+    res.redirect(`/adminUser/products/${productId}/variants`);
 
 // ─────────────────────────────────────────────
-//  GET  /admin/products/:id/variants
+//  GET  /adminUser/products/:id/variants
 // ─────────────────────────────────────────────
 
 const loadVariantListing = async (req, res) => {
@@ -51,7 +51,7 @@ const loadVariantListing = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────
-//  POST  /admin/products/:id/variants
+//  POST  /adminUser/products/:id/variants
 // ─────────────────────────────────────────────
 
 const addVariant = async (req, res) => {
@@ -75,7 +75,7 @@ const addVariant = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────
-//  PUT  /admin/products/:id/variants/:variantId
+//  PUT  /adminUser/products/:id/variants/:variantId
 // ─────────────────────────────────────────────
 
 const editVariant = async (req, res) => {
@@ -99,7 +99,7 @@ const editVariant = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────
-//  PATCH  /admin/variants/:variantId/toggle
+//  PATCH  /adminUser/variants/:variantId/toggle
 // ─────────────────────────────────────────────
 
 const toggleVariant = async (req, res) => {
@@ -115,7 +115,7 @@ const toggleVariant = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────
-//  PATCH  /admin/variants/:variantId/default
+//  PATCH  /adminUser/variants/:variantId/default
 // ─────────────────────────────────────────────
 
 const setDefaultVariant = async (req, res) => {
@@ -134,7 +134,7 @@ const setDefaultVariant = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────
-//  DELETE  /admin/products/:id/variants/:variantId
+//  DELETE  /adminUser/products/:id/variants/:variantId
 // ─────────────────────────────────────────────
 
 const deleteVariant = async (req, res) => {

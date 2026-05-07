@@ -36,7 +36,7 @@
             <div class="form-box">
                 <h2 class="form-heading">Log In</h2>
 
-                <form action="/admin" method="POST">
+                <form action="/adminUser" method="POST">
                     <!-- Email -->
                     <div class="field-group">
                         <label for="email">Email</label>
@@ -105,7 +105,7 @@
         const passwordLiveError = document.getElementById('passwordLiveError');
         const emailServerError = document.getElementById('emailServerError');
         const passwordServerError = document.getElementById('passwordServerError');
-        const loginForm = document.querySelector('form[action="/admin"]');
+        const loginForm = document.querySelector('form[action="/adminUser"]');
         const emailRegex = /^[a-zA-Z0-9+._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
         function clearServerError(el) {

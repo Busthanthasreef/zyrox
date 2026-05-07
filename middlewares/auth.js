@@ -3,7 +3,7 @@ import userSchema from ".././models/user.js"
 // Admin authentication middleware
 const isAdminAuthenticated = (req, res, next) => {
   if (!req.session.admin) {
-    return res.redirect("/admin");
+    return res.redirect("/adminUser");
   }
   next();
 };
@@ -23,7 +23,7 @@ const isUserBlocked = async (req, res, next) => {
 // Check if admin is already logged in
 const isAdminGuest = (req, res, next) => {
   if (req.session.admin) {
-    return res.redirect("/admin/dashboard");
+    return res.redirect("/adminUser/dashboard");
   }
   next();
 };

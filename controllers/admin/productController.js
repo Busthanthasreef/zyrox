@@ -177,7 +177,7 @@ const deleteProduct = async (req, res) => {
 
     await productService.softDeleteProduct(req.params.id);
 
-    res.redirect("/admin/products");
+    res.redirect("/adminUser/products");
 
 };
 

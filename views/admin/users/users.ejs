@@ -36,7 +36,7 @@
                         <div class="topbar-controls d-flex align-items-center gap-2 flex-wrap">
 
 
-                            <form method="GET" action="/admin/users" class="search-bar-group">
+                            <form method="GET" action="/adminUser/users" class="search-bar-group">
                                 <div class="search-input-wrap" style="position: relative;">
                                     <i class="bi bi-search search-icon-inner"></i>
                                     <input type="text" name="search" id="searchInput"
@@ -141,7 +141,7 @@
                                         <td>
                                             <div class="action-cell">
                                                 <form
-                                                    action="/admin/users/status?id=<%= user._id %>&status=<%= user.isActive ? 'block' : 'unblock' %>"
+                                                    action="/adminUser/users/status?id=<%= user._id %>&status=<%= user.isActive ? 'block' : 'unblock' %>"
                                                     method="POST" style="display:inline;">
                                                     <button type="submit"
                                                         class="btn-action <%= user.isActive ? 'block' : 'unblock' %>"
@@ -151,7 +151,7 @@
                                                     </button>
                                                 </form>
 
-                                                <a href="/admin/users/details?id=<%= user._id %>"
+                                                <a href="/adminUser/users/details?id=<%= user._id %>"
                                                     class="btn-view">view</a>
                                             </div>
                                         </td>
@@ -165,7 +165,7 @@
                                                         <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 8px;">No Users Found</h4>
                                                         <p style="color: #64748b; font-size: 14px; max-width: 300px; margin: 0 auto;">We couldn't find any users matching your current search or filters.</p>
                                                         <% if (search || (typeof statusFilter !== 'undefined' && statusFilter) || (typeof sortBy !== 'undefined' && sortBy && sortBy !== 'newest')) { %>
-                                                            <a href="/admin/users" class="btn btn-dark px-4 py-2 mt-3" style="border-radius: 8px; font-weight: 600; font-size: 13px; text-decoration: none; color: white;">
+                                                            <a href="/adminUser/users" class="btn btn-dark px-4 py-2 mt-3" style="border-radius: 8px; font-weight: 600; font-size: 13px; text-decoration: none; color: white;">
                                                                 <i class="bi bi-arrow-counterclockwise me-1"></i> Clear All Filters
                                                             </a>
                                                         <% } %>

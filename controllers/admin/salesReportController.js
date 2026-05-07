@@ -6,7 +6,7 @@ import {
 } from "../../services/adminServices/salesReportService.js";
 
 // ─────────────────────────────────────────────
-//  GET  /admin/sales-report
+//  GET  /adminUser/sales-report
 // ─────────────────────────────────────────────
 
 /**
@@ -50,7 +50,7 @@ export const getSalesReport = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────
-//  GET  /admin/sales-report/export/excel
+//  GET  /adminUser/sales-report/export/excel
 // ─────────────────────────────────────────────
 
 /**
@@ -79,7 +79,7 @@ export const exportExcel = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────
-//  GET  /admin/sales-report/export/pdf
+//  GET  /adminUser/sales-report/export/pdf
 // ─────────────────────────────────────────────
 
 /**

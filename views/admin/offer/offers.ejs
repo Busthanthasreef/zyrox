@@ -1028,7 +1028,7 @@
 
             // AJAX and Live Search Logic
             let currentState = {
-                page: <%= currentPage %>,
+                page: '<%= currentPage %>',
                 search: '<%= search %>',
                 type: '<%= typeFilter %>',
                 status: '<%= statusFilter %>'
@@ -1057,7 +1057,7 @@
                 if (currentState.search) searchingIndicator.style.display = 'block';
 
                 const params = new URLSearchParams(currentState);
-                const url = `/admin/offers?${params.toString()}`;
+                const url = `/adminUser/offers?${params.toString()}`;
 
                 try {
                     const res = await fetch(url, {
@@ -1419,12 +1419,12 @@
                     body.categoryId = body.targetId;
                 }
 
-                let url = isEdit ? `/admin/offers/edit/${body.offerId}` : '';
+                let url = isEdit ? `/adminUser/offers/edit/${body.offerId}` : '';
                 if (!isEdit) {
-                    if (body.offerType === 'product') url = '/admin/offers/add-product';
-                    else if (body.offerType === 'category') url = '/admin/offers/add-category';
-                    else if (body.offerType === 'referral') url = '/admin/offers/add-referral';
-                    else if (body.offerType === 'all') url = '/admin/offers/add-all';
+                    if (body.offerType === 'product') url = '/adminUser/offers/add-product';
+                    else if (body.offerType === 'category') url = '/adminUser/offers/add-category';
+                    else if (body.offerType === 'referral') url = '/adminUser/offers/add-referral';
+                    else if (body.offerType === 'all') url = '/adminUser/offers/add-all';
                 }
                 const method = isEdit ? 'PUT' : 'POST';
 
@@ -1462,7 +1462,7 @@
 
             async function toggleOfferStatus(id) {
                 try {
-                    const res = await fetch(`/admin/offers/toggle/${id}`, { method: 'PATCH' });
+                    const res = await fetch(`/adminUser/offers/toggle/${id}`, { method: 'PATCH' });
                     const data = await res.json();
                     if (data.success) {
                         Swal.fire({
@@ -1492,7 +1492,7 @@
                     cancelButtonText: 'Cancel'
                 }).then(async (result) => {
                     if (result.isConfirmed) {
-                        const res = await fetch(`/admin/offers/delete/${id}`, { method: 'DELETE' });
+                        const res = await fetch(`/adminUser/offers/delete/${id}`, { method: 'DELETE' });
                         const resData = await res.json();
                         if (resData.success) {
                             Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Offer has been removed.', timer: 1000, showConfirmButton: false }).then(() => location.reload());

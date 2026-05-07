@@ -194,7 +194,7 @@
                                                             <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 8px;">No Categories Found</h4>
                                                             <p style="color: #64748b; font-size: 14px; max-width: 350px; margin: 0 auto;">We couldn't find any categories matching your current search or status filter.</p>
                                                             <% if ((typeof search !== 'undefined' && search) || (typeof statusFilter !== 'undefined' && statusFilter)) { %>
-                                                                <a href="/admin/categories" class="btn btn-dark px-4 py-2 mt-3" style="border-radius: 8px; font-weight: 600; font-size: 13px;">
+                                                                <a href="/adminUser/categories" class="btn btn-dark px-4 py-2 mt-3" style="border-radius: 8px; font-weight: 600; font-size: 13px;">
                                                                     <i class="bi bi-arrow-counterclockwise me-1"></i> Clear All Filters
                                                                 </a>
                                                             <% } %>
@@ -247,7 +247,7 @@
                 </div>
 
             </div><!-- /main-content -->
-        </main><!-- /admin-main -->
+        </main><!-- /adminUser-main -->
 
 
         <!-- ═══════════════════════════════════════════
@@ -262,7 +262,7 @@
                     </button>
                 </div>
 
-                <form action="/admin/categories-add" method="POST" id="addCategory">
+                <form action="/adminUser/categories-add" method="POST" id="addCategory">
                     <div class="modal-body">
                         <div>
                             <label>Category Name</label>
@@ -389,7 +389,7 @@
                 if (currentState.search) searchingIndicator.style.display = 'flex';
 
                 const params = new URLSearchParams(currentState);
-                const url = `/admin/categories?${params.toString()}`;
+                const url = `/adminUser/categories?${params.toString()}`;
 
                 try {
                     const res = await fetch(url, {
@@ -578,7 +578,7 @@
             async function toggleStatus(id) {
                 console.log('Toggling status for:', id);
                 try {
-                    const res = await axios.patch(`/admin/categories/toggle/${id}`);
+                    const res = await axios.patch(`/adminUser/categories/toggle/${id}`);
                     if (res.data.success) {
                         Swal.fire({
                             title: 'Updated!',
@@ -612,7 +612,7 @@
 
                 if (result.isConfirmed) {
                     try {
-                        const response = await axios.patch(`/admin/categories/delete/${id}`);
+                        const response = await axios.patch(`/adminUser/categories/delete/${id}`);
                         Swal.fire({
                             icon: 'success',
                             title: response.data.message,
@@ -657,7 +657,7 @@
                     btn.disabled = true;
                     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
                     
-                    const response = await axios.post('/admin/categories-add', { categoryName, status });
+                    const response = await axios.post('/adminUser/categories-add', { categoryName, status });
                     Swal.fire({
                         icon: 'success',
                         title: response.data.message,
@@ -704,7 +704,7 @@
                     btn.disabled = true;
                     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
 
-                    const response = await axios.put(`/admin/categories/${id}`, { categoryName, status });
+                    const response = await axios.put(`/adminUser/categories/${id}`, { categoryName, status });
                     Swal.fire({
                         icon: 'success',
                         title: response.data.message,
@@ -769,7 +769,7 @@
                 document.getElementById('editCategoryName').value = name;
                 editToggle.checked = (status === 'true' || status === true);
                 syncStatusLabel(editToggle, editStatusLabel);
-                document.getElementById('editCategoryForm').action = `/admin/categories/${id}`;
+                document.getElementById('editCategoryForm').action = `/adminUser/categories/${id}`;
                 updateScrollLock();
             }
 

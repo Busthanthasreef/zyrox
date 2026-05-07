@@ -1188,12 +1188,12 @@
                     <div>
                         <h1 class="page-title">Add New Product</h1>
                     </div>
-                    <a href="/admin/products" class="btn-back">
+                    <a href="/adminUser/products" class="btn-back">
                         <i class="bi bi-arrow-left"></i> Back
                     </a>
                 </div>
 
-                <form id="addProductForm" action="/admin/products-add" method="POST" enctype="multipart/form-data">
+                <form id="addProductForm" action="/adminUser/products-add" method="POST" enctype="multipart/form-data">
 
                     <div class="row g-4">
 
@@ -1414,7 +1414,7 @@
 
                     <!-- FORM ACTIONS -->
                     <div class="form-actions">
-                        <a href="/admin/products" class="btn-cancel">
+                        <a href="/adminUser/products" class="btn-cancel">
                             <i class="bi bi-arrow-left"></i> Cancel
                         </a>
                         <button type="submit" class="btn-save" id="saveBtn">
@@ -1769,7 +1769,7 @@
                             }
                         }
 
-                        const { data } = await axios.post('/admin/products-add', fd, {
+                        const { data } = await axios.post('/adminUser/products-add', fd, {
                             headers: { 'Content-Type': 'multipart/form-data' }
                         });
 
@@ -1778,7 +1778,7 @@
                             timer: 1800, showConfirmButton: false,
                             background: '#fff', color: '#111827',
                         });
-                        window.location.href = '/admin/products';
+                        window.location.href = '/adminUser/products';
                     } catch (err) {
                         const msg = err?.response?.data?.message || 'Something went wrong. Please try again.';
                         toast('error', msg);
@@ -2008,7 +2008,7 @@
                     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
 
                     try {
-                        const { data } = await axios.post('/admin/categories-add', { 
+                        const { data } = await axios.post('/adminUser/categories-add', { 
                             categoryName: name, 
                             status: status 
                         });

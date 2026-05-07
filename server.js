@@ -57,7 +57,7 @@ app.use(express.json());
 app.use(express.static("public"));
 app.use(attachLocalCounts);
 
-app.use("/admin", adminRoutes);
+app.use("/adminUser", adminRoutes);
 app.use("/", userRoutes);
 app.use("/auth", authRoutes);
 

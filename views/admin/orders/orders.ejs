@@ -1045,7 +1045,7 @@
 
                 <!-- Breadcrumbs -->
                 <nav class="breadcrumb-nav">
-                    <a href="/admin/dashboard">Dashboard</a>
+                    <a href="/adminUser/dashboard">Dashboard</a>
                     <span class="separator"><i class="bi bi-chevron-right"></i></span>
                     <span class="current">Orders</span>
                 </nav>
@@ -1100,7 +1100,7 @@
                                                     </div>
 
                                                     <div class="request-btns text-center mt-2">
-                                                        <a href="/admin/orders/details?id=<%= req._id %>"
+                                                        <a href="/adminUser/orders/details?id=<%= req._id %>"
                                                             class="btn btn-sm btn-dark w-100 py-1"
                                                             style="font-size: 10px; font-weight: 800;">
                                                             View
@@ -1348,7 +1348,7 @@
                                                 ₹<%= (order.finalPrice || 0).toLocaleString('en-IN') %>
                                             </td>
                                             <td data-label="Action">
-                                                <a href="/admin/orders/details?id=<%= order._id %>" class="view-btn"
+                                                <a href="/adminUser/orders/details?id=<%= order._id %>" class="view-btn"
                                                     onclick="event.stopPropagation()" data-tooltip="View Details">
                                                     <i class="bi bi-eye"></i>
                                                 </a>
@@ -1465,7 +1465,7 @@
                 if (currentState.search) searchingIndicator.classList.add('active');
 
                 const params = new URLSearchParams(currentState);
-                const url = `/admin/orders?${params.toString()}`;
+                const url = `/adminUser/orders?${params.toString()}`;
 
                 try {
                     const response = await fetch(url, {
@@ -1588,7 +1588,7 @@
                             ₹${(order.finalPrice || 0).toLocaleString('en-IN')}
                         </td>
                         <td data-label="Action">
-                            <a href="/admin/orders/details?id=${order._id}" class="view-btn" onclick="event.stopPropagation()" data-tooltip="View Details">
+                            <a href="/adminUser/orders/details?id=${order._id}" class="view-btn" onclick="event.stopPropagation()" data-tooltip="View Details">
                                 <i class="bi bi-eye"></i>
                             </a>
                         </td>
@@ -1653,7 +1653,7 @@
                 currentState.search = val;
                 currentState.page = 1;
                 const params = new URLSearchParams(currentState);
-                window.location.href = `/admin/orders?${params.toString()}`;
+                window.location.href = `/adminUser/orders?${params.toString()}`;
             });
 
             searchInput.oninput = (e) => {
@@ -1667,28 +1667,28 @@
                 clearBtn.style.display = 'none';
                 currentState.search = '';
                 currentState.page = 1;
-                window.location.href = '/admin/orders';
+                window.location.href = '/adminUser/orders';
             };
 
             statusFilter.onchange = (e) => {
                 currentState.status = e.target.value;
                 currentState.page = 1;
                 const params = new URLSearchParams(currentState);
-                window.location.href = `/admin/orders?${params.toString()}`;
+                window.location.href = `/adminUser/orders?${params.toString()}`;
             };
 
             methodFilter.onchange = (e) => {
                 currentState.paymentMethod = e.target.value;
                 currentState.page = 1;
                 const params = new URLSearchParams(currentState);
-                window.location.href = `/admin/orders?${params.toString()}`;
+                window.location.href = `/adminUser/orders?${params.toString()}`;
             };
 
             paymentStatusFilter.onchange = (e) => {
                 currentState.paymentStatus = e.target.value;
                 currentState.page = 1;
                 const params = new URLSearchParams(currentState);
-                window.location.href = `/admin/orders?${params.toString()}`;
+                window.location.href = `/adminUser/orders?${params.toString()}`;
             };
 
             // FIX #1: limitSelect.onchange removed — element doesn't exist in HTML
@@ -1704,7 +1704,7 @@
                     clearBtn.style.display = val ? 'block' : 'none';
                 }
                 const params = new URLSearchParams(currentState);
-                window.location.href = `/admin/orders?${params.toString()}`;
+                window.location.href = `/adminUser/orders?${params.toString()}`;
             }
 
             function applySort(sortType) {
@@ -1712,14 +1712,14 @@
                 currentState.page = 1;
                 sortFilter.value = sortType;
                 const params = new URLSearchParams(currentState);
-                window.location.href = `/admin/orders?${params.toString()}`;
+                window.location.href = `/adminUser/orders?${params.toString()}`;
             }
 
             function changePage(p) {
                 if (!p || p < 1) return;
                 currentState.page = parseInt(p);
                 const params = new URLSearchParams(currentState);
-                window.location.href = `/admin/orders?${params.toString()}`;
+                window.location.href = `/adminUser/orders?${params.toString()}`;
             }
 
             function clearAllFilters() {
@@ -1738,11 +1738,11 @@
                 methodFilter.value = '';
                 paymentStatusFilter.value = '';
                 sortFilter.value = 'newest';
-                window.location.href = '/admin/orders';
+                window.location.href = '/adminUser/orders';
             }
 
             function navigateToOrder(id) {
-                window.location.href = `/admin/orders/details?id=${id}`;
+                window.location.href = `/adminUser/orders/details?id=${id}`;
             }
 
             function showError() {

@@ -308,7 +308,7 @@
         <div class="main-content">
             <!-- Top Controls -->
             <div class="flex items-center justify-between mb-8">
-                <a href="/admin/orders" class="btn-action">
+                <a href="/adminUser/orders" class="btn-action">
                     <i class="fas fa-arrow-left"></i> BACK TO OVERVIEW
                 </a>
                 <div class="flex items-center gap-4 text-sm font-bold">
@@ -664,7 +664,7 @@
                 borderRadius: '20px'
             }).then(val => {
                 if (!val.isConfirmed) return;
-                fetch('/admin/orders/update-status', {
+                fetch('/adminUser/orders/update-status', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ orderId, status })
@@ -695,7 +695,7 @@
                 borderRadius: '20px'
             }).then((val) => {
                 if (val.isConfirmed) {
-                    const url = action === 'accept' ? '/admin/orders/accept-return' : '/admin/orders/decline-return';
+                    const url = action === 'accept' ? '/adminUser/orders/accept-return' : '/adminUser/orders/decline-return';
                     fetch(url, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -727,7 +727,7 @@
                 borderRadius: '20px'
             }).then((val) => {
                 if (val.isConfirmed) {
-                    const url = action === 'accept' ? '/admin/orders/accept-item-request' : '/admin/orders/decline-item-request';
+                    const url = action === 'accept' ? '/adminUser/orders/accept-item-request' : '/adminUser/orders/decline-item-request';
                     fetch(url, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

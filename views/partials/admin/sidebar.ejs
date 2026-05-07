@@ -19,28 +19,28 @@
     <p class="sidebar-section-label">Management</p>
 
     <nav class="sidebar-nav">
-        <a href="/admin/dashboard" class="nav-item <%= currentPage === 'dashboard' ? 'active' : '' %>" data-tooltip="Dashboard">
+        <a href="/adminUser/dashboard" class="nav-item <%= currentPage === 'dashboard' ? 'active' : '' %>" data-tooltip="Dashboard">
             <i class="bi bi-grid-1x2"></i> <span>Dashboard</span>
         </a>
-        <a href="/admin/orders" class="nav-item <%= currentPage === 'orders' ? 'active' : '' %>" data-tooltip="Orders">
+        <a href="/adminUser/orders" class="nav-item <%= currentPage === 'orders' ? 'active' : '' %>" data-tooltip="Orders">
             <i class="bi bi-receipt"></i> <span>Orders</span>
         </a>
-        <a href="/admin/products" class="nav-item <%= currentPage === 'products' ? 'active' : '' %>" data-tooltip="Products">
+        <a href="/adminUser/products" class="nav-item <%= currentPage === 'products' ? 'active' : '' %>" data-tooltip="Products">
             <i class="bi bi-box-seam"></i> <span>Products</span>
         </a>
-        <a href="/admin/categories" class="nav-item <%= currentPage === 'categories' ? 'active' : '' %>" data-tooltip="Categories">
+        <a href="/adminUser/categories" class="nav-item <%= currentPage === 'categories' ? 'active' : '' %>" data-tooltip="Categories">
             <i class="bi bi-tag"></i> <span>Categories</span>
         </a>
-        <a href="/admin/coupons" class="nav-item <%= currentPage === 'coupons' ? 'active' : '' %>" data-tooltip="Coupons">
+        <a href="/adminUser/coupons" class="nav-item <%= currentPage === 'coupons' ? 'active' : '' %>" data-tooltip="Coupons">
             <i class="bi bi-ticket-perforated"></i> <span>Coupons</span>
         </a>
-        <a href="/admin/offers" class="nav-item <%= currentPage === 'offers' ? 'active' : '' %>" data-tooltip="Offers">
+        <a href="/adminUser/offers" class="nav-item <%= currentPage === 'offers' ? 'active' : '' %>" data-tooltip="Offers">
             <i class="bi bi-stars"></i> <span>Offers</span>
         </a>
-        <a href="/admin/sales-report" class="nav-item <%= currentPage === 'sales-report' ? 'active' : '' %>" data-tooltip="Sales Report">
+        <a href="/adminUser/sales-report" class="nav-item <%= currentPage === 'sales-report' ? 'active' : '' %>" data-tooltip="Sales Report">
             <i class="bi bi-bar-chart"></i> <span>Sales Report</span>
         </a>
-        <a href="/admin/users" class="nav-item <%= currentPage === 'users' ? 'active' : '' %>" data-tooltip="User Management">
+        <a href="/adminUser/users" class="nav-item <%= currentPage === 'users' ? 'active' : '' %>" data-tooltip="User Management">
             <i class="bi bi-people"></i> <span>User Management</span>
         </a>
     </nav>
@@ -106,7 +106,7 @@
             color: '#f1f5f9',
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "/admin/logout";
+                window.location.href = "/adminUser/logout";
             }
         });
     }

@@ -34,11 +34,11 @@ const userStatus = async (req, res) => {
 
     if (!id || !status) {
       console.log("Invalid request — missing id or status");
-      return res.redirect("/admin/users");
+      return res.redirect("/adminUser/users");
     }
 
     await toggleUserStatus(id, status);
-    res.redirect("/admin/users");
+    res.redirect("/adminUser/users");
   } catch (error) {
     console.error("User status update error:", error);
     res.status(500).send("Server Error");
@@ -52,7 +52,7 @@ const userDetails = async (req, res) => {
       getAdmin(),
     ]);
 
-    if (!user) return res.redirect("/admin/users");
+    if (!user) return res.redirect("/adminUser/users");
 
     res.render("admin/users/userDetails", { user, admin });
   } catch (error) {

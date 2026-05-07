@@ -690,21 +690,21 @@
           </div>
 
           <div class="table-footer">
-            <span class="showing-text small text-muted" id="showingText">Showing <%= coupons.length %> coupons</span>
+            <span class="showing-text small text-muted" id="showingText">Showing '<%= coupons.length %>' coupons</span>
             <div class="pagination-wrap d-flex gap-1" id="paginationWrap">
               <% if (currentPage> 1) { %>
-                <a href="javascript:void(0)" onclick="changePage(<%= currentPage - 1 %>)" class="page-btn">
+                <a href="javascript:void(0)" onclick="changePage('<%= currentPage - 1 %>')" class="page-btn">
                   <i class="bi bi-chevron-left"></i>
                 </a>
                 <% } %>
                   <% for (let i=1; i <=totalPages; i++) { %>
-                    <a href="javascript:void(0)" onclick="changePage(<%= i %>)"
+                    <a href="javascript:void(0)" onclick="changePage('<%= i %>')"
                       class="page-btn <%= i === currentPage ? 'active' : '' %>">
                       <%= i %>
                     </a>
                     <% } %>
                       <% if (currentPage < totalPages) { %>
-                        <a href="javascript:void(0)" onclick="changePage(<%= currentPage + 1 %>)" class="page-btn">
+                        <a href="javascript:void(0)" onclick="changePage('<%= currentPage + 1 %>')" class="page-btn">
                           <i class="bi bi-chevron-right"></i>
                         </a>
                         <% } %>
@@ -832,7 +832,7 @@
     <script>
       // State Management
       let currentState = {
-          page: <%= currentPage %>,
+          page: '<%= currentPage %>',
           search: '<%= search %>',
           status: '<%= statusFilter %>'
       };
@@ -866,7 +866,7 @@
           if (currentState.search) searchingIndicator.style.display = 'block';
 
           const params = new URLSearchParams(currentState);
-          const url = `/admin/coupons?${params.toString()}`;
+          const url = `/adminUser/coupons?${params.toString()}`;
 
           try {
               const res = await fetch(url, {
@@ -1032,7 +1032,7 @@
 
       async function toggleCouponStatus(id) {
           try {
-              const res = await fetch(`/admin/coupons/toggle/${id}`, { method: 'PATCH' });
+              const res = await fetch(`/adminUser/coupons/toggle/${id}`, { method: 'PATCH' });
               const data = await res.json();
               if (data.success) {
                   Swal.fire({
@@ -1125,7 +1125,7 @@
           return;
         }
 
-        const url = isEditMode ? '/admin/coupons/edit' : '/admin/coupons/add';
+        const url = isEditMode ? '/adminUser/coupons/edit' : '/adminUser/coupons/add';
         const method = 'POST';
 
         try {
@@ -1155,7 +1155,7 @@
           confirmButtonText: 'Yes, delete it!'
         }).then(async (result) => {
           if (result.isConfirmed) {
-            const res = await fetch(`/admin/coupons/delete/${id}`, { method: 'DELETE' });
+            const res = await fetch(`/adminUser/coupons/delete/${id}`, { method: 'DELETE' });
             const data = await res.json();
             if (data.success) {
               Swal.fire('Deleted!', data.message, 'success').then(() => location.reload());

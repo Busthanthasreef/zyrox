@@ -40,7 +40,7 @@ const login = async (req, res) => {
     if (!valid) {
       req.session.adminError = error;
       req.session.adminFormData = { email: Email };
-      return res.redirect("/admin");
+      return res.redirect("/adminUser");
     }
 
     // Delegate DB lookup & password check to service
@@ -48,20 +48,20 @@ const login = async (req, res) => {
     if (!user) {
       req.session.adminError = "Admin account not found";
       req.session.adminFormData = { email: Email };
-      return res.redirect("/admin");
+      return res.redirect("/adminUser");
     }
 
     const passwordMatch = await verifyPassword(Password, user.Password);
     if (!passwordMatch) {
       req.session.adminError = "Incorrect Email or Password";
       req.session.adminFormData = { email: Email };
-      return res.redirect("/admin");
+      return res.redirect("/adminUser");
     }
 
     req.session.admin = { Email: user.Email, Name: user.Name };
     req.session.successSwal = "Login Successful";
 
-    return res.redirect("/admin/dashboard");
+    return res.redirect("/adminUser/dashboard");
 
   } catch (error) {
     console.log("Login Error:", error.message);
@@ -126,7 +126,7 @@ const dashboard = async (req, res) => {
 
 const logout = (req, res) => {
   delete req.session.admin;
-  res.redirect("/admin");
+  res.redirect("/adminUser");
 };
 
 

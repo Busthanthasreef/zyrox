@@ -433,7 +433,7 @@
 
                 <!-- Breadcrumbs -->
                 <nav class="breadcrumb-nav">
-                    <a href="/admin/dashboard">Dashboard</a>
+                    <a href="/adminUser/dashboard">Dashboard</a>
                     <span class="separator"><i class="bi bi-chevron-right"></i></span>
                     <span class="current">Products</span>
                 </nav>
@@ -443,7 +443,7 @@
                         <p class="page-label">Product Management</p>
                         <h1 class="page-title">Products</h1>
                     </div>
-                    <a href="/admin/products-add" class="btn btn-dark"
+                    <a href="/adminUser/products-add" class="btn btn-dark"
                         style="border-radius: 8px; font-weight: 600; padding: 10px 20px;">
                         <i class="bi bi-plus-lg me-1"></i> Add Product
                     </a>
@@ -593,12 +593,12 @@
 
                                                     <td data-label="Actions">
                                                         <div class="action-cell" onclick="event.stopPropagation()">
-                                                            <a href="/admin/products/<%= product._id %>/variants"
+                                                            <a href="/adminUser/products/<%= product._id %>/variants"
                                                                 class="btn-action edit" title="Variants"
                                                                 data-bs-toggle="tooltip">
                                                                 <i class="bi bi-layers"></i>
                                                             </a>
-                                                            <a href="/admin/products-edit/<%= product._id %>"
+                                                            <a href="/adminUser/products-edit/<%= product._id %>"
                                                                 class="btn-action edit" title="Edit"
                                                                 data-bs-toggle="tooltip">
                                                                 <i class="bi bi-pencil"></i>
@@ -639,7 +639,7 @@
                                                                         !=='undefined' && categoryFilter) || (typeof
                                                                         statusFilter !=='undefined' && statusFilter)) {
                                                                         %>
-                                                                        <a href="/admin/products"
+                                                                        <a href="/adminUser/products"
                                                                             class="btn btn-dark px-4 py-2"
                                                                             style="border-radius: 8px; font-weight: 600; font-size: 13px;">
                                                                             <i
@@ -762,7 +762,7 @@
                     if (currentState[key]) params.append(key, currentState[key]);
                 });
 
-                const url = `/admin/products?${params.toString()}`;
+                const url = `/adminUser/products?${params.toString()}`;
 
                 try {
                     const response = await fetch(url, {
@@ -849,8 +849,8 @@
                             </td>
                             <td data-label="Actions">
                                 <div class="action-cell" onclick="event.stopPropagation()">
-                                    <a href="/admin/products/${product._id}/variants" class="btn-action edit" title="Variants"><i class="bi bi-layers"></i></a>
-                                    <a href="/admin/products-edit/${product._id}" class="btn-action edit" title="Edit"><i class="bi bi-pencil"></i></a>
+                                    <a href="/adminUser/products/${product._id}/variants" class="btn-action edit" title="Variants"><i class="bi bi-layers"></i></a>
+                                    <a href="/adminUser/products-edit/${product._id}" class="btn-action edit" title="Edit"><i class="bi bi-pencil"></i></a>
                                     <button class="btn-action toggle ${product.status === 'active' ? 'active' : ''}" 
                                             title="${product.status === 'active' ? 'Deactivate' : 'Activate'}" 
                                             onclick="toggleProductStatus('${product._id}')">
@@ -1043,7 +1043,7 @@
             }
 
             function navigateToProduct(id) {
-                window.location.href = `/admin/products-edit/${id}`;
+                window.location.href = `/adminUser/products-edit/${id}`;
             }
 
             function showError() {
@@ -1062,14 +1062,14 @@
                     borderRadius: '12px'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = `/admin/products-delete/${id}`;
+                        window.location.href = `/adminUser/products-delete/${id}`;
                     }
                 });
             }
 
             async function toggleProductStatus(id) {
                 try {
-                    const response = await fetch(`/admin/products/toggle/${id}`, {
+                    const response = await fetch(`/adminUser/products/toggle/${id}`, {
                         method: 'PATCH',
                         headers: { 'Content-Type': 'application/json' }
                     });

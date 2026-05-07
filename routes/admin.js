@@ -10,6 +10,7 @@ import * as couponController from "../controllers/admin/couponController.js";
 import * as offerController from "../controllers/admin/offerController.js";
 import upload from "../middlewares/multer.js";
 import { validateFiles } from "../utils/validation/fileValidator.js";
+import * as salesReportController from "../controllers/admin/salesReportController.js";
 
 const adminRoutes = express.Router();
 adminRoutes.get("/", isAdminGuest, adminController.loadLogin);
@@ -67,7 +68,6 @@ adminRoutes.patch('/offers/toggle/:id', isAdminAuthenticated, offerController.to
 adminRoutes.delete('/offers/delete/:id', isAdminAuthenticated, offerController.deleteOffer);
 
 // Sales Report
-import * as salesReportController from "../controllers/admin/salesReportController.js";
 adminRoutes.get('/sales-report', isAdminAuthenticated, salesReportController.getSalesReport);
 adminRoutes.get('/sales-report/export/excel', isAdminAuthenticated, salesReportController.exportExcel);
 adminRoutes.get('/sales-report/export/pdf', isAdminAuthenticated, salesReportController.exportPDF);
