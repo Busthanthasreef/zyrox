@@ -1,5 +1,4 @@
 import "dotenv/config";
-import rateLimit from "express-rate-limit";
 import express from "express";
 import connectDB from "./config/db.js";
 import session from "express-session";
@@ -13,14 +12,6 @@ import nocache from "nocache";
 import crypto from "node:crypto";
 
 const app = express();
-
-const limiter = rateLimit({
-    windowMs: 30 * 60 * 1000,
-    max: 100,
-    message: "Too many requests, please try again later.",
-    standardHeaders: true,
-    legacyHeaders: false
-});
 
 const isProduction = process.env.NODE_ENV === "production";
 const sessionSecret = process.env.SESSION_SECRET;
@@ -37,7 +28,7 @@ await connectDB();
 
 app.set("view engine","ejs");
 app.use(nocache());
-app.use(limiter);
+
 
 app.use(session({
     secret: sessionSecret,
