@@ -15,7 +15,7 @@ import crypto from "node:crypto";
 const app = express();
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
+    windowMs: 30 * 60 * 1000,
     max: 100,
     message: "Too many requests, please try again later.",
     standardHeaders: true,
@@ -63,6 +63,7 @@ app.use("/auth", authRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
+
 
 const PORT = process.env.PORT || 2999;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
