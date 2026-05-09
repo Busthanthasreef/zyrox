@@ -1207,6 +1207,14 @@
                                                             onclick="openEditModalFromBtn(this)">
                                                             <i class="bi bi-pencil"></i>
                                                         </button>
+
+                                                        <!-- Status Toggle -->
+                                                        <label class="toggle-switch" title="Toggle Status" style="transform: scale(0.85); margin: 0 -4px;">
+                                                            <input type="checkbox" <%= variant.IsActive ? 'checked' : '' %> 
+                                                                onchange="toggleVariant('<%= variant._id %>', this.checked)">
+                                                            <div class="toggle-track"></div>
+                                                        </label>
+
                                                         <button class="btn-edit" title="Delete" style="color:var(--red)"
                                                             onclick="deleteVariant('<%= variant._id %>', '<%= product._id %>')">
                                                             <i class="bi bi-trash"></i>
@@ -1289,7 +1297,7 @@
                     <span class="modal-title">Add Variant</span>
                     <button class="modal-close" onclick="closeModal('addModal')"><i class="bi bi-x-lg"></i></button>
                 </div>
-                <form id="addVariantForm" action="/admin/products/<%= product._id %>/variants-add" method="POST"
+                <form id="addVariantForm" action="/adminUser/products/<%= product._id %>/variants-add" method="POST"
                     enctype="multipart/form-data" onsubmit="return validateVariantForm(this, 'add')">
 
                     <input type="file" class="file-input-hidden" id="addFile0" name="images" accept="image/*"
@@ -1697,13 +1705,20 @@
 
             // ══ Toggle variant status ══
             function toggleVariant(variantId, isActive) {
-                fetch(`/admin/variants/${variantId}/toggle`, {
+                fetch(`/adminUser/variants/${variantId}/toggle`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ isActive })
                 })
                     .then(res => res.json())
-                    .then(data => { if (!data.success) { alert('Failed to update status.'); window.location.reload(); } })
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload();
+                        } else {
+                            alert('Failed to update status.');
+                            window.location.reload();
+                        }
+                    })
                     .catch(() => window.location.reload());
             }
 
@@ -1719,7 +1734,7 @@
                     confirmButtonText: 'Yes, delete it!'
                 });
                 if (result.isConfirmed) {
-                    window.location.href = `/admin/products/${productId}/variants-delete/${variantId}`;
+                    window.location.href = `/adminUser/products/${productId}/variants-delete/${variantId}`;
                 }
             }
 
@@ -1747,7 +1762,7 @@
             function openEditModal(variant) {
                 clearAllErrors('edit');
                 const form = document.getElementById('editVariantForm');
-                form.action = `/admin/products/${productId}/variants-edit/${variant._id}`;
+                form.action = `/adminUser/products/${productId}/variants-edit/${variant._id}`;
 
                 document.getElementById('editColorValue').value = variant.color || '';
                 document.getElementById('editColorPicker').value = variant.colorCode || '#000000';

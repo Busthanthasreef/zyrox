@@ -2093,6 +2093,20 @@
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') closeCouponModal();
             });
+            /* ── Auto-Place Order (from Retry Payment) ── */
+            document.addEventListener('DOMContentLoaded', () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('autoPlace') === 'true') {
+                    // Slight delay to ensure all scripts and data (like address selection) are fully loaded
+                    setTimeout(() => {
+                        const placeOrderBtn = document.getElementById('placeOrderBtn');
+                        if (placeOrderBtn && !placeOrderBtn.disabled) {
+                            console.log('Auto-triggering placeOrder from Retry Payment flow...');
+                            placeOrder();
+                        }
+                    }, 1000);
+                }
+            });
         </script>
 </body>
 

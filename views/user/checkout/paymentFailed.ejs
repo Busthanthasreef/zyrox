@@ -449,7 +449,7 @@
 
                 <!-- Action buttons -->
                 <div class="action-row">
-                    <a href="<%= isBuyNow ? '/checkout/buy-now' : '/checkout' %>" class="btn-retry" id="retryBtn">
+                    <a href="<%= (isBuyNow ? '/checkout/buy-now' : '/checkout') + '?autoPlace=true' %>" class="btn-retry" id="retryBtn">
                         <i class="bi bi-arrow-counterclockwise"></i> Try Again Now
                     </a>
                     <a href="/products" class="btn-ghost">
@@ -478,7 +478,7 @@
                 if (countdownEl) countdownEl.textContent = seconds;
                 if (seconds <= 0) {
                     clearInterval(redirectTimer);
-                    window.location.href = '<%= isBuyNow ? "/checkout/buy-now" : "/checkout" %>';
+                    window.location.href = '<%= (isBuyNow ? "/checkout/buy-now" : "/checkout") %>?autoPlace=true';
                 }
             }
 

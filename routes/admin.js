@@ -11,10 +11,11 @@ import * as offerController from "../controllers/admin/offerController.js";
 import upload from "../middlewares/multer.js";
 import { validateFiles } from "../utils/validation/fileValidator.js";
 import * as salesReportController from "../controllers/admin/salesReportController.js";
+import { authLimiter } from "../middlewares/rateLimiter.js";
 
 const adminRoutes = express.Router();
 adminRoutes.get("/", isAdminGuest, adminController.loadLogin);
-adminRoutes.post("/", isAdminGuest, adminController.login);
+adminRoutes.post("/", isAdminGuest, authLimiter, adminController.login);
 
 adminRoutes.get("/dashboard", isAdminAuthenticated, adminController.dashboard);
 
@@ -42,6 +43,7 @@ adminRoutes.get('/products/:id/variants', isAdminAuthenticated, variantControlle
 adminRoutes.post('/products/:id/variants-add', isAdminAuthenticated, upload.array('images', 5), validateFiles, variantController.addVariant);
 adminRoutes.post('/products/:id/variants-edit/:variantId', isAdminAuthenticated, upload.array('images', 5), validateFiles, variantController.editVariant);
 adminRoutes.patch('/variants/:variantId/set-default', isAdminAuthenticated, variantController.setDefaultVariant);
+adminRoutes.patch('/variants/:variantId/toggle', isAdminAuthenticated, variantController.toggleVariant);
 
 adminRoutes.get('/orders',isAdminAuthenticated,orderController.getOrders)
 adminRoutes.get('/orders/details',isAdminAuthenticated,orderController.getOrderDetails);

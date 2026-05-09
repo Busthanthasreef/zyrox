@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Bootstrap CSS for Modals -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -21,7 +22,12 @@
             background-color: #0d1117;
             color: #ffffff;
             font-family: 'Inter', sans-serif;
-            padding-top: 100px;
+            padding-top: 180px !important;
+        }
+        
+        #order-dashboard {
+            position: relative;
+            z-index: 1;
         }
 
         .glass-card {
@@ -236,24 +242,46 @@
             padding: 1px 5px;
             border-radius: 4px;
         }
+
+        /* ── SweetAlert Select Fix ── */
+        .swal2-select {
+            background-color: #1a1f2e !important;
+            color: #fff !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+        }
+        .swal2-select option {
+            background-color: #1a1f2e !important;
+            color: #fff !important;
+        }
+
+        /* ── Action Modal Select Fix ── */
+        #actionReason {
+            background-color: #1a1f2e !important;
+            color: #fff !important;
+        }
+        #actionReason option {
+            background-color: #1a1f2e !important;
+            color: #fff !important;
+            padding: 10px;
+        }
     </style>
 </head>
 
-<body class="p-4 md:p-8 pt-[56px]">
+<body class="p-4 md:p-8">
     <%- include('../../partials/user/navigationbar') %>
-    <div class="max-w-6xl mx-auto" id="order-dashboard">
-        <!-- Back Button -->
-        <div class="mb-8">
-            <a href="/myOrders"
-                class="inline-flex items-center gap-2 px-6 py-2 border border-[#30363d] rounded-lg text-sm font-semibold hover:bg-[#161b22] transition">
-                <i class="fas fa-arrow-left"></i> Back to Orders
-            </a>
-        </div>
+    <div class="max-w-6xl mx-auto mt-32 pt-10" id="order-dashboard">
+
 
         <!-- Order Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <div class="flex items-center gap-4">
-
+            <div class="flex items-center gap-6">
+                <a href="/myOrders"
+                    class="group flex items-center justify-center w-12 h-12 border border-[#30363d] rounded-2xl text-[#8b949e] hover:bg-white hover:text-black hover:border-white transition-all duration-500 shadow-lg"
+                    title="Back to Orders">
+                    <i class="bi bi-arrow-left text-xl"></i>
+                </a>
                 <div>
                     <h1 class="text-3xl font-extrabold tracking-tight">Order ID: <span class="text-white">
                             <%= order.orderId %>
@@ -277,7 +305,7 @@
                     <div class="flex items-center gap-3">
                         <span class="px-3 py-1 rounded-full text-[0.7rem] font-bold <%= order.orderStatus === 'Cancelled' ? '' : 'border' %>"
                             style="<%= order.orderStatus === 'Cancelled' ? 'border: none;' : 'border-color: ' + hC + ';' %> color: <%= hC %>; background: <%= hC %>1a">
-                            <i class="fas fa-circle text-[6px] mr-1 align-middle"></i>
+                            <i class="bi bi-circle-fill text-[6px] mr-1 align-middle"></i>
                             <%= order.orderStatus %>
                         </span>
 
@@ -290,12 +318,12 @@
                             %>
                             <% if (diffMs > 0) { %>
                                 <div class="flex items-center gap-2">
-                                    <button onclick="handleRetryPayment('<%= order._id %>')" 
+                                    <button onclick="handleRetryPayment('<%= order._id %>', this)" 
                                         class="btn-retry retry-btn">
-                                        <i class="fas fa-redo-alt" style="font-size: 10px;"></i> Retry Payment
+                                        <i class="bi bi-arrow-clockwise" style="font-size: 10px;"></i> Retry Payment
                                     </button>
                                     <div class="retry-timer-text" data-expiry="<%= expiryTime.toISOString() %>">
-                                        <i class="far fa-clock"></i> <span class="retry-timer"></span>
+                                        <i class="bi bi-clock"></i> <span class="retry-timer"></span>
                                     </div>
                                 </div>
                             <% } %>
@@ -303,7 +331,7 @@
                     </div>
                     <% if (['Cancelled', 'Returned'].includes(order.orderStatus) && order.paymentStatus === 'Refunded') { %>
                         <span class="px-2 py-0.5 rounded text-[0.6rem] font-bold text-blue-400 bg-blue-400/10 border border-blue-400/30">
-                            <i class="fas fa-check-circle mr-1"></i> REFUNDED TO WALLET
+                            <i class="bi bi-check-circle-fill mr-1"></i> REFUNDED TO WALLET
                         </span>
                     <% } %>
                 </div>
@@ -314,7 +342,7 @@
             <div class="hidden lg:flex items-center gap-3">
                 <button onclick="downloadInvoice('<%= order._id %>', this)"
                     class="px-5 py-2.5 bg-blue-600/10 border border-blue-600/50 text-blue-400 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition uppercase tracking-wider text-[0.65rem] flex items-center gap-2">
-                    <i class="fas fa-download"></i> Download Invoice
+                    <i class="bi bi-download"></i> Download Invoice
                 </button>
                 <% if (['Pending', 'Processing'].includes(order.orderStatus) && order.paymentStatus !== 'Failed' && order.orderStatus !== 'Failed') { %>
                     <button onclick="handleCancelEntireOrder()"
@@ -372,18 +400,41 @@
                                         <%= item.status || order.orderStatus %>
                                     </div>
                                 </div>
-                                <div class="flex justify-between items-start mb-1">
-                                    <div class="flex-grow"></div>
+                                <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mt-3">
+                                    <!-- Left: Reason (if any) -->
+                                    <div class="flex-grow">
+                                        <% 
+                                            const reason = item.cancellationReason || item.returnReason || order.cancellationReason || order.returnReason;
+                                            const showReason = (['Cancelled', 'Cancellation Requested', 'Returned', 'Return Requested'].includes(item.status) || 
+                                                               (['Cancelled', 'Returned'].includes(order.orderStatus) && !item.status)) && reason;
+                                        %>
+                                        <% if (showReason) { %>
+                                            <div class="p-2.5 rounded-lg bg-white/[0.03] border border-white/[0.05] inline-block max-w-full">
+                                                <div class="flex items-start gap-2">
+                                                    <i class="bi bi-chat-left-text-fill text-[10px] text-gray-500 mt-1"></i>
+                                                    <div class="flex flex-col">
+                                                        <span class="text-[0.55rem] font-black text-gray-500 uppercase tracking-widest mb-0.5">
+                                                            <%= (item.status?.includes('Return') || order.orderStatus?.includes('Return')) ? 'Return' : 'Cancellation' %> Reason:
+                                                        </span>
+                                                        <span class="text-[0.7rem] font-medium text-gray-300 italic leading-relaxed">
+                                                            "<%= reason %>"
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <% } %>
+                                    </div>
+
+                                    <!-- Right: Price & Status Info -->
                                     <div class="text-right flex flex-col items-end gap-2">
                                         <% 
-                                            // Calculate original price before offer discount
                                             const itemTotal = item.total || 0;
                                             const itemPrice = item.price || 0;
                                             const itemQty = item.quantity || 1;
                                             const originalItemPrice = itemPrice * itemQty;
                                             const hasItemDiscount = originalItemPrice > itemTotal;
                                         %>
-                                        <div class="flex flex-col items-end gap-1">
+                                        <div class="flex flex-col items-end">
                                             <% if (hasItemDiscount) { %>
                                                 <span class="text-sm font-bold text-gray-500 line-through">
                                                     ₹<%= originalItemPrice.toLocaleString('en-IN') %>
@@ -395,71 +446,71 @@
                                                 </span>
                                                 <% if (hasItemDiscount) { %>
                                                     <span class="bg-green-400/10 text-green-400 px-2 py-0.5 rounded text-[0.55rem] font-black border border-green-400/30 uppercase tracking-wider">
-                                                        <i class="fas fa-tag text-[8px]"></i> OFFER
+                                                        <i class="bi bi-tag-fill text-[8px]"></i> OFFER
                                                     </span>
                                                 <% } %>
                                             </div>
                                         </div>
-                                        <% if (['Pending', 'Processing'].includes(item.status) &&
-                                            !['Cancelled', 'Returned', 'Cancellation Requested', 'Return Requested'].includes(item.status) &&
-                                            order.paymentStatus !== 'Failed' && order.orderStatus !== 'Failed') { %>
-                                            <button onclick="openItemModal('<%= item._id %>', '<%= item.name %>', 'cancel')"
-                                                class="px-3 py-1 bg-red-600/10 border border-red-600/50 text-red-500 rounded-lg text-[0.6rem] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition duration-300">
-                                                Cancel Item
-                                            </button>
-                                        <% } else if (item.status === 'Delivered') { %>
-                                            <% const itemDelivDate = item.deliveredAt || order.deliveredAt || order.updatedAt;
-                                               const itemReturnExpiry = new Date(new Date(itemDelivDate).getTime() + 7 * 24 * 60 * 60 * 1000); %>
-                                            <% if (itemReturnExpiry > Date.now()) { %>
-                                                <div class="flex flex-col items-end gap-1">
-                                                    <button onclick="openItemModal('<%= item._id %>', '<%= item.name %>', 'return')"
-                                                        class="px-3 py-1 bg-orange-600/10 border border-orange-600/50 text-orange-500 rounded-lg text-[0.6rem] font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition duration-300 return-btn">
-                                                        Return Item
-                                                    </button>
-                                                    <span class="return-timer-text text-[0.55rem] font-black text-gray-500 uppercase tracking-widest text-right" data-expiry="<%= itemReturnExpiry.toISOString() %>">
-                                                        ENDS IN <span class="return-timer"></span>
-                                                    </span>
-                                                </div>
-                                            <% } else { %>
-                                                <div class="text-[0.6rem] font-black text-gray-500 uppercase tracking-widest text-right">RETURN EXPIRED</div>
-                                            <% } %>
-                                        <% } else if (['Cancelled', 'Cancellation Requested'].includes(item.status)) { %>
-                                            <div class="text-right flex flex-col items-end gap-1">
+
+                                        <div class="flex items-center gap-3 flex-wrap justify-end">
+                                            <% if (['Pending', 'Processing'].includes(item.status) &&
+                                                !['Cancelled', 'Returned', 'Cancellation Requested', 'Return Requested'].includes(item.status) &&
+                                                order.paymentStatus !== 'Failed' && order.orderStatus !== 'Failed') { %>
+                                                <button onclick="openItemModal('<%= item._id %>', '<%= item.name %>', 'cancel')"
+                                                    class="px-3 py-1 bg-red-600/10 border border-red-600/50 text-red-500 rounded-lg text-[0.6rem] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition duration-300">
+                                                    Cancel Item
+                                                </button>
+                                            <% } else if (item.status === 'Delivered') { %>
+                                                <% const itemDelivDate = item.deliveredAt || order.deliveredAt || order.updatedAt;
+                                                   const itemReturnExpiry = new Date(new Date(itemDelivDate).getTime() + 7 * 24 * 60 * 60 * 1000); %>
+                                                <% if (itemReturnExpiry > Date.now()) { %>
+                                                    <div class="flex flex-col items-end">
+                                                        <button onclick="openItemModal('<%= item._id %>', '<%= item.name %>', 'return')"
+                                                            class="px-3 py-1 bg-orange-600/10 border border-orange-600/50 text-orange-500 rounded-lg text-[0.6rem] font-black uppercase tracking-widest hover:bg-orange-600 hover:text-white transition duration-300 return-btn">
+                                                            Return Item
+                                                        </button>
+                                                        <span class="return-timer-text text-[0.55rem] font-black text-gray-500 uppercase tracking-widest text-right mt-1" data-expiry="<%= itemReturnExpiry.toISOString() %>">
+                                                            ENDS IN <span class="return-timer"></span>
+                                                        </span>
+                                                    </div>
+                                                <% } else { %>
+                                                    <div class="text-[0.6rem] font-black text-gray-500 uppercase tracking-widest">RETURN EXPIRED</div>
+                                                <% } %>
+                                            <% } else if (['Cancelled', 'Cancellation Requested'].includes(item.status)) { %>
                                                 <div class="text-[0.6rem] font-black text-red-500 uppercase tracking-widest">
-                                                    <%= item.status === 'Cancelled' ? 'ITEM CANCELLED' : 'CANCELLATION PENDING' %>
+                                                    <%= item.status.toUpperCase() %>
                                                 </div>
                                                 <% if (item.status === 'Cancelled' && ['Paid', 'Refunded'].includes(order.paymentStatus) && ['Online', 'Wallet'].includes(order.paymentMethod)) { %>
                                                     <div class="text-[0.55rem] font-black text-blue-400 bg-blue-400/10 px-2 py-0.5 rounded uppercase tracking-widest border border-blue-400/30">
                                                         REFUNDED TO WALLET
                                                     </div>
                                                 <% } %>
-                                            </div>
-                                        <% } else if (['Returned', 'Return Requested'].includes(item.status)) { %>
-                                            <div class="text-right flex flex-col items-end gap-1">
+                                            <% } else if (['Returned', 'Return Requested'].includes(item.status)) { %>
                                                 <div class="text-[0.6rem] font-black text-orange-500 uppercase tracking-widest">
-                                                    <%= item.status === 'Returned' ? 'ITEM RETURNED' : 'RETURN PENDING' %>
+                                                    <%= item.status.toUpperCase() %>
                                                 </div>
                                                 <% if (item.status === 'Returned' && ['Paid', 'Refunded'].includes(order.paymentStatus)) { %>
                                                     <div class="text-[0.55rem] font-black text-blue-400 bg-blue-400/10 px-2 py-0.5 rounded uppercase tracking-widest border border-blue-400/30">
                                                         REFUNDED TO WALLET
                                                     </div>
                                                 <% } %>
-                                            </div>
-                                        <% } %>
+                                            <% } %>
+                                        </div>
                                     </div>
                                 </div>
+
                                 <% const itemStock = (stockMap && item.variant) ? (stockMap[String(item.variant)] ?? null) : null; %>
                                 <% if (itemStock !== null) { %>
                                     <div class="flex items-center gap-2 mb-2">
                                         <span class="text-[0.55rem] font-black uppercase tracking-widest text-[#8b949e]">Stock Status:</span>
-                                        <% if (itemStock > 10) { %>
-                                            <span class="stock-pill in-stock"><i class="fas fa-circle-check" style="font-size:0.55rem"></i> In Stock</span>
-                                        <% } else if (itemStock > 5) { %>
-                                            <span class="stock-pill low-stock"><i class="fas fa-triangle-exclamation" style="font-size:0.55rem"></i> Low Stock</span>
+                                        <% if (itemStock > 7) { %>
+                                            <span class="stock-pill in-stock"><i class="bi bi-check-circle-fill" style="font-size:0.55rem"></i> In Stock</span>
+                                        <% } else if (itemStock > 3) { %>
+                                            <span class="stock-pill low-stock"><i class="bi bi-exclamation-triangle-fill" style="font-size:0.55rem"></i> Low Stock</span>
                                         <% } else if (itemStock > 0) { %>
-                                            <span class="stock-pill low-stock"><i class="fas fa-triangle-exclamation" style="font-size:0.55rem"></i> <%= itemStock %> Left</span>
+                                            <span class="stock-pill low-stock"><i class="bi bi-exclamation-triangle-fill" style="font-size:0.55rem"></i> <%= itemStock %> Left</span>
                                         <% } else { %>
-                                            <span class="stock-pill out-stock"><i class="fas fa-circle-xmark" style="font-size:0.55rem"></i> Out of Stock</span>
+                                            <span class="stock-pill out-stock"><i class="bi bi-x-circle-fill" style="font-size:0.55rem"></i> Out of Stock</span>
                                         <% } %>
                                     </div>
                                 <% } %>
@@ -502,14 +553,14 @@
             <div class="space-y-6 no-download">
                 <div class="glass-card p-6">
                     <div class="flex items-center gap-2 mb-6">
-                        <i class="fas fa-circle text-blue-500 text-[8px]"></i>
+                        <i class="bi bi-circle-fill text-blue-500 text-[8px]"></i>
                         <h3 class="text-lg font-bold">Shipping Address</h3>
                     </div>
                     <div class="space-y-3 text-sm text-[#8b949e]">
-                        <p class="text-white font-medium"><i class="far fa-user mr-2"></i><%= order.shippingAddress.fullName %></p>
-                        <p><i class="fas fa-phone-alt mr-2"></i><%= order.shippingAddress.phone %></p>
+                        <p class="text-white font-medium"><i class="bi bi-person mr-2"></i><%= order.shippingAddress.fullName %></p>
+                        <p><i class="bi bi-telephone mr-2"></i><%= order.shippingAddress.phone %></p>
                         <div class="flex items-start gap-2">
-                            <i class="fas fa-map-marker-alt mt-1"></i>
+                            <i class="bi bi-geo-alt mt-1"></i>
                             <div>
                                 <p class="text-white font-medium"><%= order.shippingAddress.city %>, <%= order.shippingAddress.state %></p>
                                 <p class="mt-1 leading-relaxed"><%= order.shippingAddress.houseName %>(h), <%= order.shippingAddress.locality %>, <%= order.shippingAddress.pincode %></p>
@@ -520,7 +571,7 @@
 
                 <div class="glass-card p-6">
                     <div class="flex items-center gap-2 mb-6">
-                        <i class="fas fa-file-invoice text-blue-500 text-[8px]"></i>
+                        <i class="bi bi-receipt text-blue-500 text-[8px]"></i>
                         <h3 class="text-lg font-bold">Price Details</h3>
                     </div>
                     <% 
@@ -565,10 +616,6 @@
                         </div>
                     </div>
                 </div>
-
-               
-
-                </div>
             </div>
         </div>
     </div>
@@ -588,11 +635,11 @@
                         class="form-select w-full rounded-xl py-3 px-4 border-slate-700 focus:outline-none"
                         style="font-weight:600">
                         <option value="" selected disabled style="color:#8b949e">Choose a reason...</option>
-                        <option value="mistake"      style="color:#f59e0b; background:#161b22"> Mistake purchase</option>
-                        <option value="better_price" style="color:#3b82f6; background:#161b22"> Found better price</option>
-                        <option value="change_mind"  style="color:#a855f7; background:#161b22"> Changed my mind</option>
-                        <option value="defective"    style="color:#ef4444; background:#161b22"> Product issues</option>
-                        <option value="other"        style="color:#10b981; background:#161b22"> Others</option>
+                        <option value="Mistake purchase" style="color:#f59e0b; background:#161b22"> Mistake purchase</option>
+                        <option value="Found better price" style="color:#3b82f6; background:#161b22"> Found better price</option>
+                        <option value="Changed my mind" style="color:#a855f7; background:#161b22"> Changed my mind</option>
+                        <option value="Product issues" style="color:#ef4444; background:#161b22"> Product issues</option>
+                        <option value="other" style="color:#10b981; background:#161b22"> Others</option>
                     </select>
                     <div id="othersWrapper">
                         <textarea id="othersInput" rows="3" placeholder="Please describe your reason here…"></textarea>
@@ -710,37 +757,57 @@
         function handleCancelEntireOrder() {
             Swal.fire({
                 title: 'Cancel Entire Order?',
-                text: 'Select a reason for cancellation',
-                input: 'select',
-                inputOptions: { mistake: 'Mistake purchase', better_price: 'Found better price', change_mind: 'Changed my mind', others: 'Others' },
-                inputPlaceholder: 'Choose a reason…',
+                html: `
+                    <div class="text-left px-2">
+                        <p class="text-gray-400 text-[0.7rem] font-bold uppercase tracking-widest mb-3">Select a reason for cancellation</p>
+                        <select id="swalCancelReason" class="swal2-select w-full !m-0 !flex" style="background:#1a1f2e; color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.85rem; padding: 10px;">
+                            <option value="" disabled selected>Choose a reason...</option>
+                            <option value="Mistake purchase">Mistake purchase</option>
+                            <option value="Found better price">Found better price</option>
+                            <option value="Changed my mind">Changed my mind</option>
+                            <option value="others">Others</option>
+                        </select>
+                        <div id="swalOthersWrapper" style="display:none; margin-top:20px;">
+                            <p class="text-gray-400 text-[0.7rem] font-bold uppercase tracking-widest mb-3">Please specify your reason</p>
+                            <textarea id="swalOthersInput" class="swal2-textarea !m-0 !w-full" style="background:#1a1f2e; color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.85rem; height: 100px; padding: 12px;" placeholder="Describe why you want to cancel..."></textarea>
+                        </div>
+                    </div>
+                `,
                 showCancelButton: true,
                 confirmButtonColor: '#ef4444',
                 cancelButtonColor: '#334155',
-                confirmButtonText: 'Next →',
+                confirmButtonText: 'Confirm Cancellation',
                 cancelButtonText: 'Go Back',
                 background: '#161b22',
                 color: '#fff',
-                inputValidator: (value) => { if (!value) return 'Please select a reason!'; }
-            }).then(r => {
-                if (!r.isConfirmed || !r.value) return;
-                if (r.value === 'others') {
-                    Swal.fire({
-                        title: 'Describe your reason',
-                        input: 'textarea',
-                        inputPlaceholder: 'Please describe why you want to cancel…',
-                        inputAttributes: { maxlength: 300 },
-                        showCancelButton: true,
-                        confirmButtonColor: '#ef4444',
-                        cancelButtonColor: '#334155',
-                        confirmButtonText: 'Confirm Cancel',
-                        cancelButtonText: 'Go Back',
-                        background: '#161b22',
-                        color: '#fff',
-                        inputValidator: (value) => { if (!value || !value.trim()) return 'Please describe your reason!'; }
-                    }).then(r2 => { if (r2.isConfirmed && r2.value) submitCancelOrder(r2.value.trim()); });
-                } else {
-                    submitCancelOrder(r.value);
+                didOpen: () => {
+                    const select = document.getElementById('swalCancelReason');
+                    const wrapper = document.getElementById('swalOthersWrapper');
+                    select.addEventListener('change', () => {
+                        if (select.value === 'others') {
+                            wrapper.style.display = 'block';
+                            setTimeout(() => document.getElementById('swalOthersInput').focus(), 100);
+                        } else {
+                            wrapper.style.display = 'none';
+                        }
+                    });
+                },
+                preConfirm: () => {
+                    const select = document.getElementById('swalCancelReason');
+                    const others = document.getElementById('swalOthersInput');
+                    if (!select.value) {
+                        Swal.showValidationMessage('Please select a reason');
+                        return false;
+                    }
+                    if (select.value === 'others' && !others.value.trim()) {
+                        Swal.showValidationMessage('Please describe your reason');
+                        return false;
+                    }
+                    return select.value === 'others' ? others.value.trim() : select.value;
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    submitCancelOrder(result.value);
                 }
             });
         }
@@ -761,37 +828,57 @@
         function handleReturnEntireOrder() {
             Swal.fire({
                 title: 'Return Entire Order?',
-                text: 'Select a reason for return',
-                input: 'select',
-                inputOptions: { defective: 'Product is defective', not_as_described: 'Product not as described', wrong_item: 'Received wrong item', others: 'Others' },
-                inputPlaceholder: 'Choose a reason…',
+                html: `
+                    <div class="text-left px-2">
+                        <p class="text-gray-400 text-[0.7rem] font-bold uppercase tracking-widest mb-3">Select a reason for return</p>
+                        <select id="swalReturnReason" class="swal2-select w-full !m-0 !flex" style="background:#1a1f2e; color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.85rem; padding: 10px;">
+                            <option value="" disabled selected>Choose a reason...</option>
+                            <option value="Defective product">Product is defective</option>
+                            <option value="Not as described">Product not as described</option>
+                            <option value="Wrong item">Received wrong item</option>
+                            <option value="others">Others</option>
+                        </select>
+                        <div id="swalOthersWrapper" style="display:none; margin-top:20px;">
+                            <p class="text-gray-400 text-[0.7rem] font-bold uppercase tracking-widest mb-3">Please specify your reason</p>
+                            <textarea id="swalOthersInput" class="swal2-textarea !m-0 !w-full" style="background:#1a1f2e; color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:12px; font-size:0.85rem; height: 100px; padding: 12px;" placeholder="Describe why you want to return..."></textarea>
+                        </div>
+                    </div>
+                `,
                 showCancelButton: true,
                 confirmButtonColor: '#f59e0b',
                 cancelButtonColor: '#334155',
-                confirmButtonText: 'Next →',
+                confirmButtonText: 'Submit Return Request',
                 cancelButtonText: 'Go Back',
                 background: '#161b22',
                 color: '#fff',
-                inputValidator: (value) => { if (!value) return 'Please select a reason!'; }
-            }).then(r => {
-                if (!r.isConfirmed || !r.value) return;
-                if (r.value === 'others') {
-                    Swal.fire({
-                        title: 'Describe your reason',
-                        input: 'textarea',
-                        inputPlaceholder: 'Please describe why you want to return…',
-                        inputAttributes: { maxlength: 300 },
-                        showCancelButton: true,
-                        confirmButtonColor: '#f59e0b',
-                        cancelButtonColor: '#334155',
-                        confirmButtonText: 'Confirm Return',
-                        cancelButtonText: 'Go Back',
-                        background: '#161b22',
-                        color: '#fff',
-                        inputValidator: (value) => { if (!value || !value.trim()) return 'Please describe your reason!'; }
-                    }).then(r2 => { if (r2.isConfirmed && r2.value) submitReturnOrder(r2.value.trim()); });
-                } else {
-                    submitReturnOrder(r.value);
+                didOpen: () => {
+                    const select = document.getElementById('swalReturnReason');
+                    const wrapper = document.getElementById('swalOthersWrapper');
+                    select.addEventListener('change', () => {
+                        if (select.value === 'others') {
+                            wrapper.style.display = 'block';
+                            setTimeout(() => document.getElementById('swalOthersInput').focus(), 100);
+                        } else {
+                            wrapper.style.display = 'none';
+                        }
+                    });
+                },
+                preConfirm: () => {
+                    const select = document.getElementById('swalReturnReason');
+                    const others = document.getElementById('swalOthersInput');
+                    if (!select.value) {
+                        Swal.showValidationMessage('Please select a reason');
+                        return false;
+                    }
+                    if (select.value === 'others' && !others.value.trim()) {
+                        Swal.showValidationMessage('Please describe your reason');
+                        return false;
+                    }
+                    return select.value === 'others' ? others.value.trim() : select.value;
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    submitReturnOrder(result.value);
                 }
             });
         }
@@ -809,76 +896,102 @@
         }
 
         // ── Retry Payment ─────────────────────────────────────────────────────
-        function handleRetryPayment(orderId) {
+        function handleRetryPayment(orderId, btn) {
+            const originalContent = btn.innerHTML;
+
             Swal.fire({
                 title: 'Initiating Retry',
                 text: 'Preparing your payment...',
                 allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading(); },
                 background: '#161b22',
-                color: '#fff'
-            });
+                color: '#fff',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Retry',
+                cancelButtonText: 'Cancel'
+            }).then(r => {
+                if (r.isConfirmed) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i> Processing...';
 
-            axios.post('/retry-payment', { orderId })
-                .then(res => {
-                    if (res.data.success) {
-                        const options = {
-                            key: res.data.key,
-                            amount: res.data.order.amount,
-                            currency: res.data.order.currency,
-                            name: "Zyrox",
-                            description: "Order Retry Payment",
-                            order_id: res.data.order.id,
-                            handler: function (response) {
-                                Swal.fire({
-                                    title: 'Verifying...',
-                                    text: 'Please wait while we confirm your payment',
-                                    allowOutsideClick: false,
-                                    didOpen: () => { Swal.showLoading(); },
-                                    background: '#161b22',
-                                    color: '#fff'
-                                });
+                    axios.post('/retry-payment', { orderId })
+                        .then(res => {
+                            if (res.data.success) {
+                                const options = {
+                                    key: res.data.key,
+                                    amount: res.data.order.amount,
+                                    currency: res.data.order.currency,
+                                    name: "Zyrox",
+                                    description: "Order Retry Payment",
+                                    order_id: res.data.order.id,
+                                    handler: function (response) {
+                                        Swal.fire({
+                                            title: 'Verifying...',
+                                            text: 'Please wait while we confirm your payment',
+                                            allowOutsideClick: false,
+                                            didOpen: () => { Swal.showLoading(); },
+                                            background: '#161b22',
+                                            color: '#fff'
+                                        });
 
-                                axios.post('/confirm-retry-payment', {
-                                    orderId: orderId,
-                                    razorpay_payment_id: response.razorpay_payment_id,
-                                    razorpay_order_id: response.razorpay_order_id,
-                                    razorpay_signature: response.razorpay_signature
-                                })
-                                .then(confirmRes => {
-                                    if (confirmRes.data.success) {
-                                        window.location.href = `/order-success/${orderId}`;
-                                    } else {
-                                        Swal.fire({ title: 'Error', text: confirmRes.data.message, icon: 'error', background: '#161b22', color: '#fff' });
-                                    }
+                                        axios.post('/confirm-retry-payment', {
+                                            orderId: orderId,
+                                            razorpay_payment_id: response.razorpay_payment_id,
+                                            razorpay_order_id: response.razorpay_order_id,
+                                            razorpay_signature: response.razorpay_signature
+                                        })
+                                        .then(confirmRes => {
+                                            if (confirmRes.data.success) {
+                                                window.location.href = `/order-success/${orderId}`;
+                                            } else {
+                                                btn.disabled = false;
+                                                btn.innerHTML = originalContent;
+                                                Swal.fire({ title: 'Error', text: confirmRes.data.message, icon: 'error', background: '#161b22', color: '#fff' });
+                                            }
+                                        }).catch(() => {
+                                            btn.disabled = false;
+                                            btn.innerHTML = originalContent;
+                                            Swal.fire({ title: 'Error', text: 'Verification failed', icon: 'error', background: '#161b22', color: '#fff' });
+                                        });
+                                    },
+                                    modal: {
+                                        ondismiss: function() {
+                                            btn.disabled = false;
+                                            btn.innerHTML = originalContent;
+                                        }
+                                    },
+                                    prefill: {
+                                        name: "<%= user.fullName %>",
+                                        email: "<%= user.email %>",
+                                        contact: "<%= user.phone %>"
+                                    },
+                                    theme: { color: "#4f6ef7" }
+                                };
+                                const rzp = new Razorpay(options);
+                                rzp.on('payment.failed', function (response) {
+                                    btn.disabled = false;
+                                    btn.innerHTML = originalContent;
+                                    Swal.fire({
+                                        title: 'Payment Failed',
+                                        text: response.error.description || 'Retry attempt was unsuccessful',
+                                        icon: 'error',
+                                        background: '#161b22',
+                                        color: '#fff'
+                                    });
                                 });
-                            },
-                            prefill: {
-                                name: "<%= user.fullName %>",
-                                email: "<%= user.email %>",
-                                contact: "<%= user.phone %>"
-                            },
-                            theme: { color: "#4f6ef7" }
-                        };
-                        const rzp = new Razorpay(options);
-                        rzp.on('payment.failed', function (response) {
-                            Swal.fire({
-                                title: 'Payment Failed',
-                                text: response.error.description || 'Retry attempt was unsuccessful',
-                                icon: 'error',
-                                background: '#161b22',
-                                color: '#fff'
-                            });
+                                rzp.open();
+                            } else {
+                                btn.disabled = false;
+                                btn.innerHTML = originalContent;
+                                Swal.fire({ title: 'Error', text: res.data.message, icon: 'error', background: '#161b22', color: '#fff' });
+                            }
+                        })
+                        .catch(err => {
+                            btn.disabled = false;
+                            btn.innerHTML = originalContent;
+                            Swal.fire({ title: 'Error', text: 'Something went wrong', icon: 'error', background: '#161b22', color: '#fff' });
                         });
-                        Swal.close();
-                        rzp.open();
-                    } else {
-                        Swal.fire({ title: 'Error', text: res.data.message, icon: 'error', background: '#161b22', color: '#fff' });
-                    }
-                })
-                .catch(err => {
-                    Swal.fire({ title: 'Error', text: 'Something went wrong', icon: 'error', background: '#161b22', color: '#fff' });
-                });
+                }
+            });
         }
 
         function updateTimers() {

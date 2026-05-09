@@ -29,7 +29,7 @@
                                     .</p>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="/adminUserUser/users" class="btn-back">
+                            <a href="/adminUser/users" class="btn-back">
                                 <i class="bi bi-arrow-left"></i> Back
                             </a>
                             <form
@@ -117,7 +117,7 @@
                                             <span class="stat-label">Total Orders</span>
                                             <i class="bi bi-bag-check stat-icon"></i>
                                         </div>
-                                        <p class="stat-value">24</p>
+                                        <p class="stat-value"><%= stats.totalOrders %></p>
                                         <p class="stat-note">Lifetime orders</p>
                                     </div>
                                 </div>
@@ -127,8 +127,8 @@
                                             <span class="stat-label">Total Spent</span>
                                             <i class="bi bi-currency-rupee stat-icon"></i>
                                         </div>
-                                        <p class="stat-value">₹3,450</p>
-                                        <p class="stat-note">Avg ₹143.75 / order</p>
+                                        <p class="stat-value">₹<%= stats.totalSpent.toLocaleString('en-IN') %></p>
+                                        <p class="stat-note">Avg ₹<%= stats.avgOrderValue.toFixed(2) %> / order</p>
                                     </div>
                                 </div>
                             </div>
@@ -145,22 +145,39 @@
                                                 <th>Order ID</th>
                                                 <th>Date</th>
                                                 <th>Status</th>
-                                                <th class="text-end">Amount</th>
+                                                <th>Amount</th>
+                                                <th class="text-end">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td><span class="order-id">#ORD-7721</span></td>
-                                                <td>Oct 24, 2023</td>
-                                                <td><span class="status-pill status-cancelled">Cancelled</span></td>
-                                                <td class="text-end fw-600">₹120.50</td>
-                                            </tr>
-                                            <tr>
-                                                <td><span class="order-id">#ORD-7650</span></td>
-                                                <td>Oct 15, 2023</td>
-                                                <td><span class="status-pill status-delivered">Delivered</span></td>
-                                                <td class="text-end fw-600">₹59.00</td>
-                                            </tr>
+                                            <% if (orders && orders.length > 0) { %>
+                                                <% orders.forEach(order => { %>
+                                                    <tr>
+                                                        <td><span class="order-id">#<%= order.orderId %></span></td>
+                                                        <td><%= new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></td>
+                                                        <td>
+                                                            <% 
+                                                                let statusClass = 'status-pending';
+                                                                if (order.orderStatus === 'Delivered') statusClass = 'status-delivered';
+                                                                else if (['Cancelled', 'Failed'].includes(order.orderStatus)) statusClass = 'status-cancelled';
+                                                                else if (['Shipped', 'Processing'].includes(order.orderStatus)) statusClass = 'status-shipped';
+                                                                else if (['Returned', 'Return Requested'].includes(order.orderStatus)) statusClass = 'status-returned';
+                                                            %>
+                                                            <span class="status-pill <%= statusClass %>"><%= order.orderStatus %></span>
+                                                        </td>
+                                                        <td class="fw-600">₹<%= (order.finalPrice || 0).toLocaleString('en-IN') %></td>
+                                                        <td class="text-end">
+                                                            <a href="/adminUser/orders/details?id=<%= order._id %>" class="btn-view-order">
+                                                                <i class="bi bi-eye"></i> View
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                <% }) %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="5" class="text-center py-4 text-muted">No orders found for this user.</td>
+                                                </tr>
+                                            <% } %>
                                         </tbody>
                                     </table>
                                 </div>

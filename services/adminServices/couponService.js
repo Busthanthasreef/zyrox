@@ -14,6 +14,8 @@ export const fetchCoupons = async ({ page, search, statusFilter }) => {
 
   if (statusFilter === "active") query.isActive = true;
   else if (statusFilter === "inactive") query.isActive = false;
+  else if (statusFilter === "expired") query.validTill = { $lt: new Date() };
+  else if (statusFilter === "limitExceeded") query.$expr = { $gte: ["$usedCount", "$usageLimit"] };
 
   const [totalCoupons, coupons] = await Promise.all([
     Coupon.countDocuments(query),
@@ -43,16 +45,21 @@ export const validateCouponData = ({ discountType, discountValue, minCartValue, 
   const numericDiscount = Number(discountValue);
   const numericMinCart = Number(minCartValue) || 0;
 
-  if (numericDiscount <= 0) {
+  if (isNaN(numericDiscount) || numericDiscount <= 0) {
     return { valid: false, message: "Discount value must be greater than 0" };
   }
 
-  if (discountType === "percentage" && numericDiscount > 100) {
-    return { valid: false, message: "Percentage discount cannot exceed 100%" };
+  // Enhanced validation: Percentage cannot exceed 99%
+  if (discountType === "percentage" && numericDiscount > 99) {
+    return { valid: false, message: "Percentage discount exceeds allowed limit (max 99%)" };
   }
 
-  if (discountType === "flat" && numericMinCart > 0 && numericDiscount >= numericMinCart) {
-    return { valid: false, message: "Flat discount must be less than Minimum Cart Value" };
+  // Enhanced validation: Flat discount cannot exceed 99% of minCartValue if specified
+  if (discountType === "flat" && numericMinCart > 0) {
+    const maxAllowedFlat = numericMinCart * 0.99; // Allow up to 99% of minimum cart value
+    if (numericDiscount > maxAllowedFlat) {
+      return { valid: false, message: "Flat discount exceeds maximum allowed amount (99% of min cart)" };
+    }
   }
 
   if (numericMinCart < 0) {
@@ -159,7 +166,7 @@ export const updateCoupon = async (body) => {
     return { success: true, icon: "info", message: "No changes detected" };
   }
 
-  await Coupon.findByIdAndUpdate(couponId, updateData, { new: true, runValidators: true });
+  await Coupon.findByIdAndUpdate(couponId, updateData, { returnDocument: 'after', runValidators: true });
 
   return { success: true, message: "Coupon updated successfully" };
 };
@@ -185,6 +192,8 @@ export const toggleStatus = async (id) => {
 // ─── Soft Delete Coupon ───────────────────────────────────────────────────────
 
 export const softDeleteCoupon = async (id) => {
+  const coupon = await Coupon.findById(id);
+  if (!coupon) return { success: false, status: 404, message: "Coupon not found" };
   await Coupon.findByIdAndUpdate(id, { isDeleted: true });
   return { success: true, message: "Coupon deleted successfully" };
 };

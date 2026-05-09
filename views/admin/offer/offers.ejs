@@ -692,6 +692,8 @@
                                 <th>Type</th>
                                 <th>Target</th>
                                 <th>Discount</th>
+                                <th>Base Price</th>
+                                <th>Discount Amt</th>
                                 <th>Validity</th>
                                 <th>Status</th>
                                 <th class="text-end">Actions</th>
@@ -736,6 +738,16 @@
                                         </div>
                                     </td>
                                     <td>
+                                        <div class="base-price fw-600">
+                                            <%= offer.basePrice ? '₹' + offer.basePrice : '—' %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="discount-amt text-danger fw-600">
+                                            <%= offer.discountAmount ? '- ₹' + Math.floor(offer.discountAmount) : '—' %>
+                                        </div>
+                                    </td>
+                                    <td>
                                         <div class="date-range">
                                             <%= new Date(offer.startDate).toLocaleDateString('en-US', { month: 'short' ,
                                                 day: '2-digit' }) %> -
@@ -757,10 +769,12 @@
                                                 title="Edit">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
+                                            <% const isOffExpired = new Date(offer.endDate) < new Date(); %>
                                             <button
                                                 class="btn-action toggle <%= offer.isActive ? 'active' : 'inactive' %>"
-                                                onclick="toggleOfferStatus('<%= offer._id %>')"
-                                                title="<%= offer.isActive ? 'Deactivate' : 'Activate' %>">
+                                                onclick="<%= isOffExpired ? '' : `toggleOfferStatus('${offer._id}')` %>"
+                                                title="<%= isOffExpired ? 'Cannot toggle expired offer' : (offer.isActive ? 'Deactivate' : 'Activate') %>"
+                                                style="<%= isOffExpired ? 'opacity: 0.5; cursor: not-allowed;' : '' %>">
                                                 <i
                                                     class="bi <%= offer.isActive ? 'bi-toggle-on' : 'bi-toggle-off' %>"></i>
                                             </button>
@@ -923,18 +937,7 @@
 
                             <div class="gray-box mb-4">
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Min Purchase Amount (₹)</label>
-                                        <input type="number" name="minPurchaseAmount" id="minPurchaseAmount"
-                                            class="form-control zyrax-input" placeholder="0.00" step="0.01" min="0">
-                                        <div class="error-message" id="error-minPurchaseAmount">Minimum purchase
-                                            must be
-                                            non-negative.</div>
-                                        <small class="text-muted" style="font-size: 0.75rem;">Minimum spent required
-                                            to
-                                            apply offer</small>
-                                    </div>
-                                    <div class="col-md-6" id="maxDiscountWrapper">
+                                    <div class="col-md-12" id="maxDiscountWrapper">
                                         <label class="form-label">Max Discount Amount (₹)</label>
                                         <input type="number" name="maxDiscountAmount" id="maxDiscountAmount"
                                             class="form-control zyrax-input" placeholder="0.00" step="0.01" min="0">
@@ -1113,6 +1116,8 @@
                                 <div class="discount-val">${offer.discountType === 'percentage' ? offer.discountValue + '%' : '₹' + offer.discountValue}</div>
                                 <div class="small text-muted">${offer.discountType.charAt(0).toUpperCase() + offer.discountType.slice(1)}</div>
                             </td>
+                            <td><div class="base-price fw-600">${offer.basePrice ? '₹' + offer.basePrice : '—'}</div></td>
+                            <td><div class="discount-amt text-danger fw-600">${offer.discountAmount ? '- ₹' + Math.floor(offer.discountAmount) : '—'}</div></td>
                             <td>
                                 <div class="date-range">${startDate} - ${endDate}</div>
                                 <div class="small ${isExpired ? 'text-danger' : 'text-success'}">${isExpired ? 'Expired' : 'Active'}</div>
@@ -1290,6 +1295,10 @@
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('startDate').min = today;
                 document.getElementById('endDate').min = today;
+                
+                document.getElementById('startDate').readOnly = false;
+                document.getElementById('startDate').style.pointerEvents = 'auto';
+                document.getElementById('startDate').style.background = '#fff';
 
                 toggleApplyFields();
                 toggleValFields();
@@ -1297,9 +1306,21 @@
             }
 
             function editOffer(offerId) {
-                clearValidationErrors();
                 const data = currentOffers.find(o => o._id === offerId);
                 if (!data) return;
+
+                // Expiration check
+                if (new Date(data.endDate) < new Date()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Locked',
+                        text: "can't edit expired offer",
+                        confirmButtonColor: '#1e293b'
+                    });
+                    return;
+                }
+
+                clearValidationErrors();
                 document.getElementById('modalTitle').textContent = 'Edit Offer';
                 document.getElementById('saveBtn').textContent = 'Update Offer';
                 document.getElementById('offerId').value = data._id;
@@ -1312,11 +1333,10 @@
 
                 const targetId = data.offerType === 'product'
                     ? (data.productId?._id || data.productId)
-                    : (data.categoryId?._id || data.categoryId);
+                    : (data.offerType === 'category' ? (data.categoryId?._id || data.categoryId) : 'none');
 
                 document.getElementById('targetId').value = targetId;
                 document.getElementById('discountValue').value = data.discountValue;
-                document.getElementById('minPurchaseAmount').value = data.minPurchaseAmount || 0;
                 document.getElementById('maxDiscountAmount').value = data.maxDiscountAmount || '';
 
                 document.getElementById('startDate').value = new Date(data.startDate).toISOString().split('T')[0];
@@ -1325,6 +1345,10 @@
 
                 const today = new Date().toISOString().split('T')[0];
                 const currentStart = new Date(data.startDate).toISOString().split('T')[0];
+                
+                document.getElementById('startDate').readOnly = true;
+                document.getElementById('startDate').style.pointerEvents = 'none';
+                document.getElementById('startDate').style.background = '#f8fafc';
                 
                 // Allow current start date even if it's in the past, but don't allow selecting dates before it or today
                 document.getElementById('startDate').min = currentStart < today ? currentStart : today;
@@ -1380,8 +1404,8 @@
                 if (isNaN(discountValue) || discountValue <= 0) {
                     showFieldError('discountValue', 'Discount value must be greater than zero.');
                     isValid = false;
-                } else if (discountType === 'percentage' && discountValue > 100) {
-                    showFieldError('discountValue', 'Percentage cannot exceed 100%.');
+                } else if (discountType === 'percentage' && discountValue > 99) {
+                    showFieldError('discountValue', 'Percentage cannot exceed 99%.');
                     isValid = false;
                 }
 
@@ -1415,9 +1439,17 @@
 
                 if (body.offerType === 'product') {
                     body.productId = body.targetId;
-                } else {
+                    body.categoryId = null;
+                } else if (body.offerType === 'category') {
                     body.categoryId = body.targetId;
+                    body.productId = null;
+                } else {
+                    body.productId = null;
+                    body.categoryId = null;
                 }
+                
+                // Remove targetId from body as it's not needed by the backend
+                delete body.targetId;
 
                 let url = isEdit ? `/adminUser/offers/edit/${body.offerId}` : '';
                 if (!isEdit) {

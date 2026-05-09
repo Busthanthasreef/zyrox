@@ -720,6 +720,25 @@
             background: var(--accent-yellow);
             color: #1a1200;
         }
+
+        /* ── SweetAlert Select Fix ── */
+        .swal2-select {
+            background-color: #1a1f2e !important;
+            color: #fff !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+        }
+        .swal2-select option {
+            background-color: #1a1f2e !important;
+            color: #fff !important;
+        }
+
+        /* ── Modal Select Fix ── */
+        .form-select-zyrox option {
+            background-color: #1a1f2e !important;
+            color: #fff !important;
+        }
     </style>
 </head>
 
@@ -829,7 +848,7 @@
                                                         const diffMs = expiryTime - now;
                                                     %>
                                                     <% if (diffMs > 0) { %>
-                                                        <button onclick="handleRetryPayment('<%= order._id %>')" 
+                                                        <button onclick="handleRetryPayment('<%= order._id %>', this)" 
                                                             class="btn-retry retry-btn">
                                                             <i class="fas fa-redo-alt" style="font-size: 10px;"></i> Retry
                                                         </button>
@@ -890,7 +909,7 @@
                                                 const diffMs = expiryTime - now;
                                             %>
                                             <% if (diffMs > 0) { %>
-                                                <button onclick="handleRetryPayment('<%= order._id %>')" 
+                                                <button onclick="handleRetryPayment('<%= order._id %>', this)" 
                                                     class="btn-retry retry-btn" style="padding: 3px 8px; font-size: 0.65rem;">
                                                     Retry
                                                 </button>
@@ -972,7 +991,7 @@
                                         <a href="/myOrders/details?id=<%= order._id %>" class="mobile-action-btn btn-mobile-view <%= diffMs > 0 ? 'w-50' : 'w-100' %>">Details</a>
                                         <% if (diffMs > 0) { %>
                                             <div class="d-flex flex-column w-50">
-                                                <button onclick="handleRetryPayment('<%= order._id %>')" class="mobile-action-btn retry-btn w-100 m-0" style="background: rgba(255, 77, 109, 0.1); color: #ff4d6d; border: 1px solid #ff4d6d; font-weight: 700;">Retry</button>
+                                                <button onclick="handleRetryPayment('<%= order._id %>', this)" class="mobile-action-btn retry-btn w-100 m-0" style="background: rgba(255, 77, 109, 0.1); color: #ff4d6d; border: 1px solid #ff4d6d; font-weight: 700;">Retry</button>
                                                 <div class="retry-timer-text text-danger text-center mt-1" style="font-size: 0.65rem; font-weight: 700;" data-expiry="<%= expiryTime.toISOString() %>">
                                                     <i class="far fa-clock"></i> <span class="retry-timer"></span>
                                                 </div>
@@ -1174,7 +1193,9 @@
     });
 
     // Retry Payment Logic
-    function handleRetryPayment(orderId) {
+    function handleRetryPayment(orderId, btn) {
+        const originalContent = btn.innerHTML;
+        
         Swal.fire({
             title: 'Complete Payment',
             text: "Would you like to re-initiate the payment for this order?",
@@ -1189,15 +1210,9 @@
             borderRadius: '16px'
         }).then((result) => {
             if (result.isConfirmed) {
-                Swal.fire({
-                    title: 'Connecting...',
-                    text: 'Preparing secure payment gateway.',
-                    background: '#141824',
-                    color: '#e8eaf2',
-                    allowOutsideClick: false,
-                    didOpen: () => Swal.showLoading(),
-                    borderRadius: '16px'
-                });
+                // Show loading on button
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retry...';
 
                 axios.post('/checkout/retry-payment', { orderId })
                     .then(res => {
@@ -1238,6 +1253,8 @@
                                             borderRadius: '16px'
                                         }).then(() => window.location.href = `/order-success/${confirmRes.data.orderId}`);
                                     } else {
+                                        btn.disabled = false;
+                                        btn.innerHTML = originalContent;
                                         Swal.fire({ 
                                             icon: 'error', 
                                             title: 'Verification Failed', 
@@ -1249,6 +1266,8 @@
                                         });
                                     }
                                 }).catch(() => {
+                                    btn.disabled = false;
+                                    btn.innerHTML = originalContent;
                                     Swal.fire({ 
                                         icon: 'error', 
                                         title: 'Error', 
@@ -1262,6 +1281,8 @@
                             },
                             modal: {
                                 ondismiss: function () {
+                                    btn.disabled = false;
+                                    btn.innerHTML = originalContent;
                                     Swal.fire({ 
                                         icon: 'warning', 
                                         title: 'Payment Cancelled', 
@@ -1278,6 +1299,8 @@
                         const rzp = new window.Razorpay(options);
                         
                         rzp.on('payment.failed', function (resp) {
+                            btn.disabled = false;
+                            btn.innerHTML = originalContent;
                             Swal.fire({ 
                                 icon: 'error', 
                                 title: 'Payment Failed', 
@@ -1290,9 +1313,12 @@
                         });
 
                         rzp.open();
-                        Swal.close();
+                        // Note: we don't restore the button here because the rzp window is open.
+                        // It will be restored in handler, ondismiss, or payment.failed.
                     })
                     .catch(err => {
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
                         const msg = err.response?.data?.message || err.message || 'Failed to initiate retry.';
                         Swal.fire({ 
                             icon: 'error', 

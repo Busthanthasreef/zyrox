@@ -368,6 +368,21 @@
                                                 <h3 class="text-xl font-black tracking-tight">
                                                     <%= item.name %>
                                                 </h3>
+                                                <div class="flex items-center gap-3 mt-1 mb-2">
+                                                    <% 
+                                                        const itemStatus = (item.status || 'Pending').toLowerCase();
+                                                        let itemTagClass = 's-pending';
+                                                        if(itemStatus === 'delivered') itemTagClass = 's-delivered';
+                                                        else if(itemStatus === 'shipped') itemTagClass = 's-shipped';
+                                                        else if(itemStatus === 'processing') itemTagClass = 's-processing';
+                                                        else if(itemStatus.includes('cancel')) itemTagClass = 's-cancelled';
+                                                        else if(itemStatus.includes('return')) itemTagClass = 's-cancelled'; // Using red for return-related
+                                                    %>
+                                                    <span class="status-badge <%= itemTagClass %> scale-75 origin-left">
+                                                        <i class="fas fa-circle text-[5px]"></i>
+                                                        <%= item.status || 'Pending' %>
+                                                    </span>
+                                                </div>
                                                 <div class="flex gap-2 mt-2">
                                                     <span class="pill-tag">RAM <b>
                                                             <%= item.RAM %>GB

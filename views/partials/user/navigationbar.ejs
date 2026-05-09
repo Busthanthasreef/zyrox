@@ -14,6 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet" />
 <link rel="stylesheet" href="/userStyles/global/background.css">
+<link rel="stylesheet" href="/styles/premium-typography.css">
 <%- include('../alerts') %>
 
 <!-- Global Space Background Element -->
@@ -149,7 +150,7 @@
     /* ========== NAVIGATION BAR ========== */
     .navbar {
         width: 100%;
-        padding: 15px 1%;
+        padding: 15px 20px;
         background: #000;
         display: flex;
         align-items: center;
@@ -183,6 +184,9 @@
         letter-spacing: -0.5px;
     }
 
+    #navLogo{
+        cursor: pointer;
+    }
     .nav-links {
         list-style: none;
         display: flex;
@@ -682,7 +686,7 @@
 
 
         .navbar {
-            padding: 10px 3%;
+            padding: 10px 20px;
         }
 
         .nav-links,
@@ -728,9 +732,9 @@
 <nav class="navbar">
 
     <!-- Left: Logo -->
-    <div class="nav-left" id="navLogo">
-        <i class="fas fa-store"></i>
-        <div class="logo">Zyrox</div>
+    <div class="nav-left" id="navLogo" onclick="redirect()">
+        <i class="bi bi-shop"></i>
+        <div class="logo" >Zyrox</div>
     </div>
 
     <!-- Center: Nav Links -->
@@ -751,7 +755,7 @@
         <li class="dropdown">
             <a href="/products" class="dropdown-toggle <%= currentPage === 'categories' ? 'active' : '' %>">
                 Categories
-                <i class="fas fa-chevron-down nav-chevron"></i>
+                <i class="bi bi-chevron-down nav-chevron"></i>
             </a>
             <div class="dropdown-menu">
                 <% if (typeof categories !=='undefined' && categories.length> 0) { %>
@@ -784,14 +788,14 @@
     <!-- Right Icons -->
     <div class="nav-icons">
         <div class="icon">
-            <a href="/wishlist"><i class="far fa-heart"></i></a>
+            <a href="/wishlist"><i class="bi bi-heart"></i></a>
             <span class="badge wishlist-badge" id="wishBtn" style="<%= (typeof wishlistCount === 'undefined' || wishlistCount <= 0) ? 'display: none;' : '' %>">
                 <%= (typeof wishlistCount !== 'undefined') ? wishlistCount : 0 %>
             </span>
         </div>
 
         <div class="icon">
-            <a href="/cart"><i class="fas fa-shopping-cart"></i></a>
+            <a href="/cart"><i class="bi bi-cart"></i></a>
             <span class="badge cart-badge" id="cartBtnCount" style="<%= (typeof cartItemCount === 'undefined' || cartItemCount <= 0) ? 'display: none;' : '' %>">
                 <%= (typeof cartItemCount !== 'undefined') ? cartItemCount : 0 %>
             </span>
@@ -809,39 +813,39 @@
                 <% } else { %>
                     <span>ACCOUNT</span>
                 <% } %>
-                <i class=" fas fa-chevron-down"></i>
+                <i class="bi bi-chevron-down"></i>
             </button>
 
             <div class="profile-dropdown" id="profileDropdown">
                 <% if (user) { %>
                     <p class="prof">
-                        <i class="fas fa-user"></i>
+                        <i class="bi bi-person"></i>
                         <%= user.Name.split(" ").slice(0, 2).join(" ") %>
                     </p>
                     <hr>
                     <a href=" /profile" onclick="closeProfileDropdown()">
-                            <i class="fas fa-user-circle"></i> My Profile
+                            <i class="bi bi-person-circle"></i> My Profile
                             </a>
                             <a href="/address" onclick="closeProfileDropdown()">
-                                <i class="fas fa-map-marker-alt"></i> My Addresses
+                                <i class="bi bi-geo-alt"></i> My Addresses
                             </a>
 
                             <a href="/myOrders" onclick="closeProfileDropdown()">
-                                <i class="fas fa-box"></i> My Orders
+                                <i class="bi bi-box"></i> My Orders
                             </a>
                             <a href="/wallet" onclick="closeProfileDropdown()">
-                                <i class="fas fa-wallet"></i> My Wallet
+                                <i class="bi bi-wallet2"></i> My Wallet
                             </a>
                             <hr>
                             <a onclick="confirmLogout()" style="cursor:pointer;">
-                                <i class="fas fa-sign-out-alt"></i> Logout
+                                <i class="bi bi-box-arrow-right"></i> Logout
                             </a>
                             <% } else { %>
                                 <a href="/signIn" onclick="closeProfileDropdown()">
-                                    <i class="fas fa-sign-in-alt"></i> Sign In
+                                    <i class="bi bi-box-arrow-in-right"></i> Sign In
                                 </a>
                                 <a href="/signUp" onclick="closeProfileDropdown()">
-                                    <i class="fas fa-user-plus"></i> Sign Up
+                                    <i class="bi bi-person-plus"></i> Sign Up
                                 </a>
                                 <% } %>
             </div>
@@ -860,11 +864,11 @@
 <div class="mobile-sidebar" id="sidebar">
     <div class="sidebar-header">
         <div class="sidebar-logo">
-            <i class="fas fa-store"></i>
+            <i class="bi bi-shop"></i>
             <span class="logo">Zyrox</span>
         </div>
         <button class="close-btn" onclick="toggleSidebar()">
-            <i class="fas fa-times"></i>
+            <i class="bi bi-x-lg"></i>
         </button>
     </div>
 
@@ -873,7 +877,7 @@
         <li class="sidebar-search-item px-3 mb-4">
             <form action="/products" method="GET" class="sidebar-search-box">
                 <input type="text" name="search" placeholder="Search products..." class="sidebar-search-input">
-                <button type="submit" class="sidebar-search-btn"><i class="fas fa-search"></i></button>
+                <button type="submit" class="sidebar-search-btn"><i class="bi bi-search"></i></button>
             </form>
         </li>
         <li>
@@ -897,7 +901,7 @@
                     <% if (typeof categories !=='undefined' && categories.length> 0) { %>
                         <% categories.forEach(category=> { %>
                             <a href="/products?brand=<%= category.categoryName %>" onclick="toggleSidebar()">
-                                <i class="fas fa-tag" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
+                                <i class="bi bi-tag" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
                                 <%= category.categoryName %>
                             </a>
                             <% }) %>
@@ -919,38 +923,38 @@
         <li>
             <details class="sidebar-dropdown">
                 <summary class="<%= (['profile', 'orders', 'wallet', 'address'].includes(currentPage)) ? 'active' : '' %>">
-                    <i class="fas fa-user-circle" style="margin-right: 8px;"></i>
+                    <i class="bi bi-person-circle" style="margin-right: 8px;"></i>
                     <%= user ? user.Name.split(' ')[0].toUpperCase() : 'ACCOUNT' %>
                 </summary>
                 <div class="sidebar-cat-links">
                     <% if (user) { %>
                         <a href="/profile" onclick="toggleSidebar()">
-                            <i class="fas fa-user-circle" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
+                            <i class="bi bi-person-circle" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
                             My Profile
                         </a>
                         <a href="/myOrders" onclick="toggleSidebar()">
-                            <i class="fas fa-box" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
+                            <i class="bi bi-box" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
                             My Orders
                         </a>
                         <a href="/wallet" onclick="toggleSidebar()">
-                            <i class="fas fa-wallet" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
+                            <i class="bi bi-wallet2" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
                             My Wallet
                         </a>
                         <a href="/address" onclick="toggleSidebar()">
-                            <i class="fas fa-map-marker-alt" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
+                            <i class="bi bi-geo-alt" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
                             My Addresses
                         </a>
                         <a onclick="confirmLogout()" style="cursor:pointer; color: #ff4d4d !important;">
-                            <i class="fas fa-sign-out-alt" style="font-size:11px; margin-right:8px;"></i>
+                            <i class="bi bi-box-arrow-right" style="font-size:11px; margin-right:8px;"></i>
                             Logout
                         </a>
                     <% } else { %>
                         <a href="/signIn" onclick="toggleSidebar()">
-                            <i class="fas fa-sign-in-alt" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
+                            <i class="bi bi-box-arrow-in-right" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
                             Sign In
                         </a>
                         <a href="/signUp" onclick="toggleSidebar()">
-                            <i class="fas fa-user-plus" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
+                            <i class="bi bi-person-plus" style="font-size:11px; margin-right:8px; color:#4f6ef7;"></i>
                             Sign Up
                         </a>
                     <% } %>
@@ -985,6 +989,15 @@
 
 
 
+    function redirect(){
+        redirectTo('/');
+    }
+
+    function redirectTo(url) {
+        setTimeout(() => {
+            window.location.href = url;
+        }, 2000);
+    }
 
     // Toggle Sidebar
     function toggleSidebar() {
@@ -1100,10 +1113,9 @@
             cancelButtonText: "Cancel"
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "/logout";
-
+                redirectTo("/logout");
             } else {
-                window.location.href = "/"
+                redirectTo("/");
             }
         })
     </script>

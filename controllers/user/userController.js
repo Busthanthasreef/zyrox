@@ -37,7 +37,7 @@ const landingPage = async (req, res, next) => {
       }
     }
 
-    const trendingProducts = await Product.find({ status: { $ne: 'inactive' }, IsDeleted: { $ne: true } }).limit(4);
+    const trendingProducts = await Product.find({ status: { $ne: 'inactive' }, IsDeleted: { $ne: true } }).limit(10);
     const trendingVariants = [];
     for (const p of trendingProducts) {
       const v = await Variant.findOne({ productId: p._id, IsActive: { $ne: false }, IsDeleted: { $ne: true } });
@@ -346,7 +346,7 @@ const resendOtp = async (req, res, next) => {
    SIGN IN
 ========================= */
 const loadSignIn = (req, res) => {
-  const { error, returnTo: queryReturnTo } = req.query;
+  const { error, returnTo: queryReturnTo, passwordReset } = req.query;
 
   if (queryReturnTo) {
     req.session.returnTo = queryReturnTo;
@@ -368,6 +368,7 @@ const loadSignIn = (req, res) => {
     Password,
     error: error || null,
     returnTo,
+    passwordReset: passwordReset === "true",
   });
 };
 
@@ -511,6 +512,17 @@ const sendResetOtp = async (req, res, next) => {
       }
     }
 
+    // Block Google-managed accounts from OTP-based password reset
+    if (user.googleId) {
+      const msg = "This account is managed by Google. Please sign in using Google instead.";
+      if (isAjax) {
+        return res.json({ success: false, message: msg, isGoogleAccount: true });
+      } else {
+        req.session.emailError = msg;
+        return res.redirect("/forgot-password");
+      }
+    }
+
     const { OTP, hashedOtp } = await generateOtp();
 
     await otpSchema.deleteMany({ Email: trimmedEmail });
@@ -646,11 +658,10 @@ const resetPassword = async (req, res, next) => {
     delete req.session.isOtpVerified;
 
     if (isAjax) {
-      return res.json({ success: true, message: "Password reset successfully", redirect: "/signin" });
+      return res.json({ success: true, message: "Password reset successfully", redirect: "/signin?passwordReset=true" });
     }
 
-    req.session.passSwal = true;
-    res.redirect("/new-password");
+    res.redirect("/signin?passwordReset=true");
   } catch (error) {
     if (req.xhr) return res.status(500).json({ success: false, message: "Internal server error" });
     next(error);

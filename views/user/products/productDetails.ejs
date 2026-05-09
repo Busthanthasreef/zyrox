@@ -13,6 +13,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .bi-spin {
+            display: inline-block;
+            animation: bi-spin 1s linear infinite;
+        }
+        @keyframes bi-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
 
     <style>
         /* ── Design Tokens ────────────────────────────────────────── */
@@ -877,9 +887,9 @@
     <div class="breadcrumb-bar">
         <div class="container">
             <a href="/">Home</a>
-            <i class="fas fa-chevron-right sep"></i>
+            <i class="bi bi-chevron-right sep"></i>
             <a href="/products">Products</a>
-            <i class="fas fa-chevron-right sep"></i>
+            <i class="bi bi-chevron-right sep"></i>
             <% if (variant.productId.categoryId) { %>
                 <a href="/products?category=<%= encodeURIComponent(variant.productId.categoryId.categoryName) %>">
                     <%= variant.productId.categoryId.categoryName %>
@@ -906,7 +916,7 @@
                     <img id="mainImg" src="<%= images[0] %>" alt="<%= variant.productId.productName %>"
                         title="Hover to zoom · Click to fullscreen">
                     <span class="zoom-hint">
-                        <i class="fas fa-search-plus"></i> Hover to zoom
+                        <i class="bi bi-zoom-in"></i> Hover to zoom
                     </span>
                 </div>
 
@@ -943,7 +953,7 @@
                     <% if (variant.bestOffer) { %>
                         <div class="offer-row">
                             <div class="offer-amount-badge">
-                                <i class="fas fa-tag"></i> SAVE ₹<%= (variant.price - variant.discountedPrice).toLocaleString('en-IN') %>
+                                <i class="bi bi-tag"></i> SAVE ₹<%= (variant.price - variant.discountedPrice).toLocaleString('en-IN') %>
                             </div>
                         </div>
                     <% } %>
@@ -979,15 +989,15 @@
                     <div class="stock-row" id="stockBlock">
                         <% if (variant.stock > 10) { %>
                             <span class="stock-badge badge-in-stock">
-                                <i class="fas fa-check-circle"></i> In Stock
+                                <i class="bi bi-check-circle-fill"></i> In Stock
                             </span>
                         <% } else if (variant.stock > 0) { %>
                             <span class="stock-badge badge-low-stock">
-                                <i class="fas fa-exclamation-triangle"></i> Only <%= parseInt(variant.stock) %> left
+                                <i class="bi bi-exclamation-triangle-fill"></i> Only <%= parseInt(variant.stock) %> left
                             </span>
                         <% } else { %>
                             <span class="stock-badge badge-out-stock">
-                                <i class="fas fa-times-circle"></i> Out of Stock
+                                <i class="bi bi-x-circle-fill"></i> Out of Stock
                             </span>
                         <% } %>
                     </div>
@@ -1011,7 +1021,7 @@
                             <div class="variant-row" id="colorRow"></div>
                         </div>
                         <div class="variant-msg" id="variantMsg">
-                            <i class="fas fa-exclamation-circle" style="flex-shrink:0"></i>
+                            <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0"></i>
                             <span id="variantMsgText"></span>
                         </div>
                     </div>
@@ -1023,11 +1033,11 @@
                         <span class="qty-label">Quantity</span>
                         <div class="qty-ctrl">
                             <button class="qty-btn" id="qtyMinus" onclick="changeQty(-1)" aria-label="Decrease">
-                                <i class="fas fa-minus"></i>
+                                <i class="bi bi-dash"></i>
                             </button>
                             <input type="text" class="qty-val" id="qtyVal" value="1" readonly>
                             <button class="qty-btn" id="qtyPlus" onclick="changeQty(1)" aria-label="Increase">
-                                <i class="fas fa-plus"></i>
+                                <i class="bi bi-plus"></i>
                             </button>
                         </div>
                     </div>
@@ -1038,20 +1048,20 @@
                             <%- variant.stock === 0 ? 'disabled' : '' %>
                             data-pid="<%= variant.productId._id %>"
                             data-vid="<%= variant._id %>">
-                            <i class="fas fa-cart-plus"></i> Add to Cart
+                            <i class="bi bi-cart-plus"></i> Add to Cart
                         </button>
                         <button type="button" class="btn-buy" id="btnBuyNow"
                             onclick="buyNow()"
                             <%- variant.stock <= 0 ? 'disabled' : '' %>
                             data-pid="<%= variant.productId._id %>"
                             data-vid="<%= variant._id %>">
-                            <i class="fas fa-bolt"></i> Buy Now
+                            <i class="bi bi-lightning"></i> Buy Now
                         </button>
                     </div>
 
                     <button class="btn-wishlist <%= isInWishlist ? 'active' : '' %>" id="btnWishlist"
                         onclick="toggleWishlistDetail('<%= variant.productId._id %>')">
-                        <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"></i>
+                        <i class="bi <%= isInWishlist ? 'bi-heart-fill' : 'bi-heart' %>"></i>
                         <span id="wishlistText">
                             <%= isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' %>
                         </span>
@@ -1061,21 +1071,21 @@
                 <!-- Trust Badges -->
                 <div class="trust-row">
                     <div class="trust-item">
-                        <i class="fas fa-truck-fast"></i>
+                        <i class="bi bi-truck"></i>
                         <div class="trust-item-text">
                             <strong>Fast Delivery</strong>
                             <span>2–4 business days</span>
                         </div>
                     </div>
                     <div class="trust-item">
-                        <i class="fas fa-shield-halved"></i>
+                        <i class="bi bi-shield-check"></i>
                         <div class="trust-item-text">
                             <strong>Secure Payment</strong>
                             <span>SSL encrypted</span>
                         </div>
                     </div>
                     <div class="trust-item">
-                        <i class="fas fa-rotate-left"></i>
+                        <i class="bi bi-arrow-counterclockwise"></i>
                         <div class="trust-item-text">
                             <strong>Easy Returns</strong>
                             <span>7-day return policy</span>
@@ -1157,7 +1167,7 @@
                 </div>
             <% } else { %>
                 <div style="margin-top:16px;padding:32px;border:1px dashed var(--border);border-radius:var(--radius);text-align:center;color:var(--muted);">
-                    <i class="fas fa-box-open" style="font-size:1.6rem;opacity:.4;display:block;margin-bottom:8px;"></i>
+                    <i class="bi bi-box-seam" style="font-size:1.6rem;opacity:.4;display:block;margin-bottom:8px;"></i>
                     No related products available right now.
                 </div>
             <% } %>
@@ -1167,7 +1177,7 @@
 
     <!-- Fullscreen Overlay -->
     <div class="fs-overlay" id="fsOverlay" role="dialog" aria-modal="true" aria-label="Full size image">
-        <button class="fs-close" id="fsClose" aria-label="Close"><i class="fas fa-times"></i></button>
+        <button class="fs-close" id="fsClose" aria-label="Close"><i class="bi bi-x"></i></button>
         <img id="fsImg" src="" alt="">
         <div class="fs-counter" id="fsCounter"></div>
     </div>
@@ -1602,11 +1612,11 @@
         const sb = document.getElementById('stockBlock');
         if (!sb) return;
         if (v.stock > 10) {
-            sb.innerHTML = `<span class="stock-badge badge-in-stock"><i class="fas fa-check-circle"></i> In Stock</span>`;
+            sb.innerHTML = `<span class="stock-badge badge-in-stock"><i class="bi bi-check-circle-fill"></i> In Stock</span>`;
         } else if (v.stock > 0) {
-            sb.innerHTML = `<span class="stock-badge badge-low-stock"><i class="fas fa-exclamation-triangle"></i> Only ${v.stock} left</span>`;
+            sb.innerHTML = `<span class="stock-badge badge-low-stock"><i class="bi bi-exclamation-triangle-fill"></i> Only ${v.stock} left</span>`;
         } else {
-            sb.innerHTML = `<span class="stock-badge badge-out-stock"><i class="fas fa-times-circle"></i> Sold Out</span>`;
+            sb.innerHTML = `<span class="stock-badge badge-out-stock"><i class="bi bi-x-circle-fill"></i> Sold Out</span>`;
         }
     }
 
@@ -1759,9 +1769,21 @@
 
         // Check login state
         if (!IS_LOGGED_IN) {
-            const currentPath = window.location.pathname + window.location.search;
-            window.location.href = `/signin?returnTo=${encodeURIComponent(currentPath)}`;
-            return;
+            return Swal.fire({
+                ...swalBase,
+                icon: 'info',
+                title: 'Sign In Required',
+                text: 'Please log in to add items to your cart.',
+                confirmButtonText: 'Sign In',
+                showCancelButton: true,
+                cancelButtonText: 'Do it later'
+            }).then(r => {
+                if (r.isConfirmed) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i> Processing...';
+                    redirectTo(`/signin?returnTo=${encodeURIComponent(currentPath)}`);
+                }
+            });
         }
 
         // Pre-flight: already at max for this variant?
@@ -1778,7 +1800,13 @@
                     confirmButtonText: 'View Cart',
                     showCancelButton: true,
                     cancelButtonText: 'Continue Shopping'
-                }).then(r => { if (r.isConfirmed) window.location.href = '/cart'; });
+                }).then(r => {
+                    if (r.isConfirmed) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i> Processing...';
+                        redirectTo('/cart');
+                    }
+                });
             } else {
                 Swal.fire({
                     ...swalBase,
@@ -1788,14 +1816,20 @@
                     confirmButtonText: 'View Cart',
                     showCancelButton: true,
                     cancelButtonText: 'Continue Shopping'
-                }).then(r => { if (r.isConfirmed) window.location.href = '/cart'; });
+                }).then(r => {
+                    if (r.isConfirmed) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i> Processing...';
+                        redirectTo('/cart');
+                    }
+                });
             }
             return;
         }
 
         // Loading state
         btn.disabled   = true;
-        btn.innerHTML  = '<i class="fas fa-spinner fa-spin"></i> Adding…';
+        btn.innerHTML  = '<i class="bi bi-arrow-repeat bi-spin"></i> Adding…';
 
         try {
             const res = await fetch('/cart/add', {
@@ -1818,12 +1852,12 @@
 
             // Restore button
             btn.disabled  = false;
-            btn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
+            btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';
 
             // Auth redirect from server
             if (data.requiresAuth || data.redirect) {
                 const currentPath = window.location.pathname + window.location.search;
-                window.location.href = `/signin?returnTo=${encodeURIComponent(currentPath)}`;
+                redirectTo(`/signin?returnTo=${encodeURIComponent(currentPath)}`);
                 return;
             }
 
@@ -1839,7 +1873,13 @@
                         confirmButtonText: 'View Cart',
                         showCancelButton: true,
                         cancelButtonText: 'Continue Shopping'
-                    }).then(r => { if (r.isConfirmed) window.location.href = '/cart'; });
+                    }).then(r => {
+                        if (r.isConfirmed) {
+                            btn.disabled = true;
+                            btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i> Processing...';
+                            redirectTo('/cart');
+                        }
+                    });
                     return;
                 }
 
@@ -1893,7 +1933,7 @@
 
         } catch (err) {
             btn.disabled  = false;
-            btn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
+            btn.innerHTML = '<i class="bi bi-cart-plus"></i> Add to Cart';
             console.error('addToCart error:', err);
             Swal.fire({
                 ...swalBase,
@@ -1918,15 +1958,28 @@
         if (!pid || !vid) return;
 
         if (!IS_LOGGED_IN) {
-            const currentPath = window.location.pathname + window.location.search;
-            window.location.href = `/signin?returnTo=${encodeURIComponent(currentPath)}`;
-            return;
+            return Swal.fire({
+                ...swalBase,
+                icon: 'info',
+                title: 'Sign In Required',
+                text: 'Please log in to proceed with purchase.',
+                confirmButtonText: 'Sign In',
+                showCancelButton: true,
+                cancelButtonText: 'Do it later'
+            }).then(r => {
+                if (r.isConfirmed) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i> Processing...';
+                    const currentPath = window.location.pathname + window.location.search;
+                    redirectTo(`/signin?returnTo=${encodeURIComponent(currentPath)}`);
+                }
+            });
         }
 
         btn.disabled  = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing…';
+        btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i> Processing…';
 
-        window.location.href = `/checkout/buy-now?product=${encodeURIComponent(pid)}&variant=${encodeURIComponent(vid)}&qty=${qty}`;
+        redirectTo(`/checkout/buy-now?product=${encodeURIComponent(pid)}&variant=${encodeURIComponent(vid)}&qty=${qty}`);
     }
 
     /* ═══════════════════════════════════════════════════════════════
@@ -1941,7 +1994,7 @@
         const originalText      = text.textContent;
 
         btn.style.pointerEvents = 'none';
-        icon.className          = 'fas fa-spinner fa-spin';
+        icon.className          = 'bi bi-arrow-repeat bi-spin';
         text.textContent        = 'Processing...';
 
         try {
@@ -1974,7 +2027,7 @@
                 const isAdded = data.action === 'added';
 
                 btn.classList.toggle('active', isAdded);
-                icon.className      = isAdded ? 'fas fa-heart' : 'far fa-heart';
+                icon.className      = isAdded ? 'bi bi-heart-fill' : 'bi bi-heart';
                 icon.style.color    = isAdded ? '#e63946' : '';
                 text.textContent    = isAdded ? 'Remove from Wishlist' : 'Add to Wishlist';
 

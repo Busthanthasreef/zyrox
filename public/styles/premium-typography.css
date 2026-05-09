@@ -1,0 +1,166 @@
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,500,700,400,300,900&f[]=clash-display@200,300,400,500,600,700&display=swap');
+
+:root {
+  --font-body: 'Cabinet Grotesk', sans-serif;
+  --font-heading: 'Clash Display', sans-serif;
+}
+
+/* Base Typography Override */
+body, 
+p, 
+span, 
+input, 
+textarea, 
+select, 
+div {
+  font-family: var(--font-body) !important;
+}
+
+h1, h2, h3, h4, h5, h6, 
+.heading-xl, 
+.heading-lg, 
+.heading-md, 
+.sidebar-title, 
+.section-title, 
+.page-heading,
+.card-name,
+.product-name,
+[class*="heading"],
+[class*="title"] {
+  font-family: var(--font-heading) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Specific Override for Product Listing Cards to use Inter */
+.product-card, 
+.product-card *, 
+.product-item, 
+.product-item *, 
+.products-grid *,
+.trending-variants * {
+  font-family: 'Inter', sans-serif !important;
+  letter-spacing: normal !important;
+}
+
+button, 
+.btn, 
+.shop-now-btn, 
+.buy-now-btn, 
+.btn-action, 
+.btn-giant,
+.premium-button {
+  font-family: var(--font-heading) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.03em !important;
+}
+
+/* Utility Classes for Premium Look */
+.heading-xl {
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  line-height: 1.05;
+  font-weight: 800 !important;
+}
+
+.heading-lg {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+  font-weight: 700 !important;
+}
+
+.heading-md {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.2;
+  font-weight: 700 !important;
+}
+
+.body-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--text-main, inherit);
+}
+
+.muted-text {
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.premium-button-text {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .heading-xl { font-size: 2.5rem; }
+  .heading-lg { font-size: 2rem; }
+}
+
+/* Form refinement */
+.form-label, label {
+  font-family: var(--font-heading) !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-light, #64748b);
+}
+
+/* Sidebar & Navigation refinement */
+.nav-link, .sidebar-link, .footer-links a, .nav-item {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Global Spacing & Readability Improvements */
+:root {
+  --line-height-body: 1.6;
+  --line-height-heading: 1.15;
+}
+
+body {
+  line-height: var(--line-height-body);
+}
+
+.section-header {
+  margin-bottom: 2.5rem !important;
+}
+
+.card-name, .product-name {
+  margin-bottom: 0.5rem !important;
+  font-size: 1.1rem !important;
+  line-height: 1.2 !important;
+}
+
+/* Table refinement */
+table th {
+  font-family: var(--font-heading) !important;
+  text-transform: uppercase;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.05em;
+  font-weight: 700 !important;
+  color: #94a3b8 !important;
+}
+
+/* Modal refinement */
+.modal-title {
+  font-family: var(--font-heading) !important;
+  font-weight: 700 !important;
+  font-size: 1.5rem !important;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(79, 110, 247, 0.2);
+  color: #fff;
+}

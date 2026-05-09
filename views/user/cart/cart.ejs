@@ -1142,7 +1142,7 @@
                 const btn = document.getElementById('checkoutBtn');
                 btn.disabled = true;
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
-                window.location.href = '/checkout';
+                redirectTo('/checkout');
             }
 
             /* Run on load */

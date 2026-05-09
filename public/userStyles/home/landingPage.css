@@ -44,7 +44,7 @@ body {
 
 /* ========== HERO SECTION ========== */
 .hero {
-    max-width: 1400px;
+    max-width: 1750px;
     margin: 40px auto;
     padding: 0 40px;
 }
@@ -186,7 +186,7 @@ body {
 
 /* ========== CATEGORIES ========== */
 .categories {
-    max-width: 1400px;
+    max-width: 1750px;
     margin: 60px auto;
     padding: 0 40px;
 }
@@ -248,7 +248,7 @@ body {
 
 /* ========== PRODUCTS ========== */
 .products {
-    max-width: 1400px;
+    max-width: 1750px;
     margin: 60px auto;
     padding: 0 40px;
 }
@@ -257,20 +257,9 @@ body {
     display: flex;
     flex-wrap: nowrap;
     overflow-x: auto;
-    gap: 20px;
+    gap: 24px;
     padding: 20px 5px;
     justify-content: flex-start;
-}
-
-.product-card {
-    flex: 0 0 300px;
-    max-width: 300px;
-    background-color: #1a1a1a;
-    border-radius: 12px;
-    padding: 20px;
-    position: relative;
-    cursor: pointer;
-    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease, background-color 0.3s ease !important;
 }
 
 .product-card {
@@ -279,12 +268,20 @@ body {
     padding: 20px;
     position: relative;
     cursor: pointer;
-    flex: 0 0 280px; /* Base width */
+    flex: 0 0 320px;
+    max-width: 320px;
     transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease, background-color 0.3s ease !important;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.05);
     animation: productIdleSwingLanding 5s ease-in-out infinite;
     flex-shrink: 0;
+}
+
+@media (max-width: 1600px) {
+    .product-card {
+        flex: 0 0 290px;
+        max-width: 290px;
+    }
 }
 
 @media (max-width: 1024px) {
@@ -589,7 +586,7 @@ body {
 }
 
 .footer-content {
-    max-width: 1400px;
+    max-width: 1750px;
     margin: 0 auto;
     padding: 60px 40px 30px;
     display: grid;
@@ -681,7 +678,7 @@ body {
 }
 
 .footer-bottom {
-    max-width: 1400px;
+    max-width: 1750px;
     margin: 0 auto;
     padding: 20px 40px;
     border-top: 1px solid #2a2a2a;

@@ -59,7 +59,7 @@ const getOffers = async (req, res) => {
 // Add Product Offer
 const addProductOffer = async (req, res) => {
     try {
-        const errors = validateOfferData({ ...req.body, offerType: 'product' });
+        const errors = await validateOfferData({ ...req.body, offerType: 'product' });
         if (errors) return res.status(400).json({ success: false, errors });
 
         const result = await createProductOffer(req.body);
@@ -77,7 +77,7 @@ const addProductOffer = async (req, res) => {
 // Add Category Offer
 const addCategoryOffer = async (req, res) => {
     try {
-        const errors = validateOfferData({ ...req.body, offerType: 'category' });
+        const errors = await validateOfferData({ ...req.body, offerType: 'category' });
         if (errors) return res.status(400).json({ success: false, errors });
 
         const result = await createCategoryOffer(req.body);
@@ -96,7 +96,7 @@ const addCategoryOffer = async (req, res) => {
 const editOffer = async (req, res) => {
     try {
         const { id } = req.params;
-        const errors = validateOfferData(req.body, true);
+        const errors = await validateOfferData(req.body, true);
         if (errors) return res.status(400).json({ success: false, errors });
 
         const result = await updateOffer(id, req.body);
@@ -143,7 +143,7 @@ const deleteOffer = async (req, res) => {
 // Add Referral Offer
 const addReferralOffer = async (req, res) => {
     try {
-        const errors = validateOfferData({ ...req.body, offerType: 'referral' });
+        const errors = await validateOfferData({ ...req.body, offerType: 'referral' });
         if (errors) return res.status(400).json({ success: false, errors });
 
         const result = await createReferralOffer(req.body);
@@ -161,7 +161,7 @@ const addReferralOffer = async (req, res) => {
 // Add All Products Offer
 const addAllOffer = async (req, res) => {
     try {
-        const errors = validateOfferData({ ...req.body, offerType: 'all' });
+        const errors = await validateOfferData({ ...req.body, offerType: 'all' });
         if (errors) return res.status(400).json({ success: false, errors });
 
         const result = await createAllOffer(req.body);

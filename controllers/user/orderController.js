@@ -76,6 +76,10 @@ const cancelOrder = async (req, res) => {
         order.orderStatus = 'Cancelled';
         order.cancellationReason = reason;
 
+        if (order.paymentStatus === 'Pending') {
+            order.paymentStatus = 'Payment Cancelled';
+        }
+
         // Restore stock and sync item statuses
         for (const item of order.items) {
             if (!['Cancelled', 'Returned'].includes(item.status)) {
@@ -155,6 +159,9 @@ const cancelItem = async (req, res) => {
         if (activeItems.length === 0) {
             order.orderStatus = 'Cancelled';
             order.cancellationReason = reason;
+            if (order.paymentStatus === 'Pending') {
+                order.paymentStatus = 'Payment Cancelled';
+            }
         }
 
         // Refund Logic (Item Level)

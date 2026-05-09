@@ -505,6 +505,28 @@ body {
   color: var(--text-light);
 }
 
+.orders-cell {
+  width: 110px;
+  padding-left: 0 !important;
+}
+
+.orders-count {
+  display: inline-block;
+  padding: 4px 12px;
+  background: #f8fafc;
+  color: #64748b;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  border: 1px solid #f1f5f9;
+  min-width: 40px;
+}
+
+.users-table th:nth-child(2),
+.users-table td:nth-child(2) {
+  width: 320px;
+}
+
 .uid-cell {
   font-size: 12.5px;
   color: var(--text-mid);

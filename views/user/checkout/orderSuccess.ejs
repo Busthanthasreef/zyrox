@@ -4,253 +4,338 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Success – ShopX</title>
+    <title>Order Confirmed — Zyrox</title>
     <!-- Bootstrap 5 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet" />
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
         :root {
-            --bg-deep: #0a0c14;
-            --bg-card: #111422;
-            --bg-surface: #181c2e;
-            --border: #252a42;
+            --bg: #0d0f14;
+            --bg-card: #16181e;
             --accent: #4f6ef7;
-            --accent-glow: rgba(79, 110, 247, .35);
-            --accent-2: #00d4aa;
-            --text-1: #f0f2ff;
-            --text-2: #8b92b8;
-            --text-3: #4f566b;
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --transition: .22s cubic-bezier(.4, 0, .2, 1);
+            --success: #00d4a0;
+            --text: #f0f0f2;
+            --text-dim: #8b949e;
+            --border: rgba(255, 255, 255, 0.08);
+            --radius: 20px;
         }
 
         body {
-            background: var(--bg-deep);
-            color: var(--text-1);
+            background-color: var(--bg);
+            color: var(--text);
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background-image:
-                radial-gradient(ellipse 60% 40% at 75% -10%, rgba(79, 110, 247, .12) 0%, transparent 60%),
-                radial-gradient(ellipse 40% 30% at 10% 90%, rgba(0, 212, 170, .08) 0%, transparent 60%);
+            overflow-x: hidden;
         }
 
-        .success-container {
+        /* Animated Background Stars */
+        .stars-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #1a1c2c 0%, #0d0f14 100%);
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.2); }
+        }
+
+        .main-container {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
+            position: relative;
         }
 
         .success-card {
-            background: var(--bg-card);
+            background: rgba(22, 24, 30, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 3rem 2rem;
-            max-width: 600px;
+            border-radius: var(--radius);
+            padding: 3.5rem 2.5rem;
+            max-width: 650px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 0.6s ease-out;
+            position: relative;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+            animation: cardReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes cardReveal {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .illustration {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 2rem;
-            background: rgba(0, 212, 170, 0.1);
-            border: 2px solid var(--accent-2);
+        /* Success Icon Animation */
+        .success-icon-wrap {
+            width: 100px;
+            height: 100px;
+            background: rgba(0, 212, 160, 0.1);
+            border: 2px solid var(--success);
             border-radius: 50%;
+            margin: 0 auto 2.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
-            color: var(--accent-2);
-            box-shadow: 0 0 30px rgba(0, 212, 170, 0.2);
-            animation: bounce 2s infinite ease-in-out;
+            position: relative;
+            animation: iconPop 0.6s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
         }
 
-        @keyframes bounce {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
+        @keyframes iconPop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
         }
 
-        .success-title {
-            font-family: 'Inter', sans-serif;
+        .success-icon-wrap i {
+            font-size: 3.5rem;
+            color: var(--success);
+            animation: checkmark 0.4s 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        @keyframes checkmark {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .success-icon-wrap::after {
+            content: '';
+            position: absolute;
+            top: -10px; left: -10px; right: -10px; bottom: -10px;
+            border: 1px solid var(--success);
+            border-radius: 50%;
+            opacity: 0;
+            animation: ripple 2s 1s infinite;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        .success-card h1 {
+            font-size: 2.8rem;
             font-weight: 800;
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #fff 0%, #8b92b8 100%);
+            margin-bottom: 0.8rem;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #fff 0%, #aab0c4 100%);
             -webkit-background-clip: text;
-            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .success-msg {
-            color: var(--text-2);
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
+        .success-card p {
+            color: var(--text-dim);
+            font-size: 1.15rem;
+            margin-bottom: 2.5rem;
             line-height: 1.6;
         }
 
-        .order-info {
-            background: var(--bg-surface);
+        .order-summary {
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 1.5rem;
-            margin-bottom: 2.5rem;
+            border-radius: 16px;
+            padding: 1.8rem;
+            margin-bottom: 3rem;
             text-align: left;
         }
 
-        .order-info .row-item {
+        .summary-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 0.8rem;
+            margin-bottom: 1rem;
             font-size: 0.95rem;
         }
 
-        .order-info .row-item:last-child {
+        .summary-row:last-child {
             margin-bottom: 0;
-            padding-top: 0.8rem;
+            padding-top: 1rem;
             border-top: 1px solid var(--border);
-            font-weight: 700;
-            color: var(--accent);
+            margin-top: 0.5rem;
         }
 
-        .actions {
+        .summary-label { color: var(--text-dim); font-weight: 500; }
+        .summary-value { color: var(--text); font-weight: 600; }
+        .total-label { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+        .total-value { font-size: 1.25rem; font-weight: 800; color: var(--success); }
+
+        .btn-group-custom {
             display: flex;
-            gap: 1rem;
+            gap: 1.2rem;
             justify-content: center;
-            flex-wrap: wrap;
         }
 
-        .btn-primary-custom {
-            background: linear-gradient(135deg, var(--accent) 0%, #6c8aff 100%);
+        .btn-success-fill {
+            background: var(--accent);
             color: #fff;
             border: none;
-            border-radius: var(--radius-md);
-            padding: 1rem 2rem;
-            font-family: 'Inter', sans-serif;
+            padding: 1rem 2.2rem;
+            border-radius: 14px;
             font-weight: 700;
+            font-size: 1rem;
             text-decoration: none;
-            transition: all var(--transition);
-            box-shadow: 0 4px 15px rgba(79, 110, 247, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
+            box-shadow: 0 10px 25px rgba(79, 110, 247, 0.3);
         }
 
-        .btn-primary-custom:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(79, 110, 247, 0.45);
+        .btn-success-fill:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(79, 110, 247, 0.5);
             color: #fff;
         }
 
-        .btn-outline-custom {
+        .btn-outline-white {
             background: transparent;
-            color: var(--text-1);
-            border: 2px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 1rem 2rem;
-            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 1rem 2.2rem;
+            border-radius: 14px;
             font-weight: 600;
+            font-size: 1rem;
             text-decoration: none;
-            transition: all var(--transition);
+            transition: all 0.3s;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
         }
 
-        .btn-outline-custom:hover {
-            border-color: var(--accent);
-            background: rgba(79, 110, 247, 0.05);
+        .btn-outline-white:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: #fff;
             color: #fff;
         }
 
-        @media (max-width: 576px) {
-            .success-title {
-                font-size: 1.8rem;
-            }
+        /* Confetti Effect */
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            opacity: 0;
+            pointer-events: none;
+        }
 
-            .btn-primary-custom,
-            .btn-outline-custom {
-                width: 100%;
-                justify-content: center;
-            }
+        @media (max-width: 600px) {
+            .success-card { padding: 2.5rem 1.5rem; }
+            .success-card h1 { font-size: 2rem; }
+            .btn-group-custom { flex-direction: column; }
+            .btn-success-fill, .btn-outline-white { width: 100%; justify-content: center; }
         }
     </style>
 </head>
 
 <body>
+    <!-- Star Background -->
+    <div class="stars-bg" id="starContainer"></div>
+
     <%- include('../../partials/user/navigationbar', {user, categories, cartItemCount: 0, currentPage: 'checkout' }) %>
 
-        <div class="success-container">
-            <div class="success-card">
-                <div class="illustration">
-                    <i class="bi bi-check-circle-fill"></i>
-                </div>
-                <h1 class="success-title">Thank You!</h1>
-                <p class="success-msg">
-                    Your order <strong>#<%= order.orderId %></strong> has been placed successfully.<br>
-                </p>
+    <div class="main-container">
+        <div class="success-card">
+            <div class="success-icon-wrap">
+                <i class="bi bi-check2"></i>
+            </div>
+            <h1>Order Confirmed!</h1>
+            <p>High five! Your order <strong>#<%= order.orderId %></strong> is officially on its way. We've sent a confirmation to your email.</p>
 
-                <div class="order-info">
-                    <div class="row-item">
-                        <span>Payment Method</span>
-                        <span>
-                            <%= order.paymentMethod %>
-                        </span>
-                    </div>
-                    <div class="row-item">
-                        <span>Shipping To</span>
-                        <span>
-                            <%= order.shippingAddress.fullName %>
-                        </span>
-                    </div>
-                    <div class="row-item">
-                        <span>Order Total</span>
-                        <span>₹<%= order.finalPrice.toLocaleString('en-IN') %></span>
-                    </div>
+            <div class="order-summary">
+                <div class="summary-row">
+                    <span class="summary-label">Order ID</span>
+                    <span class="summary-value"><%= order.orderId %></span>
                 </div>
-
-                <div class="actions">
-                    <a href="/myOrders" class="btn-primary-custom">
-                        <i class="bi bi-bag-check-fill"></i> View My Orders
-                    </a>
-                    <a href="/products" class="btn-outline-custom">
-                        <i class="bi bi-arrow-left"></i> Continue Shopping
-                    </a>
+                <div class="summary-row">
+                    <span class="summary-label">Payment Method</span>
+                    <span class="summary-value"><%= order.paymentMethod %></span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Placed On</span>
+                    <span class="summary-value"><%= new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Shipping To</span>
+                    <span class="summary-value"><%= order.shippingAddress.fullName %></span>
+                </div>
+                <div class="summary-row">
+                    <span class="total-label">Total Amount</span>
+                    <span class="total-value">₹<%= order.finalPrice.toLocaleString('en-IN') %></span>
                 </div>
             </div>
-        </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+            <div class="btn-group-custom">
+                <a href="/myOrders" class="btn-success-fill">
+                    <i class="bi bi-box-seam-fill"></i> View Order
+                </a>
+                <a href="/" class="btn-outline-white">
+                    <i class="bi bi-house-door"></i> Back Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create stars background
+        const container = document.getElementById('starContainer');
+        for (let i = 0; i < 50; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            container.appendChild(star);
+        }
+
+        // Simple confetti burst
+        function createConfetti() {
+            const colors = ['#4f6ef7', '#00d4a0', '#ffffff', '#7c3aed'];
+            for (let i = 0; i < 40; i++) {
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.background = colors[Math.floor(Math.random() * colors.length)];
+                c.style.left = '50%';
+                c.style.top = '40%';
+                document.body.appendChild(c);
+
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 5 + Math.random() * 10;
+                const x = Math.cos(angle) * velocity * 20;
+                const y = Math.sin(angle) * velocity * 20;
+
+                c.animate([
+                    { transform: 'translate(0,0) scale(1)', opacity: 1 },
+                    { transform: `translate(${x}px, ${y}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 1000 + Math.random() * 1000,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.4, 1)'
+                }).onfinish = () => c.remove();
+            }
+        }
+
+        window.onload = createConfetti;
+    </script>
 </body>
 
 </html>

@@ -12,6 +12,16 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Product Page Entry Animation -->
   <link rel="stylesheet" href="/userStyles/products/productPageAnimation.css">
+  <style>
+    .bi-spin {
+      display: inline-block;
+      animation: bi-spin 1s linear infinite;
+    }
+    @keyframes bi-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
 
   <style>
     :root {
@@ -53,7 +63,7 @@
     }
 
     .page-content {
-      max-width: 1700px;
+      max-width: 1850px;
       margin: 0 auto;
       padding: 32px 30px 60px;
     }
@@ -1249,12 +1259,12 @@
                 onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'">
               <button type="button" id="clearSearchBtn"
                 style="position:absolute;right:38px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--sub);font-size:.8rem;cursor:pointer;display:<%= curSearch ? 'block' : 'none' %>;padding:0;line-height:1;">
-                <i class="fas fa-times-circle"></i>
+                <i class="bi bi-x-circle"></i>
               </button>
               <button type="button" id="submitSearchBtn"
                 style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--sub);font-size:.9rem;cursor:pointer;padding:0;line-height:1;transition:color .2s;"
                 onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--sub)'">
-                <i class="fas fa-search"></i>
+                <i class="bi bi-search"></i>
               </button>
             </div>
 
@@ -1263,7 +1273,7 @@
               <!-- Filter button (Mobile/Tablet only) -->
               <button class="sort-btn d-lg-none" type="button" data-bs-toggle="offcanvas"
                 data-bs-target="#filterOffcanvas">
-                <i class="fas fa-filter"></i>
+                <i class="bi bi-filter"></i>
                 Filter
               </button>
 
@@ -1273,12 +1283,12 @@
                     label: 'Price: Low \u2192 High' }, { val: 'price_desc' , label: 'Price: High \u2192 Low' }, {
                     val: 'name_asc' , label: 'Name: A\u2013Z' }, { val: 'name_desc' , label: 'Name: Z\u2013A' }, ]; %>
                     Sort: <%= (sortLabels.find(o=> o.val === curSort) || sortLabels[0]).label %>
-                      <i class="fas fa-chevron-down"></i>
+                      <i class="bi bi-chevron-down"></i>
                 </button>
                 <div class="sort-dd">
                   <% sortLabels.forEach(o=> { %>
                     <span class="sort-opt <%= curSort === o.val ? 'active' : '' %>" onclick="applySort('<%= o.val %>')">
-                      <%= o.label %> <i class="fas fa-check tick"></i>
+                      <%= o.label %> <i class="bi bi-check tick"></i>
                     </span>
                     <% }) %>
                 </div>
@@ -1313,7 +1323,7 @@
             <!-- ===== PRODUCTS ===== -->
             <div class="content-area product-page-animation" id="productContainer">
               <div class="loading-overlay">
-                <i class="fas fa-circle-notch fa-spin"></i>
+                <i class="spinner-border spinner-border-sm"></i>
                 <span>Updating results...</span>
               </div>
 
@@ -1334,7 +1344,7 @@
                           </div>
                           <% } else { %>
                             <div class="img-placeholder">
-                              <i class="fas fa-image"></i><span>No image</span>
+                              <i class="bi bi-image"></i><span>No image</span>
                             </div>
                             <% } %>
 
@@ -1368,21 +1378,21 @@
                         <div class="stock-status-wrap">
                           <% if (isInactive) { %>
                             <!-- Skip if inactive (handled in footer) -->
-                            <% } else if (product.stock> 10) { %>
+                            <% } else if (product.stock> 7) { %>
                               <span class="stock-badge badge-in-stock">
-                                <i class="fas fa-check-circle"></i> In Stock
+                                <i class="bi bi-check-circle-fill"></i> In Stock
                               </span>
-                              <% } else if (product.stock> 5) { %>
+                              <% } else if (product.stock> 3 ){ %>
                                 <span class="stock-badge badge-low-stock">
-                                  <i class="fas fa-exclamation-triangle"></i> Low stock
+                                  <i class="bi bi-exclamation-triangle"></i> Low stock
                                 </span>
                                 <% } else if (product.stock> 0) { %>
                                   <span class="stock-badge badge-low-stock">
-                                    <i class="fas fa-exclamation-triangle"></i> Only <%= product.stock %> left
+                                    <i class="bi bi-exclamation-triangle"></i> Only <%= product.stock %> left
                                   </span>
                                   <% } else { %>
                                     <span class="stock-badge badge-out-stock">
-                                      <i class="fas fa-times-circle"></i> Out of Stock
+                                      <i class="bi bi-x-circle"></i> Out of Stock
                                     </span>
                                     <% } %>
                         </div>
@@ -1402,20 +1412,20 @@
                           </div>
 
                           <% if (isInactive) { %>
-                            <span class="unavailable-label"><i class="fas fa-ban"></i> Unavailable</span>
+                             <span class="unavailable-label"><i class="bi bi-slash-circle"></i> Unavailable</span>
                             <% } else { %>
                               <div style="display:flex; flex-direction:column; gap:8px; width:100%; margin-top:12px;">
                                 <div style="display:flex; gap:8px; width:100%;">
                                   <button class="btn-add-cart-quick <%= product.stock <= 0 ? 'is-out-of-stock' : '' %>"
                                     onclick="event.preventDefault(); event.stopPropagation(); quickAddToCart(this, '<%= product.id %>', '<%= product.variantId %>', '<%= product.stock %>')"
                                     id="cart-btn-<%= product.variantId %>">
-                                    <i class="fas fa-cart-plus"></i> Add to Cart
+                                    <i class="bi bi-cart-plus"></i> Add to Cart
                                   </button>
                                 </div>
                                 <div style="display:flex; gap:8px; width:100%;">
                                   <button class="btn-view" style="flex:1;"
                                     onclick="event.preventDefault(); event.stopPropagation(); window.location='/product/<%= product.id %>?variant=<%= product.variantId %>'">
-                                    <i class="fas fa-eye"></i> Details
+                                    <i class="bi bi-eye"></i> Details
                                   </button>
 
                                   <% const isInWishlist=(typeof wishlistIds !=='undefined' ) &&
@@ -1424,8 +1434,8 @@
                                       onclick="event.preventDefault(); event.stopPropagation(); toggleWishlistListing(this, '<%= product.id %>')"
                                       style="display:flex; align-items:center; justify-content:center; width:44px; height:40px; border:1px solid var(--border2); border-radius:var(--radius-sm); background:transparent; color:<%= isInWishlist ? '#e63946' : 'var(--text-dim)' %>; cursor:pointer; transition:all 0.2s;"
                                       onmouseover="this.style.background='rgba(230,57,70,0.1)'; this.style.borderColor='rgba(230,57,70,0.5)'; this.style.color='#e63946'"
-                                      onmouseout="if(this.querySelector('i').classList.contains('fas')){ this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='#e63946'; } else { this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='var(--text-dim)'; }">
-                                      <i class="<%= isInWishlist ? 'fas' : 'far' %> fa-heart"></i>
+                                      onmouseout="if(this.querySelector('i').classList.contains('bi-heart-fill')){ this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='#e63946'; } else { this.style.background='transparent'; this.style.borderColor='var(--border2)'; this.style.color='var(--text-dim)'; }">
+                                      <i class="bi <%= isInWishlist ? 'bi-heart-fill' : 'bi-heart' %>"></i>
                                     </button>
                                 </div>
 
@@ -1442,7 +1452,7 @@
                 <% } else { %>
                   <div class="product-grid">
                     <div class="empty-state">
-                      <i class="fas fa-box-open"></i>
+                      <i class="bi bi-box-seam"></i>
                       <p>No products found matching your filters.</p>
                       <a href="/products"
                         style="color:var(--accent);font-size:.81rem;margin-top:12px;display:inline-block;">
@@ -1457,7 +1467,7 @@
                       <div class="pagination-wrap">
                         <a class="pg-btn <%= currentPage <= 1 ? 'pg-disabled' : '' %>"
                           href="<%= qs({ page: currentPage - 1 }) %>">
-                          <i class="fas fa-chevron-left" style="font-size:.6rem;"></i>
+                          <i class="bi bi-chevron-left" style="font-size:.6rem;"></i>
                         </a>
                         <% for (let p=1; p <=totalPages; p++) { const near=Math.abs(p - currentPage) <=1; const
                           edge=p===1 || p===totalPages; const ellL=p===currentPage - 2 && currentPage> 3;
@@ -1472,7 +1482,7 @@
                               <% } %>
                                 <a class="pg-btn <%= currentPage >= totalPages ? 'pg-disabled' : '' %>"
                                   href="<%= qs({ page: currentPage + 1 }) %>">
-                                  <i class="fas fa-chevron-right" style="font-size:.6rem;"></i>
+                                  <i class="bi bi-chevron-right" style="font-size:.6rem;"></i>
                                 </a>
                       </div>
                       <% } %>
@@ -1654,7 +1664,7 @@
 
               // Loading state
               const originalContent = btn.innerHTML;
-              btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+              btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i>';
               btn.disabled = true;
 
               const response = await fetch('/cart/add', {
@@ -1676,8 +1686,15 @@
                   title: 'Sign In Required',
                   text: 'Please log in to add items to your cart.',
                   confirmButtonText: 'Sign In',
-                  showCancelButton: true
-                }).then(r => { if (r.isConfirmed) window.location.href = '/signin'; });
+                  showCancelButton: true,
+                  cancelButtonText: 'Do it later'
+                }).then(r => {
+                  if (r.isConfirmed) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i> Processing...';
+                    redirectTo(`/signin?returnTo=${encodeURIComponent(currentPath)}`);
+                  }
+                });
               }
 
               if (result.success) {
@@ -1691,11 +1708,11 @@
                   markMaxed(btn);
                 }
 
-                // Update cart count
+                // Update cart count dynamically from server response
                 const cartBadge = document.querySelector('.cart-badge');
-                if (cartBadge) {
-                  const currentCount = parseInt(cartBadge.textContent) || 0;
-                  cartBadge.textContent = currentCount + 1;
+                if (cartBadge && result.cartCount !== undefined) {
+                  cartBadge.textContent = result.cartCount;
+                  cartBadge.style.display = 'flex';
                 }
               } else {
                 if (result.limitReached) {
@@ -1718,7 +1735,7 @@
             } catch (error) {
               console.error("Add to Cart Error:", error);
               btn.disabled = false;
-              btn.innerHTML = '<i class="fas fa-cart-plus"></i>';
+              btn.innerHTML = '<i class="bi bi-cart-plus"></i>';
             }
           }
 
@@ -1749,14 +1766,14 @@
 
                 const badge = document.getElementById('wishBtn')
                 if (data.action === 'added') {
-                  icon.className = 'fas fa-heart';
+                  icon.className = 'bi bi-heart-fill';
                   if (badge) {
                     badge.innerText = Number(badge.innerText || 0) + 1;
                     badge.style.display = 'flex';
                   }
                   btn.style.color = '#e63946';
                 } else {
-                  icon.className = 'far fa-heart';
+                  icon.className = 'bi bi-heart';
                   if (badge) {
                     const newCount = Math.max(0, Number(badge.innerText || 0) - 1);
                     badge.innerText = newCount;
@@ -1796,11 +1813,23 @@
             if (btn.disabled) return;
 
             // Check login state
-            const isLoggedIn = ' <%= typeof user !== "undefined" && !!user %>';
+            const isLoggedIn = '<%= typeof user !== "undefined" && !!user %>' === 'true';
             if (!isLoggedIn) {
-              const currentPath = window.location.pathname + window.location.search;
-              window.location.href = `/signin?returnTo=${encodeURIComponent(currentPath)}`;
-              return;
+              return Swal.fire({
+                ...swalBase,
+                icon: 'info',
+                title: 'Sign In Required',
+                text: 'Please log in to add items to your cart.',
+                confirmButtonText: 'Sign In',
+                showCancelButton: true,
+                cancelButtonText: 'Do it later'
+              }).then(r => {
+                if (r.isConfirmed) {
+                  btn.disabled = true;
+                  btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i> Loading...';
+                  redirectTo(`/signin?returnTo=${encodeURIComponent(currentPath)}`);
+                }
+              });
             }
 
             const currentInCart = cartQuantities[vid] || 0;
@@ -1834,7 +1863,7 @@
             // Loading state
             const originalContent = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i>';
 
             try {
               const res = await fetch('/cart/add', {
@@ -1848,7 +1877,7 @@
               btn.innerHTML = originalContent;
 
               if (data.requiresAuth || data.redirect) {
-                window.location.href = `/signin?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+                redirectTo(`/signin?returnTo=${encodeURIComponent(window.location.pathname + window.location.search)}`);
                 return;
               }
 

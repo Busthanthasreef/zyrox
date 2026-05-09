@@ -8,6 +8,8 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="userStyles/home/landingPage.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 -->
@@ -23,11 +25,26 @@
                     colors: {
                         accent: '#4ade80',
                         deep: '#0a0a0a',
+                    },
+                    fontFamily: {
+                        sans: ['"Cabinet Grotesk"', 'sans-serif'],
+                        heading: ['"Clash Display"', 'sans-serif'],
+                        display: ['"Clash Display"', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
+    <style>
+        .bi-spin {
+            display: inline-block;
+            animation: bi-spin 1s linear infinite;
+        }
+        @keyframes bi-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 
 <body>
@@ -48,13 +65,13 @@
 
                 <% if (latestCoupon) { %>
                     <div class="hero-offer">
-                        <div class="hero-offer-title"><i class="fas fa-gift"></i> Latest Offer</div>
+                        <div class="hero-offer-title"><i class="bi bi-gift"></i> Latest Offer</div>
                         <div class="hero-offer-code">
                             <span id="couponCode">
                                 <%= latestCoupon.code %>
                             </span>
                             <button class="copy-btn" onclick="copyCoupon()" title="Copy code">
-                                <i class="far fa-copy" id="copyIcon"></i>
+                                <i class="bi bi-copy" id="copyIcon"></i>
                             </button>
                         </div>
                         <div class="hero-offer-discount">
@@ -69,7 +86,7 @@
                     </div>
                     <% } else { %>
                         <div class="hero-offer">
-                            <div class="hero-offer-title"><i class="fas fa-tag"></i> Special Deals</div>
+                            <div class="hero-offer-title"><i class="bi bi-tag"></i> Special Deals</div>
                             <div class="hero-offer-model">Shop Now</div>
                             <div class="hero-offer-discount">Explore our latest offers</div>
                         </div>
@@ -78,7 +95,7 @@
         </section>
 
         <!-- Categories Section -->
-        <section class="max-w-[1400px] mx-auto px-10 my-16">
+        <section class="max-w-[1750px] mx-auto px-10 my-16">
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-2xl font-bold text-white">Shop by Brand</h2>
                 <a href="/products" class="text-accent hover:text-green-400 transition-colors text-sm font-medium">View all brands →</a>
@@ -90,22 +107,14 @@
                         <div onclick="window.location.href='/products?brand=<%= category.categoryName %>'" 
                              class="group cursor-pointer bg-[#1a1a1a] border border-white/5 hover:border-accent/50 p-4 sm:p-6 md:p-8 rounded-xl md:rounded-2xl text-center transition-all duration-300 hover:-translate-y-2 hover:bg-[#222] min-w-[120px] sm:min-w-[150px] md:min-w-[180px] flex-shrink-0 backdrop-blur-sm">
                             <div class="text-2xl sm:text-3xl md:text-4xl mb-3 md:mb-4 text-white/80 group-hover:text-accent transition-colors">
-                                <% if(category.categoryName.toLowerCase() === 'apple') { %>
-                                    <i class="fab fa-apple"></i>
-                                <% } else if(category.categoryName.toLowerCase() === 'samsung') { %>
-                                    <i class="fas fa-mobile-screen" style="color: #034ea2;"></i>
-                                <% } else if(category.categoryName.toLowerCase() === 'realme') { %>
-                                    <i class="fas fa-bolt" style="color: #ff9800;"></i>
-                                <% } else { %>
-                                    <i class="fas fa-tag text-accent"></i>
-                                <% } %>
+                                    <i class="bi bi-tag text-accent"></i>
                             </div>
                             <div class="text-xs sm:text-sm font-semibold text-gray-300 group-hover:text-white"><%= category.categoryName %></div>
                         </div>
                     <% }) %>
                 <% } else { %>
                     <div class="bg-[#1a1a1a] p-4 sm:p-6 md:p-8 rounded-xl md:rounded-2xl text-center min-w-[120px] sm:min-w-[150px] md:min-w-[180px] flex-shrink-0">
-                        <div class="text-2xl sm:text-3xl md:text-4xl mb-3 md:mb-4 text-accent"><i class="fas fa-mobile-alt"></i></div>
+                        <div class="text-2xl sm:text-3xl md:text-4xl mb-3 md:mb-4 text-accent"><i class="bi bi-phone"></i></div>
                         <div class="text-xs sm:text-sm font-semibold text-gray-300">New Brands Coming</div>
                     </div>
                 <% } %>
@@ -121,7 +130,7 @@
 
             <div class="products-container">
                 <button class="scroll-arrow left" onclick="scrollGrid('trending-grid', -200)" aria-label="Scroll left">
-                    <i class="fas fa-chevron-left"></i>
+                    <i class="bi bi-chevron-left"></i>
                 </button>
                 <div class="products-grid no-scrollbar" id="trending-grid">
                     <% if(trendingVariants && trendingVariants.length> 0) { %>
@@ -150,13 +159,13 @@
                                                         %>.00</div>
                                                 <div style="display:flex; gap:8px; width:100%; margin-top:10px;">
                                                     <button class="buy-now-btn" style="flex:1;"
-                                                        onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">Buy now</button>
+                                                        onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">View</button>
                                                     <button class="cart-icon-btn" 
                                                         onclick="event.stopPropagation(); addToCartListing(this, '<%= item.product._id %>', '<%= item.variant._id %>')"
                                                         style="width:42px; height:42px; border:1px solid #4ade80; border-radius:8px; background:transparent; color:#4ade80; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center;"
                                                         onmouseover="this.style.background='#4ade80'; this.style.color='#0a0a0a'"
                                                         onmouseout="this.style.background='transparent'; this.style.color='#4ade80'">
-                                                        <i class="fas fa-cart-plus"></i>
+                                                        <i class="bi bi-cart-plus"></i>
                                                     </button>
                                                 </div>
                             </div>
@@ -167,7 +176,7 @@
                                     <% } %>
                 </div>
                 <button class="scroll-arrow right" onclick="scrollGrid('trending-grid', 200)" aria-label="Scroll right">
-                    <i class="fas fa-chevron-right"></i>
+                    <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
         </section>
@@ -180,7 +189,7 @@
 
             <div class="products-container">
                 <button class="scroll-arrow left" onclick="scrollGrid('collection-grid', -200)" aria-label="Scroll left">
-                    <i class="fas fa-chevron-left"></i>
+                    <i class="bi bi-chevron-left"></i>
                 </button>
                 <div class="products-grid no-scrollbar" id="collection-grid">
                     <% if(typeof allVariants !== 'undefined' && allVariants.length > 0) { %>
@@ -202,13 +211,13 @@
                                                         %>.00</div>
                                                 <div style="display:flex; gap:8px; width:100%; margin-top:10px;">
                                                     <button class="buy-now-btn" style="flex:1;"
-                                                        onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">Buy now</button>
+                                                        onclick="event.stopPropagation(); window.location.href='/product/<%= item.product._id %>?variant=<%= item.variant._id %>'">View</button>
                                                     <button class="cart-icon-btn" 
                                                         onclick="event.stopPropagation(); addToCartListing(this, '<%= item.product._id %>', '<%= item.variant._id %>')"
                                                         style="width:42px; height:42px; border:1px solid #4ade80; border-radius:8px; background:transparent; color:#4ade80; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center;"
                                                         onmouseover="this.style.background='#4ade80'; this.style.color='#0a0a0a'"
                                                         onmouseout="this.style.background='transparent'; this.style.color='#4ade80'">
-                                                        <i class="fas fa-cart-plus"></i>
+                                                        <i class="bi bi-cart-plus"></i>
                                                     </button>
                                                 </div>
                             </div>
@@ -218,7 +227,7 @@
                                     <% } %>
                 </div>
                 <button class="scroll-arrow right" onclick="scrollGrid('collection-grid', 200)" aria-label="Scroll right">
-                    <i class="fas fa-chevron-right"></i>
+                    <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
         </section>
@@ -229,7 +238,7 @@
             <div class="footer-content">
                 <div class="footer-brand">
                     <div class="footer-logo">
-                        <i class="fas fa-mobile-alt"></i>
+                        <i class="bi bi-phone"></i>
                         Zyrox
                     </div>
                     <p class="footer-description">
@@ -237,10 +246,10 @@
                         cutting-edge technology and competitive prices. Your trusted partner for all your mobile needs.
                     </p>
                     <div class="social-links">
-                        <a href="https://www.instagram.com/busthan_c/" target="_blank" class="social-link instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.instagram.com/busthan_c/" target="_blank" class="social-link instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.instagram.com/busthan_c/" target="_blank" class="social-link instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="https://github.com/busthanthasreef/" target="_blank" class="social-link github"><i class="fab fa-github"></i></a>
+                        <a href="https://www.instagram.com/busthan_c/" target="_blank" class="social-link instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://www.instagram.com/busthan_c/" target="_blank" class="social-link instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://www.instagram.com/busthan_c/" target="_blank" class="social-link instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://github.com/busthanthasreef/" target="_blank" class="social-link github"><i class="bi bi-github"></i></a>
                     </div>
                 </div>
 
@@ -302,11 +311,11 @@
                 navigator.clipboard.writeText(code).then(() => {
                     const icon = document.getElementById('copyIcon');
                     if (icon) {
-                        icon.classList.remove('far', 'fa-copy');
-                        icon.classList.add('fas', 'fa-check');
+                        icon.classList.remove('bi-copy');
+                        icon.classList.add('bi-check-lg');
                         setTimeout(() => {
-                            icon.classList.remove('fas', 'fa-check');
-                            icon.classList.add('far', 'fa-copy');
+                            icon.classList.remove('bi-check-lg');
+                            icon.classList.add('bi-copy');
                         }, 1500);
                     }
                 }).catch(() => {
@@ -326,7 +335,7 @@
                     if (btn.disabled) return;
                     
                     const originalContent = btn.innerHTML;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i>';
                     btn.disabled = true;
 
                     const response = await fetch('/cart/add', {
@@ -346,8 +355,15 @@
                             title: 'Sign In Required',
                             text: 'Please log in to add items to your cart.',
                             confirmButtonText: 'Sign In',
-                            showCancelButton: true
-                        }).then(r => { if (r.isConfirmed) window.location.href = '/signin'; });
+                            showCancelButton: true,
+                            cancelButtonText: 'Do it later'
+                        }).then(r => {
+                            if (r.isConfirmed) {
+                                btn.disabled = true;
+                                btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i> Processing...';
+                                redirectTo(`/signin?returnTo=${encodeURIComponent(currentPath)}`);
+                            }
+                        });
                     }
 
                     if (result.success) {
@@ -363,11 +379,11 @@
                             iconColor: '#4ade80',
                         });
 
-                        // Update cart count
+                        // Update cart count dynamically from server response
                         const cartBadge = document.querySelector('.cart-badge');
-                        if (cartBadge) {
-                            const currentCount = parseInt(cartBadge.textContent) || 0;
-                            cartBadge.textContent = currentCount + 1;
+                        if (cartBadge && result.cartCount !== undefined) {
+                            cartBadge.textContent = result.cartCount;
+                            cartBadge.style.display = 'flex';
                         }
                     } else {
                         Swal.fire({
@@ -380,7 +396,7 @@
                 } catch (error) {
                     console.error("Add to Cart Error:", error);
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-cart-plus"></i>';
+                    btn.innerHTML = '<i class="bi bi-cart-plus"></i>';
                 }
             }
 

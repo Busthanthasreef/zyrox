@@ -160,6 +160,10 @@ const changeOrderStatus = async (orderId, status) => {
         order.deliveredAt = new Date();
     }
 
+    if (status === 'Cancelled' && order.paymentStatus === 'Pending') {
+        order.paymentStatus = 'Payment Cancelled';
+    }
+
     if (['Cancelled', 'Returned'].includes(status)) {
         for (const item of order.items) {
             if (!['Cancelled', 'Returned'].includes(item.status)) {
@@ -294,6 +298,10 @@ const processAcceptItemRequest = async (orderId, itemId) => {
     if (activeItems.length === 0) {
         const hasReturned = order.items.some(i => i.status === 'Returned');
         order.orderStatus = hasReturned ? 'Returned' : 'Cancelled';
+
+        if (order.orderStatus === 'Cancelled' && order.paymentStatus === 'Pending') {
+            order.paymentStatus = 'Payment Cancelled';
+        }
     }
 
     await order.save();

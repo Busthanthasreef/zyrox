@@ -1,4 +1,5 @@
 import userSchema from "../../models/user.js";
+import Order from "../../models/order.js";
 
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -35,7 +36,12 @@ const getUserList = async ({ search = "", statusFilter = "", sortBy = "newest", 
     userSchema.countDocuments(query),
   ]);
 
-  return { users, totalUsers, totalPages: Math.ceil(totalUsers / limit) };
+  const usersWithOrders = await Promise.all(users.map(async (user) => {
+    const totalOrders = await Order.countDocuments({ userId: user._id });
+    return { ...user.toObject(), totalOrders };
+  }));
+
+  return { users: usersWithOrders, totalUsers, totalPages: Math.ceil(totalUsers / limit) };
 };
 
 /**
@@ -52,7 +58,7 @@ const getAdmin = async () => {
  */
 const toggleUserStatus = async (id, status) => {
   const isActive = status !== "block";
-  return userSchema.findByIdAndUpdate(id, { isActive }, { new: true });
+  return userSchema.findByIdAndUpdate(id, { isActive }, { returnDocument: 'after' });
 };
 
 /**

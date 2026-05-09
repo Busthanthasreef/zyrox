@@ -581,6 +581,8 @@
                 <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>All Status</option>
                 <option value="active" <%= statusFilter === 'active' ? 'selected' : '' %>>Active</option>
                 <option value="inactive" <%= statusFilter === 'inactive' ? 'selected' : '' %>>Inactive</option>
+                <option value="expired" <%= statusFilter === 'expired' ? 'selected' : '' %>>Expired</option>
+                <option value="limitExceeded" <%= statusFilter === 'limitExceeded' ? 'selected' : '' %>>Limit Exceeded</option>
               </select>
             </div>
           </div>
@@ -644,16 +646,20 @@
                             year: 'numeric' }) %>
                         </td>
                         <td>
-                          <% if (coupon.usageLimit && coupon.usedCount>= coupon.usageLimit) { %>
+                          <% if (new Date(coupon.validTill) < new Date()) { %>
+                            <span class="badge-status" style="background-color: rgba(255,0,0,0.15); color: #c32222">
+                              Expired
+                            </span>
+                          <% } else if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) { %>
                             <span class="badge-status" style="background-color: rgba(255,0,0,0.15); color: #c32222">
                               Limit Exceeded
                             </span>
-                            <% } else { %>
-                              <span class="badge-status <%= coupon.isActive ? 'badge-active' : '' %>"
-                                style="background-color: <%= coupon.isActive ? '' : 'rgba(255,0,0,0.15)' %>; color: <%= coupon.isActive ? '' : '#c32222' %>">
-                                <%= coupon.isActive ? 'Active' : 'Inactive' %>
-                              </span>
-                              <% } %>
+                          <% } else { %>
+                            <span class="badge-status <%= coupon.isActive ? 'badge-active' : '' %>"
+                              style="background-color: <%= coupon.isActive ? '' : 'rgba(255,0,0,0.15)' %>; color: <%= coupon.isActive ? '' : '#c32222' %>">
+                              <%= coupon.isActive ? 'Active' : 'Inactive' %>
+                            </span>
+                          <% } %>
                         </td>
                         <td>
                           <div class="action-btns">
@@ -661,9 +667,14 @@
                               onclick="editCoupon(this)">
                               <i class="bi bi-pencil"></i>
                             </button>
+                            <% const isExpired = new Date(coupon.validTill) < new Date(); %>
+                            <% const isLimitReached = coupon.usageLimit && coupon.usedCount >= coupon.usageLimit; %>
+                            <% const isDisabled = isExpired || isLimitReached; %>
+
                             <button class="action-btn toggle-btn <%= coupon.isActive ? 'active' : '' %>"
-                                title="<%= coupon.isActive ? 'Deactivate' : 'Activate' %>"
-                                onclick="toggleCouponStatus('<%= coupon._id %>')">
+                                title="<%= isDisabled ? 'Cannot toggle expired/limited coupon' : (coupon.isActive ? 'Deactivate' : 'Activate') %>"
+                                onclick="<%= isDisabled ? '' : `toggleCouponStatus('${coupon._id}')` %>"
+                                style="<%= isDisabled ? 'opacity: 0.5; cursor: not-allowed;' : '' %>">
                                 <i class="bi <%= coupon.isActive ? 'bi-toggle-on' : 'bi-toggle-off' %>"></i>
                             </button>
                             <button class="action-btn delete-btn" title="Delete"
@@ -902,7 +913,10 @@
               const couponJson = JSON.stringify(coupon).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
               
               let statusHtml = '';
-              if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
+              const isExpired = new Date(coupon.validTill) < new Date();
+              if (isExpired) {
+                  statusHtml = `<span class="badge-status" style="background-color: rgba(255,0,0,0.15); color: #c32222">Expired</span>`;
+              } else if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
                   statusHtml = `<span class="badge-status" style="background-color: rgba(255,0,0,0.15); color: #c32222">Limit Exceeded</span>`;
               } else {
                   statusHtml = `<span class="badge-status ${coupon.isActive ? 'badge-active' : ''}" 
@@ -910,46 +924,48 @@
                                       ${coupon.isActive ? 'Active' : 'Inactive'}</span>`;
               }
 
-              return `
-                  <tr>
-                      <td>
-                          <div class="code-active">${coupon.code}</div>
-                          <div class="small text-muted mt-1" style="font-size: 0.75rem;">${coupon.description || ''}</div>
-                      </td>
-                      <td>
-                          <div class="discount-name">${coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue} OFF</div>
-                          <div class="discount-type">${coupon.discountType.charAt(0).toUpperCase() + coupon.discountType.slice(1)}</div>
-                      </td>
-                      <td>
-                          <span class="small text-muted">Min: ₹${coupon.minCartValue}</span><br>
-                          <span class="small text-muted">Max: ${coupon.maxDiscount ? '₹' + coupon.maxDiscount : 'Unlimited'}</span>
-                      </td>
-                      <td>
-                          <div class="progress-wrap">
-                              <div class="progress-bar-bg">
-                                  <div class="progress-fill ${barColor}" style="width: ${coupon.usageLimit ? usagePercent : 0}%"></div>
-                              </div>
-                              <span class="usage-text">${coupon.usedCount}/${coupon.usageLimit || '∞'}</span>
-                          </div>
-                      </td>
-                      <td>${validTill}</td>
-                      <td>${statusHtml}</td>
-                      <td>
-                          <div class="action-btns">
-                              <button class="action-btn" title="Edit" data-coupon='${couponJson}' onclick="editCoupon(this)">
-                                  <i class="bi bi-pencil"></i>
-                              </button>
-                              <button class="action-btn toggle-btn ${coupon.isActive ? 'active' : ''}"
-                                  title="${coupon.isActive ? 'Deactivate' : 'Activate'}"
-                                  onclick="toggleCouponStatus('${coupon._id}')">
-                                  <i class="bi ${coupon.isActive ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
-                              </button>
-                              <button class="action-btn delete-btn" title="Delete" onclick="deleteCoupon('${coupon._id}')">
-                                  <i class="bi bi-trash"></i>
-                              </button>
-                          </div>
-                      </td>
-                  </tr>`;
+                              const isDisabled = isExpired || (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit);
+                              return `
+                                  <tr>
+                                      <td>
+                                          <div class="code-active">${coupon.code}</div>
+                                          <div class="small text-muted mt-1" style="font-size: 0.75rem;">${coupon.description || ''}</div>
+                                      </td>
+                                      <td>
+                                          <div class="discount-name">${coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue} OFF</div>
+                                          <div class="discount-type">${coupon.discountType.charAt(0).toUpperCase() + coupon.discountType.slice(1)}</div>
+                                      </td>
+                                      <td>
+                                          <span class="small text-muted">Min: ₹${coupon.minCartValue}</span><br>
+                                          <span class="small text-muted">Max: ${coupon.maxDiscount ? '₹' + coupon.maxDiscount : 'Unlimited'}</span>
+                                      </td>
+                                      <td>
+                                          <div class="progress-wrap">
+                                              <div class="progress-bar-bg">
+                                                  <div class="progress-fill ${barColor}" style="width: ${coupon.usageLimit ? usagePercent : 0}%"></div>
+                                              </div>
+                                              <span class="usage-text">${coupon.usedCount}/${coupon.usageLimit || '∞'}</span>
+                                          </div>
+                                      </td>
+                                      <td>${validTill}</td>
+                                      <td>${statusHtml}</td>
+                                      <td>
+                                          <div class="action-btns">
+                                              <button class="action-btn" title="Edit" data-coupon='${couponJson}' onclick="editCoupon(this)">
+                                                  <i class="bi bi-pencil"></i>
+                                              </button>
+                                              <button class="action-btn toggle-btn ${coupon.isActive ? 'active' : ''}"
+                                                  title="${isDisabled ? 'Cannot toggle expired/limited coupon' : (coupon.isActive ? 'Deactivate' : 'Activate')}"
+                                                  onclick="${isDisabled ? '' : `toggleCouponStatus('${coupon._id}')`}"
+                                                  style="${isDisabled ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
+                                                  <i class="bi ${coupon.isActive ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
+                                              </button>
+                                              <button class="action-btn delete-btn" title="Delete" onclick="deleteCoupon('${coupon._id}')">
+                                                  <i class="bi bi-trash"></i>
+                                              </button>
+                                          </div>
+                                      </td>
+                                  </tr>`;
           }).join('');
       }
 
@@ -1077,6 +1093,9 @@
         toggleUnlimited(true);
         document.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
         document.querySelectorAll('.field-error').forEach(el => el.remove());
+        document.getElementById('f_validFrom').readOnly = false;
+        document.getElementById('f_validFrom').style.pointerEvents = 'auto';
+        document.getElementById('f_validFrom').style.background = '#fff';
         modal.classList.add('open');
       }
 
@@ -1090,6 +1109,18 @@
 
       function editCoupon(btn) {
         const coupon = JSON.parse(btn.dataset.coupon);
+        
+        // Expiration check
+        if (new Date(coupon.validTill) < new Date()) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Locked',
+            text: "can't edit expired coupon",
+            confirmButtonColor: '#1e293b'
+          });
+          return;
+        }
+
         isEditMode = true;
         modalTitle.innerText = "Edit Coupon";
         document.getElementById('couponId').value = coupon._id;
@@ -1103,6 +1134,10 @@
         document.getElementById('f_validTill').value = coupon.validTill.split('T')[0];
         document.getElementById('f_isActive').checked = coupon.isActive;
 
+        document.getElementById('f_validFrom').readOnly = true;
+        document.getElementById('f_validFrom').style.pointerEvents = 'none';
+        document.getElementById('f_validFrom').style.background = '#f1f5f9';
+
         if (!coupon.maxDiscount) {
           toggleUnlimited(true);
         } else {
@@ -1115,33 +1150,112 @@
 
       form.onsubmit = async (e) => {
         e.preventDefault();
+
+        // ── Clear previous errors ──────────────────────────────────────────────
+        document.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
+        document.querySelectorAll('.field-error').forEach(el => el.remove());
+
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
         data.isActive = document.getElementById('f_isActive').checked;
         if (unlimited) data.maxDiscount = null;
 
-        if (data.discountType === 'percentage' && parseFloat(data.discountValue) > 100) {
-          Swal.fire('Error', 'Percentage discount cannot exceed 100%', 'error');
-          return;
+        let hasError = false;
+
+        // ── Required: Description ──────────────────────────────────────────────
+        if (!data.description || !data.description.trim()) {
+          showError('description', 'Description is required');
+          hasError = true;
         }
 
+        // ── Required: Coupon Code ──────────────────────────────────────────────
+        if (!data.code || !data.code.trim()) {
+          showError('code', 'Coupon code is required');
+          hasError = true;
+        }
+
+        // ── Required: Discount Value ───────────────────────────────────────────
+        const discountVal = parseFloat(data.discountValue);
+        if (!data.discountValue || isNaN(discountVal)) {
+          showError('discountValue', 'Discount value is required');
+          hasError = true;
+        } else if (discountVal <= 0) {
+          showError('discountValue', 'Discount value must be greater than 0');
+          hasError = true;
+        } else if (data.discountType === 'percentage' && discountVal > 99) {
+          showError('discountValue', 'Percentage discount cannot exceed 99%');
+          hasError = true;
+        }
+
+        // ── Flat discount vs minCartValue ──────────────────────────────────────
+        const minCart = parseFloat(data.minCartValue) || 0;
+        if (minCart < 0) {
+          showError('minCartValue', 'Min cart value cannot be negative');
+          hasError = true;
+        } else if (data.discountType === 'flat' && minCart > 0 && !isNaN(discountVal) && discountVal >= minCart) {
+          showError('discountValue', 'Flat discount must be less than Minimum Cart Value');
+          hasError = true;
+        }
+
+        // ── Max Discount (when not unlimited) ─────────────────────────────────
+        if (!unlimited) {
+          const maxDisc = parseFloat(data.maxDiscount);
+          if (isNaN(maxDisc) || maxDisc <= 0) {
+            showError('maxDiscount', 'Max discount must be a positive number');
+            hasError = true;
+          }
+        }
+
+        // ── Required: Dates ────────────────────────────────────────────────────
+        if (!data.validFrom) {
+          showError('validFrom', 'Start date is required');
+          hasError = true;
+        }
+        if (!data.validTill) {
+          showError('validTill', 'End date is required');
+          hasError = true;
+        }
+        if (data.validFrom && data.validTill) {
+          const from = new Date(data.validFrom);
+          const till = new Date(data.validTill);
+          if (from >= till) {
+            showError('validTill', 'End date must be after Start date');
+            hasError = true;
+          }
+        }
+
+        if (hasError) return;
+
+        // ── Submit ─────────────────────────────────────────────────────────────
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Saving...';
+
         const url = isEditMode ? '/adminUser/coupons/edit' : '/adminUser/coupons/add';
-        const method = 'POST';
 
         try {
           const res = await fetch(url, {
-            method,
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
           });
           const result = await res.json();
           if (result.success) {
-            Swal.fire('Success', result.message, 'success').then(() => location.reload());
+            Swal.fire({
+              icon: result.icon || 'success',
+              title: result.icon === 'info' ? 'No Changes' : 'Success',
+              text: result.message,
+              timer: 1800,
+              showConfirmButton: false
+            }).then(() => location.reload());
           } else {
-            Swal.fire('Error', result.message, 'error');
+            Swal.fire({ icon: 'error', title: 'Validation Error', text: result.message });
           }
         } catch (err) {
-          Swal.fire('Error', 'Something went wrong', 'error');
+          Swal.fire({ icon: 'error', title: 'Network Error', text: 'Could not reach the server. Please try again.' });
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Save Coupon';
         }
       };
 

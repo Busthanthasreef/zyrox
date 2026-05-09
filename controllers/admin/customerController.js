@@ -45,16 +45,32 @@ const userStatus = async (req, res) => {
   }
 };
 
+import Order from "../../models/order.js";
+
 const userDetails = async (req, res) => {
   try {
-    const [user, admin] = await Promise.all([
-      getUserById(req.query.id),
+    const userId = req.query.id;
+    const [user, admin, orders] = await Promise.all([
+      getUserById(userId),
       getAdmin(),
+      Order.find({ userId }).sort({ createdAt: -1 }),
     ]);
 
     if (!user) return res.redirect("/adminUser/users");
 
-    res.render("admin/users/userDetails", { user, admin });
+    // Calculate dynamic stats
+    const totalOrders = orders.length;
+    const totalSpent = orders
+      .filter((o) => o.paymentStatus === "Paid")
+      .reduce((sum, o) => sum + (o.finalPrice || 0), 0);
+    const avgOrderValue = totalOrders > 0 ? totalSpent / totalOrders : 0;
+
+    res.render("admin/users/userDetails", {
+      user,
+      admin,
+      orders,
+      stats: { totalOrders, totalSpent, avgOrderValue },
+    });
   } catch (error) {
     console.error("User details error:", error);
     res.status(500).send("Server Error");

@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import { calculateBestOffer, applyOffer } from "../../utils/offerHelper.js";
+import { sendOrderConfirmationEmail } from "../../utils/emailHelper.js";
 
 const SHIPPING_THRESHOLD = 50;
 const SHIPPING_FEE = 30;
@@ -197,17 +198,65 @@ const loadBuyNowCheckout = async (req, res) => {
 
 const applyCoupon = async (req, res) => {
     try {
-        const { code } = req.body, userId = req.session.user._id;
-        const summary = await calculateOrderSummary(userId, req.session.buyNowItem, code.trim().toUpperCase());
+        const { code } = req.body;
+        const userId = req.session.user._id;
 
-        if (summary.couponCode) {
-            req.session.appliedCoupon = { code: summary.couponCode, discount: summary.couponDiscount };
-            res.json({ success: true, message: "Coupon applied", discount: summary.couponDiscount });
-        } else {
-            res.json({ success: false, message: "Coupon could not be applied to this order." });
+        if (!code || !code.trim()) {
+            return res.json({ success: false, message: "Please enter a coupon code." });
         }
+
+        const normalizedCode = code.trim().toUpperCase();
+
+        // Step 1: Find the coupon at all
+        const coupon = await Coupon.findOne({ code: normalizedCode, isDeleted: false });
+        if (!coupon) {
+            return res.json({ success: false, message: `Coupon "${normalizedCode}" does not exist.` });
+        }
+
+        // Step 2: Check active status
+        if (!coupon.isActive) {
+            return res.json({ success: false, message: "This coupon is currently inactive." });
+        }
+
+        // Step 3: Check validity window
+        const now = new Date();
+        if (coupon.validFrom > now) {
+            const startDate = new Date(coupon.validFrom).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+            return res.json({ success: false, message: `This coupon is not valid yet. It starts from ${startDate}.` });
+        }
+        if (coupon.validTill < now) {
+            return res.json({ success: false, message: "This coupon has expired." });
+        }
+
+        // Step 4: Check usage limit
+        if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+            return res.json({ success: false, message: "This coupon's usage limit has been reached." });
+        }
+
+        // Step 5: Check if user already used it
+        const alreadyUsed = coupon.usedBy.some(id => id.toString() === userId.toString());
+        if (alreadyUsed) {
+            return res.json({ success: false, message: "You have already used this coupon." });
+        }
+
+        // Step 6: Calculate summary and check minimum cart value
+        const summary = await calculateOrderSummary(userId, req.session.buyNowItem, normalizedCode);
+
+        if (!summary.couponCode) {
+            // Coupon passed all checks but wasn't applied — only reason left is min cart value
+            const minVal = coupon.minCartValue > 0 ? `₹${coupon.minCartValue}` : null;
+            if (minVal) {
+                return res.json({ success: false, message: `Minimum purchase of ${minVal} required to use this coupon.` });
+            }
+            return res.json({ success: false, message: "This coupon could not be applied to your current order." });
+        }
+
+        req.session.appliedCoupon = { code: summary.couponCode, discount: summary.couponDiscount };
+        return res.json({ success: true, message: "Coupon applied successfully!", discount: summary.couponDiscount });
+
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message || "Server error" });
+        console.error("applyCoupon error:", error);
+        res.status(500).json({ success: false, message: error.message || "Server error while applying coupon." });
     }
 };
 
@@ -331,6 +380,9 @@ const placeOrder = async (req, res) => {
         for (const item of summary.orderItems) await Variant.findByIdAndUpdate(item.variant, { $inc: { stock: -item.quantity } });
         if (!req.session.buyNowItem) await Cart.findOneAndDelete({ User_id: userId });
         else delete req.session.buyNowItem;
+
+        // Send confirmation email (async, don't await to avoid blocking response)
+        sendOrderConfirmationEmail(req.session.user.Email, order);
 
         res.json({ success: true, orderId: order.orderId });
     } catch (error) {
@@ -571,6 +623,9 @@ const confirmRetryPayment = async (req, res) => {
                 await Variant.findByIdAndUpdate(item.variant, { $inc: { stock: -item.quantity } });
             }
         }
+
+        // Send confirmation email
+        sendOrderConfirmationEmail(req.session.user.Email, order);
 
         res.json({ success: true, message: 'Payment successful! Your order is now confirmed.', orderId: order.orderId });
     } catch (error) {

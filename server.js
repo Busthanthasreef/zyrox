@@ -10,8 +10,12 @@ import passport from "./config/passport.js"
 import attachLocalCounts from "./middlewares/locals.js";
 import nocache from "nocache";
 import crypto from "node:crypto";
+import { generalLimiter } from "./middlewares/rateLimiter.js";
 
 const app = express();
+
+// Apply global rate limiter
+app.use(generalLimiter);
 
 const isProduction = process.env.NODE_ENV === "production";
 const sessionSecret = process.env.SESSION_SECRET;

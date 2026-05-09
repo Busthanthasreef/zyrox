@@ -283,7 +283,9 @@
                     fetch(verifyForm.action, {
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "X-Requested-With": "XMLHttpRequest"
                         },
                         body: JSON.stringify(data)
                     })
@@ -347,7 +349,9 @@
                     fetch(resendForm.action, {
                         method: "POST",
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json",
+                            "Accept": "application/json",
+                            "X-Requested-With": "XMLHttpRequest"
                         }
                     })
                     .then(response => response.json())

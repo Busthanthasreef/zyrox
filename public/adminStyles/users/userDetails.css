@@ -304,6 +304,42 @@ body {
     color: #1d4ed8;
 }
 
+.status-shipped {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.status-returned {
+    background: #ffedd5;
+    color: #9a3412;
+}
+
+/* ===== VIEW ORDER BUTTON ===== */
+.btn-view-order {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-view-order:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+    transform: translateY(-1px);
+}
+
+.btn-view-order i {
+    font-size: 13px;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
     .sidebar {
