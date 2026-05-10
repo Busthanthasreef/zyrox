@@ -987,11 +987,11 @@
                     </div>
 
                     <div class="stock-row" id="stockBlock">
-                        <% if (variant.stock > 10) { %>
+                        <% if (variant.stock > 7) { %>
                             <span class="stock-badge badge-in-stock">
                                 <i class="bi bi-check-circle-fill"></i> In Stock
                             </span>
-                        <% } else if (variant.stock > 0) { %>
+                        <% } else if (variant.stock > 3) { %>
                             <span class="stock-badge badge-low-stock">
                                 <i class="bi bi-exclamation-triangle-fill"></i> Only <%= parseInt(variant.stock) %> left
                             </span>

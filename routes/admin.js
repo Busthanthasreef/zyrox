@@ -11,6 +11,7 @@ import * as offerController from "../controllers/admin/offerController.js";
 import upload from "../middlewares/multer.js";
 import { validateFiles } from "../utils/validation/fileValidator.js";
 import * as salesReportController from "../controllers/admin/salesReportController.js";
+import * as profileController from "../controllers/admin/profileController.js";
 import { authLimiter } from "../middlewares/rateLimiter.js";
 
 const adminRoutes = express.Router();
@@ -74,6 +75,11 @@ adminRoutes.get('/sales-report', isAdminAuthenticated, salesReportController.get
 adminRoutes.get('/sales-report/export/excel', isAdminAuthenticated, salesReportController.exportExcel);
 adminRoutes.get('/sales-report/export/pdf', isAdminAuthenticated, salesReportController.exportPDF);
 
+adminRoutes.get('/profile',isAdminAuthenticated,profileController.adminProfile);
+adminRoutes.post('/profile/update',isAdminAuthenticated,profileController.updateProfile);
+adminRoutes.post('/profile/password',isAdminAuthenticated,profileController.changePassword);
+adminRoutes.post('/profile/avatar',isAdminAuthenticated,upload.any(),profileController.uploadProfileImage);
+adminRoutes.delete('/profile/avatar',isAdminAuthenticated,profileController.deleteProfileImage);
 
 adminRoutes.get("/logout", isAdminAuthenticated, adminController.logout);
 

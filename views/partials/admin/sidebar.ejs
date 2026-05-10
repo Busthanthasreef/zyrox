@@ -49,6 +49,9 @@
     <!-- Sidebar Footer -->
     <div class="sidebar-footer">
         <div class="sidebar-section-label" style="margin-top: 0; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">Account</div>
+        <a href="/adminUser/profile" class="nav-item <%= typeof currentPage !== 'undefined' && currentPage === 'profile' ? 'active' : '' %>" style="margin: 0 14px 4px;" data-tooltip="Profile">
+            <i class="bi bi-person-circle"></i> <span>Profile</span>
+        </a>
         <a href="" class="nav-item text-danger" onclick="confirmLogout(); return false;" style="margin: 0 14px 10px;" data-tooltip="Logout">
             <i class="bi bi-box-arrow-right"></i> <span>Logout</span>
         </a>

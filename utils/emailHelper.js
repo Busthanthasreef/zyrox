@@ -8,7 +8,7 @@ import nodemailer from "nodemailer";
  */
 export const sendOrderConfirmationEmail = async (email, order) => {
     try {
-        const appPassword = process.env.PASS.replace(/\s+/g, "");
+     
 
         const transporter = nodemailer.createTransport({
             host: "smtp.gmail.com",
@@ -16,7 +16,7 @@ export const sendOrderConfirmationEmail = async (email, order) => {
             secure: true,
             auth: {
                 user: process.env.EMAIL,
-                pass: appPassword,
+                pass: process.env.PASS,
             },
         });
 

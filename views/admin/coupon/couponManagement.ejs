@@ -1093,11 +1093,28 @@
         toggleUnlimited(true);
         document.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
         document.querySelectorAll('.field-error').forEach(el => el.remove());
-        document.getElementById('f_validFrom').readOnly = false;
-        document.getElementById('f_validFrom').style.pointerEvents = 'auto';
-        document.getElementById('f_validFrom').style.background = '#fff';
+
+        // Set min date to today
+        const today = new Date().toISOString().split('T')[0];
+        const validFromInput = document.getElementById('f_validFrom');
+        const validTillInput = document.getElementById('f_validTill');
+        validFromInput.setAttribute('min', today);
+        validTillInput.setAttribute('min', today);
+
+        validFromInput.readOnly = false;
+        validFromInput.style.pointerEvents = 'auto';
+        validFromInput.style.background = '#fff';
         modal.classList.add('open');
       }
+
+      // Dynamic end date min validation
+      document.getElementById('f_validFrom').addEventListener('change', function() {
+        const tillInput = document.getElementById('f_validTill');
+        tillInput.setAttribute('min', this.value);
+        if (tillInput.value && tillInput.value < this.value) {
+          tillInput.value = this.value;
+        }
+      });
 
       function closeModal() {
         modal.classList.remove('open');

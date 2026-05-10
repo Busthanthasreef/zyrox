@@ -94,7 +94,8 @@ async function calculateOrderSummary(userId, buyNowItem, appliedCouponCode = nul
     if (appliedCouponCode) {
         const coupon = await Coupon.findOne({ code: appliedCouponCode, isActive: true, isDeleted: false, validFrom: { $lte: new Date() }, validTill: { $gte: new Date() } });
         if (coupon && subtotalAfterOffers >= coupon.minCartValue) {
-            if (!coupon.usedBy.includes(userId)) {
+            const limitReached = coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit;
+            if (!limitReached && !coupon.usedBy.includes(userId)) {
                 couponCode = coupon.code;
                 couponDiscount = coupon.discountType === 'percentage'
                     ? Math.min((subtotalAfterOffers * coupon.discountValue) / 100, coupon.maxDiscount || Infinity)
@@ -273,7 +274,16 @@ const placeOrder = async (req, res) => {
         const address = await Address.findById(addressId);
         if (!address) return res.status(400).json({ success: false, message: "Invalid address" });
 
-        const summary = await calculateOrderSummary(userId, req.session.buyNowItem, req.session.appliedCoupon?.code);
+        const appliedCouponCode = req.session.appliedCoupon?.code;
+        const summary = await calculateOrderSummary(userId, req.session.buyNowItem, appliedCouponCode);
+
+        // Strict Coupon Validation Check
+        if (appliedCouponCode && !summary.couponCode) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "The applied coupon is no longer valid, has expired, or its usage limit has been reached. Please review your order." 
+            });
+        }
 
         if (paymentMethod === 'COD' && summary.finalPrice > 30000) {
             return res.status(400).json({ success: false, message: "COD limited to ₹30,000." });
@@ -420,7 +430,16 @@ const createRazorpayOrder = async (req, res) => {
         if (!req.session.user) return res.status(401).json({ success: false, message: "Unauthorized" });
         const userId = req.session.user._id;
 
-        const summary = await calculateOrderSummary(userId, req.session.buyNowItem, req.session.appliedCoupon?.code);
+        const appliedCouponCode = req.session.appliedCoupon?.code;
+        const summary = await calculateOrderSummary(userId, req.session.buyNowItem, appliedCouponCode);
+
+        // Strict Coupon Validation Check
+        if (appliedCouponCode && !summary.couponCode) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "The applied coupon is no longer valid, has expired, or its usage limit has been reached. Please review your order." 
+            });
+        }
 
         // Razorpay limit check (typically 5,00,000 INR)
         const totalPaise = Math.round(Math.max(1, summary.finalPrice) * 100);

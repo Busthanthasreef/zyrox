@@ -258,7 +258,7 @@
                 <i class="bi bi-check2"></i>
             </div>
             <h1>Order Confirmed!</h1>
-            <p>High five! Your order <strong>#<%= order.orderId %></strong> is officially on its way. We've sent a confirmation to your email.</p>
+            <p>High five! Your order <strong>#<%= order.orderId %></strong> is officially on its way. We've sent a confirmation to your email<%=user.Email%>.</p>
 
             <div class="order-summary">
                 <div class="summary-row">
@@ -271,7 +271,7 @@
                 </div>
                 <div class="summary-row">
                     <span class="summary-label">Placed On</span>
-                    <span class="summary-value"><%= new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %></span>
+                    <span class="summary-value"><%= new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }) %></span>
                 </div>
                 <div class="summary-row">
                     <span class="summary-label">Shipping To</span>
