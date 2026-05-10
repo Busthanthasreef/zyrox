@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Add Address - Zyrox</title>
-    <link rel="icon" type="image/png" href="/images/favicon.png?v=3">
+  <link rel="icon" type="image/png" href="/images/favicon.png?v=3">
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -25,188 +25,189 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <%- include('../../partials/user/navigationbar') %>
-  <div class="main-container">
-    <%- include('../../partials/user/profileSidebar', { activePage: 'address' }) %>
+    <div class="main-container">
+      <%- include('../../partials/user/profileSidebar', { activePage: 'address' }) %>
 
-      <main class="main-wrapper">
-        <div id="profile-card-container">
+        <main class="main-wrapper">
+          <div id="profile-card-container">
 
-          <div class="d-flex justify-content-between align-items-center mb-5">
-            <h3 class="m-0">Add New Address</h3>
-            <a href="/address" class="btn btn-custom change-pass-btn">
-              <i class="bi bi-arrow-left"></i> Back
-            </a>
-          </div>
+            <div class="d-flex justify-content-between align-items-center mb-5">
+              <h3 class="m-0">Add New Address</h3>
+              <a href="/address" class="btn btn-custom change-pass-btn">
+                <i class="bi bi-arrow-left"></i> Back
+              </a>
+            </div>
 
-          <div class="card">
-            <form action="/address-add" method="POST" id="addAddressForm">
+            <div class="card">
+              <form action="/address-add" method="POST" id="addAddressForm">
 
-              <div class="form-group mb-5">
-                <label class="mb-3">Address Type</label>
-                <div class="radio-group">
-                  <label class="radio-option">
-                    <input type="radio" name="addressType" value="Home" <%=(typeof addressType !=='undefined' &&
-                      addressType==='Home' ) || typeof addressType==='undefined' ? 'checked' : '' %>> Home
-                  </label>
-                  <label class="radio-option">
-                    <input type="radio" name="addressType" value="Work" <%=(typeof addressType !=='undefined' &&
-                      addressType==='Work' ) ? 'checked' : '' %>> Work
-                  </label>
-                  <label class="radio-option">
-                    <input type="radio" name="addressType" value="Other" <%=(typeof addressType !=='undefined' &&
-                      addressType==='Other' ) ? 'checked' : '' %>> Other
-                  </label>
-                </div>
-              </div>
-
-              <div class="row g-4">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" name="name" class="form-control" placeholder="Recipient's name"
-                      value="<%= typeof name !== 'undefined' ? name : '' %>" autocomplete="name">
-                    <% if (errors.name) { %>
-                      <p class="text-danger small mt-1">
-                        <%= errors.name %>
-                      </p>
-                      <% } %>
+                <div class="form-group mb-5">
+                  <label class="mb-3">Address Type</label>
+                  <div class="radio-group">
+                    <label class="radio-option">
+                      <input type="radio" name="addressType" value="Home" <%=(typeof addressType !=='undefined' &&
+                        addressType==='Home' ) || typeof addressType==='undefined' ? 'checked' : '' %>> Home
+                    </label>
+                    <label class="radio-option">
+                      <input type="radio" name="addressType" value="Work" <%=(typeof addressType !=='undefined' &&
+                        addressType==='Work' ) ? 'checked' : '' %>> Work
+                    </label>
+                    <label class="radio-option">
+                      <input type="radio" name="addressType" value="Other" <%=(typeof addressType !=='undefined' &&
+                        addressType==='Other' ) ? 'checked' : '' %>> Other
+                    </label>
                   </div>
                 </div>
 
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Phone Number</label>
-                    <div class="input-group">
-                      <span class="input-group-text bg-transparent border-secondary text-white-50">+91</span>
-                      <input type="text" name="phone" class="form-control" placeholder="10-digit number"
-                        value="<%= typeof phone !== 'undefined' ? phone : '' %>" maxlength="10" autocomplete="tel">
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Full Name</label>
+                      <input type="text" name="name" class="form-control" placeholder="Recipient's name"
+                        value="<%= typeof name !== 'undefined' ? name : '' %>" autocomplete="name">
+                      <% if (errors.name) { %>
+                        <p class="text-danger small mt-1">
+                          <%= errors.name %>
+                        </p>
+                        <% } %>
                     </div>
-                    <% if (errors.phone) { %>
-                      <p class="text-danger small mt-1">
-                        <%= errors.phone %>
-                      </p>
-                      <% } %>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Phone Number</label>
+                      <div class="input-group">
+                        <span class="input-group-text bg-transparent border-secondary text-white-50">+91</span>
+                        <input type="text" name="phone" class="form-control" placeholder="10-digit number"
+                          value="<%= typeof phone !== 'undefined' ? phone : '' %>" maxlength="10" autocomplete="tel">
+                      </div>
+                      <% if (errors.phone) { %>
+                        <p class="text-danger small mt-1">
+                          <%= errors.phone %>
+                        </p>
+                        <% } %>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>House Name / No.</label>
+                      <input type="text" name="houseName" class="form-control"
+                        placeholder="Building, Apartment, or House #"
+                        value="<%= typeof houseName !== 'undefined' ? houseName : '' %>" autocomplete="address-line1">
+                      <% if (errors.houseName) { %>
+                        <p class="text-danger small mt-1">
+                          <%= errors.houseName %>
+                        </p>
+                        <% } %>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Locality / Street</label>
+                      <input type="text" name="locality" class="form-control" placeholder="Area, Colony, or Street"
+                        value="<%= typeof locality !== 'undefined' ? locality : '' %>" autocomplete="address-line2">
+                      <% if (errors.locality) { %>
+                        <p class="text-danger small mt-1">
+                          <%= errors.locality %>
+                        </p>
+                        <% } %>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>City</label>
+                      <input type="text" name="city" class="form-control"
+                        value="<%= typeof city !== 'undefined' ? city : '' %>" autocomplete="address-level2">
+                      <% if (errors.city) { %>
+                        <p class="text-danger small mt-1">
+                          <%= errors.city %>
+                        </p>
+                        <% } %>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>State</label>
+                      <input type="text" name="state" class="form-control"
+                        value="<%= typeof state !== 'undefined' ? state : '' %>" autocomplete="address-level1">
+                      <% if (errors.state) { %>
+                        <p class="text-danger small mt-1">
+                          <%= errors.state %>
+                        </p>
+                        <% } %>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Pincode</label>
+                      <input type="text" name="pincode" class="form-control" placeholder="6-digit"
+                        value="<%= typeof pincode !== 'undefined' ? pincode : '' %>" maxlength="6"
+                        autocomplete="postal-code">
+                      <% if (errors.pincode) { %>
+                        <p class="text-danger small mt-1">
+                          <%= errors.pincode %>
+                        </p>
+                        <% } %>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="form-group">
+                      <label>Country</label>
+                      <select name="country" class="form-select bg-dark text-white border-secondary">
+                        <option value="India" <%=typeof country !=='undefined' && country==='India' ? 'selected' : '' %>
+                          >India</option>
+                        <option value="USA" <%=typeof country !=='undefined' && country==='USA' ? 'selected' : '' %>>USA
+                        </option>
+                        <option value="UK" <%=typeof country !=='undefined' && country==='UK' ? 'selected' : '' %>>UK
+                        </option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>House Name / No.</label>
-                    <input type="text" name="houseName" class="form-control"
-                      placeholder="Building, Apartment, or House #"
-                      value="<%= typeof houseName !== 'undefined' ? houseName : '' %>" autocomplete="address-line1">
-                    <% if (errors.houseName) { %>
-                      <p class="text-danger small mt-1">
-                        <%= errors.houseName %>
-                      </p>
-                      <% } %>
-                  </div>
+                <div class="form-check mt-5 mb-5 custom-checkbox">
+                  <input class="form-check-input" type="checkbox" name="isDefault" id="isDefault" <%=typeof isDefault
+                    !=='undefined' && isDefault==='on' ? 'checked' : '' %>>
+                  <label class="form-check-label text-white-50" for="isDefault">Set as my default shipping
+                    address</label>
                 </div>
 
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Locality / Street</label>
-                    <input type="text" name="locality" class="form-control" placeholder="Area, Colony, or Street"
-                      value="<%= typeof locality !== 'undefined' ? locality : '' %>" autocomplete="address-line2">
-                    <% if (errors.locality) { %>
-                      <p class="text-danger small mt-1">
-                        <%= errors.locality %>
-                      </p>
-                      <% } %>
-                  </div>
+                <div class="d-flex justify-content-end gap-3 mt-4">
+                  <a href="/address" class="btn btn-custom change-pass-btn">Cancel</a>
+                  <button type="submit" class="btn btn-custom edit-btn bg-primary text-white">Save Address</button>
                 </div>
-
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>City</label>
-                    <input type="text" name="city" class="form-control"
-                      value="<%= typeof city !== 'undefined' ? city : '' %>" autocomplete="address-level2">
-                    <% if (errors.city) { %>
-                      <p class="text-danger small mt-1">
-                        <%= errors.city %>
-                      </p>
-                      <% } %>
-                  </div>
-                </div>
-
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>State</label>
-                    <input type="text" name="state" class="form-control"
-                      value="<%= typeof state !== 'undefined' ? state : '' %>" autocomplete="address-level1">
-                    <% if (errors.state) { %>
-                      <p class="text-danger small mt-1">
-                        <%= errors.state %>
-                      </p>
-                      <% } %>
-                  </div>
-                </div>
-
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Pincode</label>
-                    <input type="text" name="pincode" class="form-control" placeholder="6-digit"
-                      value="<%= typeof pincode !== 'undefined' ? pincode : '' %>" maxlength="6"
-                      autocomplete="postal-code">
-                    <% if (errors.pincode) { %>
-                      <p class="text-danger small mt-1">
-                        <%= errors.pincode %>
-                      </p>
-                      <% } %>
-                  </div>
-                </div>
-
-                <div class="col-12">
-                  <div class="form-group">
-                    <label>Country</label>
-                    <select name="country" class="form-select bg-dark text-white border-secondary">
-                      <option value="India" <%=typeof country !=='undefined' && country==='India' ? 'selected' : '' %>
-                        >India</option>
-                      <option value="USA" <%=typeof country !=='undefined' && country==='USA' ? 'selected' : '' %>>USA
-                      </option>
-                      <option value="UK" <%=typeof country !=='undefined' && country==='UK' ? 'selected' : '' %>>UK
-                      </option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-check mt-5 mb-5 custom-checkbox">
-                <input class="form-check-input" type="checkbox" name="isDefault" id="isDefault" <%=typeof isDefault
-                  !=='undefined' && isDefault==='on' ? 'checked' : '' %>>
-                <label class="form-check-label text-white-50" for="isDefault">Set as my default shipping address</label>
-              </div>
-
-              <div class="d-flex justify-content-end gap-3 mt-4">
-                <a href="/address" class="btn btn-custom change-pass-btn">Cancel</a>
-                <button type="submit" class="btn btn-custom edit-btn bg-primary text-white">Save Address</button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
-        </div>
-      </main>
-  </div>
+        </main>
+    </div>
 
-  <% if (typeof isDuplicate !=='undefined' && isDuplicate) { %>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        Swal.fire({
-          toast: true,
-          position: 'top',
-          icon: 'error',
-          title: 'This address already exists!',
-          showConfirmButton: false,
-          timer: 3000,
-          timerProgressBar: true,
-          background: '#111422',
-          color: '#f0f2ff'
+    <% if (typeof isDuplicate !=='undefined' && isDuplicate) { %>
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          Swal.fire({
+            toast: true,
+            position: 'top',
+            icon: 'error',
+            title: 'This address already exists!',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            background: '#111422',
+            color: '#f0f2ff'
+          });
         });
-      });
-    </script>
-    <% } %>
+      </script>
+      <% } %>
 
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-      <script src="/js/userProfile.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="/js/userProfile.js"></script>
 </body>
 
 </html>
