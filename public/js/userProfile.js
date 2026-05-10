@@ -33,6 +33,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (newContent) {
                     container.innerHTML = newContent.innerHTML;
+                    container.className = newContent.className;
+                    container.style.cssText = newContent.style.cssText;
                     if (pushState) history.pushState({ url }, '', url);
                     initCardContent();
                 } else {
@@ -49,6 +51,50 @@ document.addEventListener('DOMContentLoaded', function () {
     function initCardContent() {
 
         // ── Password added toast ──
+
+        const profileToastInput = document.getElementById('showProfileSuccessToast');
+        if (profileToastInput) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: profileToastInput.value,
+                showConfirmButton: false,
+                timer: 2500,
+                background: '#141824',
+                color: '#e8eaf6'
+            });
+            profileToastInput.remove();
+        }
+
+        const passSetToast = document.getElementById('showPasswordSetToast');
+        if (passSetToast) {
+            Swal.fire({
+                icon: 'success',
+                title: '🎉 Password Set!',
+                text: 'You can now log in with your email and this new password.',
+                confirmButtonText: 'Great!',
+                confirmButtonColor: '#4f6ef7',
+                background: '#141824',
+                color: '#e8eaf6'
+            });
+            passSetToast.remove();
+        }
+
+        const passUpdateToast = document.getElementById('showPasswordUpdateToast');
+        if (passUpdateToast) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Password Updated!',
+                text: passUpdateToast.value,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#4f6ef7',
+                background: '#141824',
+                color: '#e8eaf6'
+            });
+            passUpdateToast.remove();
+        }
+
         const toastInput = document.getElementById('showPasswordToast');
         if (toastInput?.value === 'true') {
             Swal.mixin({
@@ -155,6 +201,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         const newContent = doc.getElementById('profile-card-container');
                         if (newContent) {
                             container.innerHTML = newContent.innerHTML;
+                    container.className = newContent.className;
+                    container.style.cssText = newContent.style.cssText;
                             initCardContent();
                         }
                     })

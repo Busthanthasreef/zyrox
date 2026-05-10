@@ -28,7 +28,7 @@ const loadCategories = async (req, res) => {
       });
     }
 
-    res.render("admin/category/Categories", {
+    res.render("admin/category/categories", {
       admin: req.session.admin,
       ...data,
       search,

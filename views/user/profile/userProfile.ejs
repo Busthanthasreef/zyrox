@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>My Profile - Zyrox</title>
+    <link rel="icon" type="image/png" href="/images/favicon.png?v=3">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap 5 -->
@@ -18,197 +19,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="/userStyles/profile/profileShared.css">
 
-    <style>
-        :root {
-            --bg-deep: #0c0f1a;
-            --bg-card: #141824;
-            --bg-card-h: #1a1f2e;
-            --accent: #4f6ef7;
-            --accent-rgb: 0, 255, 4;
-            --primary-blue: #4f6ef7;
-            --text: #e8eaf6;
-            --sub: #7b8fb5;
-            --border: rgba(255, 255, 255, 0.05);
-            --border2: rgba(255, 255, 255, 0.1);
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-deep);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-
-
-
-        /* ── LAYOUT ── */
-        .page-wrapper { display: flex; min-height: 100vh; align-items: flex-start; padding-top: 56px; }
-        .main-wrapper { flex: 1; padding-bottom: 80px; }
-        .content-container { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
-
-        /* ── HEADER ROW ── */
-        .profile-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .profile-main-title { font-size: 1.4rem; font-weight: 700; margin: 0; }
-        .top-action-btns { display: flex; gap: 10px; }
-        .btn-edit-profile {
-            background: var(--primary-blue);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-        }
-        .btn-logout-icon {
-            background: rgba(255, 77, 109, 0.05);
-            color: #ff4d6d;
-            border: 1px solid rgba(255, 77, 109, 0.2);
-            border-radius: 8px;
-            width: 38px;
-            height: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
-
-        /* ── AVATAR SECTION ── */
-        .avatar-section { text-align: center; margin-bottom: 40px; }
-        .avatar-glow-wrap { display: inline-block; margin-bottom: 15px; position: relative; }
-        .avatar-outer-ring {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            padding: 4px;
-            background: linear-gradient(135deg, var(--primary-blue), #6c5ce7);
-            box-shadow: 0 0 20px rgba(79, 110, 247, 0.3);
-        }
-        .avatar-inner-ring { width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--bg-deep); overflow: hidden; background: #252a42; }
-        .main-avatar-img { width: 100%; height: 100%; object-fit: cover; }
-        .user-display-name { font-size: 1.5rem; font-weight: 800; margin-bottom: 5px; }
-        .member-since { font-size: 0.8rem; color: var(--sub); }
-
-        /* ── INFO CARDS ── */
-        .info-cards-grid { display: grid; gap: 15px; }
-        .profile-info-card { background: var(--bg-card); border: 1px solid var(--border2); border-radius: 16px; padding: 16px 20px; }
-        .card-field-label { display: block; font-size: 0.65rem; font-weight: 700; color: var(--sub); letter-spacing: 0.5px; margin-bottom: 6px; text-transform: uppercase; }
-        .card-field-value { font-size: 1rem; font-weight: 700; color: var(--text); }
-        .card-field-row { display: flex; justify-content: space-between; align-items: center; }
-        .card-row-actions { display: flex; align-items: center; gap: 10px; }
-        .icon-action-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border2); color: var(--sub); border-radius: 6px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
-        .btn-share-link { background: rgba(79, 110, 247, 0.1); color: var(--primary-blue); border: 1px solid rgba(79, 110, 247, 0.2); border-radius: 6px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-
-        /* ── VERIFICATION ── */
-        .verification-badge-wrap { margin-top: 5px; }
-        .v-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; }
-        .badge-zyrox { background: rgba(var(--accent-rgb), 0.1); color: var(--accent); border: 1px solid rgba(var(--accent-rgb), 0.2); }
-        .badge-google { background: rgba(79, 110, 247, 0.1); color: var(--primary-blue); border: 1px solid rgba(79, 110, 247, 0.2); }
-
-        /* ── EMAIL BOX ── */
-        .email-display-box { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 10px; padding: 12px 15px; font-size: 0.95rem; color: var(--sub); margin-top: 5px; }
-        .google-managed-hint { font-size: 0.7rem; color: #ff9800; margin-top: 8px; display: flex; align-items: center; gap: 6px; }
-
-        /* ── SECURITY SECTION ── */
-        .security-section { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 25px; text-align: center; }
-        .security-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; }
-        .btn-update-password { width: 100%; background: var(--bg-card); border: 1px solid var(--border2); color: var(--text); padding: 12px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; cursor: pointer; }
-        .btn-update-password:hover { background: var(--bg-card-h); border-color: var(--primary-blue); color: #fff; }
-        .btn-update-password i { color: var(--sub); }
-
-        /* ── ADD PASSWORD (Google) ── */
-        .google-add-pass-hint {
-            display: flex; align-items: flex-start; gap: 14px;
-            background: rgba(79, 110, 247, 0.07);
-            border: 1px solid rgba(79, 110, 247, 0.2);
-            border-radius: 12px; padding: 14px 16px;
-            margin-bottom: 16px; text-align: left;
-        }
-        .google-icon { font-size: 1.4rem; color: #4285F4; margin-top: 2px; flex-shrink: 0; }
-        .google-hint-text { display: flex; flex-direction: column; gap: 4px; }
-        .hint-title { font-size: 0.88rem; font-weight: 700; color: var(--text); }
-        .hint-sub { font-size: 0.78rem; color: var(--sub); line-height: 1.5; }
-        .btn-add-password {
-            width: 100%;
-            background: linear-gradient(135deg, rgba(79, 110, 247, 0.15), rgba(108, 92, 231, 0.15));
-            border: 1px solid rgba(79, 110, 247, 0.4);
-            color: #7b9fff;
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.25s;
-            cursor: pointer;
-            letter-spacing: 0.02em;
-        }
-        .btn-add-password:hover {
-            background: linear-gradient(135deg, rgba(79, 110, 247, 0.3), rgba(108, 92, 231, 0.3));
-            border-color: var(--primary-blue);
-            color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(79, 110, 247, 0.2);
-        }
-        .btn-add-password i { font-size: 1rem; }
-
-        @media (min-width: 768px) {
-            .info-cards-grid { grid-template-columns: repeat(2, 1fr); }
-            .profile-info-card.full-width { grid-column: span 2; }
-        }
-
-        @media (max-width: 992px) {
-            .desktop-sidebar { display: none !important; }
-            .content-container { padding: 15px 16px 40px !important; }
-            .footer-zyrax { display: none !important; }
-        }
-
-        /* ── FOOTER STYLES ── */
-        .footer-zyrax {
-            background: #080a12;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 60px 20px 30px;
-            margin-top: 50px;
-        }
-        .footer-brand { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; color: #fff; }
-        .footer-brand span { color: var(--accent); }
-        .footer-tagline { color: #7b8fb5; font-size: 0.85rem; line-height: 1.6; margin-bottom: 25px; }
-        .footer-social { display: flex; gap: 12px; }
-        .social-btn {
-            width: 36px; height: 36px; background: rgba(255,255,255,0.05); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; color: #7b8fb5; transition: 0.3s; text-decoration: none;
-        }
-        .social-btn:hover { background: var(--accent); color: #000; transform: translateY(-3px); }
-        .footer-col-title { font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
-        .footer-link { display: block; color: #7b8fb5; font-size: 0.85rem; margin-bottom: 12px; text-decoration: none; transition: 0.2s; }
-        .footer-link:hover { color: var(--accent); padding-left: 5px; }
-        .footer-divider { border-color: rgba(255, 255, 255, 0.05); margin: 40px 0 20px; }
-        .footer-copy { font-size: 0.75rem; color: #7b8fb5; }
-
-        /* ── MODAL STYLES ── */
-        .modal-field-label { display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #4f566b; margin-bottom: 6px; }
-        .modal-input-wrap { position: relative; }
-        .modal-field-input { width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid #252a42; border-radius: 10px; padding: 11px 44px 11px 14px; color: #f0f2ff; font-size: 0.9rem; outline: none; transition: 0.22s; }
-        .modal-field-input:focus { border-color: #4f6ef7; box-shadow: 0 0 0 3px rgba(79, 110, 247, .2); }
-        .modal-eye-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #4f566b; font-size: 1rem; }
-        .modal-strength-bar { height: 4px; background: #1e2338; border-radius: 4px; margin-top: 10px; overflow: hidden; display: none; }
-        .modal-strength-fill { height: 100%; width: 0; transition: 0.35s; }
-        .modal-req-list { list-style: none; padding: 0; margin: 10px 0 4px; display: none; }
-        .modal-req { font-size: 0.76rem; color: #4f566b; display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
-        .modal-req.met { color: #00d4aa; }
-        .modal-field-error { font-size: 0.75rem; color: #ff4d6d; margin: 4px 0 0; min-height: 16px; }
-        .modal-submit-btn { background: linear-gradient(135deg, #4f6ef7, #6c5ce7); color: #fff; border: none; border-radius: 10px; padding: 12px; font-weight: 700; font-size: 0.95rem; transition: 0.2s; margin-top: 6px; }
-        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    <link rel="stylesheet" href="/userStyles/profile/userProfileSpecific.css">
 </head>
 
 <body>
@@ -217,7 +28,16 @@
         <%- include('../../partials/user/profileSidebar', { activePage: 'profile' }) %>
         <main class="main-wrapper">
 
-            <div class="content-container">
+            <div class="content-container" id="profile-card-container">
+                <% if (typeof profileSuccess !== 'undefined' && profileSuccess) { %>
+                    <input type="hidden" id="showProfileSuccessToast" value="<%= profileSuccess %>">
+                <% } %>
+                <% if (typeof passwordToast !== 'undefined' && passwordToast) { %>
+                    <input type="hidden" id="showPasswordSetToast" value="true">
+                <% } %>
+                <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+                    <input type="hidden" id="showPasswordUpdateToast" value="<%= successMessage %>">
+                <% } %>
                 <div class="profile-header-row">
                     <h3 class="profile-main-title">User Profile</h3>
                     <div class="top-action-btns">
@@ -452,42 +272,11 @@
             });
         }
 
-        <% if (typeof profileSuccess !== 'undefined' && profileSuccess) { %>
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: 'success',
-                title: '<%= profileSuccess %>',
-                showConfirmButton: false,
-                timer: 2500,
-                background: '#141824',
-                color: '#e8eaf6'
-            });
-        <% } %>
+        <% /* profileSuccess handled via hidden input */ %>
 
-        <% if (typeof passwordToast !== 'undefined' && passwordToast) { %>
-            Swal.fire({
-                icon: 'success',
-                title: '🎉 Password Set!',
-                text: 'You can now log in with your email and this new password.',
-                confirmButtonText: 'Great!',
-                confirmButtonColor: '#4f6ef7',
-                background: '#141824',
-                color: '#e8eaf6'
-            });
-        <% } %>
+        <% /* passwordToast handled via hidden input */ %>
 
-        <% if (typeof successMessage !== 'undefined' && successMessage) { %>
-            Swal.fire({
-                icon: 'success',
-                title: 'Password Updated!',
-                text: '<%= successMessage %>',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#4f6ef7',
-                background: '#141824',
-                color: '#e8eaf6'
-            });
-        <% } %>
+        <% /* successMessage handled via hidden input */ %>
 
         // ── Password Modal Logic ──
         function modalToggleVis(id, btn) {

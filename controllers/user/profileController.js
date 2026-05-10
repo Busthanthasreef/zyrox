@@ -289,12 +289,17 @@ const editEmail = async (req, res, next) => {
 
 const verifyEditEmailOtp = async (req, res, next) => {
   try {
+    const isAjax = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json')) || req.is('json');
     const { A, B, C, D, E, F } = req.body;
     const Email = req.session.editEmail;
 
-    if (!Email) return res.redirect("/edit-email");
+    if (!Email) {
+      if (isAjax) return res.json({ success: false, message: "Session expired", redirect: "/edit-email" });
+      return res.redirect("/edit-email");
+    }
 
     if (!A || !B || !C || !D || !E || !F) {
+      if (isAjax) return res.json({ success: false, message: "Please enter complete OTP" });
       req.session.otpError = "Please enter complete OTP";
       return res.redirect("/otp-verification");
     }
@@ -303,6 +308,7 @@ const verifyEditEmailOtp = async (req, res, next) => {
     const validOTP = await otpSchema.findOne({ Email });
 
     if (!validOTP || validOTP.ExpiresAt < new Date()) {
+      if (isAjax) return res.json({ success: false, message: "Invalid or Expired OTP" });
       req.session.otpError = "Invalid or Expired OTP";
       return res.redirect("/otp-verification");
     }
@@ -310,6 +316,7 @@ const verifyEditEmailOtp = async (req, res, next) => {
     const isMatch = await bcrypt.compare(otp, validOTP.Code);
 
     if (!isMatch) {
+      if (isAjax) return res.json({ success: false, message: "Incorrect OTP" });
       req.session.otpError = "Incorrect OTP";
       return res.redirect("/otp-verification");
     }
@@ -325,10 +332,15 @@ const verifyEditEmailOtp = async (req, res, next) => {
     await otpSchema.deleteMany({ Email });
     delete req.session.editEmail;
 
+    if (isAjax) {
+      return res.json({ success: true, message: "Email updated successfully", redirect: "/profile-edit" });
+    }
+
     req.session.otpSuccess = "Email updated successfully";
     req.session.otpSwal = true;
     res.redirect("/otp-verification");
   } catch (error) {
+    if (req.xhr) return res.status(500).json({ success: false, message: "Internal server error" });
     next(error);
   }
 };
