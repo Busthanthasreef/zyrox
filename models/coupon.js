@@ -16,23 +16,18 @@ const validatePercentageDiscount = function(value) {
     return true;
 };
 
-// Custom validator for flat discount
-const validateFlatDiscount = function(value) {
-    let discountType, minCartValue;
+// Custom validator: minimum purchase must be greater than discount value
+const validateMinCartVsDiscount = function(value) {
+    let minCartValue;
     if (this instanceof mongoose.Document) {
-        discountType = this.discountType;
         minCartValue = this.minCartValue;
     } else if (this.getUpdate) {
         const update = this.getUpdate();
-        discountType = update.discountType || (update.$set ? update.$set.discountType : null);
         minCartValue = update.minCartValue !== undefined ? update.minCartValue : (update.$set ? update.$set.minCartValue : null);
     }
 
-    if (discountType === 'flat' && minCartValue > 0) {
-        const maxAllowed = minCartValue * 0.99; 
-        if (value > maxAllowed) {
-            throw new Error('Flat discount exceeds maximum allowed amount (99% of min cart)');
-        }
+    if (minCartValue > 0 && value >= minCartValue) {
+        throw new Error('Minimum purchase amount must be greater than the discount value');
     }
     return true;
 };
@@ -64,8 +59,8 @@ const couponSchema = new mongoose.Schema({
                 message: 'Percentage discount exceeds allowed limit'
             },
             {
-                validator: validateFlatDiscount,
-                message: 'Flat discount validation failed'
+                validator: validateMinCartVsDiscount,
+                message: 'Minimum purchase amount must be greater than the discount value'
             }
         ]
     },

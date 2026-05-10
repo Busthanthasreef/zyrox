@@ -49,21 +49,18 @@ export const validateCouponData = ({ discountType, discountValue, minCartValue, 
     return { valid: false, message: "Discount value must be greater than 0" };
   }
 
-  // Enhanced validation: Percentage cannot exceed 99%
+  // Percentage cannot exceed 99%
   if (discountType === "percentage" && numericDiscount > 99) {
     return { valid: false, message: "Percentage discount exceeds allowed limit (max 99%)" };
   }
 
-  // Enhanced validation: Flat discount cannot exceed 99% of minCartValue if specified
-  if (discountType === "flat" && numericMinCart > 0) {
-    const maxAllowedFlat = numericMinCart * 0.99; // Allow up to 99% of minimum cart value
-    if (numericDiscount > maxAllowedFlat) {
-      return { valid: false, message: "Flat discount exceeds maximum allowed amount (99% of min cart)" };
-    }
-  }
-
   if (numericMinCart < 0) {
     return { valid: false, message: "Min cart value cannot be negative" };
+  }
+
+  // Minimum purchase must always be greater than the discount value
+  if (numericMinCart > 0 && numericDiscount >= numericMinCart) {
+    return { valid: false, message: "Minimum purchase amount must be greater than the discount value" };
   }
 
   return { valid: true, fromDate, tillDate, numericDiscount, numericMinCart };

@@ -1023,6 +1023,28 @@
         return d;
       }
 
+      // Clear field error as soon as the user starts editing it
+      ['description', 'code', 'discountValue', 'discountType', 'minCartValue', 'usageLimit', 'validFrom', 'validTill'].forEach(name => {
+        const el = form.querySelector(`[name="${name}"]`);
+        if (el) {
+          el.addEventListener('input', () => clearError(name));
+          el.addEventListener('change', () => clearError(name));
+        }
+      });
+
+      // maxDiscount has a special element id
+      const maxDiscEl = document.getElementById('f_maxDiscount');
+      if (maxDiscEl) {
+        maxDiscEl.addEventListener('input', () => clearError('maxDiscount'));
+        maxDiscEl.addEventListener('change', () => clearError('maxDiscount'));
+      }
+
+      // Also clear minCartValue error when discountValue changes and vice-versa (cross-field rule)
+      const discountValueEl = form.querySelector('[name="discountValue"]');
+      const minCartEl = form.querySelector('[name="minCartValue"]');
+      if (discountValueEl) discountValueEl.addEventListener('input', () => clearError('minCartValue'));
+      if (minCartEl) minCartEl.addEventListener('input', () => clearError('discountValue'));
+
       function showError(fieldName, message) {
         const el = fieldName === 'maxDiscount'
           ? document.getElementById('f_maxDiscount')
@@ -1210,8 +1232,8 @@
         if (minCart < 0) {
           showError('minCartValue', 'Min cart value cannot be negative');
           hasError = true;
-        } else if (data.discountType === 'flat' && minCart > 0 && !isNaN(discountVal) && discountVal >= minCart) {
-          showError('discountValue', 'Flat discount must be less than Minimum Cart Value');
+        } else if (minCart > 0 && !isNaN(discountVal) && discountVal >= minCart) {
+          showError('minCartValue', 'Minimum purchase amount must be greater than the discount value');
           hasError = true;
         }
 
