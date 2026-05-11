@@ -172,20 +172,25 @@ const changeOrderStatus = async (orderId, status) => {
                 }
             }
             item.status = status;
+            if (status === 'Cancelled') item.cancelledAt = new Date();
+            if (status === 'Returned')  item.returnedAt  = new Date();
         }
     } else {
         order.items.forEach(item => {
             if (!['Cancelled', 'Returned', 'Cancellation Requested', 'Return Requested'].includes(item.status)) {
                 item.status = status;
+                if (status === 'Processing') item.processingAt = new Date();
+                if (status === 'Shipped')    item.shippedAt    = new Date();
                 if (status === 'Delivered') {
-                    item.deliveredAt = new Date();
+                    item.deliveredAt  = new Date();
                 }
             }
         });
     }
 
     // Wallet refund for full order manual cancel/return
-    if (['Cancelled', 'Returned'].includes(status) && order.paymentStatus === 'Paid' && (order.paymentMethod === 'Online' || order.paymentMethod === 'Wallet')) {
+    // COD orders are refunded to wallet if already Paid (delivered); Online/Wallet always refunded if Paid
+    if (['Cancelled', 'Returned'].includes(status) && order.paymentStatus === 'Paid') {
         await processWalletRefund({
             userId: order.userId,
             refundAmount: order.finalPrice,
@@ -219,7 +224,8 @@ const processAcceptReturn = async (orderId) => {
 
     await order.save();
 
-    if (order.paymentStatus === 'Paid' && (order.paymentMethod === 'Online' || order.paymentMethod === 'Wallet')) {
+    // Refund to wallet if order was Paid — covers COD (paid on delivery), Online, and Wallet
+    if (order.paymentStatus === 'Paid') {
         await processWalletRefund({
             userId: order.userId,
             refundAmount: order.finalPrice,
@@ -280,8 +286,10 @@ const processAcceptItemRequest = async (orderId, itemId) => {
     const oldStatus = item.status;
     if (oldStatus === "Return Requested") {
         item.status = "Returned";
+        item.returnedAt = new Date();
     } else if (oldStatus === "Cancellation Requested") {
         item.status = "Cancelled";
+        item.cancelledAt = new Date();
     } else {
         return { noPendingRequest: true };
     }
@@ -306,8 +314,8 @@ const processAcceptItemRequest = async (orderId, itemId) => {
 
     await order.save();
 
-    // Wallet refund (item-level)
-    if (order.paymentStatus === 'Paid' && (order.paymentMethod === 'Online' || order.paymentMethod === 'Wallet')) {
+    // Wallet refund (item-level) — covers COD (Paid on delivery), Online, and Wallet
+    if (order.paymentStatus === 'Paid') {
         const userId = order.userId;
 
         let refundAmount = item.total;
@@ -378,3 +386,54 @@ export {
     processAcceptItemRequest,
     processDeclineItemRequest
 };
+
+/**
+ * Updates a single item's status within an order.
+ * Skips items that are in terminal or request states.
+ * Recalculates the parent order status after the update.
+ */
+export async function changeItemStatus(orderId, itemId, newStatus) {
+    const VALID_STATUSES = ['Pending', 'Processing', 'Shipped', 'Delivered'];
+    if (!VALID_STATUSES.includes(newStatus)) {
+        return { invalidStatus: true };
+    }
+
+    const order = await Order.findById(orderId);
+    if (!order) return { notFound: true };
+
+    const item = order.items.id(itemId);
+    if (!item) return { itemNotFound: true };
+
+    // Block update if item is in a terminal or request state
+    const BLOCKED = ['Cancelled', 'Returned', 'Cancellation Requested', 'Return Requested'];
+    if (BLOCKED.includes(item.status)) {
+        return { blocked: true };
+    }
+
+    item.status = newStatus;
+    if (newStatus === 'Processing') item.processingAt = new Date();
+    if (newStatus === 'Shipped')    item.shippedAt    = new Date();
+    if (newStatus === 'Delivered') {
+        item.deliveredAt = new Date();
+    }
+
+    // Recalculate parent order status from all non-terminal items
+    const TERMINAL = ['Cancelled', 'Returned'];
+    const activeItems = order.items.filter(i => !TERMINAL.includes(i.status));
+
+    if (activeItems.length > 0) {
+        // Order status = the "lowest" status among active items
+        const STATUS_RANK = { Pending: 0, Processing: 1, Shipped: 2, Delivered: 3 };
+        const lowestRank = Math.min(...activeItems.map(i => STATUS_RANK[i.status] ?? 0));
+        const lowestStatus = Object.keys(STATUS_RANK).find(k => STATUS_RANK[k] === lowestRank);
+        order.orderStatus = lowestStatus;
+
+        if (lowestStatus === 'Delivered') {
+            order.paymentStatus = 'Paid';
+            order.deliveredAt = new Date();
+        }
+    }
+
+    await order.save();
+    return { notFound: false, itemNotFound: false, blocked: false, invalidStatus: false };
+}

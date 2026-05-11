@@ -357,6 +357,28 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ── COPY BUTTON ── */
+        .copy-btn {
+            background: none;
+            border: none;
+            padding: 2px 5px;
+            cursor: pointer;
+            color: #94a3b8;
+            font-size: 13px;
+            border-radius: 5px;
+            transition: color 0.15s, background 0.15s;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .copy-btn:hover {
+            color: #2563eb;
+            background: #eff6ff;
+        }
+        .copy-btn.copied {
+            color: #10b981;
+            background: #ecfdf5;
+        }
     </style>
 </head>
 
@@ -385,11 +407,12 @@
                             </select>
 
                             <% if (filterType==='custom' ) { %>
-                                <input type="date" name="startDate" class="form-control form-control-sm"
+                                <input type="date" name="startDate" id="startDateInput" class="form-control form-control-sm"
                                     style="border-radius: 10px;" value="<%= customStart %>"
-                                    onchange="this.form.submit()">
-                                <input type="date" name="endDate" class="form-control form-control-sm"
-                                    style="border-radius: 10px;" value="<%= customEnd %>" onchange="this.form.submit()">
+                                    onchange="onStartDateChange(this)">
+                                <input type="date" name="endDate" id="endDateInput" class="form-control form-control-sm"
+                                    style="border-radius: 10px;" value="<%= customEnd %>"
+                                    onchange="onEndDateChange(this)">
                                 <% } %>
                         </form>
 
@@ -478,7 +501,7 @@
                                     <th>Date</th>
                                     <th>Customer</th>
                                     <th>Payment</th>
-                                    <th>Status</th>
+                                    <th>Order Status</th>
                                     <th>Base Amount</th>
                                     <th>Discounts</th>
                                     <th>Paid Amount</th>
@@ -491,7 +514,13 @@
                                             <td>
                                                 <%= (data.currentPage - 1) * 5 + ind + 1 %>
                                             </td>
-                                            <td class="fw-bold text-primary">#<%= order.orderId %>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="fw-bold text-primary">#<%= order.orderId %></span>
+                                                    <button class="copy-btn" onclick="copyOrderId(this, '<%= order.orderId %>')" title="Copy Order ID">
+                                                        <i class="bi bi-copy"></i>
+                                                    </button>
+                                                </div>
                                             </td>
                                             <td class="text-muted" style="white-space: nowrap;">
                                                 <%= new Date(order.createdAt).toLocaleDateString('en-GB', {
@@ -688,6 +717,64 @@
                 const params = new URLSearchParams(window.location.search);
                 window.location.href = `/adminUser/sales-report/export/${type}?` + params.toString();
             }
+
+            function copyOrderId(btn, orderId) {
+                navigator.clipboard.writeText(orderId).then(() => {
+                    btn.classList.add('copied');
+                    btn.innerHTML = '<i class="bi bi-check2"></i>';
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.innerHTML = '<i class="bi bi-copy"></i>';
+                    }, 1500);
+                });
+            }
+
+            // ── Custom date range validation ──────────────────────────────────
+            function getNextDay(dateStr) {
+                const d = new Date(dateStr);
+                d.setDate(d.getDate() + 1);
+                return d.toISOString().split('T')[0];
+            }
+
+            function onStartDateChange(input) {
+                const endInput = document.getElementById('endDateInput');
+                if (!input.value) return;
+
+                // End date must be at least the day after start date
+                const minEnd = getNextDay(input.value);
+                endInput.setAttribute('min', minEnd);
+
+                // If current end date is now invalid, clear it and don't submit yet
+                if (endInput.value && endInput.value <= input.value) {
+                    endInput.value = '';
+                    return; // wait for user to pick a valid end date
+                }
+
+                // Both dates valid — submit
+                input.form.submit();
+            }
+
+            function onEndDateChange(input) {
+                const startInput = document.getElementById('startDateInput');
+                if (!input.value) return;
+
+                // Guard: end must be after start
+                if (startInput.value && input.value <= startInput.value) {
+                    input.value = '';
+                    return;
+                }
+
+                input.form.submit();
+            }
+
+            // On page load, set the min on end date if start date already has a value
+            (function initDateConstraints() {
+                const startInput = document.getElementById('startDateInput');
+                const endInput   = document.getElementById('endDateInput');
+                if (startInput && endInput && startInput.value) {
+                    endInput.setAttribute('min', getNextDay(startInput.value));
+                }
+            })();
         </script>
 </body>
 

@@ -108,6 +108,23 @@
             color: #ffffff;
         }
 
+        .stepper-date {
+            font-size: 0.58rem;
+            color: #58a6ff;
+            margin-top: 3px;
+            font-weight: 600;
+            white-space: nowrap;
+            letter-spacing: 0.01em;
+        }
+
+        .stepper-time {
+            font-size: 0.55rem;
+            color: #6e7f96;
+            margin-top: 1px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
         .modal-content {
             background-color: #161b22 !important;
             border: 1px solid #30363d !important;
@@ -532,11 +549,31 @@
                                            if (itemS.includes('Return')) { steps[3] = itemS; }
                                            else if (itemS.includes('Cancel')) { steps = ['Pending', itemS]; }
                                            let cIdx = steps.indexOf(itemS);
-                                           if (cIdx === -1) cIdx = steps.length - 1; %>
+                                           if (cIdx === -1) cIdx = steps.length - 1;
+
+                                           // Real timestamps per step — only show for completed steps
+                                           const fmtDate = d => d ? new Date(d).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : null;
+                                           const fmtTime = d => d ? new Date(d).toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', hour12: true }) : null;
+
+                                           const stepTimestamps = {
+                                               'Pending':    order.createdAt,
+                                               'Processing': item.processingAt,
+                                               'Shipped':    item.shippedAt,
+                                               'Delivered':  item.deliveredAt || order.deliveredAt,
+                                               'Cancelled':  item.cancelledAt || order.updatedAt,
+                                               'Returned':   item.returnedAt  || order.updatedAt,
+                                               'Return Requested':       order.updatedAt,
+                                               'Cancellation Requested': order.updatedAt,
+                                           };
+                                        %>
                                         <% steps.forEach((step, i) => { %>
                                             <div class="flex flex-col items-center">
                                                 <div class="stepper-dot <%= i <= cIdx ? 'active' : '' %>"></div>
                                                 <span class="stepper-text <%= i <= cIdx ? 'active' : '' %>"><%= step %></span>
+                                                <% if (i <= cIdx && stepTimestamps[step]) { %>
+                                                    <span class="stepper-date"><%= fmtDate(stepTimestamps[step]) %></span>
+                                                    <span class="stepper-time"><%= fmtTime(stepTimestamps[step]) %></span>
+                                                <% } %>
                                             </div>
                                             <% if (i < steps.length - 1) { %>
                                                 <div class="stepper-line <%= i < cIdx ? 'active' : '' %>"></div>

@@ -15,7 +15,7 @@ import {
 export const getSalesReport = async (req, res) => {
     try {
         const {
-            filterType   = "daily",
+            filterType   = "monthly",
             startDate: customStart,
             endDate:   customEnd,
             search       = "",

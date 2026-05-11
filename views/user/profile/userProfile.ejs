@@ -113,19 +113,7 @@
 
                     <div class="security-section">
                         <h4 class="security-title">Security</h4>
-                        <% if (isGoogleUser && !hasPassword) { %>
-                            <!-- Google user with NO password yet -->
-                            <div class="google-add-pass-hint">
-                                <i class="fab fa-google google-icon"></i>
-                                <div class="google-hint-text">
-                                    <span class="hint-title">Your account is managed by Google</span>
-                                    <span class="hint-sub">You can set a Zyrox password to log in directly without Google.</span>
-                                </div>
-                            </div>
-                            <button class="btn-add-password" data-bs-toggle="modal" data-bs-target="#passwordModal">
-                                <i class="fas fa-plus-circle"></i> Add Password
-                            </button>
-                        <% } else { %>
+                        <% if (!isGoogleUser) { %>
                             <button class="btn-update-password" data-bs-toggle="modal" data-bs-target="#passwordModal">
                                 <i class="fas fa-shield-alt"></i> Update Password
                             </button>
@@ -146,41 +134,31 @@
                 <div class="modal-header border-0 px-4 pt-4 pb-2">
                     <div>
                         <h5 class="modal-title fw-bold mb-1" style="color:#f0f2ff;">
-                            <% if (isGoogleUser && !hasPassword) { %>
-                                <i class="fab fa-google me-2" style="color:#4285F4;"></i> Add a Password
-                            <% } else { %>
-                                <i class="bi bi-shield-lock me-2" style="color:#4f6ef7;"></i> Update Password
-                            <% } %>
+                            <i class="bi bi-shield-lock me-2" style="color:#4f6ef7;"></i> Update Password
                         </h5>
                         <p class="mb-0 small" style="color:#8b92b8;">
-                            <% if (isGoogleUser && !hasPassword) { %>
-                                Set a Zyrox password to also log in without Google
-                            <% } else { %>
-                                Keep your account secure with a strong password
-                            <% } %>
+                            Keep your account secure with a strong password
                         </p>
                     </div>
                     <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body px-4 pb-2 pt-3">
-                    <form action="<%= hasPassword ? '/change-password' : '/add-password' %>" method="POST" id="passwordModalForm">
-                        <% if (hasPassword) { %>
-                            <div id="currentPasswordSection">
-                                <div class="mb-3">
-                                    <label class="modal-field-label">Current Password</label>
-                                    <div class="modal-input-wrap">
-                                        <input type="password" id="modal_currentPassword" name="currentPassword" class="modal-field-input" placeholder="Enter your current password">
-                                        <button type="button" class="modal-eye-btn" onclick="modalToggleVis('modal_currentPassword', this)"><i class="fa-regular fa-eye"></i></button>
-                                    </div>
-                                    <p class="modal-field-error" id="modal_currentPasswordError"></p>
+                    <form action="/change-password" method="POST" id="passwordModalForm">
+                        <div id="currentPasswordSection">
+                            <div class="mb-3">
+                                <label class="modal-field-label">Current Password</label>
+                                <div class="modal-input-wrap">
+                                    <input type="password" id="modal_currentPassword" name="currentPassword" class="modal-field-input" placeholder="Enter your current password">
+                                    <button type="button" class="modal-eye-btn" onclick="modalToggleVis('modal_currentPassword', this)"><i class="fa-regular fa-eye"></i></button>
                                 </div>
-                                <button type="button" class="modal-submit-btn w-100 mb-3" id="verifyCurrentPasswordBtn">
-                                    <i class="bi bi-shield-check me-2"></i> Verify Password
-                                </button>
+                                <p class="modal-field-error" id="modal_currentPasswordError"></p>
                             </div>
-                        <% } %>
+                            <button type="button" class="modal-submit-btn w-100 mb-3" id="verifyCurrentPasswordBtn">
+                                <i class="bi bi-shield-check me-2"></i> Verify Password
+                            </button>
+                        </div>
 
-                        <div id="newPasswordSection" style="<%= hasPassword ? 'display: none;' : '' %>">
+                        <div id="newPasswordSection" style="display: none;">
                             <div class="mb-2">
                                 <label class="modal-field-label">New Password</label>
                                 <div class="modal-input-wrap">
@@ -206,7 +184,7 @@
                                 <p class="modal-field-error" id="modal_confirmPasswordError"></p>
                             </div>
                             <button type="submit" class="modal-submit-btn w-100">
-                                <i class="bi bi-shield-lock-fill me-2"></i> <%= hasPassword ? 'Update Password' : 'Set Password' %>
+                                <i class="bi bi-shield-lock-fill me-2"></i> Update Password
                             </button>
                         </div>
                     </form>

@@ -7,7 +7,8 @@ import {
     processAcceptReturn,
     processDeclineReturn,
     processAcceptItemRequest,
-    processDeclineItemRequest
+    processDeclineItemRequest,
+    changeItemStatus
 } from "../../services/adminServices/orderService.js";
 
 const getOrders = async (req, res) => {
@@ -166,4 +167,25 @@ const declineItemRequest = async (req, res) => {
     }
 };
 
-export { getOrders, getOrderDetails, updateOrderStatus, acceptReturn, declineReturn, acceptItemRequest, declineItemRequest };
+const updateItemStatus = async (req, res) => {
+    try {
+        const { orderId, itemId, status } = req.body;
+        if (!orderId || !itemId || !status) {
+            return res.json({ success: false, message: "Missing required fields" });
+        }
+
+        const result = await changeItemStatus(orderId, itemId, status);
+
+        if (result.notFound)     return res.json({ success: false, message: "Order not found" });
+        if (result.itemNotFound) return res.json({ success: false, message: "Item not found" });
+        if (result.invalidStatus) return res.json({ success: false, message: "Invalid status value" });
+        if (result.blocked)      return res.json({ success: false, message: "Cannot update a cancelled or returned item" });
+
+        res.json({ success: true, message: `Item status updated to ${status}` });
+    } catch (error) {
+        console.error("Error in updateItemStatus:", error);
+        res.json({ success: false, message: "Server error" });
+    }
+};
+
+export { getOrders, getOrderDetails, updateOrderStatus, acceptReturn, declineReturn, acceptItemRequest, declineItemRequest, updateItemStatus };

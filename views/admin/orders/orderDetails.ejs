@@ -300,6 +300,33 @@
             cursor: not-allowed;
             background-color: #f1f5f9;
         }
+
+        /* ── Per-item status select ── */
+        .item-status-select {
+            padding: 4px 28px 4px 10px;
+            border-radius: 8px;
+            border: 1.5px solid #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #1e293b;
+            background: #f8fafc;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            cursor: pointer;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .item-status-select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+        }
+        .item-status-select:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 
@@ -383,6 +410,25 @@
                                                         <i class="fas fa-circle text-[5px]"></i>
                                                         <%= item.status || 'Pending' %>
                                                     </span>
+                                                    <% 
+                                                        const itemBlocked = ['Cancelled','Returned','Cancellation Requested','Return Requested'].includes(item.status);
+                                                    %>
+                                                    <% if (!itemBlocked) { %>
+                                                        <select
+                                                            class="item-status-select"
+                                                            onchange="updateItemStatus('<%= order._id %>', '<%= item._id %>', this)">
+                                                            <% ['Pending','Processing','Shipped','Delivered'].forEach((s, si) => {
+                                                                const itemStatusRank = {'Pending':0,'Processing':1,'Shipped':2,'Delivered':3};
+                                                                const curRank = itemStatusRank[item.status] ?? 0;
+                                                            %>
+                                                                <option value="<%= s %>"
+                                                                    <%= item.status === s ? 'selected' : '' %>
+                                                                    <%= si < curRank ? 'disabled' : '' %>>
+                                                                    <%= s %>
+                                                                </option>
+                                                            <% }) %>
+                                                        </select>
+                                                    <% } %>
                                                 </div>
                                                 <div class="flex gap-2 mt-2">
                                                     <span class="pill-tag">RAM <b>
@@ -661,6 +707,43 @@
 
 
     <script>
+        function updateItemStatus(orderId, itemId, selectEl) {
+            const status = selectEl.value;
+            const prevValue = selectEl.querySelector('option[selected]')?.value || selectEl.value;
+            const colorMap = { Pending: '#f59e0b', Processing: '#3b82f6', Shipped: '#0f766e', Delivered: '#16a34a' };
+
+            Swal.fire({
+                title: `<span style="font-weight:900;letter-spacing:-1px">Set Item: ${status}?</span>`,
+                text: 'This will update only this item\'s status.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: colorMap[status] || '#111318',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: `YES, MARK ${status.toUpperCase()}`,
+            }).then(val => {
+                if (!val.isConfirmed) {
+                    // Revert dropdown to previous value
+                    selectEl.value = prevValue;
+                    return;
+                }
+                fetch('/adminUser/orders/update-item-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId, itemId, status })
+                })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        Swal.fire({ title: 'UPDATED', text: d.message, icon: 'success' })
+                            .then(() => location.reload());
+                    } else {
+                        Swal.fire({ title: 'FAILED', text: d.message, icon: 'error' });
+                        selectEl.value = prevValue;
+                    }
+                });
+            });
+        }
+
         function updateStatus(orderId) {
             const status = document.getElementById('statusSelect').value;
             const colorMap = {

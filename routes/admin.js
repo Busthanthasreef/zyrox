@@ -49,6 +49,7 @@ adminRoutes.patch('/variants/:variantId/toggle', isAdminAuthenticated, variantCo
 adminRoutes.get('/orders',isAdminAuthenticated,orderController.getOrders)
 adminRoutes.get('/orders/details',isAdminAuthenticated,orderController.getOrderDetails);
 adminRoutes.post('/orders/update-status', isAdminAuthenticated, orderController.updateOrderStatus);
+adminRoutes.post('/orders/update-item-status', isAdminAuthenticated, orderController.updateItemStatus);
 adminRoutes.post('/orders/accept-return', isAdminAuthenticated, orderController.acceptReturn);
 adminRoutes.post('/orders/decline-return', isAdminAuthenticated, orderController.declineReturn);
 adminRoutes.post('/orders/accept-item-request', isAdminAuthenticated, orderController.acceptItemRequest);

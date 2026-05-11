@@ -57,7 +57,11 @@ const orderSchema = new mongoose.Schema(
         },
         cancellationReason: { type: String, default: null },
         returnReason: { type: String, default: null },
-        deliveredAt: { type: Date, default: null },
+        deliveredAt:   { type: Date, default: null },
+        processingAt:  { type: Date, default: null },
+        shippedAt:     { type: Date, default: null },
+        cancelledAt:   { type: Date, default: null },
+        returnedAt:    { type: Date, default: null },
       },
     ],
     shippingAddress: {
