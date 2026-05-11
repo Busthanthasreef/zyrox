@@ -362,7 +362,7 @@
                             if (r.isConfirmed) {
                                 btn.disabled = true;
                                 btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i> Processing...';
-                                redirectTo(`/signin?returnTo=${encodeURIComponent(currentPath)}`);
+                                redirectTo(`/signin`);
                             }
                         });
                     }

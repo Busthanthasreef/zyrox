@@ -628,7 +628,7 @@
                                 btn.disabled = true;
                                 btn.innerHTML = '<i class="bi bi-arrow-repeat bi-spin"></i> Processing...';
                                 const currentPath = window.location.pathname + window.location.search;
-                                redirectTo(`/signin?returnTo=${encodeURIComponent(currentPath)}`);
+                                redirectTo(`/signin`);
                             }
                         });
                         btn.disabled = false;
