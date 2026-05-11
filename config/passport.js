@@ -1,6 +1,7 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import userSchema from "../models/user.js";
+import { generateReferralCode } from "../utils/referralHelper.js";
 
 passport.use(
   new GoogleStrategy(
@@ -16,6 +17,11 @@ passport.use(
         if (user) {
           if (!user.isActive) {
             return done(null, false, { message: "blocked" });
+          }
+          // Backfill referral code if missing
+          if (!user.referralCode) {
+            user.referralCode = await generateReferralCode();
+            await user.save();
           }
           return done(null, user);
         }
@@ -34,6 +40,11 @@ passport.use(
             user.googleId = profile.id;
             modified = true;
           }
+          // Backfill referral code if missing
+          if (!user.referralCode) {
+            user.referralCode = await generateReferralCode();
+            modified = true;
+          }
           // If user has no profile image or has the default one, update it with Google photo
           if (googlePhoto && (!user.Profile_image || user.Profile_image === "/images/default-avatar.png")) {
             user.Profile_image = googlePhoto;
@@ -44,6 +55,9 @@ passport.use(
           return done(null, user);
         }
 
+        // Brand new Google user — generate referral code immediately
+        const referralCode = await generateReferralCode();
+
         user = await userSchema.create({
           Name: profile.displayName,
           Email: profile.emails[0].value,
@@ -52,6 +66,7 @@ passport.use(
           isAdmin: false,
           isActive: true,
           createdAt: new Date(),
+          referralCode,
         });
 
         return done(null, user);

@@ -102,7 +102,8 @@
                 <a href="/products" class="text-accent hover:text-green-400 transition-colors text-sm font-medium">View all brands →</a>
             </div>
 
-            <div class="flex flex-nowrap overflow-x-auto gap-4 md:gap-6 justify-start md:justify-center py-4 no-scrollbar">
+            <div style="overflow-x: auto;" class="no-scrollbar">
+            <div class="flex flex-nowrap gap-4 md:gap-6 py-4" style="padding-left: 30px; padding-right: 30px; width: max-content; min-width: 100%;">
                 <% if(typeof categories !== 'undefined' && categories.length > 0) { %>
                     <% categories.forEach(category => { %>
                         <div onclick="window.location.href='/products?brand=<%= category.categoryName %>'" 
@@ -120,7 +121,630 @@
                     </div>
                 <% } %>
             </div>
+            </div>
         </section>
+
+        <!-- Active Offers Strip -->
+        <% if (typeof activeOffers !== 'undefined' && activeOffers.length > 0) { %>
+        <section style="padding: 0 1.5rem 2rem; max-width: 1400px; margin: 0 auto;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:1rem;">
+                <i class="bi bi-lightning-charge-fill" style="color:#f59e0b; font-size:1.1rem;"></i>
+                <h2 style="font-size:1.1rem; font-weight:800; color:#f0f2ff; letter-spacing:0.05em; text-transform:uppercase; margin:0;">Active Offers</h2>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:12px;">
+                <% activeOffers.forEach(offer => {
+                    const isPercent = offer.discountType === 'percentage';
+                    const discLabel = isPercent ? offer.discountValue + '% OFF' : '₹' + offer.discountValue + ' OFF';
+                    let targetLabel = '';
+                    if (offer.offerType === 'product' && offer.productId) targetLabel = offer.productId.productName;
+                    else if (offer.offerType === 'category' && offer.categoryId) targetLabel = offer.categoryId.categoryName + ' Category';
+                    else if (offer.offerType === 'all') targetLabel = 'All Products';
+                    else if (offer.offerType === 'referral') targetLabel = 'Referral Bonus';
+
+                    const daysLeft = Math.ceil((new Date(offer.endDate) - new Date()) / (1000 * 60 * 60 * 24));
+                    const typeColor = offer.offerType === 'product' ? '#f97316' : offer.offerType === 'category' ? '#6366f1' : offer.offerType === 'all' ? '#10b981' : '#ec4899';
+                %>
+                <div style="
+                    background: linear-gradient(135deg, #1a1d2e 0%, #12151f 100%);
+                    border: 1px solid rgba(255,255,255,0.08);
+                    border-left: 3px solid <%= typeColor %>;
+                    border-radius: 12px;
+                    padding: 14px 18px;
+                    min-width: 200px;
+                    flex: 1 1 200px;
+                    max-width: 280px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                    position: relative;
+                    overflow: hidden;
+                ">
+                    <!-- Glow accent -->
+                    <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:radial-gradient(circle, <%= typeColor %>22 0%, transparent 70%);pointer-events:none;"></div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <span style="font-size:1.4rem; font-weight:900; color:#f0f2ff; letter-spacing:-0.5px; line-height:1;">
+                            <%= discLabel %>
+                        </span>
+                        <span style="font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:<%= typeColor %>; background:<%= typeColor %>18; border:1px solid <%= typeColor %>44; border-radius:6px; padding:2px 7px; white-space:nowrap;">
+                            <%= offer.offerType %>
+                        </span>
+                    </div>
+
+                    <div style="font-size:0.8rem; font-weight:600; color:#c8cde8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                        <i class="bi bi-tag-fill" style="color:<%= typeColor %>; margin-right:4px; font-size:0.7rem;"></i>
+                        <%= offer.offerName %>
+                    </div>
+
+                    <% if (targetLabel) { %>
+                    <div style="font-size:0.72rem; color:#8b92b8;">
+                        On: <span style="color:#d1d5f0; font-weight:600;"><%= targetLabel %></span>
+                    </div>
+                    <% } %>
+
+                    <div style="font-size:0.68rem; color:<%= daysLeft <= 3 ? '#f87171' : '#6b7280' %>; margin-top:2px; display:flex; align-items:center; gap:4px;">
+                        <i class="bi bi-clock" style="font-size:0.65rem;"></i>
+                        <% if (daysLeft <= 0) { %>Expires today
+                        <% } else if (daysLeft === 1) { %>1 day left
+                        <% } else { %><%= daysLeft %> days left<% } %>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </section>
+        <% } %>
+
+        <!-- Referral Banner -->
+        <% if (typeof referralOffer !== 'undefined' && referralOffer) {
+            const refDisc = referralOffer.discountType === 'percentage'
+                ? referralOffer.discountValue + '%'
+                : '₹' + referralOffer.discountValue;
+            const refDaysLeft = Math.ceil((new Date(referralOffer.endDate) - new Date()) / (1000 * 60 * 60 * 24));
+        %>
+        <section style="padding: 0 1.5rem 2.5rem; max-width: 1400px; margin: 0 auto;">
+            <div class="referral-banner">
+                <!-- Gift box animation -->
+                <div class="gift-box-wrap">
+                    <div class="gift-box">
+                        <div class="gift-lid">
+                            <div class="gift-bow"></div>
+                        </div>
+                        <div class="gift-body">
+                            <div class="gift-ribbon-v"></div>
+                        </div>
+                    </div>
+                    <div class="gift-sparkles">
+                        <span class="spark s1">✦</span>
+                        <span class="spark s2">✦</span>
+                        <span class="spark s3">✦</span>
+                        <span class="spark s4">✦</span>
+                        <span class="spark s5">★</span>
+                        <span class="spark s6">✦</span>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="referral-content">
+                    <div class="referral-badge">REFERRAL PROGRAM</div>
+                    <h3 class="referral-title">Invite Friends, Earn <span class="referral-highlight"><%= refDisc %></span></h3>
+                    <p class="referral-sub"><%= referralOffer.offerName %> — Share your code and both you and your friend get rewarded.</p>
+                    <div class="referral-meta">
+                        <span class="referral-meta-item">
+                            <i class="bi bi-clock"></i>
+                            <% if (refDaysLeft <= 0) { %>Expires today
+                            <% } else if (refDaysLeft === 1) { %>1 day left
+                            <% } else { %><%= refDaysLeft %> days left<% } %>
+                        </span>
+                        <span class="referral-meta-item">
+                            <i class="bi bi-people-fill"></i> Per referral
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Referral Code Box (right side) -->
+                <div class="ref-code-box">
+                    <% if (user && userReferralCode) { %>
+                        <div class="ref-code-label"><i class="bi bi-gift-fill"></i> Your Code</div>
+                        <div class="ref-code-value" id="refCodeText"><%= userReferralCode %></div>
+                        <div style="display:flex; gap:8px; width:100%; justify-content:center;">
+                            <button class="ref-copy-btn" onclick="copyRefCode(this)" title="Copy code">
+                                <i class="bi bi-copy"></i> Copy
+                            </button>
+                            <button class="ref-share-btn" onclick="openShareMenu()" title="Share">
+                                <i class="bi bi-share-fill"></i> Share
+                            </button>
+                        </div>
+                    <% } else { %>
+                        <div class="ref-code-label"><i class="bi bi-gift-fill"></i> Get Your Code</div>
+                        <div class="ref-code-value" style="font-size:0.75rem; letter-spacing:0; color:#8b92b8;">Sign in to reveal</div>
+                        <a href="/signIn" class="ref-copy-btn" style="text-decoration:none;">
+                            <i class="bi bi-box-arrow-in-right"></i> Sign In
+                        </a>
+                    <% } %>
+                </div>
+
+                <!-- Decorative circles -->
+                <div class="referral-deco-circle c1"></div>
+                <div class="referral-deco-circle c2"></div>
+                <div class="referral-deco-circle c3"></div>
+            </div>
+        </section>
+
+        <!-- Share Menu (bottom sheet) -->
+        <% if (user && userReferralCode) { %>
+        <div id="shareMenuOverlay" onclick="closeShareMenu()" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.65);backdrop-filter:blur(5px);"></div>
+        <div id="shareMenuPopup" style="display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:9001;width:min(500px,100vw);background:linear-gradient(180deg,#1e1b2e,#0d0f1e);border-radius:24px 24px 0 0;padding:28px 24px 40px;box-shadow:0 -20px 60px rgba(0,0,0,0.7);">
+            <div style="width:40px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:0 auto 22px;"></div>
+            <p style="font-size:0.68rem;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:#8b92b8;text-align:center;margin-bottom:6px;">Share Your Referral Code</p>
+            <p style="font-size:1.3rem;font-weight:900;color:#f0f2ff;text-align:center;margin-bottom:22px;letter-spacing:0.15em;background:linear-gradient(90deg,#f472b6,#f59e0b,#34d399,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"><%= userReferralCode %></p>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;">
+                <button class="share-app-btn" onclick="shareVia('whatsapp')">
+                    <div class="share-app-icon" style="background:#25D366;">
+                        <svg viewBox="0 0 24 24" fill="white" width="22" height="22"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    </div>
+                    <span class="share-app-label">WhatsApp</span>
+                </button>
+                <button class="share-app-btn" onclick="shareVia('telegram')">
+                    <div class="share-app-icon" style="background:#229ED9;">
+                        <svg viewBox="0 0 24 24" fill="white" width="22" height="22"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    </div>
+                    <span class="share-app-label">Telegram</span>
+                </button>
+                <button class="share-app-btn" onclick="shareVia('twitter')">
+                    <div class="share-app-icon" style="background:#000;">
+                        <svg viewBox="0 0 24 24" fill="white" width="20" height="20"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </div>
+                    <span class="share-app-label">X / Twitter</span>
+                </button>
+                <button class="share-app-btn" onclick="shareVia('facebook')">
+                    <div class="share-app-icon" style="background:#1877F2;">
+                        <i class="bi bi-facebook" style="font-size:1.25rem;color:white;"></i>
+                    </div>
+                    <span class="share-app-label">Facebook</span>
+                </button>
+                <button class="share-app-btn" onclick="shareVia('sms')">
+                    <div class="share-app-icon" style="background:linear-gradient(135deg,#34d399,#059669);">
+                        <i class="bi bi-chat-dots-fill" style="font-size:1.2rem;color:white;"></i>
+                    </div>
+                    <span class="share-app-label">SMS</span>
+                </button>
+                <button class="share-app-btn" onclick="shareVia('email')">
+                    <div class="share-app-icon" style="background:linear-gradient(135deg,#6366f1,#4f46e5);">
+                        <i class="bi bi-envelope-fill" style="font-size:1.2rem;color:white;"></i>
+                    </div>
+                    <span class="share-app-label">Email</span>
+                </button>
+                <button class="share-app-btn" id="copyLinkBtn" onclick="shareVia('copy')">
+                    <div class="share-app-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+                        <i class="bi bi-link-45deg" style="font-size:1.3rem;color:white;"></i>
+                    </div>
+                    <span class="share-app-label">Copy Link</span>
+                </button>
+            </div>
+            <button onclick="closeShareMenu()" style="width:100%;padding:13px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#8b92b8;font-size:0.85rem;font-weight:700;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">Cancel</button>
+        </div>
+        <% } %>
+
+        <style>
+            /* ── Referral Banner ── */
+            .referral-banner {
+                position: relative;
+                background: linear-gradient(135deg,
+                    #1a0533 0%,
+                    #0d0f2b 25%,
+                    #0a1a2e 50%,
+                    #0d0f2b 75%,
+                    #1a0533 100%);
+                background-size: 300% 300%;
+                animation: bannerShift 8s ease infinite;
+                border: 1.5px solid transparent;
+                border-radius: 24px;
+                padding: 2.2rem 2.8rem;
+                display: flex;
+                align-items: center;
+                gap: 2.5rem;
+                overflow: hidden;
+                box-shadow:
+                    0 0 0 1px rgba(236,72,153,0.2),
+                    0 20px 60px rgba(0,0,0,0.5),
+                    inset 0 1px 0 rgba(255,255,255,0.05);
+            }
+            @keyframes bannerShift {
+                0%   { background-position: 0% 50%; }
+                50%  { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+
+            /* Animated rainbow border */
+            .referral-banner::before {
+                content: '';
+                position: absolute;
+                inset: -2px;
+                border-radius: 26px;
+                background: linear-gradient(90deg,
+                    #ec4899, #f59e0b, #10b981, #6366f1, #ec4899);
+                background-size: 300% 100%;
+                animation: borderRainbow 4s linear infinite;
+                z-index: -1;
+            }
+            @keyframes borderRainbow {
+                0%   { background-position: 0% 50%; }
+                100% { background-position: 300% 50%; }
+            }
+
+            /* Confetti dots */
+            .referral-banner::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-image:
+                    radial-gradient(circle, rgba(236,72,153,0.35) 1px, transparent 1px),
+                    radial-gradient(circle, rgba(99,102,241,0.3) 1px, transparent 1px),
+                    radial-gradient(circle, rgba(245,158,11,0.3) 1px, transparent 1px);
+                background-size: 60px 60px, 90px 90px, 45px 45px;
+                background-position: 0 0, 30px 30px, 15px 15px;
+                pointer-events: none;
+                opacity: 0.4;
+            }
+
+            .referral-deco-circle {
+                position: absolute;
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 1;
+            }
+            .referral-deco-circle.c1 {
+                width: 350px; height: 350px;
+                background: radial-gradient(circle, rgba(236,72,153,0.2) 0%, transparent 65%);
+                top: -120px; right: -100px;
+                animation: pulseGlow 4s ease-in-out infinite;
+            }
+            .referral-deco-circle.c2 {
+                width: 250px; height: 250px;
+                background: radial-gradient(circle, rgba(99,102,241,0.18) 0%, transparent 65%);
+                bottom: -100px; left: 25%;
+                animation: pulseGlow 4s ease-in-out infinite 2s;
+            }
+            .referral-deco-circle.c3 {
+                width: 180px; height: 180px;
+                background: radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 65%);
+                top: -60px; left: 15%;
+                animation: pulseGlow 5s ease-in-out infinite 1s;
+            }
+            @keyframes pulseGlow {
+                0%, 100% { transform: scale(1); opacity: 0.8; }
+                50%       { transform: scale(1.15); opacity: 1; }
+            }
+
+            /* ── Gift Box ── */
+            .gift-box-wrap {
+                position: relative;
+                flex-shrink: 0;
+                width: 110px;
+                height: 110px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 2;
+            }
+            .gift-box {
+                width: 68px;
+                animation: giftBounce 2.2s ease-in-out infinite;
+                position: relative;
+                filter: drop-shadow(0 0 12px rgba(236,72,153,0.6));
+            }
+            .gift-lid {
+                width: 68px;
+                height: 20px;
+                background: linear-gradient(135deg, #f472b6, #ec4899, #be185d);
+                border-radius: 5px 5px 0 0;
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: lidPop 2.2s ease-in-out infinite;
+                transform-origin: bottom center;
+                box-shadow: 0 -2px 8px rgba(236,72,153,0.5);
+            }
+            .gift-bow {
+                width: 32px;
+                height: 16px;
+                position: relative;
+            }
+            .gift-bow::before,
+            .gift-bow::after {
+                content: '';
+                position: absolute;
+                width: 14px;
+                height: 14px;
+                border-radius: 50% 50% 0 50%;
+                background: linear-gradient(135deg, #fde68a, #f59e0b);
+                top: 0;
+                box-shadow: 0 0 6px rgba(245,158,11,0.7);
+            }
+            .gift-bow::before { left: 0; transform: rotate(-45deg); }
+            .gift-bow::after  { right: 0; transform: rotate(45deg) scaleX(-1); }
+            .gift-body {
+                width: 68px;
+                height: 48px;
+                background: linear-gradient(135deg, #f9a8d4, #f472b6, #ec4899, #db2777);
+                border-radius: 0 0 8px 8px;
+                position: relative;
+                display: flex;
+                align-items: stretch;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(236,72,153,0.4);
+            }
+            .gift-ribbon-v {
+                width: 12px;
+                background: linear-gradient(180deg, #fde68a, #f59e0b);
+                opacity: 0.95;
+                box-shadow: 0 0 6px rgba(245,158,11,0.5);
+            }
+            .gift-sparkles {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+            }
+            .spark {
+                position: absolute;
+                font-size: 0.75rem;
+                animation: sparkFloat 2s ease-in-out infinite;
+                opacity: 0;
+            }
+            .spark.s1 { top: 4px;   left: 8px;   color: #f59e0b; animation-delay: 0s;    }
+            .spark.s2 { top: 2px;   right: 6px;  color: #ec4899; animation-delay: 0.5s;  }
+            .spark.s3 { bottom: 6px; left: 4px;  color: #6366f1; animation-delay: 1s;    }
+            .spark.s4 { bottom: 4px; right: 4px; color: #10b981; animation-delay: 1.5s;  }
+            .spark.s5 { top: 50%;   left: 0px;   color: #fbbf24; animation-delay: 0.75s; font-size: 0.55rem; }
+            .spark.s6 { top: 50%;   right: 0px;  color: #a78bfa; animation-delay: 1.25s; font-size: 0.55rem; }
+
+            @keyframes giftBounce {
+                0%, 100% { transform: translateY(0) rotate(-3deg) scale(1); }
+                40%       { transform: translateY(-10px) rotate(3deg) scale(1.05); }
+                60%       { transform: translateY(-6px) rotate(1deg) scale(1.02); }
+            }
+            @keyframes lidPop {
+                0%, 75%, 100% { transform: translateY(0) rotate(0deg); }
+                85%           { transform: translateY(-8px) rotate(-8deg); }
+                92%           { transform: translateY(-4px) rotate(4deg); }
+            }
+            @keyframes sparkFloat {
+                0%   { opacity: 0; transform: translateY(0) scale(0.4) rotate(0deg); }
+                40%  { opacity: 1; transform: translateY(-14px) scale(1.1) rotate(180deg); }
+                100% { opacity: 0; transform: translateY(-24px) scale(0.4) rotate(360deg); }
+            }
+
+            /* ── Referral Content ── */
+            .referral-content {
+                flex: 1;
+                position: relative;
+                z-index: 2;
+            }
+            .referral-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 0.62rem;
+                font-weight: 800;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: #fff;
+                background: linear-gradient(90deg, #ec4899, #f59e0b, #10b981, #6366f1);
+                background-size: 200% 100%;
+                animation: badgeShimmer 3s linear infinite;
+                border-radius: 8px;
+                padding: 4px 12px;
+                margin-bottom: 10px;
+                box-shadow: 0 2px 12px rgba(236,72,153,0.4);
+            }
+            @keyframes badgeShimmer {
+                0%   { background-position: 0% 50%; }
+                100% { background-position: 200% 50%; }
+            }
+            .referral-title {
+                font-size: 1.65rem;
+                font-weight: 900;
+                color: #f0f2ff;
+                letter-spacing: -0.04em;
+                margin: 0 0 8px;
+                line-height: 1.2;
+            }
+            .referral-highlight {
+                background: linear-gradient(90deg, #f472b6, #f59e0b, #34d399, #818cf8, #f472b6);
+                background-size: 300% 100%;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                animation: rainbowText 4s linear infinite;
+                font-size: 2rem;
+            }
+            @keyframes rainbowText {
+                0%   { background-position: 0% 50%; }
+                100% { background-position: 300% 50%; }
+            }
+            .referral-sub {
+                font-size: 0.84rem;
+                color: #a5b4d0;
+                margin: 0 0 14px;
+                max-width: 500px;
+                line-height: 1.6;
+            }
+            .referral-meta {
+                display: flex;
+                gap: 14px;
+                margin-bottom: 18px;
+                flex-wrap: wrap;
+            }
+            .referral-meta-item {
+                font-size: 0.73rem;
+                font-weight: 600;
+                color: #94a3b8;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 8px;
+                padding: 4px 10px;
+            }
+            .referral-meta-item i { color: #f472b6; }
+            .referral-cta-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 9px;
+                background: linear-gradient(135deg, #ec4899 0%, #f59e0b 50%, #10b981 100%);
+                background-size: 200% 100%;
+                color: #fff;
+                font-size: 0.88rem;
+                font-weight: 800;
+                padding: 12px 26px;
+                border-radius: 12px;
+                text-decoration: none;
+                transition: transform 0.2s, box-shadow 0.2s, background-position 0.4s;
+                box-shadow: 0 4px 24px rgba(236,72,153,0.45), 0 0 0 1px rgba(255,255,255,0.1);
+                letter-spacing: 0.02em;
+                animation: ctaPulse 3s ease-in-out infinite;
+            }
+            .referral-cta-btn:hover {
+                transform: translateY(-3px) scale(1.03);
+                box-shadow: 0 10px 36px rgba(236,72,153,0.6), 0 0 0 1px rgba(255,255,255,0.15);
+                background-position: 100% 0;
+                color: #fff;
+            }
+            @keyframes ctaPulse {
+                0%, 100% { box-shadow: 0 4px 24px rgba(236,72,153,0.45), 0 0 0 1px rgba(255,255,255,0.1); }
+                50%       { box-shadow: 0 4px 32px rgba(245,158,11,0.55), 0 0 0 1px rgba(255,255,255,0.15); }
+            }
+
+            /* ── Referral Code Box ── */
+            .ref-code-box {
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                background: rgba(255,255,255,0.04);
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 16px;
+                padding: 20px 24px;
+                min-width: 160px;
+                position: relative;
+                z-index: 2;
+                backdrop-filter: blur(8px);
+            }
+            .ref-code-label {
+                font-size: 0.65rem;
+                font-weight: 800;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: #f472b6;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .ref-code-value {
+                font-size: 1.25rem;
+                font-weight: 900;
+                letter-spacing: 0.18em;
+                background: linear-gradient(90deg, #f472b6, #f59e0b, #34d399, #818cf8);
+                background-size: 300% 100%;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                animation: rainbowText 4s linear infinite;
+                text-align: center;
+            }
+            .ref-copy-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: linear-gradient(135deg, #ec4899, #f59e0b);
+                color: #fff;
+                font-size: 0.75rem;
+                font-weight: 700;
+                padding: 7px 16px;
+                border-radius: 8px;
+                border: none;
+                cursor: pointer;
+                transition: transform 0.2s, box-shadow 0.2s;
+                box-shadow: 0 3px 14px rgba(236,72,153,0.4);
+                letter-spacing: 0.03em;
+            }
+            .ref-copy-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(236,72,153,0.55);
+            }
+            .ref-copy-btn.copied {
+                background: linear-gradient(135deg, #10b981, #34d399);
+                box-shadow: 0 3px 14px rgba(16,185,129,0.4);
+            }
+            .ref-share-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.15);
+                color: #f0f2ff;
+                font-size: 0.75rem;
+                font-weight: 700;
+                padding: 7px 14px;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: transform 0.2s, background 0.2s;
+            }
+            .ref-share-btn:hover {
+                background: rgba(255,255,255,0.14);
+                transform: translateY(-2px);
+            }
+            /* Share app grid */
+            .share-app-btn {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+                transition: transform 0.2s;
+            }
+            .share-app-btn:hover { transform: translateY(-4px); }
+            .share-app-icon {
+                width: 52px;
+                height: 52px;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+                transition: box-shadow 0.2s;
+            }
+            .share-app-btn:hover .share-app-icon {
+                box-shadow: 0 8px 22px rgba(0,0,0,0.45);
+            }
+            .share-app-label {
+                font-size: 0.65rem;
+                font-weight: 700;
+                color: #94a3b8;
+                white-space: nowrap;
+            }
+            /* Bottom sheet slide-up animation */
+            @keyframes slideUp {
+                from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+            }
+
+            @media (max-width: 640px) {
+                .referral-banner { flex-direction: column; text-align: center; padding: 1.8rem 1.2rem; gap: 1.5rem; }
+                .referral-meta { justify-content: center; }
+                .referral-sub { max-width: 100%; }
+                .referral-title { font-size: 1.3rem; }
+                .referral-highlight { font-size: 1.6rem; }
+                .ref-code-box { width: 100%; }
+            }
+        </style>
+        <% } %>
 
         <!-- Trending Products -->
         <section class="products trending-section">
@@ -324,6 +948,66 @@
                 });
             }
 
+            function copyRefCode(btn) {
+                const code = document.getElementById('refCodeText')?.textContent?.trim();
+                if (!code) return;
+                navigator.clipboard.writeText(code).then(() => {
+                    btn.classList.add('copied');
+                    btn.innerHTML = '<i class="bi bi-check2"></i> Copied!';
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.innerHTML = '<i class="bi bi-copy"></i> Copy';
+                    }, 2000);
+                }).catch(() => {
+                    Swal.fire({ icon: 'info', title: 'Your Code', text: code, timer: 2000, showConfirmButton: false, background: '#0f172a', color: '#fff' });
+                });
+            }
+
+            function openShareMenu() {
+                const overlay = document.getElementById('shareMenuOverlay');
+                const popup   = document.getElementById('shareMenuPopup');
+                if (!overlay || !popup) return;
+                overlay.style.display = 'block';
+                popup.style.display   = 'block';
+                popup.style.animation = 'slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards';
+            }
+
+            function closeShareMenu() {
+                const overlay = document.getElementById('shareMenuOverlay');
+                const popup   = document.getElementById('shareMenuPopup');
+                if (overlay) overlay.style.display = 'none';
+                if (popup)   popup.style.display   = 'none';
+            }
+
+            function shareVia(platform) {
+                const code    = document.getElementById('refCodeText')?.textContent?.trim();
+                const link    = 'https://zyrox.busthan.shop/signup?ref=' + code;
+                const message = `🎁 Use my referral code *${code}* on Zyrox and get an exclusive reward!\n\n${link}`;
+
+                const urls = {
+                    whatsapp:  `https://wa.me/?text=${encodeURIComponent(message)}`,
+                    telegram:  `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('🎁 Use my Zyrox referral code: ' + code)}`,
+                    twitter:   `https://twitter.com/intent/tweet?text=${encodeURIComponent('🎁 Use my Zyrox referral code: ' + code + ' ' + link)}`,
+                    facebook:  `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`,
+                    sms:       `sms:?body=${encodeURIComponent(message)}`,
+                    email:     `mailto:?subject=${encodeURIComponent('Join Zyrox with my referral code!')}&body=${encodeURIComponent(message)}`,
+                };
+
+                if (platform === 'copy') {
+                    navigator.clipboard.writeText(link).then(() => {
+                        const btn = document.getElementById('copyLinkBtn');
+                        const lbl = btn?.querySelector('.share-app-label');
+                        if (lbl) { lbl.textContent = 'Copied!'; setTimeout(() => { lbl.textContent = 'Copy Link'; }, 2000); }
+                    });
+                    return;
+                }
+
+                if (urls[platform]) {
+                    window.open(urls[platform], '_blank', 'noopener,noreferrer');
+                    closeShareMenu();
+                }
+            }
+
             const swalBase = {
                 background: '#0f172a',
                 color: '#fff',
@@ -435,136 +1119,42 @@
             });
         </script>
 
-        <!-- ═══ TRENDING PRODUCTS ANIMATION ENGINE ═══
-             Pure CSS + minimal JS. No libraries. Intersection Observer fires once.
-             Fragment effect: image sliced into 5×2 grid, scattered, reassembled.
-        ══════════════════════════════════════════════ -->
+        <!-- ═══ TRENDING PRODUCTS ANIMATION ENGINE ═══ -->
         <script>
         (function () {
             'use strict';
 
-            const COLS = 5, ROWS = 2;          // fragment grid
-            const SCATTER_DIST = 38;           // px each piece flies out
-            const isMobile = window.innerWidth <= 768;
-            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-            /* ── Utility: build fragment overlay on a card ── */
-            function buildFragments(card) {
-                if (isMobile || prefersReduced) return;
-
-                const img = card.querySelector('.product-image');
-                if (!img || !img.src) return;
-
-                const wrap = document.createElement('div');
-                wrap.className = 'zyx-fragment-wrap';
-                wrap.style.position = 'absolute';
-                wrap.style.inset = '0';
-
-                // Position wrap relative to card (card already has position:relative)
-                for (let r = 0; r < ROWS; r++) {
-                    for (let c = 0; c < COLS; c++) {
-                        const piece = document.createElement('div');
-                        piece.className = 'zyx-piece';
-                        // Use background-image + background-position to slice the image
-                        piece.style.backgroundImage = `url(${img.src})`;
-                        piece.style.backgroundSize  = `${COLS * 100}% ${ROWS * 100}%`;
-                        piece.style.backgroundPosition = `${(c / (COLS - 1)) * 100}% ${(r / (ROWS - 1)) * 100}%`;
-                        // Determine scatter direction (vector from center of grid)
-                        const dx = (c - (COLS - 1) / 2);
-                        const dy = (r - (ROWS - 1) / 2);
-                        piece.dataset.dx = dx;
-                        piece.dataset.dy = dy;
-                        piece.style.transition = `transform 4.0s cubic-bezier(0.22, 1, 0.36, 1) ${(r * COLS + c) * 35}ms,
-                                                  opacity 0.75s ease ${(r * COLS + c) * 25}ms`;
-                        wrap.appendChild(piece);
-                    }
-                }
-
-                // Insert behind text, over image
-                const imgParent = img.parentNode;
-                imgParent.style.position = 'relative';
-                img.parentNode.insertBefore(wrap, img.nextSibling);
-                return wrap;
-            }
-
-            /* ── Play fragment animation on a card ── */
-            function playFragment(card) {
-                if (isMobile || prefersReduced) return;
-
-                const wrap = card.querySelector('.zyx-fragment-wrap');
-                if (!wrap) return;
-
-                const pieces = wrap.querySelectorAll('.zyx-piece');
-
-                // Phase 1: show overlay + scatter pieces
-                wrap.classList.add('active');
-                pieces.forEach(p => {
-                    const dx = parseFloat(p.dataset.dx);
-                    const dy = parseFloat(p.dataset.dy);
-                    p.style.transform = `translate(${dx * SCATTER_DIST}px, ${dy * SCATTER_DIST}px) scale(0.85)`;
-                    p.style.opacity   = '0';
-                });
-
-                // Phase 2: reassemble (after scatter settles)
-                setTimeout(() => {
-                    pieces.forEach(p => {
-                        p.style.transform = 'translate(0,0) scale(1)';
-                        p.style.opacity   = '1';
-                    });
-                }, 650); // Delayed joining (Phase 2)
-
-                // Phase 3: remove overlay so real image shows clean
-                setTimeout(() => {
-                    wrap.classList.remove('active');
-                    wrap.style.opacity = '0';
-                }, 5000); // Extended finish (Phase 3) for 4s transition
-            }
-
-            /* ── Main: set up Intersection Observer ── */
             function initTrendingAnimation() {
                 const section = document.querySelector('.trending-section');
                 if (!section) return;
 
                 const header = section.querySelector('.section-header');
                 const cards  = section.querySelectorAll('.product-card');
-
                 if (!cards.length) return;
-
-                // Build fragment overlays now (before animation fires)
-                cards.forEach(card => buildFragments(card));
 
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         if (!entry.isIntersecting) return;
-                        observer.unobserve(entry.target); // fires only once
+                        observer.unobserve(entry.target);
 
-                        // Animate header in
+                        // Fade in header
                         if (header) {
                             requestAnimationFrame(() => header.classList.add('zyx-header-in'));
                         }
 
-                        // Spread cards in with stagger
+                        // Fade in cards with stagger
                         cards.forEach((card, i) => {
                             setTimeout(() => {
                                 card.classList.add('zyx-spread');
-
-                                // Play fragment effect after card has arrived
-                                setTimeout(() => playFragment(card), 300);
-
-                                // Enable idle swing after everything settles
-                                setTimeout(() => card.classList.add('zyx-idle'), 900);
+                                setTimeout(() => card.classList.add('zyx-idle'), 600);
                             }, i * 100);
                         });
                     });
-                }, {
-                    threshold: 0.12,
-                    rootMargin: '0px 0px -40px 0px'
-                });
+                }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
 
                 observer.observe(section);
             }
 
-            // Boot after DOM ready
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', initTrendingAnimation);
             } else {

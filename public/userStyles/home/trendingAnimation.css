@@ -1,7 +1,5 @@
 /* =============================================================
-   ZYROX — Trending Products: Advanced Animation System
-   Only targets .products-grid inside the first .products section
-   (Trending / Latest 5 Products)
+   ZYROX — Trending Products: Simple Fade-in Animation
    ============================================================= */
 
 /* ── 1. Section wrapper ── */
@@ -13,22 +11,21 @@
 /* ── 2. Cards: initial hidden state ── */
 .trending-section .product-card {
     opacity: 0;
-    transform: scale(0.6) translateY(60px);
-    /* override the existing idle swing until animated-in */
+    transform: translateY(30px);
     animation: none !important;
     transition:
-        opacity 0.55s ease,
-        transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.5s ease,
+        transform 0.5s ease,
         box-shadow 0.4s ease,
         background-color 0.3s ease,
         border-color 0.3s ease;
     will-change: transform, opacity;
 }
 
-/* ── 3. Spread-in animation (added via JS) ── */
+/* ── 3. Visible state (added via JS) ── */
 .trending-section .product-card.zyx-spread {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateY(0);
 }
 
 /* Individual stagger delays for 5 cards */
@@ -43,46 +40,7 @@
     animation: productIdleSwingLanding 5s ease-in-out infinite !important;
 }
 
-/* ── 4. Fragment overlay container ── */
-.zyx-fragment-wrap {
-    position: absolute;
-    inset: 0;
-    border-radius: 8px;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 5;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    opacity: 0;
-}
-
-.zyx-fragment-wrap.active {
-    opacity: 1;
-}
-
-/* Each fragment piece */
-.zyx-piece {
-    background-size: 500% 200%; /* 5 cols × 2 rows */
-    background-repeat: no-repeat;
-    opacity: 1;
-    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-                opacity 0.5s ease;
-    will-change: transform, opacity;
-}
-
-/* Scatter phase */
-.zyx-piece.scatter {
-    opacity: 0;
-}
-
-/* Reassemble phase */
-.zyx-piece.reassemble {
-    transform: translate(0, 0) !important;
-    opacity: 1;
-}
-
-/* ── 5. Hover refinements for spread cards ── */
+/* ── 4. Hover refinements ── */
 .trending-section .product-card.zyx-spread:hover {
     transform: translateY(-14px) scale(1.04) !important;
     box-shadow: 0 30px 60px rgba(74, 222, 128, 0.18), 0 0 0 1.5px rgba(74, 222, 128, 0.35) !important;
@@ -103,7 +61,7 @@
     transition: background-color 0.25s, box-shadow 0.25s, transform 0.2s;
 }
 
-/* ── 6. Section title fade-in ── */
+/* ── 5. Section title fade-in ── */
 .trending-section .section-header {
     opacity: 0;
     transform: translateY(-20px);
@@ -115,16 +73,12 @@
     transform: translateY(0);
 }
 
-/* ── 7. Mobile: reduce animation intensity ── */
+/* ── 6. Mobile ── */
 @media (max-width: 768px) {
-    /* Disable fragment effect and animations on mobile for perf and stability */
-    .zyx-fragment-wrap {
-        display: none !important;
-    }
     .trending-section .product-card {
         animation: none !important;
         transform: none !important;
-        opacity: 1 !important; /* Ensure they are visible even if animation doesn't fire */
+        opacity: 1 !important;
     }
     .trending-section .product-card.zyx-spread {
         transform: none !important;
@@ -134,7 +88,7 @@
     }
 }
 
-/* ── 8. Respect reduced-motion preference ── */
+/* ── 7. Respect reduced-motion preference ── */
 @media (prefers-reduced-motion: reduce) {
     .trending-section .product-card {
         transform: none;
@@ -143,8 +97,5 @@
     }
     .trending-section .product-card.zyx-spread {
         opacity: 1;
-    }
-    .zyx-fragment-wrap {
-        display: none !important;
     }
 }

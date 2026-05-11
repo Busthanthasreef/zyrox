@@ -12,6 +12,7 @@ import { generateReferralCode, rewardReferrer } from "../../utils/referralHelper
 import Wallet from "../../models/wallet.js";
 import WalletTransactions from "../../models/walletTransactions.js";
 import Coupon from "../../models/coupon.js";
+import Offer from "../../models/offer.js";
 
 /* =========================
    LANDING PAGE
@@ -60,14 +61,41 @@ const landingPage = async (req, res, next) => {
       validTill: { $gte: new Date() }
     }).sort({ createdAt: -1 });
 
+    // Fetch active, non-expired offers for the offers strip
+    const now = new Date();
+    const activeOffers = await Offer.find({
+      isActive: true,
+      isDeleted: false,
+      startDate: { $lte: now },
+      endDate:   { $gte: now },
+    })
+      .populate('productId', 'productName')
+      .populate('categoryId', 'categoryName')
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    // Fetch active referral offer separately for the referral banner
+    const referralOffer = await Offer.findOne({
+      isActive: true,
+      isDeleted: false,
+      offerType: 'referral',
+      startDate: { $lte: now },
+      endDate:   { $gte: now },
+    });
+
     res.render("user/home/landingPage", {
       cartItemCount: totalItems,
       categories,
       trendingVariants,
-      allVariants, // Added allVariants
+      allVariants,
       user: req.session.user || null,
       loginSuccess,
       latestCoupon: latestCoupon || null,
+      activeOffers,
+      referralOffer: referralOffer || null,
+      userReferralCode: currentUser
+        ? (await userSchema.findById(currentUser).select('referralCode').lean())?.referralCode || null
+        : null,
     });
 
   } catch (error) {
