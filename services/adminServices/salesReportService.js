@@ -432,16 +432,17 @@ export const generatePdfReport = (res, data, startDate, endDate) => {
             const TABLE_TOP = 235;
             doc.rect(40, TABLE_TOP, 515, 28).fill("#334155");
 
-            const COL = { id: 50, date: 110, customer: 190, base: 310, disc: 370, paid: 430, status: 490 };
+            const COL = { id: 48, date: 108, customer: 178, base: 278, disc: 330, paid: 385, payment: 440, status: 500 };
 
             const writeTableHeader = (y) => {
-                doc.fillColor("#ffffff").fontSize(8).font("Helvetica-Bold");
+                doc.fillColor("#ffffff").fontSize(7.5).font("Helvetica-Bold");
                 doc.text("ORDER ID",  COL.id,       y + 10);
                 doc.text("DATE",      COL.date,     y + 10);
                 doc.text("CUSTOMER",  COL.customer, y + 10);
                 doc.text("BASE",      COL.base,     y + 10);
                 doc.text("DISC",      COL.disc,     y + 10);
                 doc.text("PAID",      COL.paid,     y + 10);
+                doc.text("PAYMENT",   COL.payment,  y + 10);
                 doc.text("STATUS",    COL.status,   y + 10);
             };
 
@@ -463,11 +464,11 @@ export const generatePdfReport = (res, data, startDate, endDate) => {
                     doc.rect(40, y, 515, 24).fill("#f1f5f9");
                 }
 
-                const customer = (order.userId?.Name || "Guest").substring(0, 14);
+                const customer = (order.userId?.Name || "Guest").substring(0, 12);
                 const discount = (order.discount ?? 0) + (order.couponDiscount ?? 0);
 
                 doc.fillColor("#334155").fontSize(7.5).font("Helvetica");
-                doc.text((order.orderId || "").substring(0, 12),       COL.id,       y + 8);
+                doc.text((order.orderId || "").substring(0, 11),       COL.id,       y + 8);
                 doc.text(moment(order.createdAt).format("DD/MM/YY"),   COL.date,     y + 8);
                 doc.text(customer,                                      COL.customer, y + 8);
                 doc.text(`₹${(order.subtotal ?? 0).toLocaleString()}`, COL.base,     y + 8);
@@ -476,6 +477,7 @@ export const generatePdfReport = (res, data, startDate, endDate) => {
                 doc.fillColor("#1e293b").font("Helvetica-Bold");
                 doc.text(`₹${(order.finalPrice ?? 0).toLocaleString()}`, COL.paid,  y + 8);
                 doc.fillColor("#334155").font("Helvetica");
+                doc.text((order.paymentMethod || "N/A"),               COL.payment,  y + 8);
                 doc.text((order.orderStatus || "").toUpperCase(),      COL.status,   y + 8);
 
                 y += 24;

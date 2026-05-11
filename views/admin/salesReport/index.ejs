@@ -477,6 +477,7 @@
                                     <th>Order ID</th>
                                     <th>Date</th>
                                     <th>Customer</th>
+                                    <th>Payment</th>
                                     <th>Status</th>
                                     <th>Base Amount</th>
                                     <th>Discounts</th>
@@ -502,6 +503,13 @@
                                                 </div>
                                             </td>
                                             <td>
+                                                <span class="status-badge
+                                                    <%= order.paymentMethod === 'Online' ? 'status-shipped' :
+                                                       order.paymentMethod === 'Wallet' ? 'status-paid' : 'status-pending' %>">
+                                                    <%= order.paymentMethod || 'N/A' %>
+                                                </span>
+                                            </td>
+                                            <td>
                                                 <span
                                                     class="status-badge 
                                                  <%= order.orderStatus === 'Delivered' ? 'status-paid' : 
@@ -522,7 +530,7 @@
                                         <% }) %>
                                             <% } else { %>
                                                 <tr>
-                                                    <td colspan="6" class="text-center py-5 text-muted">No transactions
+                                                    <td colspan="9" class="text-center py-5 text-muted">No transactions
                                                         found for this period.</td>
                                                 </tr>
                                                 <% } %>
