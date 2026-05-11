@@ -739,14 +739,22 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="base-price fw-600">
-                                            <%= offer.basePrice ? '₹' + offer.basePrice : '—' %>
-                                        </div>
+                                        <% if (offer.offerType === 'product') { %>
+                                            <div class="base-price fw-600">
+                                                <%= offer.basePrice ? '₹' + offer.basePrice : '—' %>
+                                            </div>
+                                        <% } else { %>
+                                            <div style="color:#cbd5e1; text-decoration:line-through; font-size:13px;">N/A</div>
+                                        <% } %>
                                     </td>
                                     <td>
-                                        <div class="discount-amt text-danger fw-600">
-                                            <%= offer.discountAmount ? '- ₹' + Math.floor(offer.discountAmount) : '—' %>
-                                        </div>
+                                        <% if (offer.offerType === 'product') { %>
+                                            <div class="discount-amt text-danger fw-600">
+                                                <%= offer.discountAmount ? '- ₹' + Math.floor(offer.discountAmount) : '—' %>
+                                            </div>
+                                        <% } else { %>
+                                            <div style="color:#cbd5e1; text-decoration:line-through; font-size:13px;">N/A</div>
+                                        <% } %>
                                     </td>
                                     <td>
                                         <div class="date-range">
@@ -1117,8 +1125,8 @@
                                 <div class="discount-val">${offer.discountType === 'percentage' ? offer.discountValue + '%' : '₹' + offer.discountValue}</div>
                                 <div class="small text-muted">${offer.discountType.charAt(0).toUpperCase() + offer.discountType.slice(1)}</div>
                             </td>
-                            <td><div class="base-price fw-600">${offer.basePrice ? '₹' + offer.basePrice : '—'}</div></td>
-                            <td><div class="discount-amt text-danger fw-600">${offer.discountAmount ? '- ₹' + Math.floor(offer.discountAmount) : '—'}</div></td>
+                            <td><div class="base-price fw-600">${offer.offerType === 'product' ? (offer.basePrice ? '₹' + offer.basePrice : '—') : '<span style="color:#cbd5e1;text-decoration:line-through;font-size:13px;">N/A</span>'}</div></td>
+                            <td><div class="discount-amt text-danger fw-600">${offer.offerType === 'product' ? (offer.discountAmount ? '- ₹' + Math.floor(offer.discountAmount) : '—') : '<span style="color:#cbd5e1;text-decoration:line-through;font-size:13px;">N/A</span>'}</div></td>
                             <td>
                                 <div class="date-range">${startDate} - ${endDate}</div>
                                 <div class="small ${isExpired ? 'text-danger' : 'text-success'}">${isExpired ? 'Expired' : 'Active'}</div>

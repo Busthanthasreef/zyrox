@@ -803,6 +803,31 @@
             transform: scale(1.1);
         }
 
+        /* ── FIELD INLINE ERRORS ── */
+        .field-err-msg {
+            display: none;
+            color: #e11d48;
+            font-size: 0.78rem;
+            font-weight: 500;
+            margin-top: 5px;
+            align-items: center;
+            gap: 5px;
+        }
+        .field-err-msg.show {
+            display: flex;
+            animation: fieldErrShake 0.35s ease-in-out;
+        }
+        @keyframes fieldErrShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+        .field-error-input {
+            border-color: #e11d48 !important;
+            background: #fff1f2 !important;
+            box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1) !important;
+        }
+
 
     /* ── QUICK ADD CATEGORY MODAL ── */
     .modal-overlay {
@@ -1011,6 +1036,7 @@
                                         <label class="form-label">Product Name</label>
                                         <input type="text" name="productName" id="productName" class="form-control"
                                             placeholder="Enter product name" value="<%= product.productName %>" required>
+                                        <div id="err-productName" class="field-err-msg"></div>
                                     </div>
 
                                     <div class="row g-3 mb-3">
@@ -1031,6 +1057,7 @@
                                                     + Add New Category
                                                 </option>
                                             </select>
+                                            <div id="err-category" class="field-err-msg"></div>
                                         </div>
                                         <div class="col-md-6">
                                             <label class="form-label">Status</label>
@@ -1045,8 +1072,9 @@
 
                                     <div class="mb-0">
                                         <label class="form-label">Description</label>
-                                        <textarea name="description" class="form-control"
+                                        <textarea name="description" id="description" class="form-control"
                                             placeholder="Describe this product..."><%= product.description %></textarea>
+                                        <div id="err-description" class="field-err-msg"></div>
                                     </div>
                                 </div>
 
@@ -1512,6 +1540,31 @@
                 document.getElementById('editProductForm').addEventListener('submit', async function (e) {
                     e.preventDefault();
 
+                    // Clear previous field errors
+                    ['productName','description','category'].forEach(clearFieldErr);
+
+                    let fieldValid = true;
+                    const getVal = id => document.getElementById(id)?.value?.trim();
+
+                    if (!getVal('productName')) {
+                        showFieldErr('productName', 'Product name is required');
+                        fieldValid = false;
+                    }
+                    if (!getVal('description')) {
+                        showFieldErr('description', 'Description is required');
+                        fieldValid = false;
+                    }
+                    if (!getVal('category')) {
+                        showFieldErr('category', 'Please select a category');
+                        fieldValid = false;
+                    }
+
+                    if (!fieldValid) {
+                        const firstErr = document.querySelector('.field-error-input');
+                        if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        return;
+                    }
+
                     let imageCount = 0;
                     for (let i = 0; i < 5; i++) {
                         const box = document.getElementById(`eBox_${i}`);
@@ -1714,6 +1767,36 @@
                         background: '#fff', color: '#111827',
                     });
                 }
+
+                /* ── FIELD ERROR HELPERS ── */
+                function showFieldErr(fieldId, msg) {
+                    const el = document.getElementById(fieldId);
+                    const errEl = document.getElementById('err-' + fieldId);
+                    if (el) el.classList.add('field-error-input');
+                    if (errEl) {
+                        errEl.innerHTML = '<i class="bi bi-exclamation-circle-fill" style="font-size:.72rem;flex-shrink:0"></i>' + msg;
+                        errEl.classList.add('show');
+                    }
+                }
+
+                function clearFieldErr(fieldId) {
+                    const el = document.getElementById(fieldId);
+                    const errEl = document.getElementById('err-' + fieldId);
+                    if (el) el.classList.remove('field-error-input');
+                    if (errEl) { errEl.classList.remove('show'); errEl.innerHTML = ''; }
+                }
+
+                function attachClearOnInput(fieldIds) {
+                    fieldIds.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (!el) return;
+                        ['input', 'change'].forEach(evt =>
+                            el.addEventListener(evt, () => clearFieldErr(id))
+                        );
+                    });
+                }
+
+                attachClearOnInput(['productName','description','category']);
             </script>
 </body>
 

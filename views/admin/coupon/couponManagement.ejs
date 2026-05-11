@@ -1172,6 +1172,12 @@
         document.getElementById('f_usageLimit').value = coupon.usageLimit || "";
         document.getElementById('f_validFrom').value = coupon.validFrom.split('T')[0];
         document.getElementById('f_validTill').value = coupon.validTill.split('T')[0];
+
+        // End date must not go before tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('f_validTill').setAttribute('min', tomorrow.toISOString().split('T')[0]);
+
         document.getElementById('f_isActive').checked = coupon.isActive;
 
         document.getElementById('f_validFrom').readOnly = true;

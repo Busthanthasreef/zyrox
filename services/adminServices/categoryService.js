@@ -33,12 +33,11 @@ export const getCategoriesService = async (page, search, statusFilter, sortBy, c
   const limit = 4;
   const skip = (page - 1) * limit;
 
-  // ✅ AGGREGATION PIPELINE
   const pipeline = [
     { $match: query },
     {
       $lookup: {
-        from: "products", 
+        from: "products",
         localField: "_id",
         foreignField: "categoryId",
         as: "products"
@@ -59,19 +58,16 @@ export const getCategoriesService = async (page, search, statusFilter, sortBy, c
     }
   ];
 
-  // Apply count filter if provided
   if (countFilter === "has_products") {
     pipeline.push({ $match: { productCount: { $gt: 0 } } });
   } else if (countFilter === "no_products") {
     pipeline.push({ $match: { productCount: { $eq: 0 } } });
   }
 
-  // Count total filtered for pagination
   const filteredCategoriesResult = await categorySchema.aggregate([...pipeline, { $count: "total" }]);
   const filteredCount = filteredCategoriesResult.length > 0 ? filteredCategoriesResult[0].total : 0;
   const totalPages = Math.ceil(filteredCount / limit) || 1;
 
-  // Final pipeline for results
   pipeline.push({ $sort: sortObj });
   pipeline.push({ $skip: skip });
   pipeline.push({ $limit: limit });
@@ -110,32 +106,43 @@ export const createCategoryService = async (categoryName, status) => {
   }
 
   const trimmedName = categoryName.trim();
-  const normalizedSearch = trimmedName.toLowerCase();
 
-  // Check for deleted category with same name (case-insensitive)
+  // Validate: letters and spaces only, min 2 chars
+  if (trimmedName.length < 2) {
+    return {
+      statusCode: 400,
+      response: {
+        success: false,
+        message: "Category name must be at least 2 characters"
+      }
+    };
+  }
+
+  // Check for deleted category with same name (case-insensitive) — restore it
   const deleted = await categorySchema.findOne({
-    categoryName: { $regex: `^${normalizedSearch}$`, $options: "i" },
+    categoryName: { $regex: new RegExp(`^${trimmedName}$`, "i") },
     IsDeleted: true
   });
 
   if (deleted) {
     deleted.IsDeleted = false;
     deleted.IsActive = status;
-    deleted.categoryName = trimmedName; // Update to new casing if provided
+    deleted.categoryName = trimmedName;
     await deleted.save();
 
     return {
       statusCode: 200,
       response: {
         success: true,
-        message: "Category restored successfully"
+        message: `"${trimmedName}" restored successfully`,
+        category: { _id: deleted._id, categoryName: deleted.categoryName }
       }
     };
   }
 
   // Check for existing active category (case-insensitive)
   const exists = await categorySchema.findOne({
-    categoryName: { $regex: `^${normalizedSearch}$`, $options: "i" },
+    categoryName: { $regex: new RegExp(`^${trimmedName}$`, "i") },
     IsDeleted: false
   });
 
@@ -144,12 +151,12 @@ export const createCategoryService = async (categoryName, status) => {
       statusCode: 409,
       response: {
         success: false,
-        message: "Category already exists"
+        message: `Category "${trimmedName}" already exists`
       }
     };
   }
 
-  await categorySchema.create({
+  const newCategory = await categorySchema.create({
     categoryName: trimmedName,
     IsActive: status,
     IsDeleted: false
@@ -159,10 +166,10 @@ export const createCategoryService = async (categoryName, status) => {
     statusCode: 201,
     response: {
       success: true,
-      message: "Category created successfully"
+      message: `Category "${trimmedName}" created successfully`,
+      category: { _id: newCategory._id, categoryName: newCategory.categoryName }
     }
   };
-
 };
 
 
@@ -181,11 +188,10 @@ export const updateCategoryService = async (id, categoryName, status) => {
   }
 
   const trimmedName = categoryName.trim();
-  const normalizedSearch = trimmedName.toLowerCase();
 
   const duplicate = await categorySchema.findOne({
     _id: { $ne: id },
-    categoryName: { $regex: `^${normalizedSearch}$`, $options: "i" },
+    categoryName: { $regex: new RegExp(`^${trimmedName}$`, "i") },
     IsDeleted: false
   });
 
@@ -218,7 +224,6 @@ export const updateCategoryService = async (id, categoryName, status) => {
       message: "Category updated successfully"
     }
   };
-
 };
 
 
@@ -243,10 +248,10 @@ export const deleteCategoryService = async (id) => {
       message: "Category deleted successfully"
     }
   };
-
 };
 
 
+/* ================= TOGGLE CATEGORY STATUS ================= */
 
 export const toggleCategoryStatusService = async (id) => {
   const category = await categorySchema.findById(id);
@@ -261,7 +266,6 @@ export const toggleCategoryStatusService = async (id) => {
   category.IsActive = newStatus;
   await category.save();
 
-  // Also update all products in this category
   await productSchema.updateMany(
     { categoryId: id },
     { status: newStatus ? "active" : "inactive" }
@@ -271,7 +275,7 @@ export const toggleCategoryStatusService = async (id) => {
     statusCode: 200,
     response: {
       success: true,
-      message: `Category ${newStatus ? 'activated' : 'deactivated'} successfully`,
+      message: `Category ${newStatus ? "activated" : "deactivated"} successfully`,
       isActive: newStatus
     }
   };

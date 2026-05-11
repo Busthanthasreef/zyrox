@@ -1098,7 +1098,6 @@
             margin-bottom: 12px;
         }
         .modal-success-area.show { display: flex; animation: quickPopIn 0.3s ease; }
-
     .modal-dismiss-btn {
         margin-left: auto;
         background: none;
@@ -1117,6 +1116,26 @@
     .modal-dismiss-btn i { font-size: 1.1rem; }
 
     @keyframes quickShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        /* ── INLINE FIELD ERROR ── */
+        .quick-field-error {
+            display: none;
+            color: #e11d48;
+            font-size: 0.78rem;
+            font-weight: 500;
+            margin-top: 6px;
+            align-items: center;
+            gap: 5px;
+        }
+        .quick-field-error.show {
+            display: flex;
+            animation: quickShake 0.35s ease-in-out;
+        }
+        #quickCatName.input-error {
+            border-color: #e11d48 !important;
+            background: #fff1f2 !important;
+            box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.12) !important;
+        }
 
         .toggle-box {
             display: flex;
@@ -1174,6 +1193,31 @@
         .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; transition: 0.4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         input:checked + .slider { background: #4f6ef7; }
         input:checked + .slider:before { transform: translateX(22px); }
+
+        /* ── FIELD INLINE ERRORS ── */
+        .field-err-msg {
+            display: none;
+            color: #e11d48;
+            font-size: 0.78rem;
+            font-weight: 500;
+            margin-top: 5px;
+            align-items: center;
+            gap: 5px;
+        }
+        .field-err-msg.show {
+            display: flex;
+            animation: fieldErrShake 0.35s ease-in-out;
+        }
+        @keyframes fieldErrShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+        .field-error-input {
+            border-color: #e11d48 !important;
+            background: #fff1f2 !important;
+            box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1) !important;
+        }
     </style>
 </head>
 
@@ -1210,6 +1254,7 @@
                                     <input type="text" name="productName" id="productName" class="form-control"
                                         placeholder="e.g. Samsung Galaxy S24 Ultra" maxlength="70"
                                         oninput="charCount(this,'nameCount',70); autoSKU()">
+                                    <div id="err-productName" class="field-err-msg"></div>
                                     <div class="char-count" id="nameCount">0 / 70</div>
                                 </div>
 
@@ -1229,6 +1274,7 @@
                                                 + Add New Category
                                             </option>
                                         </select>
+                                        <div id="err-category" class="field-err-msg"></div>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Product Status</label>
@@ -1244,6 +1290,7 @@
                                     <textarea name="description" id="description" class="form-control"
                                         placeholder="Describe the product — key features, highlights, etc."
                                         maxlength="1000" oninput="charCount(this,'descCount',1000)"></textarea>
+                                    <div id="err-description" class="field-err-msg"></div>
                                     <div class="char-count" id="descCount">0 / 1000</div>
                                 </div>
                             </div>
@@ -1262,6 +1309,7 @@
                                         <div style="flex:1">
                                             <input type="text" class="form-control" id="colorName" name="variants[0][color]"
                                                 placeholder="e.g. Midnight Black" oninput="onNameChange(this.value)">
+                                            <div id="err-colorName" class="field-err-msg"></div>
                                             <p class="form-hint mb-0">Pick or type a name — they sync automatically.</p>
                                         </div>
                                     </div>
@@ -1280,6 +1328,7 @@
                                             </div>
                                             <% }) %>
                                     </div>
+                                    <div id="err-ramValue" class="field-err-msg"></div>
                                     <div class="input-unit-wrap mt-3">
                                         <input type="text" class="form-control" id="ramCustom"
                                             placeholder="Or type custom e.g. 10"
@@ -1303,6 +1352,7 @@
                                                     1TB
                                                 </div>
                                     </div>
+                                    <div id="err-storageValue" class="field-err-msg"></div>
                                     <div class="input-unit-wrap mt-3">
                                         <input type="text" class="form-control" id="storageCustom"
                                             placeholder="Or type custom e.g. 768"
@@ -1348,6 +1398,7 @@
                                                 class="form-control" placeholder="0" min="0" step="1">
                                             <span class="unit">₹</span>
                                         </div>
+                                        <div id="err-variantPrice" class="field-err-msg"></div>
                                     </div>
                                     <div class="col-6">
                                         <label class="form-label">Stock <span class="req">*</span></label>
@@ -1356,6 +1407,7 @@
                                                 class="form-control" placeholder="0" min="0" step="1">
                                             <span class="unit">qty</span>
                                         </div>
+                                        <div id="err-variantStock" class="field-err-msg"></div>
                                     </div>
                                 </div>
 
@@ -1502,19 +1554,10 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div id="quickCatError" class="modal-error-area mb-3">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
-                            <span class="error-msg"></span>
-                            <button type="button" class="modal-dismiss-btn" onclick="clearQuickMessages()"><i class="bi bi-x"></i></button>
-                        </div>
-                        <div id="quickCatSuccess" class="modal-success-area mb-3">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span class="success-msg"></span>
-                            <button type="button" class="modal-dismiss-btn" onclick="clearQuickMessages()"><i class="bi bi-x"></i></button>
-                        </div>
                         <div class="mb-2">
                             <label>Category Name</label>
                             <input type="text" id="quickCatName" class="form-control" placeholder="e.g. Laptops, Smartwatches">
+                            <div id="quickCatNameError" class="quick-field-error"></div>
                         </div>
                         <div class="toggle-box">
                             <div>
@@ -1960,17 +2003,39 @@
                 function openCategoryModal() {
                     document.getElementById('quickCategoryModal').classList.add('show');
                     document.getElementById('quickCatName').value = "";
-                    clearQuickMessages();
-                    document.getElementById('quickCatName').focus();
+                    document.getElementById('quickCatStatus').checked = true;
+                    updateQuickStatusBadge(document.getElementById('quickCatStatus'));
+                    clearFieldError();
+                    setTimeout(() => document.getElementById('quickCatName').focus(), 100);
                 }
 
-                function clearQuickMessages() {
-                    document.getElementById('quickCatError').classList.remove('show');
-                    document.getElementById('quickCatSuccess').classList.remove('show');
+                function clearFieldError() {
+                    const input = document.getElementById('quickCatName');
+                    const errEl = document.getElementById('quickCatNameError');
+                    input.classList.remove('input-error');
+                    errEl.classList.remove('show');
+                    errEl.innerHTML = '';
                 }
+
+                function showFieldError(msg) {
+                    const input = document.getElementById('quickCatName');
+                    const errEl = document.getElementById('quickCatNameError');
+                    input.classList.add('input-error');
+                    errEl.innerHTML = `<i class="bi bi-exclamation-circle-fill" style="font-size:.75rem;flex-shrink:0"></i>${msg}`;
+                    errEl.classList.add('show');
+                    input.focus();
+                }
+
+                // Clear error as soon as user starts typing or clears the field
+                document.getElementById('quickCatName').addEventListener('input', function () {
+                    if (this.classList.contains('input-error')) {
+                        clearFieldError();
+                    }
+                });
 
                 function closeCategoryModal() {
                     document.getElementById('quickCategoryModal').classList.remove('show');
+                    clearFieldError();
                 }
 
                 function updateQuickStatusBadge(checkbox) {
@@ -1990,18 +2055,16 @@
                     const status = document.getElementById('quickCatStatus').checked;
                     const btn = document.getElementById('saveQuickCatBtn');
 
-                    const errorArea = document.getElementById('quickCatError');
-                    const errorMsg = errorArea.querySelector('.error-msg');
-                    const successArea = document.getElementById('quickCatSuccess');
-                    const successMsg = successArea.querySelector('.success-msg');
-                    
-                    errorArea.classList.remove('show');
-                    successArea.classList.remove('show');
+                    // Clear previous error
+                    clearFieldError();
 
+                    // Client-side validation
                     if (!name) {
-                        errorMsg.textContent = 'Please enter a category name';
-                        errorArea.classList.add('show');
-                        nameInput.focus();
+                        showFieldError('Please enter a category name');
+                        return;
+                    }
+                    if (name.length < 2) {
+                        showFieldError('Category name must be at least 2 characters');
                         return;
                     }
 
@@ -2009,44 +2072,51 @@
                     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
 
                     try {
-                        const { data } = await axios.post('/adminUser/categories-add', { 
-                            categoryName: name, 
-                            status: status 
+                        const { data } = await axios.post('/adminUser/categories-add', {
+                            categoryName: name,
+                            status: status
                         });
 
-                        if (data.success || data.message) {
-                            successMsg.textContent = `"${name}" added successfully!`;
-                            successArea.classList.add('show');
-                            
-                            // Add to dropdown
+                        if (data.success) {
+                            // Add the new category to the dropdown using the real _id from server
                             const select = document.getElementById('category');
-                            const catId = data.category?._id || data.categoryId || "";
-                            const option = new Option(name, catId);
-                            
-                            // Insert before the "ADD_NEW" option
-                            select.add(option, select.options[select.options.length - 1]);
-                            
-                            // Select it
-                            select.value = option.value;
-                            lastSelectedCategory = option.value;
-                            
-                            // Delay to show success in modal
-                            setTimeout(() => {
-                                closeCategoryModal();
-                                updateLivePreview();
-                                nameInput.value = '';
-                                successArea.classList.remove('show');
-                                btn.disabled = false;
-                                btn.innerHTML = 'Save Category';
-                            }, 1500);
+                            const catId = data.category?._id || "";
+                            const displayName = data.category?.categoryName || name;
 
-                            toast('success', 'Category updated in list');
+                            // Avoid duplicate options
+                            const alreadyExists = Array.from(select.options).some(o => o.value === catId);
+                            if (!alreadyExists && catId) {
+                                const option = new Option(displayName, catId);
+                                // Insert before the last "ADD_NEW" option
+                                select.add(option, select.options[select.options.length - 1]);
+                                select.value = catId;
+                                lastSelectedCategory = catId;
+                            }
+
+                            // Close modal and show Swal success
+                            closeCategoryModal();
+                            updateLivePreview();
+                            btn.disabled = false;
+                            btn.innerHTML = 'Save Category';
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Category Added!',
+                                text: data.message,
+                                timer: 2000,
+                                showConfirmButton: false,
+                                timerProgressBar: true,
+                            });
+                        } else {
+                            // Server returned success:false (e.g. duplicate)
+                            showFieldError(data.message || 'Failed to add category');
+                            btn.disabled = false;
+                            btn.innerHTML = 'Save Category';
                         }
                     } catch (err) {
                         console.error(err);
-                        const msg = err.response?.data?.message || 'Failed to add category';
-                        errorMsg.textContent = msg;
-                        errorArea.classList.add('show');
+                        const msg = err.response?.data?.message || 'Something went wrong. Please try again.';
+                        showFieldError(msg);
                         btn.disabled = false;
                         btn.innerHTML = 'Save Category';
                     }
@@ -2060,40 +2130,107 @@
                     });
                 }
 
-                function validateForm() {
-                    const get = id => document.getElementById(id)?.value?.trim();
-                    if (!get('productName')) { toast('warning', 'Product name is required'); return false; }
-                    if (!get('description')) { toast('warning', 'Description is required'); return false; }
-                    if (!get('category')) { toast('warning', 'Please select a category'); return false; }
+                /* ── FIELD ERROR HELPERS ── */
+                function showFieldErr(fieldId, msg) {
+                    const el = document.getElementById(fieldId);
+                    const errEl = document.getElementById('err-' + fieldId);
+                    if (el) el.classList.add('field-error-input');
+                    if (errEl) {
+                        errEl.innerHTML = '<i class="bi bi-exclamation-circle-fill" style="font-size:.72rem;flex-shrink:0"></i>' + msg;
+                        errEl.classList.add('show');
+                    }
+                }
 
-                    // Image validation: Check if AT LEAST 3 images are selected
+                function clearFieldErr(fieldId) {
+                    const el = document.getElementById(fieldId);
+                    const errEl = document.getElementById('err-' + fieldId);
+                    if (el) el.classList.remove('field-error-input');
+                    if (errEl) { errEl.classList.remove('show'); errEl.innerHTML = ''; }
+                }
+
+                function attachClearOnInput(fieldIds) {
+                    fieldIds.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (!el) return;
+                        ['input', 'change'].forEach(evt =>
+                            el.addEventListener(evt, () => clearFieldErr(id))
+                        );
+                    });
+                }
+
+                attachClearOnInput(['productName','description','category','colorName','ramValue','storageValue','variantPrice','variantStock']);
+
+                function validateForm() {
+                    let valid = true;
+
+                    // Clear all field errors first
+                    ['productName','description','category','colorName','ramValue','storageValue','variantPrice','variantStock']
+                        .forEach(clearFieldErr);
+
+                    const get = id => document.getElementById(id)?.value?.trim();
+
+                    if (!get('productName')) {
+                        showFieldErr('productName', 'Product name is required');
+                        valid = false;
+                    }
+                    if (!get('description')) {
+                        showFieldErr('description', 'Description is required');
+                        valid = false;
+                    }
+                    if (!get('category')) {
+                        showFieldErr('category', 'Please select a category');
+                        valid = false;
+                    }
+                    if (!get('colorName')) {
+                        showFieldErr('colorName', 'Color name is required');
+                        valid = false;
+                    }
+                    if (!get('ramValue')) {
+                        showFieldErr('ramValue', 'Please select a RAM option');
+                        valid = false;
+                    }
+                    if (!get('storageValue')) {
+                        showFieldErr('storageValue', 'Please select a storage option');
+                        valid = false;
+                    }
+
+                    const price = document.querySelector('[name="variants[0][price]"]')?.value;
+                    const stock = document.querySelector('[name="variants[0][stock]"]')?.value;
+
+                    if (!price || Number(price) < 0) {
+                        showFieldErr('variantPrice', 'Enter a valid price');
+                        valid = false;
+                    }
+                    if (stock === '' || stock === undefined || Number(stock) < 0) {
+                        showFieldErr('variantStock', 'Enter a valid stock quantity');
+                        valid = false;
+                    }
+
+                    // Image validation — keep existing toast + img-error class logic
                     let imageCount = 0;
                     for (let i = 0; i < 5; i++) {
-                        const hasImg = document.getElementById(`vFile_${i}`).files.length > 0 || croppedBlobs[i];
+                        const hasImg = document.getElementById(`vFile_${i}`)?.files?.length > 0 || croppedBlobs[i];
                         if (hasImg) {
                             imageCount++;
-                            document.getElementById(`vBox_${i}`).classList.remove('img-error');
+                            document.getElementById(`vBox_${i}`)?.classList.remove('img-error');
                         }
                     }
-
                     if (imageCount < 3) {
                         for (let i = 0; i < 5; i++) {
-                            const hasImg = document.getElementById(`vFile_${i}`).files.length > 0 || croppedBlobs[i];
-                            if (!hasImg) document.getElementById(`vBox_${i}`).classList.add('img-error');
+                            const hasImg = document.getElementById(`vFile_${i}`)?.files?.length > 0 || croppedBlobs[i];
+                            if (!hasImg) document.getElementById(`vBox_${i}`)?.classList.add('img-error');
                         }
                         toast('error', 'At least 3 product images are required');
-                        return false;
+                        valid = false;
                     }
 
-                    if (!get('colorName')) { toast('warning', 'Color is required for variant'); return false; }
-                    if (!get('ramValue')) { toast('warning', 'RAM is required for variant'); return false; }
+                    // Scroll to first error
+                    if (!valid) {
+                        const firstErr = document.querySelector('.field-error-input, .img-error');
+                        if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
 
-                    if (!get('storageValue')) { toast('warning', 'Storage is required for variant'); return false; }
-                    const price = document.querySelector('[name="variants[0][price]"]').value;
-                    const stock = document.querySelector('[name="variants[0][stock]"]').value;
-                    if (!price || Number(price) < 0) { toast('warning', 'Enter a valid price'); return false; }
-                    if (stock === '' || Number(stock) < 0) { toast('warning', 'Enter a valid stock quantity'); return false; }
-                    return true;
+                    return valid;
                 }
 
                 const style = document.createElement('style');
