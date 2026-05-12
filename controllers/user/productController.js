@@ -9,6 +9,9 @@ import {
     MAX_CART_QTY,
 } from "../../services/userServices/productService.js";
 
+
+
+
 const PRICE_MAX = 999999;
 const PRICE_MIN = 0;
 
@@ -51,8 +54,7 @@ const getCartItemCount = async (userId) => {
 const loadProducts = async (req, res) => {
     try {
         // FIX: fetch only active, non-deleted categories — consistent with service layer
-        const categories = await categorySchema
-            .find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } })
+        const categories = await categorySchema .find({ IsDeleted: { $ne: true }, IsActive: { $ne: false } })
             .lean();
 
         const sidebarData = await getSidebarData(categories);
@@ -81,8 +83,7 @@ const loadProducts = async (req, res) => {
             maxPrice: Math.min(parseInt(req.query.maxPrice, 10) || PRICE_MAX, PRICE_MAX),
         };
 
-        const { products, totalProducts, totalPages, currentPage } =
-            await getFilteredProducts({ categories, filters });
+        const { products, totalProducts, totalPages, currentPage } = await getFilteredProducts({ categories, filters });
 
         const [cartQuantityMap, cartItemCount, wishlist] = await Promise.all([
             buildCartQuantityMap(userId),

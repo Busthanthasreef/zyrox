@@ -96,6 +96,82 @@
             }
         }
 
+        /* ── FILTER BAR ── */
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 1.25rem;
+            align-items: center;
+        }
+        .filter-search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 180px;
+        }
+        .filter-search-wrap i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            pointer-events: none;
+        }
+        .filter-search-input {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 10px;
+            padding: 9px 12px 9px 34px;
+            font-size: 0.82rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+        .filter-search-input::placeholder { color: var(--text-dim); }
+        .filter-search-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        .filter-select {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 10px;
+            padding: 9px 32px 9px 12px;
+            font-size: 0.82rem;
+            font-family: 'Inter', sans-serif;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%237a82a8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            min-width: 140px;
+        }
+        .filter-select:focus { outline: none; border-color: var(--accent-blue); }
+        .filter-select option { background: var(--bg-card); color: var(--text-main); }
+        .filter-select.active-filter { border-color: var(--accent-blue); color: #fff; }
+        .btn-clear-filters {
+            background: rgba(220,53,69,0.08);
+            border: 1px solid rgba(220,53,69,0.2);
+            color: #f17a83;
+            border-radius: 10px;
+            padding: 9px 14px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-clear-filters:hover { background: rgba(220,53,69,0.18); color: #f17a83; }
+
         /* ── PAGE HEADER ── */
         .page-title-zyrox {
             font-size: 1.6rem;
@@ -762,6 +838,54 @@
                 </a>
             </div>
 
+            <!-- Filter Bar -->
+            <form method="GET" action="/myOrders" id="filterForm">
+                <div class="filter-bar">
+                    <!-- Search -->
+                    <div class="filter-search-wrap">
+                        <i class="fas fa-search"></i>
+                        <input type="text" name="search" class="filter-search-input"
+                            placeholder="Search by Order ID..."
+                            value="<%= typeof search !== 'undefined' ? search : '' %>">
+                    </div>
+
+                    <!-- Order Status -->
+                    <select name="orderStatus" class="filter-select <%= typeof orderStatus !== 'undefined' && orderStatus ? 'active-filter' : '' %>" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        <% ['Pending','Processing','Shipped','Delivered','Cancelled','Returned','Return Requested','Cancellation Requested','Failed'].forEach(s => { %>
+                            <option value="<%= s %>" <%= typeof orderStatus !== 'undefined' && orderStatus === s ? 'selected' : '' %>><%= s %></option>
+                        <% }) %>
+                    </select>
+
+                    <!-- Payment Method -->
+                    <select name="paymentMethod" class="filter-select <%= typeof paymentMethod !== 'undefined' && paymentMethod ? 'active-filter' : '' %>" onchange="this.form.submit()">
+                        <option value="">All Methods</option>
+                        <% ['COD','Online','Wallet'].forEach(m => { %>
+                            <option value="<%= m %>" <%= typeof paymentMethod !== 'undefined' && paymentMethod === m ? 'selected' : '' %>><%= m %></option>
+                        <% }) %>
+                    </select>
+
+                    <!-- Payment Status -->
+                    <select name="paymentStatus" class="filter-select <%= typeof paymentStatus !== 'undefined' && paymentStatus ? 'active-filter' : '' %>" onchange="this.form.submit()">
+                        <option value="">All Payments</option>
+                        <% ['Pending','Paid','Failed','Refunded','Payment Cancelled'].forEach(p => { %>
+                            <option value="<%= p %>" <%= typeof paymentStatus !== 'undefined' && paymentStatus === p ? 'selected' : '' %>><%= p %></option>
+                        <% }) %>
+                    </select>
+
+                    <!-- Search submit -->
+                    <button type="submit" style="display:none;"></button>
+
+                    <!-- Clear filters (only show when any filter is active) -->
+                    <% const hasFilters = (typeof search !== 'undefined' && search) || (typeof orderStatus !== 'undefined' && orderStatus) || (typeof paymentMethod !== 'undefined' && paymentMethod) || (typeof paymentStatus !== 'undefined' && paymentStatus); %>
+                    <% if (hasFilters) { %>
+                        <a href="/myOrders" class="btn-clear-filters">
+                            <i class="fas fa-times"></i> Clear
+                        </a>
+                    <% } %>
+                </div>
+            </form>
+
             <!-- Desktop Table -->
             <div class="table-wrapper d-none d-lg-block">
                 <table class="orders-table">
@@ -1031,15 +1155,23 @@
 
             <!-- Pagination -->
             <% if (totalPages > 1) { %>
+                <%
+                    const qp = new URLSearchParams();
+                    if (typeof search !== 'undefined' && search) qp.set('search', search);
+                    if (typeof orderStatus !== 'undefined' && orderStatus) qp.set('orderStatus', orderStatus);
+                    if (typeof paymentMethod !== 'undefined' && paymentMethod) qp.set('paymentMethod', paymentMethod);
+                    if (typeof paymentStatus !== 'undefined' && paymentStatus) qp.set('paymentStatus', paymentStatus);
+                    const baseQuery = qp.toString() ? '&' + qp.toString() : '';
+                %>
                 <div class="pagination-zyrox">
                     <% if (page > 1) { %>
-                        <a href="?page=<%= page - 1 %>" class="pag-item"><i class="fas fa-chevron-left" style="font-size:11px;"></i></a>
+                        <a href="?page=<%= page - 1 %><%= baseQuery %>" class="pag-item"><i class="fas fa-chevron-left" style="font-size:11px;"></i></a>
                     <% } %>
                     <% for (let i = 1; i <= totalPages; i++) { %>
-                        <a href="?page=<%= i %>" class="pag-item <%= page === i ? 'active' : '' %>"><%= i %></a>
+                        <a href="?page=<%= i %><%= baseQuery %>" class="pag-item <%= page === i ? 'active' : '' %>"><%= i %></a>
                     <% } %>
                     <% if (page < totalPages) { %>
-                        <a href="?page=<%= page + 1 %>" class="pag-item"><i class="fas fa-chevron-right" style="font-size:11px;"></i></a>
+                        <a href="?page=<%= page + 1 %><%= baseQuery %>" class="pag-item"><i class="fas fa-chevron-right" style="font-size:11px;"></i></a>
                     <% } %>
                 </div>
             <% } %>
@@ -1086,6 +1218,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Submit filter form on Enter in search box
+    document.querySelector('.filter-search-input')?.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); this.closest('form').submit(); }
+    });
+</script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 

@@ -62,7 +62,7 @@ const rateLimitHandler = (req, res, next, options) => {
 
 export const generalLimiter = rateLimit({
     windowMs: 3 * 60 * 1000,
-    max: 200,
+    max: 250,
     message: {
         success: false,
         message: "Too many requests. Please try again later."
@@ -75,11 +75,11 @@ export const generalLimiter = rateLimit({
 // ---------------- AUTH ----------------
 
 export const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 10,
+    windowMs: 5 * 60 * 1000,
+    max: 75,
     message: {
         success: false,
-        message: "Too many login attempts. Try again after 15 minutes."
+        message: "Too many login attempts. Try again after 5 minutes."
     },
     handler: rateLimitHandler,
     standardHeaders: true,
@@ -90,7 +90,7 @@ export const authLimiter = rateLimit({
 
 export const otpLimiter = rateLimit({
     windowMs: 3 * 60 * 1000,
-    max: 5,
+    max: 9,
     message: {
         success: false,
         message: "Too many OTP requests. Try again after 3 minutes."
@@ -104,7 +104,7 @@ export const otpLimiter = rateLimit({
 
 export const passwordResetLimiter = rateLimit({
     windowMs: 3 * 60 * 1000,
-    max: 3,
+    max: 65,
     message: {
         success: false,
         message: "Too many password reset attempts.try again after 3 miniutes"
@@ -118,7 +118,7 @@ export const passwordResetLimiter = rateLimit({
 
 export const paymentLimiter = rateLimit({
     windowMs: 2 * 60 * 1000,
-    max: 10,
+    max: 12,
     message: {
         success: false,
         message: "Too many payment requests.try again after 2 minutes"

@@ -18,10 +18,19 @@ router.get("/google/callback", (req, res, next) => {
       }
       return res.redirect("/signin");
     }
+    // Preserve admin session across passport's internal session.regenerate()
+    const adminSession = req.session.admin;
+
     req.logIn(user, (err) => {
       if (err) {
         return next(err);
       }
+
+      // Restore admin session if it existed before Google OAuth regenerated the session
+      if (adminSession) {
+        req.session.admin = adminSession;
+      }
+
       req.session.user = {
         _id: req.user._id,
         Name: req.user.Name,

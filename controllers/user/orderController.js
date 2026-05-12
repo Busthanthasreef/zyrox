@@ -11,24 +11,39 @@ const getOrdersPage = async (req, res) => {
     try {
         const userId = req.session.user._id;
 
-        const page = parseInt(req.query.page) || 1;
-        const limit = 4;
-        const skip = (page - 1) * limit;
+        const page          = parseInt(req.query.page)          || 1;
+        const limit         = 4;
+        const skip          = (page - 1) * limit;
+        const search        = req.query.search        || '';
+        const orderStatus   = req.query.orderStatus   || '';
+        const paymentMethod = req.query.paymentMethod || '';
+        const paymentStatus = req.query.paymentStatus || '';
 
-        const allOrders = await Order.find({ userId: userId }).sort({ createdAt: -1 });
-        const orders = allOrders.slice(skip, skip + limit);
+        // Build query
+        const query = { userId };
+        if (orderStatus)   query.orderStatus   = orderStatus;
+        if (paymentMethod) query.paymentMethod  = paymentMethod;
+        if (paymentStatus) query.paymentStatus  = paymentStatus;
+        if (search) {
+            query.$or = [
+                { orderId: { $regex: search, $options: 'i' } },
+            ];
+        }
+
+        const allOrders = await Order.find(query).sort({ createdAt: -1 });
+        const orders    = allOrders.slice(skip, skip + limit);
 
         const totalOrdersCount = allOrders.length;
-        const totalPages = Math.ceil(totalOrdersCount / limit);
+        const totalPages       = Math.ceil(totalOrdersCount / limit) || 1;
 
-        const totalItems = allOrders.reduce((acc, order) => {
+        // Stats always across ALL user orders (unfiltered)
+        const allUserOrders = await Order.find({ userId });
+        const totalItems = allUserOrders.reduce((acc, order) => {
             if (order.orderStatus === 'Failed') return acc;
-            const itemsCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
-            return acc + itemsCount;
+            return acc + order.items.reduce((s, i) => s + i.quantity, 0);
         }, 0);
-
-        const totalSpent = allOrders.reduce((acc, order) => {
-            if (order.orderStatus === 'Failed' || order.orderStatus === 'Cancelled') return acc;
+        const totalSpent = allUserOrders.reduce((acc, order) => {
+            if (['Failed', 'Cancelled'].includes(order.orderStatus)) return acc;
             return acc + (order.finalPrice || 0);
         }, 0);
 
@@ -40,10 +55,10 @@ const getOrdersPage = async (req, res) => {
         ]);
 
         res.render('user/orders/myOrders', {
-            user: user,
-            orders: orders,
+            user,
+            orders,
             totalOrders: totalOrdersCount,
-            totalItems: totalItems,
+            totalItems,
             totalSpent: totalSpent.toLocaleString('en-IN'),
             pageTitle: 'My Orders',
             page,
@@ -51,7 +66,11 @@ const getOrdersPage = async (req, res) => {
             categories,
             cartItemCount,
             wishlistCount: wishlist,
-            currentPage: 'orders'
+            currentPage: 'orders',
+            search,
+            orderStatus,
+            paymentMethod,
+            paymentStatus,
         });
 
     } catch (error) {
