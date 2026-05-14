@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+Allow: /products
+Allow: /product/
+Allow: /signin
+Allow: /signup
+
+Disallow: /adminUser/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /myOrders
+Disallow: /wallet
+Disallow: /profile
+Disallow: /address
+Disallow: /wishlist
+Disallow: /api/
+Disallow: /otp-verification
+Disallow: /new-password
+Disallow: /forgot-password
+
+Sitemap: https://zyrox.busthan.shop/sitemap.xml

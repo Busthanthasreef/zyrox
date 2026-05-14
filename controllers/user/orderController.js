@@ -25,10 +25,8 @@ const getOrdersPage = async (req, res) => {
         if (paymentMethod) query.paymentMethod  = paymentMethod;
         if (paymentStatus) query.paymentStatus  = paymentStatus;
         if (search) {
-            query.$or = [
-                { orderId: { $regex: search, $options: 'i' } },
-            ];
-        }
+            query.orderId= { $regex: search, $options: 'i' }
+         }
 
         const allOrders = await Order.find(query).sort({ createdAt: -1 });
         const orders    = allOrders.slice(skip, skip + limit);

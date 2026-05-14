@@ -120,7 +120,7 @@ export const createCategoryService = async (categoryName, status) => {
 
   // Check for deleted category with same name (case-insensitive) — restore it
   const deleted = await categorySchema.findOne({
-    categoryName: { $regex: new RegExp(`^${trimmedName}$`, "i") },
+    categoryName: trimmedName,
     IsDeleted: true
   });
 

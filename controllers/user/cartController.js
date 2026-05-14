@@ -74,7 +74,6 @@ const loadCart = async (req, res) => {
         quantity:        item.Quantity,
         productId:       prod?._id,
         variantId:       vari?._id,
-
         isAvailable,    
         isAdminInactive,
         

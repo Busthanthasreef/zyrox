@@ -11,6 +11,7 @@ import attachLocalCounts from "./middlewares/locals.js";
 import nocache from "nocache";
 import crypto from "node:crypto";
 import { generalLimiter } from "./middlewares/rateLimiter.js";
+import { seoHeaders, serveSitemap } from "./middlewares/seo.js";
 
 const app = express();
 
@@ -32,6 +33,12 @@ await connectDB();
 
 app.set("view engine","ejs");
 app.use(nocache());
+
+// SEO & performance headers
+app.use(seoHeaders);
+
+// Dynamic sitemap
+app.get('/sitemap.xml', serveSitemap);
 
 
 app.use(session({

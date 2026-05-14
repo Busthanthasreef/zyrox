@@ -11,6 +11,7 @@ import * as cartController from "../controllers/user/cartController.js";
 import * as wishlistController from "../controllers/user/wishlistController.js";
 import * as orderController from "../controllers/user/orderController.js";
 import * as walletController from "../controllers/user/walletController.js";
+import { zyroChat } from "../controllers/user/zyroChatController.js";
 
 import {
     isUserAuthenticated,
@@ -532,6 +533,16 @@ userRoutes.get(
     isUserAuthenticated,
     isUserBlocked,
     walletController.getPaymentFailure
+);
+
+/* =========================================================
+   ZYRO AI CHAT
+========================================================= */
+
+userRoutes.post(
+    "/api/zyro-chat",
+    isUserBlocked,
+    zyroChat
 );
 
 /* =========================================================

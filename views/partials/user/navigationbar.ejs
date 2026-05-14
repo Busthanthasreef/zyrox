@@ -1205,3 +1205,14 @@
                         }
                     });
                 </script>
+
+<!-- ========== ZYRO AI CHAT WIDGET ========== -->
+<script>
+    // Expose user name to Zyro widget
+    <% if (typeof user !== 'undefined' && user && user.Name) { %>
+    window.__zyroUserName = '<%= user.Name.split(" ")[0].replace(/'/g, "\\'") %>';
+    <% } else { %>
+    window.__zyroUserName = null;
+    <% } %>
+</script>
+<script src="/js/zyroChat.js" defer></script>

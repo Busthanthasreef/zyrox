@@ -1,0 +1,30 @@
+{
+  "name": "Zyrox - Premium Smartphone Store",
+  "short_name": "Zyrox",
+  "description": "Shop the latest smartphones from Apple, Samsung, OnePlus, Xiaomi and more at Zyrox. Best prices, fast delivery, easy returns.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0c14",
+  "theme_color": "#4f6ef7",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/images/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "lifestyle"],
+  "screenshots": [],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
