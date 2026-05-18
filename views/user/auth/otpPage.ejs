@@ -290,7 +290,10 @@
                         },
                         body: JSON.stringify(data)
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok && response.status !== 200) throw new Error(`Server error: ${response.status}`);
+                        return response.json();
+                    })
                     .then(result => {
                         if (result.success) {
                             localStorage.removeItem(timerKey);

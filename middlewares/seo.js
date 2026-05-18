@@ -20,9 +20,19 @@ export function seoHeaders(req, res, next) {
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   }
 
-  // Cache public pages for 5 minutes (helps crawlers)
-  if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/adminUser')) {
-    const publicPaths = ['/', '/products', '/product/', '/signin', '/signup'];
+  // Cache only truly public GET pages (never POST, never auth routes)
+  if (
+    req.method === 'GET' &&
+    !req.path.startsWith('/api') &&
+    !req.path.startsWith('/adminUser') &&
+    !req.path.startsWith('/signin') &&
+    !req.path.startsWith('/signup') &&
+    !req.path.startsWith('/otp') &&
+    !req.path.startsWith('/forgot') &&
+    !req.path.startsWith('/new-password') &&
+    !req.path.startsWith('/logout')
+  ) {
+    const publicPaths = ['/', '/products', '/product/'];
     const isPublic = publicPaths.some(p => req.path === p || req.path.startsWith(p));
     if (isPublic) {
       res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');

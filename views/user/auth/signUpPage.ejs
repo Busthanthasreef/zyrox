@@ -290,8 +290,18 @@
                     },
                     body: JSON.stringify(data)
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok && response.status !== 200) {
+                        throw new Error(`Server error: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(result => {
+                    // Already logged in
+                    if (result.alreadyLoggedIn) {
+                        window.location.href = result.redirect || '/';
+                        return;
+                    }
                     if (result.success) {
                         Swal.fire({
                             icon: 'success',

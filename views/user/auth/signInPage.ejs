@@ -232,8 +232,19 @@
                                 Password: passwordValue
                             })
                         })
-                            .then(response => response.json())
+                            .then(response => {
+                                if (!response.ok && response.status !== 200) {
+                                    throw new Error(`Server error: ${response.status}`);
+                                }
+                                return response.json();
+                            })
                             .then(data => {
+                                // Already logged in — just redirect
+                                if (data.alreadyLoggedIn) {
+                                    window.location.href = data.redirect || '/';
+                                    return;
+                                }
+
                                 if (data.success) {
                                     Swal.fire({
                                         icon: 'success',
@@ -272,15 +283,18 @@
                                     }
                                 }
                             })
-                            .catch(error => {
-                            resetBtn();
-                            console.error("Error:", error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Something went wrong. Please try again.'
+                            .catch(err => {
+                                resetBtn();
+                                console.error("Signin fetch error:", err);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Connection Error',
+                                    text: 'Could not reach the server. Please check your connection and try again.',
+                                    background: '#0f172a',
+                                    color: '#fff',
+                                    confirmButtonColor: '#ef4444'
+                                });
                             });
-                        });
                     });
 
 

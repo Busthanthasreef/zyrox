@@ -55,6 +55,10 @@ const isUserAuthenticated = (req, res, next) => {
 // Check if user is already logged in (for login/signup pages)
 const isUserGuest = (req, res, next) => {
   if (req.session.user) {
+    // If it's an AJAX/JSON request, return JSON instead of redirect
+    if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json')) || req.headers['x-requested-with'] === 'XMLHttpRequest') {
+      return res.status(200).json({ success: true, alreadyLoggedIn: true, redirect: '/' });
+    }
     return res.redirect("/");
   }
   next();
